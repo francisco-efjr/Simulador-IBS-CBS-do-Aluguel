@@ -85,7 +85,7 @@ describe('Testes de Integração e Interação Web (QA Web Component Tests)', ()
     expect(screen.getByText(/Crédito Financeiro sobre Insumos/)).toBeInTheDocument();
   });
 
-  it('deve iniciar zerado e aplicar a máscara brasileira (0.000,00) em tempo real durante o preenchimento', () => {
+  it('deve iniciar zerado e aplicar a máscara progressiva em tempo real (1 -> 0,01, 10 -> 0,10, 100 -> 1,00)', () => {
     render(<App />);
 
     // Inicia zerado, campo vazio com placeholder 0,00 e calculadora zerada aguardando parâmetros
@@ -98,15 +98,23 @@ describe('Testes de Integração e Interação Web (QA Web Component Tests)', ()
     fireEvent.focus(rentInput);
     expect(rentInput).toHaveValue('');
 
-    // Digita "5000" -> Durante o preenchimento, já aplica o separador de milhar "5.000"
-    fireEvent.change(rentInput, { target: { value: '5000' } });
-    expect(rentInput).toHaveValue('5.000'); // Máscara aplicada ao vivo!
+    // 1. Digita "1" -> deve formatar "0,01"
+    fireEvent.change(rentInput, { target: { value: '1' } });
+    expect(rentInput).toHaveValue('0,01');
 
-    // Digita com centavos "5000,75" -> Durante o preenchimento, já formata "5.000,75"
-    fireEvent.change(rentInput, { target: { value: '5000,75' } });
-    expect(rentInput).toHaveValue('5.000,75'); // Centavos e milhar ao vivo!
+    // 2. Digita "0" a seguir (input com 0,010) -> deve formatar "0,10"
+    fireEvent.change(rentInput, { target: { value: '0,010' } });
+    expect(rentInput).toHaveValue('0,10');
 
-    // Blur mantém ou completa a formatação
+    // 3. Digita "0" a seguir (input com 0,100) -> deve formatar "1,00"
+    fireEvent.change(rentInput, { target: { value: '0,100' } });
+    expect(rentInput).toHaveValue('1,00');
+
+    // 4. Preenche valor completo de aluguel (500075 centavos = 5.000,75)
+    fireEvent.change(rentInput, { target: { value: '500075' } });
+    expect(rentInput).toHaveValue('5.000,75');
+
+    // Blur mantém a formatação
     fireEvent.blur(rentInput);
     expect(rentInput).toHaveValue('5.000,75');
 

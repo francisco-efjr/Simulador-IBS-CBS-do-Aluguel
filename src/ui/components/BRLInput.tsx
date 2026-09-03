@@ -41,6 +41,7 @@ export const BRLInput: React.FC<BRLInputProps> = ({
     value === 0 ? '' : formatBRL(value, decimals)
   );
   const inputRef = useRef<HTMLInputElement>(null);
+  const isTypingRef = useRef(false);
 
   // Sincroniza valor externo quando não estiver com foco ativo
   useEffect(() => {
@@ -48,6 +49,17 @@ export const BRLInput: React.FC<BRLInputProps> = ({
       setTextValue(value === 0 ? '' : formatBRL(value, decimals));
     }
   }, [value, decimals, isFocused]);
+
+  // Mantém o cursor no final durante a digitação progressiva
+  useEffect(() => {
+    if (isTypingRef.current && isFocused && inputRef.current) {
+      isTypingRef.current = false;
+      const len = textValue.length;
+      try {
+        inputRef.current.setSelectionRange(len, len);
+      } catch (e) {}
+    }
+  }, [textValue, isFocused]);
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(true);
@@ -63,6 +75,7 @@ export const BRLInput: React.FC<BRLInputProps> = ({
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    isTypingRef.current = true;
     const raw = e.target.value;
     
     // Permite apagar tudo livremente (sem forçar zero)

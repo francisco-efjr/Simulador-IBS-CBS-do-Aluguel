@@ -68,11 +68,18 @@ export function parseBRL(raw: string): number {
 }
 
 /**
- * Aplica máscara brasileira em tempo real durante a digitação:
- * - Aplica separador de milhar '.' na parte inteira ao vivo: "3500" -> "3.500"
- * - Permite digitar vírgula e decimais: "3500,5" -> "3.500,5"
- * - Elimina zero à esquerda: "05" -> "5"
- * - Converte '.' do numpad para vírgula se for decimal
+ * Aplica máscara brasileira progressiva em tempo real durante a digitação:
+ * - A digitação é progressiva a partir dos centavos (estilo caixa eletrônico / apps bancários):
+ *   Ex (decimals = 2):
+ *   - digita "1" -> "0,01"
+ *   - digita "0" -> "0,10"
+ *   - digita "0" -> "1,00"
+ *   - digita "0" -> "10,00"
+ *   - digita "0" -> "100,00"
+ *   - digita "0" -> "1.000,00"
+ * - Ao apagar (backspace), os dígitos recuam da direita para a esquerda progressivamente.
+ * - Suporta decimais = 0 (inteiros) e decimais customizados.
+ * - Suporta valores negativos (sinal '-' preservado).
  */
 export function applyLiveBRLMask(raw: string, decimals: number = 2): { display: string; value: number } {
   if (!raw || raw.trim() === '') {
@@ -82,59 +89,31 @@ export function applyLiveBRLMask(raw: string, decimals: number = 2): { display: 
   const isNegative = raw.trim().startsWith('-');
   const sign = isNegative ? '-' : '';
 
-  // Remove espaços e sinal negativo para processar
-  let sanitized = raw.replace(/^-/, '').trim();
+  // Extrai apenas os dígitos numéricos
+  const cleanDigits = raw.replace(/\D/g, '');
 
-  // Substitui ponto digitado no final por vírgula para suporte a numpad
-  if (sanitized.endsWith('.')) {
-    sanitized = sanitized.slice(0, -1) + ',';
-  }
-
-  // Se tiver vírgula (usuário está digitando parte decimal)
-  if (sanitized.includes(',')) {
-    const [intPartRaw, ...decParts] = sanitized.split(',');
-    const decPartRaw = decParts.join('');
-
-    // Processa a parte inteira (apenas dígitos)
-    let intClean = intPartRaw.replace(/\D/g, '');
-    if (intClean.length > 1 && intClean.startsWith('0')) {
-      intClean = intClean.replace(/^0+/, '') || '0';
-    }
-
-    const intNum = intClean === '' ? 0 : parseInt(intClean, 10);
-    const intFormatted = intClean === '' ? '0' : intNum.toLocaleString('pt-BR');
-
-    // Limita casas decimais
-    const decClean = decPartRaw.replace(/\D/g, '').slice(0, decimals);
-
-    const display = `${sign}${intFormatted},${decClean}`;
-    const numVal = (isNegative ? -1 : 1) * parseFloat(`${intNum}.${decClean || '0'}`);
-
-    return { display, value: isNaN(numVal) ? 0 : numVal };
-  }
-
-  // Se tiver ponto decimal único (ex: colou "3500.50")
-  if (sanitized.includes('.') && decimals > 0) {
-    const parts = sanitized.split('.');
-    if (parts.length === 2 && parts[1].length <= decimals) {
-      return applyLiveBRLMask(`${parts[0]},${parts[1]}`, decimals);
-    }
-  }
-
-  // Apenas parte inteira (sem vírgula)
-  let digits = sanitized.replace(/\D/g, '');
-  if (!digits) {
+  if (!cleanDigits || cleanDigits === '') {
     return { display: sign, value: 0 };
   }
 
-  if (digits.length > 1 && digits.startsWith('0')) {
-    digits = digits.replace(/^0+/, '') || '0';
+  const intVal = parseInt(cleanDigits, 10);
+  if (isNaN(intVal) || intVal === 0) {
+    return { display: '', value: 0 };
   }
 
-  const intNum = parseInt(digits, 10);
-  const display = `${sign}${intNum.toLocaleString('pt-BR')}`;
-  const numVal = (isNegative ? -1 : 1) * intNum;
+  if (decimals === 0) {
+    const display = `${sign}${intVal.toLocaleString('pt-BR')}`;
+    return { display, value: (isNegative ? -1 : 1) * intVal };
+  }
 
-  return { display, value: numVal };
+  const factor = Math.pow(10, decimals);
+  const numValue = (isNegative ? -1 : 1) * (intVal / factor);
+
+  const display = `${sign}${(intVal / factor).toLocaleString('pt-BR', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  })}`;
+
+  return { display, value: numValue };
 }
 

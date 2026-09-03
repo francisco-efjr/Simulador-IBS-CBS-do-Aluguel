@@ -10,6 +10,7 @@ import {
   LandlordProfile,
   TenantProfile,
 } from '../core/index.ts';
+import { applyLiveBRLMask } from '../core/utils/formatUtils.ts';
 
 describe('Auditoria Tributária da Locação de Imóveis (LC 214/2025)', () => {
   describe('1. Enquadramento e Habitualidade', () => {
@@ -288,6 +289,62 @@ describe('Auditoria Tributária da Locação de Imóveis (LC 214/2025)', () => {
       expect(y2033?.isFullPhase).toBe(true);
       expect(y2033?.nominalTotalRate).toBe(26.5);
       expect(y2033?.effectiveTotalRate).toBe(7.95); // 26.5 * 30%
+    });
+  });
+
+  describe('9. Máscara Monetária Progressiva Brasileira (Centavos ao Vivo)', () => {
+    it('deve aplicar deslocamento progressivo de centavos (1 -> 0,01, 10 -> 0,10, etc.)', () => {
+      // 1. Digita "1" -> 0,01
+      const step1 = applyLiveBRLMask('1', 2);
+      expect(step1.display).toBe('0,01');
+      expect(step1.value).toBe(0.01);
+
+      // 2. Digita "0" a seguir ("0,010") -> 0,10
+      const step2 = applyLiveBRLMask('0,010', 2);
+      expect(step2.display).toBe('0,10');
+      expect(step2.value).toBe(0.10);
+
+      // 3. Digita "0" a seguir ("0,100") -> 1,00
+      const step3 = applyLiveBRLMask('0,100', 2);
+      expect(step3.display).toBe('1,00');
+      expect(step3.value).toBe(1.00);
+
+      // 4. Digita "0" a seguir ("1,000") -> 10,00
+      const step4 = applyLiveBRLMask('1,000', 2);
+      expect(step4.display).toBe('10,00');
+      expect(step4.value).toBe(10.00);
+
+      // 5. Digita "0" a seguir ("10,000") -> 100,00
+      const step5 = applyLiveBRLMask('10,000', 2);
+      expect(step5.display).toBe('100,00');
+      expect(step5.value).toBe(100.00);
+
+      // 6. Digita "0" a seguir ("100,000") -> 1.000,00
+      const step6 = applyLiveBRLMask('100,000', 2);
+      expect(step6.display).toBe('1.000,00');
+      expect(step6.value).toBe(1000.00);
+    });
+
+    it('deve recuar dígitos progressivamente ao apagar (backspace)', () => {
+      // De 1.000,00 apagou último 0 ("1.000,0") -> 100,00
+      const b1 = applyLiveBRLMask('1.000,0', 2);
+      expect(b1.display).toBe('100,00');
+      expect(b1.value).toBe(100.00);
+
+      // De 0,01 apagou o 1 ("0,0") -> vazio / zerado
+      const b2 = applyLiveBRLMask('0,0', 2);
+      expect(b2.display).toBe('');
+      expect(b2.value).toBe(0);
+    });
+
+    it('deve suportar valores negativos e inteiros (decimals = 0)', () => {
+      const neg = applyLiveBRLMask('-2000', 2);
+      expect(neg.display).toBe('-20,00');
+      expect(neg.value).toBe(-20);
+
+      const intVal = applyLiveBRLMask('15', 0);
+      expect(intVal.display).toBe('15');
+      expect(intVal.value).toBe(15);
     });
   });
 });
