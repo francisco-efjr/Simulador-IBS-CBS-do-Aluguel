@@ -11,8 +11,11 @@ import { TaxCalculatorEngine } from './TaxCalculatorEngine.ts';
 
 export interface PortfolioSummary {
   totalProperties: number;
+  totalUnits: number;
   residentialCount: number;
+  residentialUnitsCount: number;
   commercialCount: number;
+  commercialUnitsCount: number;
   transitionYear: TransitionYear;
   totalMonthlyRent: number;
   totalAnnualRent: number;
@@ -49,8 +52,11 @@ export class PortfolioEngine {
     if (totalProperties === 0) {
       return {
         totalProperties: 0,
+        totalUnits: 0,
         residentialCount: 0,
+        residentialUnitsCount: 0,
         commercialCount: 0,
+        commercialUnitsCount: 0,
         transitionYear,
         totalMonthlyRent: 0,
         totalAnnualRent: 0,
@@ -68,8 +74,16 @@ export class PortfolioEngine {
       };
     }
 
+    const getItemUnits = (item: PortfolioItem) => (item.unitsCount && item.unitsCount > 0 ? item.unitsCount : 1);
+    const totalUnits = items.reduce((acc, item) => acc + getItemUnits(item), 0);
     const residentialCount = items.filter((i) => i.propertyType === 'residential').length;
+    const residentialUnitsCount = items
+      .filter((i) => i.propertyType === 'residential')
+      .reduce((acc, item) => acc + getItemUnits(item), 0);
     const commercialCount = items.filter((i) => i.propertyType === 'commercial').length;
+    const commercialUnitsCount = items
+      .filter((i) => i.propertyType === 'commercial')
+      .reduce((acc, item) => acc + getItemUnits(item), 0);
 
     const totalMonthlyRent = FinancialMath.round(items.reduce((acc, item) => acc + item.monthlyRent, 0));
     const totalAnnualRent = FinancialMath.round(totalMonthlyRent * 12);
@@ -79,7 +93,7 @@ export class PortfolioEngine {
 
     const landlordProfile: LandlordProfile = {
       personType: isPJ ? 'pj' : 'pf',
-      totalPropertiesRented: totalProperties,
+      totalPropertiesRented: totalUnits,
       totalAnnualRentalIncome: totalAnnualRent,
       managementFeePercent: 10.0,
     };
@@ -98,6 +112,7 @@ export class PortfolioEngine {
           transitionYear,
           landlord: landlordProfile,
           tenant: { personType: item.tenantType },
+          unitsCount: getItemUnits(item),
         },
         params
       );
@@ -123,8 +138,11 @@ export class PortfolioEngine {
 
     return {
       totalProperties,
+      totalUnits,
       residentialCount,
+      residentialUnitsCount,
       commercialCount,
+      commercialUnitsCount,
       transitionYear,
       totalMonthlyRent,
       totalAnnualRent,

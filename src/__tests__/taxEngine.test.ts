@@ -227,9 +227,45 @@ describe('Auditoria Tributária da Locação de Imóveis (LC 214/2025)', () => {
 
       const summary = PortfolioEngine.evaluatePortfolio(items, false, DEFAULT_TAX_PARAMETERS, 2033);
       expect(summary.totalProperties).toBe(2);
+      expect(summary.totalUnits).toBe(2);
       expect(summary.totalMonthlyRent).toBe(8000);
       expect(summary.totalMonthlyExcludedCharges).toBe(1700);
       expect(summary.totalMonthlySocialDeduction).toBe(600);
+    });
+
+    it('deve calcular corretamente condomínios/quitinetes com múltiplas unidades e redutores escalonados', () => {
+      // Condomínio de 5 quitinetes de R$ 5.000,00 cada (total R$ 25.000/mês = R$ 300.000/ano > R$ 240.000)
+      const kitnetCondo = [
+        {
+          id: 'kitnets-1',
+          name: 'Vila de Quitinetes Centro',
+          propertyType: 'residential' as const,
+          monthlyRent: 25000,
+          unitsCount: 5, // 5 unidades
+          condominiumFee: 0,
+          iptuAmount: 200,
+          tenantType: 'pf' as const,
+        },
+      ];
+
+      const summary = PortfolioEngine.evaluatePortfolio(kitnetCondo, false, DEFAULT_TAX_PARAMETERS, 2033);
+      expect(summary.totalProperties).toBe(1);
+      expect(summary.totalUnits).toBe(5);
+      expect(summary.residentialUnitsCount).toBe(5);
+
+      // Redutor social: 5 unidades x R$ 600,00 = R$ 3.000,00
+      expect(summary.totalMonthlySocialDeduction).toBe(3000);
+
+      // Base tributável: 25.000 - 3.000 = R$ 22.000,00
+      expect(summary.totalMonthlyTaxableBase).toBe(22000);
+
+      // Imposto: 7.95% de R$ 22.000 = R$ 1.749,00
+      expect(summary.totalMonthlyIBSCBS).toBe(1749.0);
+
+      // Habitualidade: 5 unidades alugadas excede o limite de 3 imóveis e R$ 300k > R$ 240k
+      expect(summary.propertyBreakdowns[0].calculation.enquadramento.criteria.exceedsPropertyLimit).toBe(true);
+      expect(summary.propertyBreakdowns[0].calculation.enquadramento.criteria.exceedsIncomeLimit).toBe(true);
+      expect(summary.isLandlordTaxpayer).toBe(true);
     });
   });
 

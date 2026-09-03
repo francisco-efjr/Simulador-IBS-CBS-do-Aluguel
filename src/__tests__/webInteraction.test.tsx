@@ -162,6 +162,34 @@ describe('Testes de Integração e Interação Web (QA Web Component Tests)', ()
     expect(screen.getByText('Apto Copacabana')).toBeInTheDocument();
   });
 
+  it('deve permitir cadastrar ativo com quantidade opcional de apartamentos ou quitinetes', () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByText('Gestão de Portfólio'));
+
+    // Preenche nome
+    const nameInput = screen.getByPlaceholderText('Ex: Sala Comercial 1201 - Paulista');
+    fireEvent.change(nameInput, { target: { value: 'Residencial Flores' } });
+
+    // Preenche quantidade opcional de apartamentos
+    const unitsInput = screen.getByPlaceholderText('1 (Padrão para imóvel individual)');
+    fireEvent.change(unitsInput, { target: { value: '6' } });
+
+    // Deve exibir o painel de critério de aluguel para 6 unidades
+    expect(screen.getByText(/Critério de Aluguel \(6 unidades\)/)).toBeInTheDocument();
+
+    // Digita aluguel
+    const formRentInputs = screen.getAllByPlaceholderText('0,00');
+    fireEvent.change(formRentInputs[0], { target: { value: '6000' } });
+
+    // Adiciona ao portfólio
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar ao Portfólio/i }));
+
+    // Verifica que foi adicionado com badge de 6 apartamentos
+    expect(screen.getByText('Residencial Flores')).toBeInTheDocument();
+    expect(screen.getByText('6 apartamentos')).toBeInTheDocument();
+  });
+
   it('deve transicionar a aba comparativa do estado zerado para o demonstrativo ao preencher aluguel', () => {
     render(<App />);
 

@@ -4,19 +4,36 @@
 
 @layer base {
   :root {
-    --bg-main: #090d14;
-    --surface-card: rgba(15, 23, 42, 0.65);
-    --surface-card-hover: rgba(22, 33, 58, 0.75);
-    --border-subtle: rgba(255, 255, 255, 0.08);
+    --bg-main: #FAF8F5;
+    --surface-card: #FFFFFF;
+    --surface-card-hover: #F8F6F0;
+    --border-subtle: #E5E0D8;
+    color-scheme: light;
+  }
+
+  .dark {
+    --bg-main: #0B0D11;
+    --surface-card: #13161C;
+    --surface-card-hover: #1A1E26;
+    --border-subtle: #222733;
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
     background-color: var(--bg-main);
-    color: #f1f5f9;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    color: #161616;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  .dark body {
+    background-color: var(--bg-main);
+    color: #EDEDED;
   }
 
   .tabular-nums {
@@ -24,7 +41,106 @@
   }
 }
 
-/* Custom scrollbar discreta e moderna */
+/* Dark Mode Overrides para componentes existentes com estilização executiva sóbria */
+.dark .bg-white {
+  background-color: #13161D !important;
+}
+
+.dark .bg-\[\#FAF8F5\] {
+  background-color: #0C0E12 !important;
+}
+
+.dark .bg-\[\#F5F2EB\],
+.dark .bg-\[\#F0ECE5\] {
+  background-color: #1A1E27 !important;
+}
+
+.dark .bg-\[\#F7F4EE\]\/60,
+.dark .bg-\[\#F7F4EE\]\/40 {
+  background-color: #0C0E12 !important;
+}
+
+.dark .border-\[\#E5E0D8\],
+.dark .border-\[\#E0DBD2\],
+.dark .border-\[\#EAE6DE\],
+.dark .border-\[\#F0ECE5\],
+.dark .border-\[\#E8E3DA\],
+.dark .border-\[\#EFEBE4\] {
+  border-color: #232834 !important;
+}
+
+.dark .text-\[\#161616\] {
+  color: #F1F3F7 !important;
+}
+
+.dark .text-\[\#2B2927\],
+.dark .text-\[\#403E3B\] {
+  color: #E2E4E9 !important;
+}
+
+.dark .text-\[\#6B6864\],
+.dark .text-\[\#5A5752\],
+.dark .text-\[\#787570\] {
+  color: #9CA3AF !important;
+}
+
+.dark .text-\[\#8C8882\] {
+  color: #6B7280 !important;
+}
+
+/* Tons semânticos sóbrios em Dark Mode (Verde/Azul/Âmbar Executivo) */
+.dark .bg-\[\#EAF4EC\] {
+  background-color: #0E2416 !important;
+}
+
+.dark .border-\[\#D4E8D7\] {
+  border-color: #184227 !important;
+}
+
+.dark .text-\[\#1E6B2C\] {
+  color: #4ADE80 !important;
+}
+
+.dark .bg-\[\#EEF3FA\] {
+  background-color: #101E33 !important;
+}
+
+.dark .text-\[\#1D528F\] {
+  color: #60A5FA !important;
+}
+
+.dark .bg-\[\#FEF7ED\],
+.dark .bg-\[\#FEF7ED\]\/70 {
+  background-color: #241A0E !important;
+}
+
+.dark .border-\[\#FDE68A\] {
+  border-color: #4A3519 !important;
+}
+
+.dark .text-\[\#92400E\],
+.dark .text-\[\#78350F\] {
+  color: #FBBF24 !important;
+}
+
+/* Campos de entrada e selects em Dark Mode */
+.dark input,
+.dark select {
+  background-color: #161922 !important;
+  color: #F1F3F7 !important;
+  border-color: #2B313F !important;
+}
+
+.dark input:focus,
+.dark select:focus {
+  border-color: #4B5563 !important;
+}
+
+.dark input::placeholder {
+  color: #525966 !important;
+}
+
+/* Custom scrollbar discreta e moderna no estilo Bronn */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -33,11 +149,17 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.2);
+  background: rgba(22, 22, 22, 0.15);
   border-radius: 9999px;
 }
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.35);
+  background: rgba(22, 22, 22, 0.3);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .no-scrollbar::-webkit-scrollbar {

@@ -101,7 +101,7 @@ export const BRLInput: React.FC<BRLInputProps> = ({
     <div className="w-full">
       <div className="relative flex items-center">
         {prefix && (
-          <span className="absolute left-3 text-slate-400 font-semibold text-xs sm:text-sm select-none pointer-events-none font-mono">
+          <span className="absolute left-3 text-[#787570] font-semibold text-xs sm:text-sm select-none pointer-events-none font-mono">
             {prefix}
           </span>
         )}
@@ -115,21 +115,21 @@ export const BRLInput: React.FC<BRLInputProps> = ({
           onFocus={handleFocus}
           onChange={handleChange}
           onBlur={handleBlur}
-          className={`w-full bg-slate-950/80 border rounded-xl py-2 text-sm sm:text-base font-mono font-bold tabular-nums text-slate-100 placeholder-slate-600 transition-all focus:outline-none focus-visible:ring-2 ${
+          className={`w-full bg-[#FAF8F5] border rounded-xl py-2 text-sm sm:text-base font-mono font-bold tabular-nums text-[#161616] placeholder-[#A09C96] transition-all focus:outline-none focus-visible:ring-2 ${
             prefix ? 'pl-9 sm:pl-10' : 'pl-3'
           } ${suffix ? 'pr-8 sm:pr-9' : 'pr-3'} ${
             error
-              ? 'border-red-500 bg-red-950/20 focus:border-red-400 focus-visible:ring-red-500/30 text-red-200'
-              : 'border-white/[0.1] hover:border-white/[0.18] focus:border-emerald-500/80 focus-visible:ring-emerald-500/30'
-          } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+              ? 'border-red-400 bg-red-50 focus:border-red-500 focus-visible:ring-red-200 text-red-700'
+              : 'border-[#E5E0D8] hover:border-[#C5BFB8] focus:border-[#161616] focus-visible:ring-black/10'
+          } ${disabled ? 'opacity-50 cursor-not-allowed bg-[#F3EFEA]' : ''} ${className}`}
         />
         {suffix && (
-          <span className="absolute right-3 text-slate-400 font-semibold text-xs sm:text-sm select-none pointer-events-none font-mono">
+          <span className="absolute right-3 text-[#787570] font-semibold text-xs sm:text-sm select-none pointer-events-none font-mono">
             {suffix}
           </span>
         )}
       </div>
-      {error && <p className="text-[11px] text-red-400 mt-1 font-medium">{error}</p>}
+      {error && <p className="text-[11px] text-red-600 mt-1 font-medium">{error}</p>}
     </div>
   );
 };

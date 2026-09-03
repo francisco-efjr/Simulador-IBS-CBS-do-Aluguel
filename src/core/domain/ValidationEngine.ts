@@ -111,9 +111,19 @@ export class ValidationEngine {
       }
     }
 
+    // 4. Validação opcional de Quantidade de Unidades (Condomínios/Quitinetes)
+    if (input.unitsCount !== undefined && input.unitsCount < 1) {
+      errors.push({
+        field: 'unitsCount',
+        code: 'INVALID_UNITS_COUNT',
+        message: 'A quantidade de apartamentos ou unidades deve ser no mínimo 1.',
+      });
+    }
+
     // Objeto sanitizado com precisão contábil
     const sanitized: LeaseContractInput = {
       ...input,
+      unitsCount: input.unitsCount !== undefined ? Math.max(1, Math.floor(input.unitsCount)) : 1,
       baseRent: Math.max(0, FinancialMath.round(input.baseRent || 0)),
       condominiumFee: Math.max(0, FinancialMath.round(condo)),
       iptuAmount: Math.max(0, FinancialMath.round(iptu)),
@@ -175,6 +185,14 @@ export class ValidationEngine {
           field: `items[${index}].iptuAmount`,
           code: 'NEGATIVE_IPTU',
           message: `O IPTU do imóvel "${item.name || `#${index + 1}`}" não pode ser negativo.`,
+        });
+      }
+
+      if (item.unitsCount !== undefined && item.unitsCount < 1) {
+        errors.push({
+          field: `items[${index}].unitsCount`,
+          code: 'INVALID_UNITS_COUNT',
+          message: `A quantidade de apartamentos ou unidades do imóvel "${item.name || `#${index + 1}`}" deve ser no mínimo 1.`,
         });
       }
     });

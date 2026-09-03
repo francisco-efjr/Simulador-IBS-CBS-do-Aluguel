@@ -10,40 +10,40 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ report }) => {
   const getBadgeColor = () => {
     switch (report.complianceStatus) {
       case 'CONFORME':
-        return 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300';
+        return 'bg-[#EAF4EC] border-[#D4E8D7] text-[#1E6B2C]';
       case 'ISENTO':
-        return 'bg-blue-500/15 border-blue-500/40 text-blue-300';
+        return 'bg-[#EEF3FA] border-[#D8E5F5] text-[#1D528F]';
       case 'ALERTA':
       default:
-        return 'bg-amber-500/15 border-amber-500/40 text-amber-300';
+        return 'bg-[#FEF7ED] border-[#FDE68A] text-[#92400E]';
     }
   };
 
   return (
-    <div className="bg-slate-900/60 border border-white/[0.08] rounded-2xl p-5 sm:p-6 shadow-sm space-y-4 backdrop-blur-md">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F0ECE5] pb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-white/[0.05] border border-white/[0.08] text-emerald-400 rounded-xl shrink-0">
+          <div className="p-2.5 bg-[#FAF8F5] border border-[#E5E0D8] text-[#161616] rounded-full shrink-0">
             <FileCheck className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-100 tracking-tight flex items-center gap-2">
+            <h3 className="text-sm sm:text-base font-serif font-medium text-[#161616] tracking-tight flex items-center gap-2">
               Parecer de Auditoria Fiscal &amp; Compliance LC 214/2025
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-[#6B6864] mt-0.5">
               Trilha de verificação regulatória e conformidade legal automatizada
             </p>
           </div>
         </div>
 
-        <span className={`px-3 py-1 rounded-full text-xs font-bold font-mono border uppercase tracking-wider self-start sm:self-auto ${getBadgeColor()}`}>
+        <span className={`px-3.5 py-1 rounded-full text-xs font-semibold font-mono border uppercase tracking-wider self-start sm:self-auto ${getBadgeColor()}`}>
           {report.complianceStatus}
         </span>
       </div>
 
       {/* Resumo Executivo */}
-      <div className="bg-slate-950/70 p-4 rounded-xl border border-white/[0.06] text-xs text-slate-300 leading-relaxed">
-        <span className="font-semibold text-emerald-400 block mb-1 uppercase tracking-wider text-[10px]">
+      <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-[#E5E0D8] text-xs text-[#6B6864] leading-relaxed">
+        <span className="font-semibold text-[#161616] block mb-1 uppercase tracking-wider text-[10px]">
           Síntese do Laudo Técnico
         </span>
         {report.executiveSummary}
@@ -51,30 +51,34 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ report }) => {
 
       {/* Tabela de Checkpoints Auditados */}
       <div className="space-y-2.5">
-        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+        <span className="text-[11px] font-semibold text-[#161616] uppercase tracking-wider block">
           Checkpoints Normativos Auditados:
         </span>
-        <div className="grid grid-cols-1 gap-2 text-xs">
+        <div className="grid grid-cols-1 gap-2.5 text-xs">
           {report.findings.map((item, idx) => (
             <div
               key={idx}
-              className="p-3.5 bg-slate-950/50 rounded-xl border border-white/[0.06] flex items-start gap-3 hover:border-white/[0.12] transition-colors"
+              className="p-4 bg-[#FAF8F5] rounded-2xl border border-[#E5E0D8] flex items-start gap-3 hover:border-[#161616] transition-colors"
             >
               {item.status === 'passed' ? (
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <ShieldCheck className="w-4 h-4 text-[#1E6B2C] shrink-0 mt-0.5" />
               ) : item.status === 'alert' ? (
-                <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <ShieldAlert className="w-4 h-4 text-[#92400E] shrink-0 mt-0.5" />
               ) : (
-                <AlertCircle className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                <AlertCircle className="w-4 h-4 text-[#1D528F] shrink-0 mt-0.5" />
               )}
-              <div className="flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-semibold text-slate-200">{item.ruleName}</span>
-                  <span className="text-[10px] text-slate-400 font-mono bg-white/[0.04] px-2 py-0.5 rounded border border-white/[0.08] shrink-0">
-                    {item.articleReference}
-                  </span>
+              <div className="flex-1 min-w-0 space-y-1.5">
+                <div className="space-y-1">
+                  <div className="font-semibold text-[#161616] text-xs sm:text-sm leading-snug">
+                    {item.ruleName}
+                  </div>
+                  <div>
+                    <span className="inline-block text-[10px] text-[#787570] font-mono bg-white px-2.5 py-0.5 rounded-md border border-[#E5E0D8] shadow-sm break-words max-w-full">
+                      {item.articleReference}
+                    </span>
+                  </div>
                 </div>
-                <p className="text-slate-400 text-[11px] mt-1 leading-relaxed">
+                <p className="text-[#6B6864] text-[11px] leading-relaxed pt-0.5">
                   {item.message}
                 </p>
               </div>
@@ -84,9 +88,21 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ report }) => {
       </div>
 
       {/* Base Legal Citada */}
-      <div className="pt-3 border-t border-white/[0.06] flex items-center gap-2 text-[11px] text-slate-400">
-        <Landmark className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-        <span>Bases regulatórias: {report.legalBasis.join(' • ')}</span>
+      <div className="pt-3 border-t border-[#F0ECE5] space-y-2 text-[11px] text-[#787570]">
+        <div className="flex items-center gap-2 font-medium text-[#161616]">
+          <Landmark className="w-3.5 h-3.5 text-[#161616] shrink-0" />
+          <span>Bases regulatórias e estatutárias auditadas:</span>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {report.legalBasis.map((basis, idx) => (
+            <span
+              key={idx}
+              className="bg-[#FAF8F5] border border-[#E5E0D8] px-2.5 py-0.5 rounded-full text-[10px] font-mono text-[#6B6864]"
+            >
+              {basis}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );

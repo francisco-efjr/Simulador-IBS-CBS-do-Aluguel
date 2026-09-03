@@ -36,11 +36,15 @@ export class AuditTrailEngine {
     }
 
     // 2. Verificação do Redutor Social (Art. 260)
+    const units = input.unitsCount && input.unitsCount > 0 ? input.unitsCount : 1;
     if (input.propertyType === 'residential') {
+      const maxSocialDeduction = params.socialDeductionResidential * units;
       findings.push({
         ruleName: 'Aplicação do Redutor Social Residencial',
         status: 'passed',
-        message: `Dedução de R$ ${calc.socialDeductionApplied.toFixed(2)} aplicada na base mensal (teto de R$ ${params.socialDeductionResidential.toFixed(2)}).`,
+        message: units > 1
+          ? `Dedução de R$ ${calc.socialDeductionApplied.toFixed(2)} aplicada na base mensal (${units} unidades x teto de R$ ${params.socialDeductionResidential.toFixed(2)}/mês = teto de R$ ${maxSocialDeduction.toFixed(2)}).`
+          : `Dedução de R$ ${calc.socialDeductionApplied.toFixed(2)} aplicada na base mensal (teto de R$ ${params.socialDeductionResidential.toFixed(2)}).`,
         articleReference: LEGAL_REFERENCES.REAL_ESTATE_REGIME.socialDeductionArticle,
       });
       legalBasis.push(LEGAL_REFERENCES.REAL_ESTATE_REGIME.socialDeductionArticle);

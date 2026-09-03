@@ -8,6 +8,20 @@ export default {
   theme: {
     extend: {
       colors: {
+        bronn: {
+          canvas: '#FAF8F5',
+          surface: '#FFFFFF',
+          card: '#F5F2EB',
+          border: '#E5E0D8',
+          charcoal: '#161616',
+          muted: '#6B6864',
+          sage: '#1E6B2C',
+          sageBg: '#EAF4EC',
+          nordicBlue: '#1D528F',
+          nordicBlueBg: '#EEF3FA',
+          warmAmber: '#92400E',
+          warmAmberBg: '#FEF7ED',
+        },
         brand: {
           50: '#ecfdf5',
           100: '#d1fae5',
@@ -23,7 +37,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       }
     },

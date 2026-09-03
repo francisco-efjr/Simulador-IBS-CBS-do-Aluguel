@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { Navbar, ActiveTab } from './components/Navbar.tsx';
+import { ExecutiveOverviewStrip } from './components/ExecutiveOverviewStrip.tsx';
+import { LegalComplianceGrid } from './components/LegalComplianceGrid.tsx';
+import { Footer } from './components/Footer.tsx';
+
 import { TransitionYearSelector } from './components/TransitionYearSelector.tsx';
 import { TaxParametersCard } from './components/TaxParametersCard.tsx';
 import { SingleSimulationTab } from './components/SingleSimulationTab.tsx';
@@ -9,6 +13,7 @@ import { LegalReferencesModal } from './components/LegalReferencesModal.tsx';
 import { TransitionApiExplorer } from './components/TransitionApiExplorer.tsx';
 import { DEFAULT_TAX_PARAMETERS } from '../core/domain/constants.ts';
 import { TaxParameters, TransitionYear } from '../core/domain/types.ts';
+import { Calculator } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('single');
@@ -19,11 +24,35 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#090d14] flex flex-col text-slate-100 selection:bg-emerald-500/30 selection:text-emerald-200">
+    <div className="min-h-screen bg-[#FAF8F5] dark:bg-[#0B0D11] flex flex-col text-[#161616] dark:text-[#EDEDED] transition-colors">
+      {/* Header Executivo com Seletor de Modo Claro/Escuro (Dia/Noite) */}
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
-        {/* Seletor de Ano da Transição Tributária (2026 a 2033) */}
+      {/* Faixa Executiva de Diretrizes Normativas (Redutores e Regras-Chave) */}
+      <ExecutiveOverviewStrip />
+
+      {/* Área Central do Simulador Tributário */}
+      <main id="simulador" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+        
+        {/* Cabeçalho da Seção de Apuração */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E0D8] dark:border-[#222733]">
+          <div>
+            <h2 className="text-lg sm:text-xl font-serif font-semibold text-[#161616] dark:text-[#F3F4F6] tracking-tight flex items-center gap-2">
+              <Calculator className="w-5 h-5 text-[#1E6B2C] dark:text-[#4ADE80]" />
+              Painel de Simulação Fiscal
+            </h2>
+            <p className="text-xs text-[#6B6864] dark:text-[#94A3B8] mt-0.5">
+              Apuração determinística de IBS/CBS, créditos fiscais e impacto líquido conforme a LC 214/2025
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs font-mono text-[#787570] dark:text-[#8C94A0] bg-white dark:bg-[#14171F] px-3 py-1.5 rounded-lg border border-[#E0DBD2] dark:border-[#222733] shrink-0 self-start sm:self-auto">
+            <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400" />
+            <span>Precisão Centesimal &bull; Em Vigor</span>
+          </div>
+        </div>
+
+        {/* Seletor do Ano Constitucional de Transição (2026 a 2033) */}
         <TransitionYearSelector
           selectedYear={params.transitionYear}
           onSelectYear={handleYearChange}
@@ -36,24 +65,22 @@ export const App: React.FC = () => {
         {/* Parâmetros Globais Configuráveis */}
         <TaxParametersCard params={params} onChange={setParams} />
 
-        {/* Abas de Navegação e Simulação */}
-        {activeTab === 'single' && <SingleSimulationTab params={params} />}
-        {activeTab === 'portfolio' && <PortfolioSimulationTab params={params} />}
-        {activeTab === 'comparative' && <ComparativeAnalysisTab params={params} />}
-        {activeTab === 'legal' && <LegalReferencesModal />}
-        {activeTab === 'api' && <TransitionApiExplorer params={params} />}
+        {/* Módulos do Simulador por Aba Ativa */}
+        <div className="pt-1">
+          {activeTab === 'single' && <SingleSimulationTab params={params} />}
+          {activeTab === 'portfolio' && <PortfolioSimulationTab params={params} />}
+          {activeTab === 'comparative' && <ComparativeAnalysisTab params={params} />}
+          {activeTab === 'legal' && <LegalReferencesModal />}
+          {activeTab === 'api' && <TransitionApiExplorer params={params} />}
+        </div>
+
       </main>
 
-      <footer className="border-t border-white/[0.08] bg-[#090d14]/90 py-6 text-center text-xs text-slate-500 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-slate-400 text-left">
-            Simulador Tributário Imobiliário &bull; Em conformidade com a Lei Complementar nº 214/2025 e EC nº 132/2023.
-          </p>
-          <p className="text-[11px] text-slate-400 font-mono">
-            Apuração Determinística &bull; Precisão Centesimal
-          </p>
-        </div>
-      </footer>
+      {/* Quadro de Fundamentação Legal */}
+      <LegalComplianceGrid />
+
+      {/* Rodapé Institucional Executivo */}
+      <Footer onSelectTab={(tab) => setActiveTab(tab)} />
     </div>
   );
 };

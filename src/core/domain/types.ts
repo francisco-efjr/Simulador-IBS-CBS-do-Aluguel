@@ -45,6 +45,7 @@ export interface LeaseContractInput {
   transitionYear?: TransitionYear; // Ano fiscal de apuração (2026 a 2033)
   landlord: LandlordProfile;
   tenant: TenantProfile;
+  unitsCount?: number; // Quantidade de apartamentos / unidades (opcional para condomínios/quitinetes, default: 1)
 }
 
 /**
@@ -116,6 +117,7 @@ export interface CalculationResult {
   transitionYear: TransitionYear;
   landlord: LandlordProfile;
   tenant: TenantProfile;
+  unitsCount?: number; // Quantidade de apartamentos / unidades apuradas
 
   // Status de Contribuinte
   enquadramento: EnquadramentoResult;
@@ -214,4 +216,5 @@ export interface PortfolioItem {
   condominiumFee?: number;
   iptuAmount?: number;
   tenantType: PersonType;
+  unitsCount?: number; // Quantidade de apartamentos / quitinetes (default: 1)
 }

@@ -66,9 +66,12 @@ export class TaxCalculatorEngine {
     const totalTenantReceipt = FinancialMath.round(baseRent + excludedCharges);
 
     // 4. Redutor Social Residencial (Art. 260)
+    // Para condomínios ou quitinetes, o redutor de R$ 600 aplica-se por unidade/apartamento residencial
     let socialDeductionApplied = 0;
+    const unitsCount = sanitizedInput.unitsCount && sanitizedInput.unitsCount > 0 ? sanitizedInput.unitsCount : 1;
     if (propertyType === 'residential') {
-      socialDeductionApplied = Math.min(baseRent, params.socialDeductionResidential);
+      const maxSocialDeduction = FinancialMath.round(params.socialDeductionResidential * unitsCount);
+      socialDeductionApplied = Math.min(baseRent, maxSocialDeduction);
     }
 
     // 5. Base de Cálculo Tributável
@@ -159,6 +162,7 @@ export class TaxCalculatorEngine {
       transitionYear,
       landlord,
       tenant,
+      unitsCount,
       enquadramento,
       nominalRate: yearRates.nominalTotalRate,
       discountPercent: params.realEstateDiscountPercent,

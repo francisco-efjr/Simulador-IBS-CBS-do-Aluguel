@@ -25,6 +25,7 @@ function transitionApiPlugin(): Plugin {
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: './',
   plugins: [react(), transitionApiPlugin()],
   test: {
     environment: 'jsdom',
