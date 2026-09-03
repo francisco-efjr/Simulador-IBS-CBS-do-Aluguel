@@ -19,7 +19,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0f17] flex flex-col text-slate-100">
+    <div className="min-h-screen bg-[#090d14] flex flex-col text-slate-100 selection:bg-emerald-500/30 selection:text-emerald-200">
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
@@ -44,10 +44,15 @@ export const App: React.FC = () => {
         {activeTab === 'api' && <TransitionApiExplorer params={params} />}
       </main>
 
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-5 text-center text-xs text-slate-500">
-        <p>
-          Simulador e Auditor Fiscal &bull; Conforme Lei Complementar nº 214/2025 e Emenda Constitucional nº 132/2023 &bull; Sistema de Apuração Auditável.
-        </p>
+      <footer className="border-t border-white/[0.08] bg-[#090d14]/90 py-6 text-center text-xs text-slate-500 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-slate-400 text-left">
+            Simulador Tributário Imobiliário &bull; Em conformidade com a Lei Complementar nº 214/2025 e EC nº 132/2023.
+          </p>
+          <p className="text-[11px] text-slate-400 font-mono">
+            Apuração Determinística &bull; Precisão Centesimal
+          </p>
+        </div>
       </footer>
     </div>
   );

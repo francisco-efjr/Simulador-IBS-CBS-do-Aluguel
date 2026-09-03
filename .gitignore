@@ -26,3 +26,8 @@ coverage/
 .env
 .env.local
 .env.*.local
+
+# Agent skills and deployment zips
+.agents/
+*.zip
+

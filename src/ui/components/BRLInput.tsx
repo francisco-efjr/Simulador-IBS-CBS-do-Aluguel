@@ -115,12 +115,12 @@ export const BRLInput: React.FC<BRLInputProps> = ({
           onFocus={handleFocus}
           onChange={handleChange}
           onBlur={handleBlur}
-          className={`w-full bg-slate-950 border rounded-xl py-2 text-sm sm:text-base font-mono font-bold text-slate-100 placeholder-slate-600 transition-all focus:outline-none ${
+          className={`w-full bg-slate-950/80 border rounded-xl py-2 text-sm sm:text-base font-mono font-bold tabular-nums text-slate-100 placeholder-slate-600 transition-all focus:outline-none focus-visible:ring-2 ${
             prefix ? 'pl-9 sm:pl-10' : 'pl-3'
-          } ${suffix ? 'pr-8' : 'pr-3'} ${
+          } ${suffix ? 'pr-8 sm:pr-9' : 'pr-3'} ${
             error
-              ? 'border-red-500 bg-red-950/20 focus:border-red-400 text-red-200'
-              : 'border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20'
+              ? 'border-red-500 bg-red-950/20 focus:border-red-400 focus-visible:ring-red-500/30 text-red-200'
+              : 'border-white/[0.1] hover:border-white/[0.18] focus:border-emerald-500/80 focus-visible:ring-emerald-500/30'
           } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
         />
         {suffix && (
@@ -129,7 +129,7 @@ export const BRLInput: React.FC<BRLInputProps> = ({
           </span>
         )}
       </div>
-      {error && <p className="text-[11px] text-red-400 mt-1">{error}</p>}
+      {error && <p className="text-[11px] text-red-400 mt-1 font-medium">{error}</p>}
     </div>
   );
 };
