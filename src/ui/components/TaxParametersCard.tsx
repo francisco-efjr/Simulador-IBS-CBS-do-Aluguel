@@ -129,7 +129,7 @@ export const TaxParametersCard: React.FC<TaxParametersCardProps> = ({ params, on
 
             <div className="bg-[#FAF8F5] p-3.5 rounded-2xl border border-[#E5E0D8]">
               <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#161616] mb-1.5">
-                Teto Imóveis (Locador PF)
+                Limite de Imóveis (Não-Habitualidade PF)
               </label>
               <BRLInput
                 suffix="un"
@@ -140,7 +140,7 @@ export const TaxParametersCard: React.FC<TaxParametersCardProps> = ({ params, on
                 min={1}
                 className="py-1 text-xs"
               />
-              <span className="text-[10px] text-[#787570] mt-1 block">Limite legal: até 3 imóveis</span>
+              <span className="text-[10px] text-[#787570] mt-1 block">Não-contribuinte: até 3 imóveis locados (Art. 4º, §2º)</span>
             </div>
 
             <div className="bg-[#FAF8F5] p-3.5 rounded-2xl border border-[#E5E0D8]">

@@ -47,7 +47,7 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({ params
   // Valores financeiros (iniciam zerados)
   const [baseRent, setBaseRent] = useState<number>(0);
   const [condominiumFee, setCondominiumFee] = useState<number>(0);
-  const [iptuAmount, setIptuAmount] = useState<number>(0);
+  const iptuAmount = 0;
 
   // Tab interna para Nota de Simulação vs Laudo de Auditoria
   const [activeSubView, setActiveSubView] = useState<'simulation' | 'audit'>('simulation');
@@ -157,21 +157,13 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({ params
             </p>
           </div>
 
-          {/* 2. Valores Financeiros e Encargos Acessórios */}
-          <div className="border-t border-[#F0ECE5] pt-4 space-y-3.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold uppercase tracking-wider text-[#161616]">
-                Composição Financeira da Locação
-              </label>
-              <span className="text-[11px] font-mono text-[#1E6B2C] bg-[#EAF4EC] border border-[#D4E8D7] px-2.5 py-0.5 rounded-full">
-                Arts. 255 e 260
-              </span>
-            </div>
+          {/* 2. Valor do Aluguel e Encargos */}
+          <div className="border-t border-[#F0ECE5] dark:border-[#222733] pt-4 space-y-3">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#161616] dark:text-[#E2E8F0]">
+              Valor do Aluguel
+            </label>
 
             <div>
-              <label className="block text-xs font-medium text-[#161616] mb-1.5">
-                Aluguel Base Mensal (R$) <span className="text-[#1E6B2C] font-semibold">*Fato Gerador IBS/CBS</span>
-              </label>
               <BRLInput
                 prefix="R$"
                 value={baseRent}
@@ -179,41 +171,25 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({ params
                 error={fieldErrors.baseRent}
                 placeholder="0,00"
               />
+              <span className="text-[11px] text-[#787570] dark:text-[#94A3B8] mt-1 block">
+                Valor mensal da locação contratada.
+              </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-[#FAF8F5] rounded-2xl border border-[#E5E0D8]">
-              <div>
-                <label className="block text-[11px] font-medium text-[#6B6864] mb-1 flex items-center justify-between">
-                  <span>Condomínio Mensal</span>
-                  <span className="text-[10px] text-[#8C8882]">não tributável</span>
-                </label>
-                <BRLInput
-                  prefix="R$"
-                  value={condominiumFee}
-                  onChange={setCondominiumFee}
-                  error={fieldErrors.condominiumFee}
-                  placeholder="0,00"
-                  className="py-1 text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium text-[#6B6864] mb-1 flex items-center justify-between">
-                  <span>IPTU Mensal</span>
-                  <span className="text-[10px] text-[#8C8882]">não tributável</span>
-                </label>
-                <BRLInput
-                  prefix="R$"
-                  value={iptuAmount}
-                  onChange={setIptuAmount}
-                  error={fieldErrors.iptuAmount}
-                  placeholder="0,00"
-                  className="py-1 text-xs"
-                />
-              </div>
-              <div className="sm:col-span-2 text-[11px] text-[#6B6864] border-t border-[#E5E0D8] pt-2.5">
-                Recibo Total do Locatário: <span className="text-[#161616] font-mono font-semibold">{formatBRL(result ? result.totalTenantReceipt : (baseRent + condominiumFee + iptuAmount))}</span> (Encargos acessórios expurgados da base de incidência).
-              </div>
+            {/* Taxa de condomínio opcional (isenta de IBS/CBS) */}
+            <div className="pt-1">
+              <label className="block text-[11px] font-medium text-[#6B6864] dark:text-[#94A3B8] mb-1 flex items-center justify-between">
+                <span>Taxa de Condomínio (opcional)</span>
+                <span className="text-[10px] text-[#8C8882] dark:text-[#64748B]">não tributável</span>
+              </label>
+              <BRLInput
+                prefix="R$"
+                value={condominiumFee}
+                onChange={setCondominiumFee}
+                error={fieldErrors.condominiumFee}
+                placeholder="0,00"
+                className="py-1 text-xs"
+              />
             </div>
           </div>
 
@@ -437,29 +413,17 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({ params
                   </div>
                 </div>
               ) : (
-                <div className="p-8 border border-dashed border-[#E5E0D8] rounded-2xl text-center space-y-4 my-auto bg-[#FAF8F5]/50">
-                  <div className="w-12 h-12 rounded-2xl bg-white border border-[#E5E0D8] text-[#161616] flex items-center justify-center mx-auto shadow-sm">
-                    <Calculator className="w-6 h-6" />
+                <div className="py-12 px-6 text-center space-y-3 my-auto bg-[#FAF8F5]/60 dark:bg-[#14171F]/40 rounded-2xl border border-[#EFECE6] dark:border-[#1E2330]">
+                  <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#1C202B] border border-[#E5E0D8] dark:border-[#2C3240] text-[#161616] dark:text-[#F3F4F6] flex items-center justify-center mx-auto shadow-xs">
+                    <Calculator className="w-5 h-5 text-[#1E6B2C] dark:text-[#4ADE80]" />
                   </div>
-                  <div className="space-y-1.5">
-                    <h3 className="text-base sm:text-lg font-serif font-medium text-[#161616]">Calculadora Zerada &bull; Aguardando Parâmetros</h3>
-                    <p className="text-xs text-[#6B6864] max-w-md mx-auto leading-relaxed">
-                      Preencha o <strong className="text-[#161616]">Aluguel Base Mensal</strong> no formulário ao lado para consultar a memória de cálculo do IBS/CBS, alíquotas da LC 214/2025, redutor social e cenários de repasse.
+                  <div className="space-y-1">
+                    <h3 className="text-sm sm:text-base font-serif font-medium text-[#161616] dark:text-[#F3F4F6]">
+                      Calculadora Zerada &bull; Aguardando Parâmetros
+                    </h3>
+                    <p className="text-xs text-[#6B6864] dark:text-[#94A3B8] max-w-sm mx-auto leading-relaxed">
+                      Preencha o <strong className="text-[#161616] dark:text-[#F3F4F6]">Aluguel Base Mensal</strong> no formulário ao lado para consultar a memória de cálculo do IBS/CBS, alíquotas da LC 214/2025, redutor social e cenários de repasse.
                     </p>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-w-lg mx-auto pt-2 text-left">
-                    <div className="bg-white p-3 rounded-xl border border-[#E5E0D8] space-y-0.5 shadow-sm">
-                      <span className="text-[10px] uppercase font-semibold text-[#787570] block">Fato Gerador</span>
-                      <span className="text-xs font-mono font-medium text-[#161616]">Aluguel Base</span>
-                    </div>
-                    <div className="bg-white p-3 rounded-xl border border-[#E5E0D8] space-y-0.5 shadow-sm">
-                      <span className="text-[10px] uppercase font-semibold text-[#787570] block">Redutor Social</span>
-                      <span className="text-xs font-mono font-medium text-[#161616]">Art. 260 LC 214</span>
-                    </div>
-                    <div className="bg-white p-3 rounded-xl border border-[#E5E0D8] space-y-0.5 shadow-sm col-span-2 sm:col-span-1">
-                      <span className="text-[10px] uppercase font-semibold text-[#787570] block">Transição</span>
-                      <span className="text-xs font-mono text-[#1E6B2C] font-semibold">{params.transitionYear}</span>
-                    </div>
                   </div>
                 </div>
               )
