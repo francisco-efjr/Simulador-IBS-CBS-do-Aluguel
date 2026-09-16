@@ -111,9 +111,9 @@ export default function IptuTaxas() {
             <Receipt className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
               IPTU e Taxas
-            </h2>
+            </h1>
             <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
               IPTU, condomínio, seguro e demais obrigações
             </p>
@@ -191,7 +191,7 @@ export default function IptuTaxas() {
       ) : (
         <>
           <p className="text-sm text-slate-600">{filtered.length} obrigação(ões)</p>
-          <div className="hidden md:block rounded-lg border border-slate-200 overflow-x-auto">
+          <div className="hidden md:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table className="min-w-[850px]">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">

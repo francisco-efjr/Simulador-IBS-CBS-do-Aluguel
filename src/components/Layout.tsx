@@ -57,7 +57,13 @@ export default function Layout({ children }: LayoutProps) {
           tabIndex={-1}
           className="flex-1 overflow-y-auto bg-slate-50 focus:outline-none"
         >
-          {children ?? <Outlet />}
+          {/* Em monitor largo, conteúdo esticado de ponta a ponta obriga o olho
+              a atravessar a tela para ligar o começo da linha ao fim. A faixa
+              central resolve isso sem desperdiçar espaço: 1.600px comporta a
+              tabela inteira com folga e mantém a linha em comprimento legível. */}
+          <div className="mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 lg:px-8 lg:py-6">
+            {children ?? <Outlet />}
+          </div>
         </main>
       </div>
     </div>

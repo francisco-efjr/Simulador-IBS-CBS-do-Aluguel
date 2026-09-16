@@ -108,9 +108,9 @@ export default function Fornecedores() {
             <Truck className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
               Fornecedores
-            </h2>
+            </h1>
             <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
               Cadastro de prestadores de serviços, empreiteiras e utilidades
             </p>
@@ -185,7 +185,7 @@ export default function Fornecedores() {
       ) : (
         <>
           <p className="text-sm text-slate-600">{filtered.length} fornecedor(es)</p>
-          <div className="hidden md:block rounded-lg border border-slate-200 overflow-x-auto">
+          <div className="hidden md:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table className="min-w-[650px]">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">

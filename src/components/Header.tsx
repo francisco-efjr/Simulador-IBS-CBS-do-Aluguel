@@ -135,12 +135,15 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
               className="h-8 w-8 object-contain rounded-md"
             />
           </Link>
+          {/* A barra superior identifica o sistema; o nome da tela é do
+              conteúdo, onde já aparece em tamanho de título. Repetir os dois
+              ocupava a faixa mais nobre da janela com a mesma palavra. */}
           <div className="flex flex-col">
-            <h1 className="text-lg font-bold tracking-tight text-white sm:text-xl flex items-center gap-2">
-              <span>{pageTitle}</span>
-            </h1>
-            <span className="text-xs font-semibold text-gold-300 tracking-wide uppercase hidden sm:inline-block">
+            <span className="text-base font-bold tracking-tight text-white sm:text-lg">
               Holding Aguiar
+            </span>
+            <span className="text-xs font-medium text-slate-300 hidden sm:inline-block">
+              {pageTitle}
             </span>
           </div>
         </div>

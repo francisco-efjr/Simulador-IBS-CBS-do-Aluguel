@@ -106,7 +106,7 @@ export default function Imoveis() {
             <Building2 className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Imóveis</h2>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Imóveis</h1>
             <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
               Gestão de edifícios, casas e salas comerciais
             </p>
@@ -184,11 +184,11 @@ export default function Imoveis() {
       ) : (
         <>
           <p className="text-sm text-slate-600">{filtered.length} imóvel(is)</p>
-          <div className="hidden md:block rounded-lg border border-slate-200 overflow-x-auto">
+          <div className="hidden md:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table className="min-w-[700px]">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">
-                  <TableHead className="w-[200px]">Identificação</TableHead>
+                  <TableHead className="w-[280px]">Identificação</TableHead>
                   <TableHead>Tipo</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Endereço</TableHead>

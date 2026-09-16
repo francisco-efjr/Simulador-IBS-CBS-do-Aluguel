@@ -618,9 +618,9 @@ export default function Relatorios() {
             <FileSpreadsheet className="h-6 w-6" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
               Exportação de Relatórios
-            </h2>
+            </h1>
             <p className="text-sm text-slate-600 mt-0.5">
               Gere relatórios executivos em PDF com layout Holding Aguiar ou planilhas Excel (XLSX)
             </p>
@@ -1017,9 +1017,9 @@ export default function Relatorios() {
                 </div>
 
                 <div className="flex justify-between py-1.5">
-                  <span className="text-slate-600">Origem dos Dados:</span>
+                  <span className="text-slate-600">Origem dos dados:</span>
                   <span className="text-emerald-700 font-medium flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3" /> 100% Skip Cloud (Real)
+                    <CheckCircle2 className="h-4 w-4" /> Registros do sistema
                   </span>
                 </div>
               </div>

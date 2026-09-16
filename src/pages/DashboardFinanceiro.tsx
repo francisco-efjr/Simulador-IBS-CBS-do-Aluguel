@@ -708,9 +708,9 @@ export default function DashboardFinanceiro() {
             <TrendingUp className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
               Dashboard Financeiro
-            </h2>
+            </h1>
             <p className="text-sm text-slate-600 mt-0.5">
               Consolidado de receitas, despesas, fluxo de caixa e rentabilidade do portfólio
             </p>

@@ -74,7 +74,9 @@ routerAdd(
         }
       }
       if (!baseUrl) {
-        baseUrl = 'https://controle-de-imoveis-f730f.goskip.app'
+        // Endereço público do sistema, para montar o link do e-mail quando a
+        // requisição não traz origem. Configurável por ambiente.
+        baseUrl = $os.getenv('APP_BASE_URL') || 'https://fjin.work'
       }
       if (baseUrl.endsWith('/')) {
         baseUrl = baseUrl.slice(0, -1)

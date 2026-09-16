@@ -549,9 +549,9 @@ export default function Alertas() {
           </div>
           <div>
             <div className="flex items-center gap-2.5">
-              <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900">
                 Central de Alertas & Vencimentos
-              </h2>
+              </h1>
               {summaryKpis.total > 0 && (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-navy-800 text-gold-400 border border-gold-500/30">
                   {summaryKpis.total} ativos

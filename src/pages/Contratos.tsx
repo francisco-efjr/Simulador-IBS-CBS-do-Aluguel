@@ -124,9 +124,9 @@ export default function Contratos() {
             <FileText className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
               Contratos
-            </h2>
+            </h1>
             <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
               Contratos de locação, reajustes e prazos
             </p>
@@ -204,7 +204,7 @@ export default function Contratos() {
       ) : (
         <>
           <p className="text-sm text-slate-600">{filtered.length} contrato(s)</p>
-          <div className="hidden md:block rounded-lg border border-slate-200 overflow-x-auto">
+          <div className="hidden md:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table className="min-w-[750px]">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">

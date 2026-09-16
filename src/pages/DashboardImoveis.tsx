@@ -757,9 +757,9 @@ export default function DashboardImoveis() {
             <Building className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
               Dashboard de Imóveis
-            </h2>
+            </h1>
             <p className="text-sm text-slate-600 mt-0.5">
               Visão geral e indicadores detalhados de ocupação e rentabilidade do portfólio
             </p>

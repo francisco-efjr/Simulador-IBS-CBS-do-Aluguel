@@ -117,9 +117,9 @@ export default function Despesas() {
             <TrendingDown className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
               Despesas
-            </h2>
+            </h1>
             <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
               Controle de custos, obras e manutenção
             </p>
@@ -197,7 +197,7 @@ export default function Despesas() {
       ) : (
         <>
           <p className="text-sm text-slate-600">{filtered.length} despesa(s)</p>
-          <div className="hidden md:block rounded-lg border border-slate-200 overflow-x-auto">
+          <div className="hidden md:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table className="min-w-[800px]">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">

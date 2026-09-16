@@ -3,8 +3,6 @@
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
-// @ts-expect-error - uidPlugin is a custom plugin
-import uidPlugin from './vite-plugin-react-uid'
 import { TransitionCalendar } from './src/simulador/core/services/TransitionCalendar'
 
 const SCHEDULE_PATHS = [
@@ -109,7 +107,6 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [
-    mode === 'development' ? uidPlugin() : undefined,
     react(),
     transitionApiPlugin(),
     cspPlugin(mode),
