@@ -1,0 +1,48 @@
+import { useState, type ReactNode } from 'react'
+import { Outlet } from 'react-router-dom'
+import { Header } from '@/components/Header'
+import { SidebarContent } from '@/components/SidebarContent'
+import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet'
+import { useIsMobile } from '@/hooks/use-mobile'
+import { cn } from '@/lib/utils'
+
+interface LayoutProps {
+  /**
+   * Conteúdo a renderizar no lugar do <Outlet />. Usado por rotas que não são
+   * filhas do Layout mas ainda precisam do shell — hoje, o /simulador, que é
+   * público e só ganha sidebar quando há sessão aberta.
+   */
+  children?: ReactNode
+}
+
+export default function Layout({ children }: LayoutProps) {
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const isMobile = useIsMobile()
+
+  const desktopSidebar = (
+    <aside className="hidden lg:flex w-64 shrink-0">
+      <SidebarContent />
+    </aside>
+  )
+
+  return (
+    <div className="flex h-screen w-full overflow-hidden bg-navy-950">
+      {desktopSidebar}
+
+      {/* Mobile & Tablet Drawer */}
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent side="left" className="w-72 sm:w-80 border-none p-0 bg-navy-800">
+          <SheetHeader className="sr-only">
+            <h2>Navegação Holding Aguiar</h2>
+          </SheetHeader>
+          <SidebarContent onItemClick={() => setMobileOpen(false)} />
+        </SheetContent>
+      </Sheet>
+
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+        <Header onOpenMobileSidebar={() => setMobileOpen(true)} />
+        <main className="flex-1 overflow-y-auto bg-slate-50">{children ?? <Outlet />}</main>
+      </div>
+    </div>
+  )
+}

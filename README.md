@@ -1,245 +1,156 @@
-# Simulador Tributário: IBS e CBS na Locação de Imóveis 🏢📊
+# Holding Aguiar — Controle de Imóveis
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-19.0-61dafb.svg)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-6.2-646cff.svg)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.4-38bdf8.svg)](https://tailwindcss.com/)
-[![Vitest](https://img.shields.io/badge/Vitest-3.0-green.svg)](https://vitest.dev/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+Sistema de gestão imobiliária e controle financeiro, publicado em
+**[fjin.work](https://fjin.work/)**. Inclui o **Simulador IBS/CBS da locação**
+como módulo em `/simulador`.
 
-> **Motor de cálculo e plataforma analítica para auditoria fiscal e simulação dos impactos da Reforma Tributária sobre o mercado imobiliário brasileiro de locação**, rigorosamente em conformidade com a **Emenda Constitucional nº 132/2023** e a **Lei Complementar nº 214/2025** (regulamentação do IBS e da CBS).
-
----
-
-## 📑 Sumário
-
-- [Visão Geral](#-visão-geral)
-- [Fundamentação Legal e Regras de Negócio](#-fundamentação-legal-e-regras-de-negócio)
-  - [1. Enquadramento e Habitualidade (Locador PF)](#1-enquadramento-e-habitualidade-locador-pf)
-  - [2. Exclusão Expressa de Encargos Acessórios](#2-exclusão-expressa-de-encargos-acessórios)
-  - [3. Redutor Social Residencial](#3-redutor-social-residencial)
-  - [4. Cronograma Constitucional de Transição (2026–2033)](#4-cronograma-constitucional-de-transição-20262033)
-  - [5. Créditos Operacionais e Cadeia B2B](#5-créditos-operacionais-e-cadeia-b2b)
-  - [6. Comparativo Pré vs. Pós-Reforma (Carnê-Leão e Lucro Presumido)](#6-comparativo-pré-vs-pós-reforma)
-- [Arquitetura do Software](#-arquitetura-do-software)
-- [Estrutura do Projeto](#-estrutura-do-projeto)
-- [API Integrada do Cronograma](#-api-integrada-do-cronograma)
-- [Como Instalar e Executar](#-como-instalar-e-executar)
-- [Suíte de Testes Automatizados](#-suíte-de-testes-automatizados)
-- [Licença e Autoria](#-licença-e-autoria)
+> **Modo demonstração.** A aplicação roda inteiramente no navegador, sobre dados
+> fictícios. **Qualquer e-mail e senha fazem login** — não há backend, não há
+> credencial válida ou inválida. É uma vitrine navegável, não um controle de
+> acesso. Veja [Modo demonstração](#modo-demonstração) antes de publicar isto
+> com dados reais.
 
 ---
 
-## 🎯 Visão Geral
+## Stack
 
-A Reforma Tributária sobre o Consumo institui o **IBS** (Imposto sobre Bens e Serviços) e a **CBS** (Contribuição sobre Bens e Serviços) no modelo de IVA Dual, trazendo impactos profundos na tributação da locação imobiliária.
+- **React 19** + **Vite 8** + **TypeScript 6**
+- **Tailwind CSS 3** + **shadcn/ui** (Radix)
+- **React Router 7**, **React Hook Form**, **Zod**, **Recharts**
+- **Vitest** para a suíte do motor de cálculo tributário
+- **PocketBase** como backend real (hoje desligado — ver abaixo)
 
-O **Simulador-IBS-CBS-do-Aluguel** foi concebido com foco em:
-1. **Rigor e Precisão Contábil**: Aritmética decimal em centavos com arredondamento estrito, sem acúmulo de erros de ponto flutuante.
-2. **Separação de Domínio (Clean Architecture)**: Regras fiscais e motores de cálculo 100% isolados de qualquer biblioteca de interface gráfica.
-3. **Auditoria Fiscal Transparente**: Toda simulação produz um laudo técnico detalhando memória de cálculo, base legal e notas de conformidade.
-4. **Usabilidade Executiva**: Interface moderna em React 19 com gráficos, consolidação de portfólio e análise comparativa de cenários.
-
----
-
-## ⚖️ Fundamentação Legal e Regras de Negócio
-
-### 1. Enquadramento e Habitualidade (Locador PF)
-Conforme as diretrizes da **LC 214/2025**, a Pessoa Física que aluga imóveis só se torna contribuinte do IBS/CBS se cumprir **cumulativamente** dois requisitos objetivos:
-- Possuir **mais de 3 imóveis alugados**; **E**
-- Auferir receita bruta anual de aluguel **superior a R$ 240.000,00**.
-
-> Se qualquer uma das condições não for atingida, o locador PF é classificado como **Não Contribuinte**, ficando com **alíquota ZERO** de IBS/CBS.
-
-Pessoas Jurídicas (Holdings Imobiliárias, administradoras e empresas em geral) são **sempre contribuintes** sob o regime especial de bens imóveis.
-
-### 2. Exclusão Expressa de Encargos Acessórios
-Nos termos dos **Arts. 255 e 260 da LC 214/2025**, as despesas acessórias pagas pelo inquilino (como **Taxa Condominial** e **IPTU**) não integram a receita do locador:
-$$\text{Base de Cálculo Bruta} = \text{Recibo Total} - (\text{Condomínio} + \text{IPTU}) = \text{Aluguel Base}$$
-
-### 3. Redutor Social Residencial
-Para preservar o acesso à moradia e a progressividade da tributação sobre locação residencial (Art. 260, § 1º), aplica-se uma dedução legal de:
-$$\text{Redutor Social} = \min(\text{Aluguel Base}, \text{R\$\ } 600{,}00)$$
-$$\text{Base de Cálculo Líquida (Residencial)} = \max(0, \text{Aluguel Base} - 600{,}00)$$
-
-*Nota: Em imóveis comerciais, o redutor social não se aplica.*
-
-### 4. Cronograma Constitucional de Transição (2026–2033)
-
-A transição parte da alíquota padrão estimada em **26,50%** (8,80% CBS + 17,70% IBS), com **redução de 70%** para operações com bens imóveis (alíquota efetiva plena de **7,95%** em 2033):
-
-| Ano | Fase | CBS Nominal | IBS Nominal | Fator Transição | CBS Efetiva | IBS Efetiva | Total Efetivo |
-| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **2026** | Teste Nacional | 0,90% | 0,10% | Teste (1,00%) | 0,27% | 0,03% | **0,30%** |
-| **2027** | CBS Plena / Fim PIS/COFINS | 8,80% | 0,00% | CBS 100% | 2,64% | 0,00% | **2,64%** |
-| **2028** | CBS Plena | 8,80% | 0,00% | CBS 100% | 2,64% | 0,00% | **2,64%** |
-| **2029** | Início Transição IBS | 8,80% | 1,77% | 10% IBS | 2,64% | 0,53% | **3,17%** |
-| **2030** | Transição Gradual | 8,80% | 3,54% | 20% IBS | 2,64% | 1,06% | **3,70%** |
-| **2031** | Transição Gradual | 8,80% | 5,31% | 30% IBS | 2,64% | 1,59% | **4,23%** |
-| **2032** | Transição Gradual | 8,80% | 7,08% | 40% IBS | 2,64% | 2,12% | **4,77%** |
-| **2033** | **Regime Definitivo Pleno** | **8,80%** | **17,70%** | **100% IBS** | **2,64%** | **5,31%** | **7,95%** |
-
-### 5. Créditos Operacionais e Cadeia B2B
-- **Locador PJ**: Permite creditamento integral da alíquota padrão sobre a taxa de administração imobiliária paga a terceiros (insumo direto de intermediação).
-- **Inquilino PJ (B2B)**: Empresas no regime não-cumulativo (Lucro Real) podem apropriar créditos de IBS/CBS sobre o aluguel comercial pago a locadores contribuintes, reduzindo o custo econômico final da locação.
-
-### 6. Comparativo Pré vs. Pós-Reforma
-A ferramenta calcula o comparativo tributário completo:
-- **Pessoa Física**: Apuração do **Carnê-Leão (IRPF)** com base na tabela progressiva mensal oficial (com deduções legais de corretagem e condomínio/IPTU quando suportados pelo locador) versus o novo IBS/CBS.
-- **Pessoa Jurídica**: Carga de PIS/COFINS (regime cumulativo a 3,65% no Lucro Presumido) versus IBS/CBS líquido de créditos operacionais.
-
----
-
-## 🏛 Arquitetura do Software
-
-O projeto segue princípios rigorosos de **Clean Architecture** e **Domain-Driven Design (DDD)**:
-
-```
-src/
-├── core/                        # 🧠 Núcleo de Domínio (Pure TypeScript, Zero UI Deps)
-│   ├── domain/
-│   │   ├── constants.ts         # Parâmetros oficiais, limites de habitualidade e alíquotas
-│   │   ├── types.ts             # Modelos de dados e contratos de tipos estritos
-│   │   ├── FinancialMath.ts     # Aritmética decimal segura (evita float drift)
-│   │   └── ValidationEngine.ts  # Validações semânticas de entrada
-│   ├── services/
-│   │   ├── EnquadramentoEngine.ts   # Classificação de habitualidade e status tributário
-│   │   ├── TransitionCalendar.ts    # Matriz temporal de alíquotas (2026-2033)
-│   │   ├── TaxCalculatorEngine.ts   # Motor principal de cálculo do contrato
-│   │   ├── CreditChainEngine.ts     # Mecanismo de créditos operacionais e B2B
-│   │   ├── ComparativeEngine.ts     # Análise comparativa (Carnê-Leão vs IBS/CBS)
-│   │   ├── PortfolioEngine.ts       # Agregação e consolidação de carteiras
-│   │   └── AuditTrailEngine.ts      # Geração de laudos e conformidade fiscal
-│   └── index.ts                 # Exportação pública da camada de domínio
-│
-├── ui/                          # 💻 Camada de Apresentação (React 19 + Tailwind)
-│   ├── App.tsx                  # Shell da aplicação e navegação de abas
-│   └── components/
-│       ├── SingleSimulationTab.tsx      # Simulação detalhada de contrato individual
-│       ├── ComparativeAnalysisTab.tsx   # Dashboard comparativo Pré x Pós
-│       ├── PortfolioSimulationTab.tsx   # Análise consolidada de múltiplos imóveis
-│       ├── TransitionApiExplorer.tsx    # Explorador visual do cronograma e API
-│       ├── AuditReportView.tsx          # Exibição do parecer de auditoria
-│       ├── LegalReferencesModal.tsx     # Modal com o texto legal da LC 214/2025
-│       ├── TaxParametersCard.tsx        # Ajuste dinâmico de premissas tributárias
-│       ├── TransitionYearSelector.tsx   # Seletor interativo da régua temporal
-│       ├── BRLInput.tsx                 # Input monetário com máscara nativa em BRL
-│       └── Navbar.tsx                   # Cabeçalho com status da reforma
-│
-└── __tests__/                   # 🧪 Suíte de Testes Automatizados (Vitest)
-    ├── taxEngine.test.ts        # Testes de unidade das regras tributárias
-    ├── exceptionFlows.test.ts   # Testes de fluxos de exceção e limites
-    ├── webInteraction.test.tsx  # Testes de integração de componentes de tela
-    └── setup.ts                 # Configuração do ambiente de testes (JSDOM)
-```
-
----
-
-## 🌐 API Integrada do Cronograma
-
-O servidor de desenvolvimento Vite conta com um **middleware mock API nativo**, acessível localmente para testes e integrações:
-
-- **Endpoint**: `GET /api/cronograma-transicao` (ou `/api/transition-schedule`)
-- **Exemplo de Resposta**:
-```json
-{
-  "metadata": {
-    "title": "Cronograma Oficial de Transição IBS e CBS (2026-2033)",
-    "legalBasis": "Constituição Federal (EC 132/2023) e LC 214/2025",
-    "realEstateReductionPercent": 70,
-    "status": "VIGENTE_E_VALIDADO"
-  },
-  "years": [
-    {
-      "year": 2026,
-      "phaseName": "Ano-Teste Nacional",
-      "nominalTotalRate": 1.0,
-      "effectiveTotalRate": 0.30,
-      "isTestPhase": true,
-      "description": "Alíquota-teste de 0,9% CBS + 0,1% IBS compensável com PIS/COFINS."
-    },
-    {
-      "year": 2033,
-      "phaseName": "Regime Definitivo Pleno",
-      "nominalTotalRate": 26.5,
-      "effectiveTotalRate": 7.95,
-      "isTestPhase": false,
-      "description": "Extinção definitiva de PIS, COFINS, ICMS e ISS."
-    }
-  ]
-}
-```
-
----
-
-## 🚀 Como Instalar e Executar
-
-### Pré-requisitos
-- **Node.js**: versão 18.0.0 ou superior (recomendado 20 LTS ou 22)
-- **npm** (ou yarn / pnpm)
-
-### Passo a passo
-
-1. **Clone o repositório**:
-   ```bash
-   git clone https://github.com/francisco-efjr/Simulador-IBS-CBS-do-Aluguel.git
-   cd Simulador-IBS-CBS-do-Aluguel
-   ```
-
-2. **Instale as dependências**:
-   ```bash
-   npm install
-   ```
-
-3. **Inicie o servidor de desenvolvimento**:
-   ```bash
-   npm run dev
-   ```
-   Acesse no navegador: `http://localhost:5173`
-
-4. **Verificação de tipos estáticos**:
-   ```bash
-   npm run typecheck
-   ```
-
-5. **Gere a compilação otimizada para produção**:
-   ```bash
-   npm run build
-   ```
-
-6. **Visualize o build de produção localmente**:
-   ```bash
-   npm run preview
-   ```
-
----
-
-## 🧪 Suíte de Testes Automatizados
-
-Os testes cobrem tanto a lógica contábil/fiscal pura quanto as interações do usuário na interface:
+## Como rodar
 
 ```bash
-# Executar toda a suíte de testes (36 testes distribuídos em 3 arquivos)
-npm test
-
-# Executar testes em modo interativo (watch)
-npm run test:watch
+pnpm install
 ```
 
-### Principais Casos Testados:
-- Enquadramento e habitualidade com limites objetivos (>3 imóveis e >R$ 240k).
-- Expurgo contábil de encargos acessórios (IPTU e taxa de condomínio).
-- Abatimento obrigatório do redutor social residencial de R$ 600,00.
-- Aplicação das alíquotas efetivas para cada ano da transição (2026 a 2033).
-- Consistência em centavos: `TotalTaxDue === CBS + IBS`.
-- Apropriação de créditos de taxa de administração imobiliária.
-- Auditoria tributária e comparativo com Carnê-Leão.
-- Agregação consolidada de portfólio imobiliário misto.
+```bash
+pnpm dev
+```
+
+A aplicação sobe em <http://localhost:8081>.
+
+| Comando | O que faz |
+| --- | --- |
+| `pnpm dev` | Servidor de desenvolvimento |
+| `pnpm build` | Build de produção em `dist/` |
+| `pnpm preview` | Serve o build localmente |
+| `pnpm test` | Suíte do motor tributário (63 testes) |
+| `pnpm typecheck` | `tsc --noEmit` |
+| `pnpm lint` | Oxlint |
+| `pnpm format` | Oxfmt |
 
 ---
 
-## 📄 Licença e Autoria
+## Rotas
 
-Distribuído sob a licença **MIT**. Consulte o arquivo [LICENSE](./LICENSE) para obter mais informações.
+Toda opção do menu tem endereço próprio. As rotas abaixo de **Sistema** exigem
+sessão aberta; `/simulador` é pública.
 
-Desenvolvido por **Francisco E. F. Jr.** com foco no fortalecimento do compliance fiscal e na transparência do mercado imobiliário brasileiro.
+### Públicas
+
+| Rota | Tela |
+| --- | --- |
+| `/login` | Acesso |
+| `/signup` | Criar conta |
+| `/recuperar-senha` | Solicitar recuperação |
+| `/redefinir-senha`, `/resetar-senha` | Definir nova senha |
+| `/simulador` | **Simulador IBS/CBS da locação** |
+
+### Sistema
+
+| Rota | Módulo |
+| --- | --- |
+| `/`, `/inicio` | Início |
+| `/alertas` | Central de vencimentos |
+| `/relatorios` | Exportação PDF/Excel |
+| `/importar-extrato` | Importação de extratos CSV/OFX |
+| `/historico-importacoes` | Histórico de importações |
+| `/classificar-transacoes` | Fila de conciliação |
+| `/imoveis` | Imóveis |
+| `/inquilinos` | Inquilinos |
+| `/contratos` | Contratos de locação |
+| `/receitas` | Receitas |
+| `/despesas` | Despesas |
+| `/iptu-taxas` | IPTU e taxas |
+| `/fornecedores` | Fornecedores |
+| `/dashboard-financeiro` | Dashboard financeiro |
+| `/dashboard-imoveis` | Dashboard de imóveis |
+| `/usuarios` | Usuários e permissões *(admin)* |
+| `/logs-atividade` | Auditoria *(admin)* |
+
+### API
+
+| Rota | Conteúdo |
+| --- | --- |
+| `/api/cronograma-transicao.json` | Cronograma constitucional de transição do IBS/CBS (2026–2033), emitido como arquivo estático no build |
+
+---
+
+## O módulo Simulador
+
+Vive em [`src/simulador/`](src/simulador) e mantém a arquitetura do projeto de
+origem: `core/` reúne o motor fiscal — aritmética decimal em centavos, regras da
+**LC 214/2025** e da **EC 132/2023** — sem nenhuma dependência de interface;
+`ui/` é a camada visual.
+
+A rota `/simulador` se adapta ao contexto:
+
+- **Sem sessão** — simulador autônomo, com cabeçalho, rodapé e alternância
+  claro/escuro próprios. É o endereço público.
+- **Com sessão** — o mesmo simulador embutido no shell do sistema, com a sidebar
+  ao lado e o item correspondente no menu.
+
+O tema do simulador é isolado: os tokens são prefixados (`--sim-*`) e vivem sob
+`.simulador-theme`, e o modo escuro entra nessa mesma raiz. Alternar o tema lá
+não repinta o restante do sistema.
+
+A fundamentação legal, as regras de enquadramento e a memória de cálculo estão
+documentadas em [`docs/simulador.md`](docs/simulador.md).
+
+---
+
+## Modo demonstração
+
+O cliente do PocketBase em [`src/lib/pocketbase/client.ts`](src/lib/pocketbase/client.ts)
+resolve para uma implementação falsa em [`src/lib/mock/`](src/lib/mock):
+
+- **`dataset.ts`** — 8 imóveis, 8 inquilinos, 7 contratos, 51 receitas, 18
+  despesas, 10 obrigações de IPTU, extratos e auditoria. As datas são calculadas
+  a partir de hoje, então alertas e gráficos continuam coerentes com o
+  calendário em qualquer dia.
+- **`client.ts`** — implementa `getFullList`/`getList`/`getOne`, `create`,
+  `update`, `delete`, `expand` (inclusive aninhado), `sort`, `filter`, realtime
+  e `authStore`. Nenhum service ou página sabe que não há backend.
+- **`filter.ts`** — avaliador da sintaxe de filtro do PocketBase.
+
+As alterações feitas durante a navegação ficam no `localStorage`: criar um
+imóvel e recarregar a página não desfaz o que foi feito. Para voltar ao estado
+inicial, limpe o armazenamento do site ou chame `resetMockDatabase()`.
+
+### Voltar a usar o PocketBase de verdade
+
+O schema versionado continua no repositório: 17 migrations e 23 hooks em
+[`pocketbase/`](pocketbase) (auditoria por domínio, crons de inadimplência,
+fluxo de convite e recuperação de senha).
+
+```bash
+VITE_USE_MOCK=false VITE_POCKETBASE_URL=https://seu-pocketbase pnpm build
+```
+
+Com `VITE_USE_MOCK=false` a aplicação volta a falar com o servidor, e o login
+passa a exigir credenciais válidas de novo.
+
+---
+
+## Deploy
+
+A Vercel constrói a raiz do repositório com `pnpm build` e publica `dist/`. O
+[`vercel.json`](vercel.json) faz o fallback de SPA preservando `/api/` e
+`/assets/`, e libera CORS no endpoint do cronograma.
+
+## Licença
+
+MIT — ver [LICENSE](LICENSE).

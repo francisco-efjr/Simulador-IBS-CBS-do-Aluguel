@@ -1,0 +1,110 @@
+/**
+ * Tokens semânticos do Simulador IBS/CBS.
+ *
+ * O simulador nasceu como app separado, com paleta e tipografia próprias. Aqui
+ * ele convive com o tema do Controle de Imóveis, então os tokens são prefixados
+ * (--sim-*) e vivem sob .simulador-theme em vez de :root — nada vaza para o
+ * resto do sistema. O modo escuro também é próprio: a classe `dark` entra no
+ * mesmo elemento do simulador, sem arrastar o app inteiro junto.
+ */
+
+.simulador-theme {
+  color-scheme: light;
+
+  --sim-canvas: 250 248 245;
+  --sim-surface: 255 255 255;
+  --sim-surface-muted: 250 248 245;
+
+  --sim-border: 214 208 198;
+  --sim-border-strong: 201 194 182;
+
+  --sim-text-primary: 22 22 22;
+  --sim-text-secondary: 74 71 68;
+  --sim-text-muted: 94 90 85;
+
+  /* Botão/estado selecionado: inverte em relação ao fundo */
+  --sim-accent-bg: 22 22 22;
+  --sim-accent-fg: 255 255 255;
+
+  --sim-positive-bg: 234 244 236;
+  --sim-positive-border: 140 199 154;
+  --sim-positive-text: 21 87 36;
+
+  --sim-warning-bg: 254 247 237;
+  --sim-warning-border: 232 181 77;
+  --sim-warning-text: 120 53 15;
+
+  --sim-info-bg: 238 243 250;
+  --sim-info-border: 185 210 238;
+  --sim-info-text: 29 82 143;
+
+  --sim-danger-bg: 254 242 242;
+  --sim-danger-border: 248 113 113;
+  --sim-danger-text: 153 27 27;
+
+  background-color: rgb(var(--sim-canvas));
+  color: rgb(var(--sim-text-primary));
+  font-family:
+    'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+.simulador-theme.dark {
+  color-scheme: dark;
+
+  --sim-canvas: 11 13 17;
+  --sim-surface: 20 23 31;
+  --sim-surface-muted: 26 30 39;
+
+  --sim-border: 42 48 61;
+  --sim-border-strong: 58 65 80;
+
+  --sim-text-primary: 241 243 247;
+  --sim-text-secondary: 195 202 213;
+  --sim-text-muted: 152 162 179;
+
+  --sim-accent-bg: 255 255 255;
+  --sim-accent-fg: 22 22 22;
+
+  --sim-positive-bg: 14 36 22;
+  --sim-positive-border: 44 107 63;
+  --sim-positive-text: 110 231 160;
+
+  --sim-warning-bg: 36 26 14;
+  --sim-warning-border: 107 78 30;
+  --sim-warning-text: 251 191 36;
+
+  --sim-info-bg: 16 30 51;
+  --sim-info-border: 42 74 120;
+  --sim-info-text: 127 180 245;
+
+  --sim-danger-bg: 42 19 21;
+  --sim-danger-border: 127 42 46;
+  --sim-danger-text: 252 165 165;
+}
+
+/* Scrollbar discreta, apenas dentro do simulador */
+.simulador-theme ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.simulador-theme ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.simulador-theme ::-webkit-scrollbar-thumb {
+  background: rgb(var(--sim-text-primary) / 0.15);
+  border-radius: 9999px;
+}
+.simulador-theme ::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--sim-text-primary) / 0.3);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

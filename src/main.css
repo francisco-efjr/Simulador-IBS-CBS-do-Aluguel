@@ -1,0 +1,285 @@
+/* Global styles - Theme, font, utilities, animations and global components */
+
+/* CHANGE THE FONT BELOW TO WHATEVER YOU WANT */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 218 30% 98%;
+    --foreground: 218 64% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 218 64% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 218 64% 11%;
+
+    /* Navy Blue Primary */
+    --primary: 218 64% 11%;
+    --primary-foreground: 40 53% 95%;
+
+    --secondary: 218 25% 94%;
+    --secondary-foreground: 218 64% 11%;
+
+    --muted: 218 15% 93%;
+    --muted-foreground: 218 20% 45%;
+
+    /* Gold Accent */
+    --accent: 40 53% 55%;
+    --accent-foreground: 218 64% 11%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 218 20% 88%;
+    --input: 218 20% 88%;
+    --ring: 40 53% 55%;
+
+    --radius: 0.5rem;
+
+    /* Sidebar - Deep Navy Blue */
+    --sidebar-background: 218 64% 11%;
+    --sidebar-foreground: 218 20% 92%;
+    --sidebar-primary: 40 53% 55%;
+    --sidebar-primary-foreground: 218 64% 11%;
+    --sidebar-accent: 218 50% 16%;
+    --sidebar-accent-foreground: 40 53% 65%;
+    --sidebar-border: 218 50% 18%;
+    --sidebar-ring: 40 53% 55%;
+
+    --chart-1: 40 53% 55%;
+    --chart-2: 218 64% 20%;
+    --chart-3: 209 100% 32%;
+    --chart-4: 42 100% 50%;
+    --chart-5: 33 100% 50%;
+  }
+
+  .dark {
+    --background: 218 68% 7%;
+    --foreground: 218 20% 95%;
+
+    --card: 218 64% 11%;
+    --card-foreground: 218 20% 95%;
+
+    --popover: 218 64% 11%;
+    --popover-foreground: 218 20% 95%;
+
+    --primary: 40 53% 55%;
+    --primary-foreground: 218 68% 7%;
+
+    --secondary: 218 50% 16%;
+    --secondary-foreground: 218 20% 95%;
+
+    --muted: 218 50% 16%;
+    --muted-foreground: 218 20% 65%;
+
+    --accent: 40 53% 55%;
+    --accent-foreground: 218 68% 7%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 218 20% 95%;
+
+    --border: 218 50% 18%;
+    --input: 218 50% 18%;
+    --ring: 40 53% 55%;
+
+    --sidebar-background: 218 68% 7%;
+    --sidebar-foreground: 218 20% 92%;
+    --sidebar-primary: 40 53% 55%;
+    --sidebar-primary-foreground: 218 68% 7%;
+    --sidebar-accent: 218 50% 16%;
+    --sidebar-accent-foreground: 40 53% 65%;
+    --sidebar-border: 218 50% 18%;
+    --sidebar-ring: 40 53% 55%;
+
+    --chart-1: 40 53% 55%;
+    --chart-2: 218 64% 30%;
+    --chart-3: 43 100% 32%;
+    --chart-4: 340 100% 50%;
+    --chart-5: 10 100% 50%;
+  }
+
+  /* NEVER REMOVE THIS */
+  section[aria-label='Notifications alt+T'] {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+@layer utilities {
+  /* KEEP ALL THE ANIMATIONS CLASSES THAT ARE USED BELOW */
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fade-in-up {
+    from {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in-down {
+    from {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-out-up {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+  }
+
+  @keyframes fade-out-down {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-down {
+    from {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes spotlight {
+    from {
+      opacity: 0;
+      transform: translate(-72%, -62%) scale(0.5);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -40%) scale(1);
+    }
+  }
+
+  .animate-accordion-down {
+    animation: accordion-down 0.2s ease-out;
+  }
+
+  .animate-accordion-up {
+    animation: accordion-up 0.2s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+  }
+
+  .animate-fade-out {
+    animation: fade-out 0.5s ease-out;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out;
+  }
+
+  .animate-fade-in-down {
+    animation: fade-in-down 0.6s ease-out;
+  }
+
+  .animate-fade-out-up {
+    animation: fade-out-up 0.6s ease-out;
+  }
+
+  .animate-fade-out-down {
+    animation: fade-out-down 0.6s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.6s ease-out;
+  }
+
+  .animate-slide-down {
+    animation: slide-down 0.6s ease-out;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-spotlight {
+    animation: spotlight 2s ease forwards;
+  }
+}

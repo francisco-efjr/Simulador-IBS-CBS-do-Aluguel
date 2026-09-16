@@ -1,0 +1,28 @@
+/* Typescript config for the browser frontend react app: https://www.typescriptlang.org/tsconfig/ */
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable", "ESNext"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitAny": false,
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    /* globals do vitest (describe/it/expect) e matchers do jest-dom usados na
+       suíte do simulador em src/simulador/__tests__ */
+    "types": ["vite/client", "vitest/globals"]
+  },
+  "include": ["src", "tailwind.config.ts", "*.tsx"]
+}

@@ -1,0 +1,1774 @@
+{
+  "generatedAt": "2026-09-04T22:42:11.117Z",
+  "collections": [
+    {
+      "name": "users",
+      "type": "auth",
+      "apiRules": {
+        "list": "@request.auth.id != '' && (id = @request.auth.id || @request.auth.perfil = 'administrador')",
+        "view": "@request.auth.id != '' && (id = @request.auth.id || @request.auth.perfil = 'administrador')",
+        "create": "",
+        "update": "@request.auth.id != '' && (id = @request.auth.id || @request.auth.perfil = 'administrador')",
+        "delete": "@request.auth.id != '' && @request.auth.perfil = 'administrador'"
+      },
+      "fields": [
+        {
+          "name": "name",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "avatar",
+          "type": "file",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "perfil",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["administrador", "usuario"]
+        },
+        {
+          "name": "ativo",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "permissoes",
+          "type": "json",
+          "required": false,
+          "system": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX `idx_tokenKey__pb_users_auth_` ON `users` (`tokenKey`)",
+        "CREATE UNIQUE INDEX `idx_email__pb_users_auth_` ON `users` (`email`) WHERE `email` != ''"
+      ]
+    },
+    {
+      "name": "imoveis",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "endereco",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "numero",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "complemento",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "bairro",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cidade",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "estado",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cep",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "updated_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "tipo",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "casa",
+            "apartamento",
+            "sala_comercial",
+            "loja",
+            "galpao",
+            "terreno",
+            "outro"
+          ]
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["vago", "alugado", "em_manutencao", "inativo"]
+        },
+        {
+          "name": "codigo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "nome",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "matricula",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "inscricao_imobiliaria",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "observacoes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "area",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "quartos",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "banheiros",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "vagas",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor_estimado",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "fotos",
+          "type": "file",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "inquilino_atual",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "inquilinos"
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_imoveis_status ON imoveis (status)",
+        "CREATE INDEX idx_imoveis_created ON imoveis (created)",
+        "CREATE INDEX idx_imoveis_created_by ON imoveis (created_by)"
+      ]
+    },
+    {
+      "name": "inquilinos",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "cpf",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "email",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "telefone",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["ativo", "inativo"]
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "updated_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "tipo_pessoa",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["pf", "pj"]
+        },
+        {
+          "name": "rg",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_nascimento",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "nome_fantasia",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cnpj",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "responsavel",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "endereco",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "observacoes",
+          "type": "text",
+          "required": false,
+          "system": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_inquilinos_cpf ON inquilinos (cpf) WHERE cpf != ''",
+        "CREATE INDEX idx_inquilinos_status ON inquilinos (status)",
+        "CREATE INDEX idx_inquilinos_created ON inquilinos (created)"
+      ]
+    },
+    {
+      "name": "fornecedores",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "cnpj_cpf",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "email",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "telefone",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["ativo", "inativo"]
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "updated_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "nome_fantasia",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tipo_fornecedor",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "eletricista",
+            "encanador",
+            "pedreiro",
+            "pintor",
+            "empresa_manutencao",
+            "empresa_limpeza",
+            "seguradora",
+            "condominio",
+            "outros"
+          ]
+        },
+        {
+          "name": "contato",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "endereco",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "servicos_prestados",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "observacoes",
+          "type": "text",
+          "required": false,
+          "system": false
+        }
+      ],
+      "indexes": ["CREATE INDEX idx_fornecedores_status ON fornecedores (status)"]
+    },
+    {
+      "name": "categorias_financeiras",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "tipo",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["receita", "despesa"]
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["ativo", "inativo"]
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "updated_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_categorias_financeiras_tipo ON categorias_financeiras (tipo)",
+        "CREATE INDEX idx_categorias_financeiras_status ON categorias_financeiras (status)"
+      ]
+    },
+    {
+      "name": "contratos",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "imovel",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "imoveis"
+        },
+        {
+          "name": "inquilino",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "inquilinos"
+        },
+        {
+          "name": "data_inicio",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_fim",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor_aluguel",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "updated_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["ativo", "encerrado", "cancelado"]
+        },
+        {
+          "name": "numero",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "dia_vencimento",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "indice_reajuste",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "periodicidade_reajuste",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "proxima_data_reajuste",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tipo_garantia",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "caução",
+            "fiador",
+            "seguro-fiança",
+            "título de capitalização",
+            "sem garantia",
+            "outros"
+          ]
+        },
+        {
+          "name": "valor_garantia",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "observacoes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "documento",
+          "type": "file",
+          "required": false,
+          "system": false
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_contratos_imovel ON contratos (imovel)",
+        "CREATE INDEX idx_contratos_inquilino ON contratos (inquilino)",
+        "CREATE INDEX idx_contratos_status ON contratos (status)",
+        "CREATE INDEX idx_contratos_created ON contratos (created)",
+        "CREATE INDEX `idx_contratos_data_fim` ON `contratos` (data_fim)"
+      ]
+    },
+    {
+      "name": "receitas",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "imovel",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "imoveis"
+        },
+        {
+          "name": "contrato",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "contratos"
+        },
+        {
+          "name": "categoria",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "categorias_financeiras"
+        },
+        {
+          "name": "descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["ativo", "inativo"]
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "updated_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "inquilino",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "inquilinos"
+        },
+        {
+          "name": "competencia",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_vencimento",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor_previsto",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor_recebido",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_recebimento",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status_financeiro",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["previsto", "recebido", "em_atraso", "parcial"]
+        },
+        {
+          "name": "forma_recebimento",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "observacoes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "transacao_importada_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_receitas_imovel ON receitas (imovel)",
+        "CREATE INDEX idx_receitas_contrato ON receitas (contrato)",
+        "CREATE INDEX idx_receitas_categoria ON receitas (categoria)",
+        "CREATE INDEX idx_receitas_data ON receitas (data)",
+        "CREATE INDEX idx_receitas_status ON receitas (status)",
+        "CREATE INDEX `idx_receitas_status_financeiro` ON `receitas` (status_financeiro)",
+        "CREATE INDEX `idx_receitas_data_vencimento` ON `receitas` (data_vencimento)"
+      ]
+    },
+    {
+      "name": "despesas",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "imovel",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "imoveis"
+        },
+        {
+          "name": "fornecedor",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "fornecedores"
+        },
+        {
+          "name": "categoria",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "categorias_financeiras"
+        },
+        {
+          "name": "descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["ativo", "inativo"]
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "updated_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "competencia",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_vencimento",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor_previsto",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor_pago",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_pagamento",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status_financeiro",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["previsto", "pago", "em_atraso", "parcial"]
+        },
+        {
+          "name": "forma_pagamento",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "observacoes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "transacao_importada_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_despesas_imovel ON despesas (imovel)",
+        "CREATE INDEX idx_despesas_fornecedor ON despesas (fornecedor)",
+        "CREATE INDEX idx_despesas_categoria ON despesas (categoria)",
+        "CREATE INDEX idx_despesas_data ON despesas (data)",
+        "CREATE INDEX idx_despesas_status ON despesas (status)",
+        "CREATE INDEX `idx_despesas_status_financeiro` ON `despesas` (status_financeiro)",
+        "CREATE INDEX `idx_despesas_data_vencimento` ON `despesas` (data_vencimento)"
+      ]
+    },
+    {
+      "name": "iptu_taxas",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "imovel",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "imoveis"
+        },
+        {
+          "name": "descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "vencimento",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "updated_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "tipo",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "iptu",
+            "taxa_condominio",
+            "seguro",
+            "taxa_municipal",
+            "taxa_extraordinaria",
+            "outro"
+          ]
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["pago", "pendente", "vencido"]
+        },
+        {
+          "name": "ano_referencia",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_pagamento",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "forma_pagamento",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "observacoes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "comprovante",
+          "type": "file",
+          "required": false,
+          "system": false
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_iptu_taxas_imovel ON iptu_taxas (imovel)",
+        "CREATE INDEX idx_iptu_taxas_status ON iptu_taxas (status)",
+        "CREATE INDEX idx_iptu_taxas_vencimento ON iptu_taxas (vencimento)"
+      ]
+    },
+    {
+      "name": "documentos_anexos",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "entidade_tipo",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "imovel",
+            "inquilino",
+            "contrato",
+            "fornecedor",
+            "despesa",
+            "receita",
+            "iptu_taxas"
+          ]
+        },
+        {
+          "name": "entidade_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "arquivo",
+          "type": "file",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["ativo", "inativo"]
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_documentos_anexos_entidade_tipo ON documentos_anexos (entidade_tipo)",
+        "CREATE INDEX idx_documentos_anexos_entidade_id ON documentos_anexos (entidade_id)"
+      ]
+    },
+    {
+      "name": "contas_bancarias",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "banco",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "agencia",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "conta",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tipo",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Conta Corrente", "Conta Poupança", "Conta Investimento", "Outros"]
+        },
+        {
+          "name": "saldo_inicial",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "ativo",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "updated_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_contas_bancarias_ativo ON contas_bancarias (ativo)",
+        "CREATE INDEX idx_contas_bancarias_created ON contas_bancarias (created DESC)"
+      ]
+    },
+    {
+      "name": "importacoes",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "conta_bancaria",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "contas_bancarias"
+        },
+        {
+          "name": "arquivo_nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "formato",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["csv", "ofx"]
+        },
+        {
+          "name": "data_importacao",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "total_transacoes",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "transacoes_classificadas",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "transacoes_ignoradas",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["pendente", "concluida", "parcial"]
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "updated_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_importacoes_conta ON importacoes (conta_bancaria)",
+        "CREATE INDEX idx_importacoes_status ON importacoes (status)",
+        "CREATE INDEX idx_importacoes_created ON importacoes (created DESC)"
+      ]
+    },
+    {
+      "name": "transacoes_importadas",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "importacao",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "importacoes"
+        },
+        {
+          "name": "data",
+          "type": "date",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "descricao",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "valor",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "tipo",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["credito", "debito"]
+        },
+        {
+          "name": "saldo",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "classificada",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "ignorada",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "duplicata_detectada",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "duplicata_ids",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "sugestao_categoria",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "sugestao_categoria_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "sugestao_imovel",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "sugestao_imovel_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "sugestao_tipo",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["receita", "despesa"]
+        },
+        {
+          "name": "sugestao_confianca",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "categoria_classificada",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "imovel_classificado",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "receita_gerada",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "despesa_gerada",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "updated_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_transacoes_importacao ON transacoes_importadas (importacao)",
+        "CREATE INDEX idx_transacoes_data ON transacoes_importadas (data DESC)",
+        "CREATE INDEX idx_transacoes_classificada ON transacoes_importadas (classificada)",
+        "CREATE INDEX idx_transacoes_ignorada ON transacoes_importadas (ignorada)"
+      ]
+    },
+    {
+      "name": "convites",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != '' && @request.auth.perfil = 'administrador'",
+        "view": "@request.auth.id != '' && @request.auth.perfil = 'administrador'",
+        "create": "@request.auth.id != '' && @request.auth.perfil = 'administrador'",
+        "update": "@request.auth.id != '' && @request.auth.perfil = 'administrador'",
+        "delete": "@request.auth.id != '' && @request.auth.perfil = 'administrador'"
+      },
+      "fields": [
+        {
+          "name": "email",
+          "type": "email",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "token",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "perfil",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["administrador", "usuario"]
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["pendente", "aceito", "cancelado", "expirado"]
+        },
+        {
+          "name": "data_expiracao",
+          "type": "date",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "criado_por",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_convites_token ON convites (token)",
+        "CREATE INDEX idx_convites_email ON convites (email)",
+        "CREATE INDEX idx_convites_status ON convites (status)",
+        "CREATE INDEX idx_convites_expiracao ON convites (data_expiracao)"
+      ]
+    },
+    {
+      "name": "password_resets",
+      "type": "base",
+      "apiRules": {
+        "list": null,
+        "view": null,
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "user",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "email",
+          "type": "email",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "token",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["pendente", "utilizado", "expirado"]
+        },
+        {
+          "name": "expires_at",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_pwd_resets_token ON password_resets (token)",
+        "CREATE INDEX idx_pwd_resets_email ON password_resets (email)",
+        "CREATE INDEX idx_pwd_resets_status ON password_resets (status)"
+      ]
+    },
+    {
+      "name": "logs_atividade",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != '' && @request.auth.perfil = 'administrador'",
+        "view": "@request.auth.id != '' && @request.auth.perfil = 'administrador'",
+        "create": "@request.auth.id != ''",
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "usuario",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "acao",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "entidade",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "detalhes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_logs_usuario ON logs_atividade (usuario)",
+        "CREATE INDEX idx_logs_acao ON logs_atividade (acao)",
+        "CREATE INDEX idx_logs_entidade ON logs_atividade (entidade)",
+        "CREATE INDEX idx_logs_created ON logs_atividade (created)"
+      ]
+    }
+  ]
+}
