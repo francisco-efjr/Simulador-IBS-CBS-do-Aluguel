@@ -241,13 +241,13 @@ export default function Usuarios() {
     if (perfil === 'administrador') {
       return (
         <Badge className="bg-amber-100 text-amber-900 border-amber-300 font-semibold gap-1 hover:bg-amber-100">
-          <Shield className="h-3 w-3 text-amber-600" /> Administrador
+          <Shield className="h-3 w-3 text-amber-700" /> Administrador
         </Badge>
       )
     }
     return (
       <Badge variant="secondary" className="bg-slate-100 text-slate-700 font-medium gap-1">
-        <UserCheck className="h-3 w-3 text-slate-500" /> Usuário
+        <UserCheck className="h-3 w-3 text-slate-600" /> Usuário
       </Badge>
     )
   }
@@ -262,7 +262,7 @@ export default function Usuarios() {
           variant="outline"
           className="bg-red-50 text-red-700 border-red-200 gap-1 font-medium"
         >
-          <AlertTriangle className="h-3 w-3 text-red-500" /> Expirado
+          <AlertTriangle className="h-3 w-3 text-red-600" /> Expirado
         </Badge>
       )
     }
@@ -276,13 +276,13 @@ export default function Usuarios() {
     if (status === 'aceito') {
       return (
         <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 gap-1 font-semibold hover:bg-emerald-50">
-          <CheckCircle2 className="h-3 w-3 text-emerald-600" /> Aceito
+          <CheckCircle2 className="h-3 w-3 text-emerald-700" /> Aceito
         </Badge>
       )
     }
     return (
-      <Badge variant="secondary" className="bg-slate-100 text-slate-500 gap-1">
-        <XCircle className="h-3 w-3 text-slate-400" /> Cancelado
+      <Badge variant="secondary" className="bg-slate-100 text-slate-600 gap-1">
+        <XCircle className="h-3 w-3 text-slate-600" /> Cancelado
       </Badge>
     )
   }
@@ -310,21 +310,21 @@ export default function Usuarios() {
             <h3 className="font-semibold text-slate-800 mb-2">Seus dados de acesso</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-                <span className="text-xs text-slate-500 block">Nome</span>
+                <span className="text-xs text-slate-600 block">Nome</span>
                 <span className="font-medium text-slate-800">
                   {currentUser?.name || 'Não informado'}
                 </span>
               </div>
               <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-                <span className="text-xs text-slate-500 block">E-mail</span>
+                <span className="text-xs text-slate-600 block">E-mail</span>
                 <span className="font-medium text-slate-800">{currentUser?.email}</span>
               </div>
               <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-                <span className="text-xs text-slate-500 block">Papel no Sistema</span>
+                <span className="text-xs text-slate-600 block">Papel no Sistema</span>
                 <div className="mt-1">{getPerfilBadge(currentUser?.perfil || 'usuario')}</div>
               </div>
               <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-                <span className="text-xs text-slate-500 block">Status da Conta</span>
+                <span className="text-xs text-slate-600 block">Status da Conta</span>
                 <Badge className="bg-emerald-100 text-emerald-800 mt-1 hover:bg-emerald-100">
                   Ativa
                 </Badge>
@@ -342,7 +342,7 @@ export default function Usuarios() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-xl bg-gradient-to-r from-navy-950 via-navy-900 to-navy-800 p-6 text-white shadow-xl border border-navy-700/80">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-gold-400">
+            <span className="text-xs font-bold uppercase tracking-widest text-gold-400">
               Holding Aguiar &bull; Governança
             </span>
           </div>
@@ -381,7 +381,7 @@ export default function Usuarios() {
             >
               Convites
               {pendentesCount > 0 && (
-                <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-gold-500 text-navy-950 text-[10px] font-bold">
+                <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-gold-500 text-navy-950 text-xs font-bold">
                   {pendentesCount}
                 </span>
               )}
@@ -389,8 +389,9 @@ export default function Usuarios() {
           </TabsList>
 
           <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-600" />
             <Input
+              aria-label="Buscar por nome ou e-mail"
               placeholder="Buscar por nome ou e-mail..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -423,7 +424,7 @@ export default function Usuarios() {
                 <TableBody>
                   {loadingUsers ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="py-12 text-center text-slate-400">
+                      <TableCell colSpan={6} className="py-12 text-center text-slate-600">
                         <div className="flex flex-col items-center justify-center gap-2">
                           <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold-500 border-t-transparent" />
                           <span className="text-xs">Carregando usuários...</span>
@@ -432,7 +433,7 @@ export default function Usuarios() {
                     </TableRow>
                   ) : filteredUsers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="py-10 text-center text-slate-400 text-sm">
+                      <TableCell colSpan={6} className="py-10 text-center text-slate-600 text-sm">
                         Nenhum usuário encontrado.
                       </TableCell>
                     </TableRow>
@@ -455,7 +456,7 @@ export default function Usuarios() {
                                   {isSelf && (
                                     <Badge
                                       variant="outline"
-                                      className="text-[10px] px-1 py-0 h-4 border-gold-400 text-gold-700 bg-gold-50"
+                                      className="text-xs px-1 py-0 h-4 border-gold-400 text-gold-700 bg-gold-50"
                                     >
                                       Você
                                     </Badge>
@@ -474,12 +475,12 @@ export default function Usuarios() {
                                 Ativo
                               </Badge>
                             ) : (
-                              <Badge variant="secondary" className="bg-slate-100 text-slate-500">
+                              <Badge variant="secondary" className="bg-slate-100 text-slate-600">
                                 Inativo
                               </Badge>
                             )}
                           </TableCell>
-                          <TableCell className="text-xs text-slate-500">
+                          <TableCell className="text-xs text-slate-600">
                             {formatDate(u.created)}
                           </TableCell>
                           <TableCell className="text-right">
@@ -519,7 +520,7 @@ export default function Usuarios() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 text-slate-500 hover:text-amber-600 hover:bg-amber-50"
+                                className="h-8 w-8 text-slate-600 hover:text-amber-700 hover:bg-amber-50"
                                 onClick={() => handleToggleAtivo(u)}
                                 disabled={isSelf}
                                 title={
@@ -536,7 +537,7 @@ export default function Usuarios() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                className="h-8 w-8 text-slate-600 hover:text-red-600 hover:bg-red-50"
                                 onClick={() => setDeleteUserTarget(u)}
                                 disabled={isSelf}
                                 title={
@@ -585,7 +586,7 @@ export default function Usuarios() {
                 <TableBody>
                   {loadingConvites ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="py-12 text-center text-slate-400">
+                      <TableCell colSpan={6} className="py-12 text-center text-slate-600">
                         <div className="flex flex-col items-center justify-center gap-2">
                           <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold-500 border-t-transparent" />
                           <span className="text-xs">Carregando convites...</span>
@@ -594,7 +595,7 @@ export default function Usuarios() {
                     </TableRow>
                   ) : filteredConvites.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="py-10 text-center text-slate-400 text-sm">
+                      <TableCell colSpan={6} className="py-10 text-center text-slate-600 text-sm">
                         <div className="flex flex-col items-center justify-center gap-2">
                           <Mail className="h-8 w-8 text-slate-300" />
                           <p>Nenhum convite enviado até o momento.</p>
@@ -619,7 +620,7 @@ export default function Usuarios() {
                         >
                           <TableCell className="font-medium text-slate-900">
                             <div className="flex items-center gap-2">
-                              <Mail className="h-4 w-4 text-slate-400" />
+                              <Mail className="h-4 w-4 text-slate-600" />
                               <span className="text-xs sm:text-sm">{c.email}</span>
                             </div>
                           </TableCell>
@@ -628,7 +629,7 @@ export default function Usuarios() {
                           <TableCell className="text-xs text-slate-600">
                             {formatDate(c.data_expiracao)}
                           </TableCell>
-                          <TableCell className="text-xs text-slate-500">
+                          <TableCell className="text-xs text-slate-600">
                             {formatDate(c.created)}
                           </TableCell>
                           <TableCell className="text-right">
@@ -643,7 +644,7 @@ export default function Usuarios() {
                                     title="Copiar link do convite"
                                   >
                                     {copiedTokenId === c.id ? (
-                                      <Check className="h-3.5 w-3.5 text-emerald-600 mr-1" />
+                                      <Check className="h-3.5 w-3.5 text-emerald-700 mr-1" />
                                     ) : (
                                       <Copy className="h-3.5 w-3.5 mr-1 text-gold-600" />
                                     )}
@@ -663,7 +664,7 @@ export default function Usuarios() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                    className="h-8 w-8 text-slate-600 hover:text-red-600 hover:bg-red-50"
                                     onClick={() => setCancelInviteTarget(c)}
                                     title="Cancelar convite"
                                   >
@@ -676,7 +677,7 @@ export default function Usuarios() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                  className="h-8 w-8 text-slate-600 hover:text-red-600 hover:bg-red-50"
                                   onClick={() => handleDeleteInvite(c.id)}
                                   title="Excluir histórico deste convite"
                                 >

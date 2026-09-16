@@ -78,23 +78,26 @@ export default function Login() {
 
         <Card className="border border-navy-700/80 bg-navy-800/90 text-slate-100 shadow-2xl backdrop-blur-xl">
           <CardHeader className="space-y-1.5 pb-4 text-center">
-            <CardTitle className="text-2xl font-bold tracking-tight text-white">
+            <CardTitle as="h1" className="text-2xl font-bold tracking-tight text-white">
               Acesse sua conta
             </CardTitle>
-            <CardDescription className="text-slate-300 text-xs sm:text-sm">
+            <CardDescription className="text-slate-200 text-sm sm:text-base">
               Digite suas credenciais de acesso ao painel Holding Aguiar.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {generalError && (
-                <div className="rounded-lg bg-red-950/80 p-3 text-xs font-medium text-red-300 border border-red-800/60">
+                <div
+                  role="alert"
+                  className="rounded-lg bg-red-950/80 p-3 text-sm font-semibold text-red-200 border border-red-800/60"
+                >
                   {generalError}
                 </div>
               )}
 
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-slate-200 font-medium text-xs">
+                <Label htmlFor="email" className="text-slate-100 font-semibold text-sm">
                   E-mail institucional
                 </Label>
                 <div className="relative">
@@ -102,19 +105,27 @@ export default function Login() {
                   <Input
                     id="email"
                     type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    autoCapitalize="none"
+                    spellCheck={false}
                     placeholder="seu.email@holdingaguiar.com.br"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-9 bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-400 focus:border-gold-500 focus:ring-gold-500"
+                    aria-invalid={Boolean(fieldErrors.email) || undefined}
+                    aria-describedby={fieldErrors.email ? 'email-erro' : undefined}
+                    className="pl-9 min-h-[48px] text-base bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-300 focus:border-gold-500 focus:ring-gold-500"
                   />
                 </div>
                 {fieldErrors.email && (
-                  <p className="text-xs font-medium text-red-400">{fieldErrors.email}</p>
+                  <p id="email-erro" role="alert" className="text-sm font-semibold text-red-300">
+                    {fieldErrors.email}
+                  </p>
                 )}
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-slate-200 font-medium text-xs">
+                <Label htmlFor="password" className="text-slate-100 font-semibold text-sm">
                   Senha de acesso
                 </Label>
                 <div className="relative">
@@ -122,26 +133,37 @@ export default function Login() {
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-9 pr-10 bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-400 focus:border-gold-500 focus:ring-gold-500"
+                    aria-invalid={Boolean(fieldErrors.password) || undefined}
+                    aria-describedby={fieldErrors.password ? 'password-erro' : undefined}
+                    className="pl-9 pr-14 min-h-[48px] text-base bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-300 focus:border-gold-500 focus:ring-gold-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-gold-400 transition-colors"
+                    aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                    aria-pressed={showPassword}
+                    className="absolute right-0 top-0 flex h-full min-h-[48px] w-12 items-center justify-center rounded-r-md text-slate-300 hover:text-gold-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 transition-colors"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" aria-hidden="true" />
+                    ) : (
+                      <Eye className="h-5 w-5" aria-hidden="true" />
+                    )}
                   </button>
                 </div>
                 {fieldErrors.password && (
-                  <p className="text-xs font-medium text-red-400">{fieldErrors.password}</p>
+                  <p id="password-erro" role="alert" className="text-sm font-semibold text-red-300">
+                    {fieldErrors.password}
+                  </p>
                 )}
               </div>
 
               <div className="flex items-center justify-between pt-1">
-                <div className="flex items-center space-x-2">
+                <div className="flex min-h-[44px] items-center space-x-3">
                   <Checkbox
                     id="remember"
                     checked={rememberMe}
@@ -150,14 +172,14 @@ export default function Login() {
                   />
                   <label
                     htmlFor="remember"
-                    className="text-xs font-medium text-slate-300 cursor-pointer"
+                    className="flex min-h-[44px] items-center text-sm font-medium text-slate-200 cursor-pointer"
                   >
                     Lembrar de mim
                   </label>
                 </div>
                 <Link
                   to="/recuperar-senha"
-                  className="text-xs font-semibold text-gold-400 hover:text-gold-300 hover:underline transition-colors"
+                  className="inline-flex min-h-[44px] items-center text-sm font-semibold text-gold-300 underline underline-offset-4 hover:text-gold-200 transition-colors"
                 >
                   Esqueci minha senha
                 </Link>
@@ -166,7 +188,7 @@ export default function Login() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-600 hover:to-gold-500 text-navy-950 font-bold py-2.5 shadow-lg shadow-gold-500/20 transition-all active:scale-[0.98]"
+                className="w-full min-h-[52px] text-base bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-600 hover:to-gold-500 text-navy-950 font-bold shadow-lg shadow-gold-500/20 transition-all active:scale-[0.98]"
               >
                 {isSubmitting ? 'Entrando...' : 'Entrar no sistema'}
                 {!isSubmitting && <ArrowRight className="ml-2 h-4 w-4 text-navy-950" />}
@@ -174,11 +196,11 @@ export default function Login() {
             </form>
 
             <div className="mt-6 border-t border-navy-700/80 pt-4 text-center">
-              <p className="text-xs text-slate-400">
+              <p className="text-sm text-slate-300">
                 Ainda não tem acesso?{' '}
                 <Link
                   to="/signup"
-                  className="font-semibold text-gold-400 hover:text-gold-300 hover:underline"
+                  className="inline-flex min-h-[44px] items-center font-semibold text-gold-300 underline underline-offset-4 hover:text-gold-200"
                 >
                   Criar conta
                 </Link>
@@ -187,7 +209,7 @@ export default function Login() {
           </CardContent>
         </Card>
 
-        <div className="mt-6 flex items-center justify-center gap-2 text-slate-400 text-xs font-medium">
+        <div className="mt-6 flex items-center justify-center gap-2 text-slate-300 text-sm font-medium">
           <ShieldCheck className="h-4 w-4 text-gold-400" />
           <span>Ambiente Seguro &bull; Holding Aguiar © 2026</span>
         </div>

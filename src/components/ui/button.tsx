@@ -18,11 +18,14 @@ const buttonVariants = cva(
         ghost: 'text-foreground hover:bg-accent hover:text-accent-foreground',
         link: 'text-foreground underline-offset-4 hover:underline',
       },
+      // Nenhum tamanho desce abaixo de 44px, nem no desktop: é o alvo
+      // recomendado para mão com menos firmeza (WCAG 2.5.5, nível AAA — o
+      // mínimo AA seria 24px, insuficiente para o público deste sistema).
       size: {
         default: 'min-h-[44px] px-4 py-2 text-sm',
-        sm: 'min-h-[44px] sm:min-h-[36px] sm:h-8 rounded-md px-3 text-xs',
-        lg: 'min-h-[44px] sm:min-h-[48px] rounded-md px-8',
-        icon: 'min-h-[44px] min-w-[44px] h-11 w-11 sm:h-9 sm:w-9 sm:min-h-[36px] sm:min-w-[36px]',
+        sm: 'min-h-[44px] rounded-md px-3 text-sm',
+        lg: 'min-h-[52px] rounded-md px-8 text-base',
+        icon: 'min-h-[44px] min-w-[44px] h-11 w-11',
       },
     },
     defaultVariants: {

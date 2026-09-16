@@ -209,7 +209,7 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
                 />
                 {!isTabletRail && <span className="truncate flex-1">{item.title}</span>}
                 {!isTabletRail && isAlertas && alertasCount > 0 && (
-                  <span className="ml-auto inline-flex items-center justify-center h-5 min-w-5 px-1.5 text-[10px] font-bold rounded-full bg-rose-500 text-white shadow-xs">
+                  <span className="ml-auto inline-flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold rounded-full bg-rose-600 text-white shadow-xs">
                     {alertasCount}
                   </span>
                 )}
@@ -219,7 +219,7 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
 
                 {!isTabletRail && isUsuarios && convitesPendentesCount > 0 && (
                   <span
-                    className="ml-auto inline-flex items-center justify-center h-5 min-w-5 px-1.5 text-[10px] font-bold rounded-full bg-gold-500 text-navy-950 shadow-xs"
+                    className="ml-auto inline-flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold rounded-full bg-gold-500 text-navy-950 shadow-xs"
                     title={`${convitesPendentesCount} convite(s) pendente(s)`}
                   >
                     {convitesPendentesCount}

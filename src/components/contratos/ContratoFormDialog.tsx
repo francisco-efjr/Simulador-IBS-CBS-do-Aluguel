@@ -184,7 +184,7 @@ export function ContratoFormDialog({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Imóvel" error={errors.imovel}>
               <Select value={form.imovel} onValueChange={(v) => upd('imovel', v)}>
-                <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
+                <SelectTrigger aria-label="Selecione..." className="bg-slate-50/50 min-h-[44px]">
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -198,7 +198,7 @@ export function ContratoFormDialog({
             </Field>
             <Field label="Inquilino" error={errors.inquilino}>
               <Select value={form.inquilino} onValueChange={(v) => upd('inquilino', v)}>
-                <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
+                <SelectTrigger aria-label="Selecione..." className="bg-slate-50/50 min-h-[44px]">
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>

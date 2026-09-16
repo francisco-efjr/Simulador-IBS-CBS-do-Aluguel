@@ -82,10 +82,10 @@ export default function RecuperarSenha() {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-gold-500/15 border border-gold-500/30 text-gold-400 mb-2">
               <KeyRound className="h-6 w-6" />
             </div>
-            <CardTitle className="text-2xl font-bold tracking-tight text-white">
+            <CardTitle as="h1" className="text-2xl font-bold tracking-tight text-white">
               Recuperar Senha
             </CardTitle>
-            <CardDescription className="text-slate-300 text-xs sm:text-sm">
+            <CardDescription className="text-slate-200 text-sm sm:text-base">
               {sent
                 ? 'Verifique sua caixa de entrada e siga as orientações enviadas.'
                 : 'Informe seu e-mail institucional para receber o link seguro de redefinição.'}
@@ -110,7 +110,7 @@ export default function RecuperarSenha() {
 
                 {devToken && (
                   <div className="rounded-lg bg-navy-900/90 p-3.5 border border-gold-500/30 space-y-2">
-                    <span className="text-[11px] font-semibold text-gold-400 uppercase tracking-wide flex items-center gap-1.5">
+                    <span className="text-xs font-semibold text-gold-400 uppercase tracking-wide flex items-center gap-1.5">
                       <KeyRound className="h-3.5 w-3.5" /> Acesso direto de redefinição:
                     </span>
                     <p className="text-xs text-slate-300">
@@ -141,7 +141,7 @@ export default function RecuperarSenha() {
                   <Link to="/login" className="w-full">
                     <Button
                       variant="ghost"
-                      className="w-full text-slate-300 hover:text-white hover:bg-navy-700/50 text-xs sm:text-sm"
+                      className="w-full min-h-[48px] text-slate-200 hover:text-white hover:bg-navy-700/50 text-base"
                     >
                       <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para o login
                     </Button>
@@ -157,7 +157,7 @@ export default function RecuperarSenha() {
                 )}
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-slate-200 font-medium text-xs">
+                  <Label htmlFor="email" className="text-slate-100 font-semibold text-sm">
                     E-mail institucional cadastrado
                   </Label>
                   <div className="relative">
@@ -169,7 +169,7 @@ export default function RecuperarSenha() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       disabled={submitting}
-                      className="pl-9 bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-400 focus:border-gold-500 focus:ring-gold-500"
+                      className="pl-9 bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-300 focus:border-gold-500 focus:ring-gold-500"
                     />
                   </div>
                 </div>
@@ -195,7 +195,7 @@ export default function RecuperarSenha() {
                 <div className="text-center pt-2">
                   <Link
                     to="/login"
-                    className="text-xs font-semibold text-gold-400 hover:text-gold-300 hover:underline flex items-center justify-center gap-1.5"
+                    className="inline-flex min-h-[44px] items-center justify-center gap-1.5 text-sm font-semibold text-gold-300 underline underline-offset-4 hover:text-gold-200"
                   >
                     <ArrowLeft className="h-3.5 w-3.5" /> Voltar para o login
                   </Link>
@@ -205,7 +205,7 @@ export default function RecuperarSenha() {
           </CardContent>
         </Card>
 
-        <div className="mt-6 flex items-center justify-center gap-2 text-slate-400 text-xs font-medium">
+        <div className="mt-6 flex items-center justify-center gap-2 text-slate-300 text-sm font-medium">
           <ShieldCheck className="h-4 w-4 text-gold-400" />
           <span>Ambiente Seguro &bull; Holding Aguiar © 2026</span>
         </div>

@@ -111,7 +111,7 @@ export function ConvidarUsuarioDialog({
           <div className="space-y-4 py-2">
             <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3.5 text-xs text-emerald-800 space-y-1">
               <p className="font-semibold flex items-center gap-1.5">
-                <Check className="h-4 w-4 text-emerald-600" /> Convite criado para{' '}
+                <Check className="h-4 w-4 text-emerald-700" /> Convite criado para{' '}
                 {createdInvite.email}
               </p>
               <p className="text-emerald-700">
@@ -138,7 +138,7 @@ export function ConvidarUsuarioDialog({
                   onClick={() => copyToClipboard(getInviteLink())}
                 >
                   {copied ? (
-                    <Check className="h-4 w-4 text-emerald-600" />
+                    <Check className="h-4 w-4 text-emerald-700" />
                   ) : (
                     <Copy className="h-4 w-4 text-gold-600" />
                   )}
@@ -209,7 +209,7 @@ export function ConvidarUsuarioDialog({
                       <User className="h-4 w-4 text-slate-500" />
                       <div>
                         <div className="font-semibold text-slate-900 text-xs">Usuário Padrão</div>
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-xs text-slate-500">
                           Acesso aos módulos operacionais (imóveis, contratos, receitas, etc.)
                         </div>
                       </div>
@@ -220,7 +220,7 @@ export function ConvidarUsuarioDialog({
                       <Shield className="h-4 w-4 text-gold-600" />
                       <div>
                         <div className="font-semibold text-slate-900 text-xs">Administrador</div>
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-xs text-slate-500">
                           Acesso total + gestão de usuários e configurações
                         </div>
                       </div>
@@ -230,7 +230,7 @@ export function ConvidarUsuarioDialog({
               </Select>
             </div>
 
-            <div className="rounded-lg bg-navy-50 border border-navy-100 p-3 text-[11px] text-navy-800 leading-relaxed">
+            <div className="rounded-lg bg-navy-50 border border-navy-100 p-3 text-xs text-navy-800 leading-relaxed">
               <strong>Nota de validade:</strong> O convite terá validade de <strong>7 dias</strong>{' '}
               a partir do envio. O usuário poderá definir sua senha segura diretamente no sistema.
             </div>

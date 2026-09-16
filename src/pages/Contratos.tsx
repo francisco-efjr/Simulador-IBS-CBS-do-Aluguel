@@ -13,6 +13,7 @@ import { ContratoFormDialog } from '@/components/contratos/ContratoFormDialog'
 import { ContratoDetailDialog } from '@/components/contratos/ContratoDetailDialog'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/button'
+import { ConfirmarAcao } from '@/components/shared/ConfirmarAcao'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -126,7 +127,7 @@ export default function Contratos() {
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
               Contratos
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
               Contratos de locação, reajustes e prazos
             </p>
           </div>
@@ -143,8 +144,9 @@ export default function Contratos() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <div className="relative sm:col-span-2 lg:col-span-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
           <Input
+            aria-label="Buscar por número, imóvel ou inquilino"
             placeholder="Buscar por número, imóvel ou inquilino..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -152,7 +154,7 @@ export default function Contratos() {
           />
         </div>
         <Select value={fStatus} onValueChange={setFStatus}>
-          <SelectTrigger className="w-full bg-slate-50/50 min-h-[44px]">
+          <SelectTrigger aria-label="Status" className="w-full bg-slate-50/50 min-h-[44px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -165,7 +167,7 @@ export default function Contratos() {
           </SelectContent>
         </Select>
         <Select value={fGarantia} onValueChange={setFGarantia}>
-          <SelectTrigger className="w-full bg-slate-50/50 min-h-[44px]">
+          <SelectTrigger aria-label="Garantia" className="w-full bg-slate-50/50 min-h-[44px]">
             <SelectValue placeholder="Garantia" />
           </SelectTrigger>
           <SelectContent>
@@ -196,12 +198,12 @@ export default function Contratos() {
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center py-12 text-center">
             <FileText className="h-10 w-10 text-slate-300 mb-3" />
-            <p className="text-sm text-slate-500">Nenhum contrato encontrado.</p>
+            <p className="text-sm text-slate-600">Nenhum contrato encontrado.</p>
           </CardContent>
         </Card>
       ) : (
         <>
-          <p className="text-sm text-slate-500">{filtered.length} contrato(s)</p>
+          <p className="text-sm text-slate-600">{filtered.length} contrato(s)</p>
           <div className="hidden md:block rounded-lg border border-slate-200 overflow-x-auto">
             <Table className="min-w-[750px]">
               <TableHeader>
@@ -225,7 +227,7 @@ export default function Contratos() {
                     <TableCell className="font-medium">
                       {c.numero || '—'}
                       {c.dia_vencimento && (
-                        <span className="block text-xs text-slate-400">
+                        <span className="block text-xs text-slate-600">
                           Venc. dia {c.dia_vencimento}
                         </span>
                       )}
@@ -250,39 +252,59 @@ export default function Contratos() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 min-h-[36px] min-w-[36px]"
+                          aria-label="Ver detalhes"
+                          title="Ver detalhes"
+                          className="h-11 w-11 min-h-[44px] min-w-[44px]"
                           onClick={() => handleView(c)}
                         >
-                          <Eye className="h-4 w-4 text-slate-500" />
+                          <Eye className="h-4 w-4 text-slate-600" />
                         </Button>
                         {canEdit && (
                           <>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-9 w-9 min-h-[36px] min-w-[36px]"
+                              aria-label="Editar"
+                              title="Editar"
+                              className="h-11 w-11 min-h-[44px] min-w-[44px]"
                               onClick={() => handleEdit(c)}
                             >
-                              <Pencil className="h-4 w-4 text-slate-500" />
+                              <Pencil className="h-4 w-4 text-slate-600" />
                             </Button>
                             {c.status === 'ativo' && (
                               <>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-9 w-9 min-h-[36px] min-w-[36px]"
-                                  onClick={() => handleEncerrar(c)}
+                                <ConfirmarAcao
+                                  titulo="Encerrar este contrato?"
+                                  descricao="O contrato passa para encerrado e para de gerar cobranças e alertas de vencimento. O histórico de receitas já lançadas permanece."
+                                  rotuloConfirmar="Sim, encerrar o contrato"
+                                  onConfirmar={() => handleEncerrar(c)}
                                 >
-                                  <Check className="h-4 w-4 text-emerald-600" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-9 w-9 min-h-[36px] min-w-[36px]"
-                                  onClick={() => handleCancelar(c)}
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    aria-label="Encerrar contrato"
+                                    title="Encerrar contrato"
+                                    className="h-11 w-11 min-h-[44px] min-w-[44px]"
+                                  >
+                                    <Check className="h-4 w-4 text-emerald-700" />
+                                  </Button>
+                                </ConfirmarAcao>
+                                <ConfirmarAcao
+                                  titulo="Cancelar este contrato?"
+                                  descricao="O contrato passa para cancelado e sai dos alertas e das cobranças futuras. O histórico já lançado permanece."
+                                  rotuloConfirmar="Sim, cancelar o contrato"
+                                  onConfirmar={() => handleCancelar(c)}
                                 >
-                                  <Ban className="h-4 w-4 text-red-500" />
-                                </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    aria-label="Cancelar contrato"
+                                    title="Cancelar contrato"
+                                    className="h-11 w-11 min-h-[44px] min-w-[44px]"
+                                  >
+                                    <Ban className="h-4 w-4 text-red-600" />
+                                  </Button>
+                                </ConfirmarAcao>
                               </>
                             )}
                           </>
@@ -307,7 +329,7 @@ export default function Contratos() {
                       <p className="font-semibold text-slate-900 text-sm truncate">
                         {c.numero || 'Sem número'}
                       </p>
-                      <p className="text-xs text-slate-500 truncate">
+                      <p className="text-xs text-slate-600 truncate">
                         {c.expand?.imovel?.nome || c.expand?.imovel?.endereco || '—'}
                       </p>
                     </div>
@@ -315,13 +337,13 @@ export default function Contratos() {
                   </div>
                   <div className="text-xs text-slate-600 space-y-1">
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Inquilino:</span>
+                      <span className="text-slate-600">Inquilino:</span>
                       <span className="font-medium truncate max-w-[180px]">
                         {c.expand?.inquilino?.nome || '—'}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Vigência:</span>
+                      <span className="text-slate-600">Vigência:</span>
                       <span>
                         {formatDate(c.data_inicio)} → {formatDate(c.data_fim)}
                       </span>
@@ -337,31 +359,43 @@ export default function Contratos() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-9 px-3 min-h-[36px] text-xs"
+                            className="h-11 px-3 min-h-[44px] text-sm"
                             onClick={() => handleEdit(c)}
                           >
-                            <Pencil className="h-3.5 w-3.5 mr-1 text-slate-500" /> Editar
+                            <Pencil className="h-3.5 w-3.5 mr-1 text-slate-600" /> Editar
                           </Button>
                           {c.status === 'ativo' && (
                             <>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-9 px-2.5 min-h-[36px] text-emerald-700 hover:bg-emerald-50 border-emerald-200"
-                                onClick={() => handleEncerrar(c)}
-                                title="Encerrar contrato"
+                              <ConfirmarAcao
+                                titulo="Encerrar este contrato?"
+                                descricao="O contrato passa para encerrado e para de gerar cobranças e alertas de vencimento. O histórico de receitas já lançadas permanece."
+                                rotuloConfirmar="Sim, encerrar o contrato"
+                                onConfirmar={() => handleEncerrar(c)}
                               >
-                                <Check className="h-3.5 w-3.5" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-9 px-2.5 min-h-[36px] text-red-600 hover:bg-red-50 border-red-200"
-                                onClick={() => handleCancelar(c)}
-                                title="Cancelar contrato"
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-11 px-3 min-h-[44px] text-emerald-700 hover:bg-emerald-50 border-emerald-200"
+                                  title="Encerrar contrato"
+                                >
+                                  <Check className="h-3.5 w-3.5" />
+                                </Button>
+                              </ConfirmarAcao>
+                              <ConfirmarAcao
+                                titulo="Cancelar este contrato?"
+                                descricao="O contrato passa para cancelado e sai dos alertas e das cobranças futuras. O histórico já lançado permanece."
+                                rotuloConfirmar="Sim, cancelar o contrato"
+                                onConfirmar={() => handleCancelar(c)}
                               >
-                                <Ban className="h-3.5 w-3.5" />
-                              </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-11 px-3 min-h-[44px] text-red-600 hover:bg-red-50 border-red-200"
+                                  title="Cancelar contrato"
+                                >
+                                  <Ban className="h-3.5 w-3.5" />
+                                </Button>
+                              </ConfirmarAcao>
                             </>
                           )}
                         </>
@@ -369,10 +403,10 @@ export default function Contratos() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-9 px-3 min-h-[36px] text-xs"
+                          className="h-11 px-3 min-h-[44px] text-sm"
                           onClick={() => handleView(c)}
                         >
-                          <Eye className="h-3.5 w-3.5 mr-1 text-slate-500" /> Detalhes
+                          <Eye className="h-3.5 w-3.5 mr-1 text-slate-600" /> Detalhes
                         </Button>
                       )}
                     </div>

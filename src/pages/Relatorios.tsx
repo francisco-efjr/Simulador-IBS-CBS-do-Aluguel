@@ -621,7 +621,7 @@ export default function Relatorios() {
             <h2 className="text-2xl font-bold tracking-tight text-slate-900">
               Exportação de Relatórios
             </h2>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <p className="text-sm text-slate-600 mt-0.5">
               Gere relatórios executivos em PDF com layout Holding Aguiar ou planilhas Excel (XLSX)
             </p>
           </div>
@@ -649,7 +649,7 @@ export default function Relatorios() {
                 <Sparkles className="h-4 w-4 text-gold-500" />
                 1. Selecione o Tipo de Relatório
               </CardTitle>
-              <CardDescription className="text-xs text-slate-500">
+              <CardDescription className="text-xs text-slate-600">
                 Escolha o modelo de dados consolidado que deseja exportar
               </CardDescription>
             </CardHeader>
@@ -677,7 +677,7 @@ export default function Relatorios() {
                     <span className="text-sm font-bold text-slate-900 block">
                       Relatório Financeiro
                     </span>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-600">
                       7 indicadores do dashboard (receitas, despesas, superávit/déficit) e resumo
                       por imóvel.
                     </p>
@@ -706,7 +706,7 @@ export default function Relatorios() {
                     <span className="text-sm font-bold text-slate-900 block">
                       Relatório de Imóveis
                     </span>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-600">
                       Taxa de ocupação, situação, contratos ativos e balanço financeiro por
                       propriedade.
                     </p>
@@ -735,7 +735,7 @@ export default function Relatorios() {
                     <span className="text-sm font-bold text-slate-900 block">
                       Relatório de Contratos
                     </span>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-600">
                       Relação completa de locações, inquilinos, vigências, aluguéis e dias
                       restantes.
                     </p>
@@ -764,7 +764,7 @@ export default function Relatorios() {
                     <span className="text-sm font-bold text-slate-900 block">
                       Relatório de Inadimplência
                     </span>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-600">
                       Receitas em atraso, despesas operacionais vencidas e tributos/IPTU pendentes.
                     </p>
                   </div>
@@ -801,7 +801,7 @@ export default function Relatorios() {
                     </div>
                     <div>
                       <div className="text-sm font-bold">Documento PDF (.pdf)</div>
-                      <span className="text-[11px] text-slate-500 block">
+                      <span className="text-xs text-slate-600 block">
                         Com timbre e layout visual executivo
                       </span>
                     </div>
@@ -820,7 +820,7 @@ export default function Relatorios() {
                     </div>
                     <div>
                       <div className="text-sm font-bold">Planilha Excel (.xlsx)</div>
-                      <span className="text-[11px] text-slate-500 block">
+                      <span className="text-xs text-slate-600 block">
                         Dados tabulados para análise e fórmulas
                       </span>
                     </div>
@@ -866,7 +866,7 @@ export default function Relatorios() {
                 {periodPreset === 'custom' && (
                   <div className="grid grid-cols-2 gap-3 pt-2">
                     <div className="space-y-1">
-                      <Label htmlFor="rep-start" className="text-xs text-slate-500">
+                      <Label htmlFor="rep-start" className="text-xs text-slate-600">
                         Data Inicial
                       </Label>
                       <Input
@@ -878,7 +878,7 @@ export default function Relatorios() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="rep-end" className="text-xs text-slate-500">
+                      <Label htmlFor="rep-end" className="text-xs text-slate-600">
                         Data Final
                       </Label>
                       <Input
@@ -898,11 +898,14 @@ export default function Relatorios() {
                 {/* Imóvel */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
-                    <Building2 className="h-3.5 w-3.5 text-slate-400" />
+                    <Building2 className="h-3.5 w-3.5 text-slate-600" />
                     Filtrar por Imóvel:
                   </Label>
                   <Select value={selectedImovel} onValueChange={setSelectedImovel}>
-                    <SelectTrigger className="h-9 text-xs bg-slate-50/50">
+                    <SelectTrigger
+                      aria-label="Todos os imóveis"
+                      className="h-9 text-xs bg-slate-50/50"
+                    >
                       <SelectValue placeholder="Todos os imóveis" />
                     </SelectTrigger>
                     <SelectContent>
@@ -924,7 +927,10 @@ export default function Relatorios() {
                       Status do Contrato:
                     </Label>
                     <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                      <SelectTrigger className="h-9 text-xs bg-slate-50/50">
+                      <SelectTrigger
+                        aria-label="Todos os status"
+                        className="h-9 text-xs bg-slate-50/50"
+                      >
                         <SelectValue placeholder="Todos os status" />
                       </SelectTrigger>
                       <SelectContent>
@@ -943,7 +949,10 @@ export default function Relatorios() {
                       Status da Ocupação:
                     </Label>
                     <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                      <SelectTrigger className="h-9 text-xs bg-slate-50/50">
+                      <SelectTrigger
+                        aria-label="Todos os status"
+                        className="h-9 text-xs bg-slate-50/50"
+                      >
                         <SelectValue placeholder="Todos os status" />
                       </SelectTrigger>
                       <SelectContent>
@@ -973,7 +982,7 @@ export default function Relatorios() {
             <CardContent className="p-5 space-y-4">
               <div className="space-y-2.5 text-xs">
                 <div className="flex justify-between py-1.5 border-b border-slate-100">
-                  <span className="text-slate-500">Módulo Selecionado:</span>
+                  <span className="text-slate-600">Módulo Selecionado:</span>
                   <strong className="text-slate-800 uppercase">
                     {reportType === 'financeiro' && 'Financeiro'}
                     {reportType === 'imoveis' && 'Imóveis & Ocupação'}
@@ -983,9 +992,9 @@ export default function Relatorios() {
                 </div>
 
                 <div className="flex justify-between py-1.5 border-b border-slate-100">
-                  <span className="text-slate-500">Formato de Saída:</span>
+                  <span className="text-slate-600">Formato de Saída:</span>
                   <span
-                    className={`font-bold px-2 py-0.5 rounded text-[11px] ${
+                    className={`font-bold px-2 py-0.5 rounded text-xs ${
                       reportFormat === 'pdf'
                         ? 'bg-rose-100 text-rose-800'
                         : 'bg-emerald-100 text-emerald-800'
@@ -996,19 +1005,19 @@ export default function Relatorios() {
                 </div>
 
                 <div className="flex justify-between py-1.5 border-b border-slate-100">
-                  <span className="text-slate-500">Período:</span>
+                  <span className="text-slate-600">Período:</span>
                   <strong className="text-slate-800 text-right">{periodoLabel}</strong>
                 </div>
 
                 <div className="flex justify-between py-1.5 border-b border-slate-100">
-                  <span className="text-slate-500">Filtro de Imóvel:</span>
+                  <span className="text-slate-600">Filtro de Imóvel:</span>
                   <strong className="text-slate-800">
                     {selectedImovel === 'all' ? 'Todos' : '1 selecionado'}
                   </strong>
                 </div>
 
                 <div className="flex justify-between py-1.5">
-                  <span className="text-slate-500">Origem dos Dados:</span>
+                  <span className="text-slate-600">Origem dos Dados:</span>
                   <span className="text-emerald-700 font-medium flex items-center gap-1">
                     <CheckCircle2 className="h-3 w-3" /> 100% Skip Cloud (Real)
                   </span>
@@ -1036,7 +1045,7 @@ export default function Relatorios() {
                 </Button>
               </div>
 
-              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/80 text-[11px] text-slate-500 leading-relaxed">
+              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/80 text-xs text-slate-600 leading-relaxed">
                 <p>
                   Os relatórios são gerados dinamicamente no navegador a partir das consultas em
                   tempo real às coleções da Holding Aguiar.

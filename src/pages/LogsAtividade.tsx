@@ -221,62 +221,62 @@ export default function LogsAtividade() {
     const norm = (acao || '').toLowerCase()
     if (norm === 'criou') {
       return (
-        <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300 font-semibold hover:bg-emerald-100 text-[11px]">
+        <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300 font-semibold hover:bg-emerald-100 text-xs">
           Criou
         </Badge>
       )
     }
     if (norm === 'editou') {
       return (
-        <Badge className="bg-blue-100 text-blue-800 border-blue-300 font-semibold hover:bg-blue-100 text-[11px]">
+        <Badge className="bg-blue-100 text-blue-800 border-blue-300 font-semibold hover:bg-blue-100 text-xs">
           Editou
         </Badge>
       )
     }
     if (norm === 'excluiu') {
       return (
-        <Badge className="bg-rose-100 text-rose-800 border-rose-300 font-semibold hover:bg-rose-100 text-[11px]">
+        <Badge className="bg-rose-100 text-rose-800 border-rose-300 font-semibold hover:bg-rose-100 text-xs">
           Excluiu
         </Badge>
       )
     }
     if (norm === 'ativou') {
       return (
-        <Badge className="bg-teal-100 text-teal-800 border-teal-300 font-semibold hover:bg-teal-100 text-[11px]">
+        <Badge className="bg-teal-100 text-teal-800 border-teal-300 font-semibold hover:bg-teal-100 text-xs">
           Ativou
         </Badge>
       )
     }
     if (norm === 'desativou') {
       return (
-        <Badge className="bg-amber-100 text-amber-800 border-amber-300 font-semibold hover:bg-amber-100 text-[11px]">
+        <Badge className="bg-amber-100 text-amber-800 border-amber-300 font-semibold hover:bg-amber-100 text-xs">
           Desativou
         </Badge>
       )
     }
     if (norm === 'convidou') {
       return (
-        <Badge className="bg-purple-100 text-purple-800 border-purple-300 font-semibold hover:bg-purple-100 text-[11px]">
+        <Badge className="bg-purple-100 text-purple-800 border-purple-300 font-semibold hover:bg-purple-100 text-xs">
           Convidou
         </Badge>
       )
     }
     if (norm === 'importou') {
       return (
-        <Badge className="bg-cyan-100 text-cyan-800 border-cyan-300 font-semibold hover:bg-cyan-100 text-[11px]">
+        <Badge className="bg-cyan-100 text-cyan-800 border-cyan-300 font-semibold hover:bg-cyan-100 text-xs">
           Importou
         </Badge>
       )
     }
     if (norm === 'cancelou' || norm === 'encerrou') {
       return (
-        <Badge className="bg-slate-100 text-slate-700 border-slate-300 font-semibold hover:bg-slate-100 text-[11px]">
+        <Badge className="bg-slate-100 text-slate-700 border-slate-300 font-semibold hover:bg-slate-100 text-xs">
           {norm.charAt(0).toUpperCase() + norm.slice(1)}
         </Badge>
       )
     }
     return (
-      <Badge variant="outline" className="text-slate-700 border-slate-300 text-[11px] font-medium">
+      <Badge variant="outline" className="text-slate-700 border-slate-300 text-xs font-medium">
         {acao}
       </Badge>
     )
@@ -303,7 +303,7 @@ export default function LogsAtividade() {
 
     const item = labels[entidade] || { label: entidade, color: 'bg-slate-100 text-slate-700' }
     return (
-      <Badge variant="outline" className={`${item.color} font-semibold text-[11px]`}>
+      <Badge variant="outline" className={`${item.color} font-semibold text-xs`}>
         {item.label}
       </Badge>
     )
@@ -336,7 +336,7 @@ export default function LogsAtividade() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-xl bg-gradient-to-r from-navy-950 via-navy-900 to-navy-800 p-6 text-white shadow-xl border border-navy-700/80">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-gold-400 flex items-center gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-widest text-gold-400 flex items-center gap-1.5">
               <Shield className="h-3.5 w-3.5 text-gold-400" /> Holding Aguiar &bull; Governança &
               Auditoria
             </span>
@@ -387,7 +387,7 @@ export default function LogsAtividade() {
                 variant="ghost"
                 size="sm"
                 onClick={handleClearFilters}
-                className="h-7 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                className="h-7 text-xs text-rose-700 hover:text-rose-700 hover:bg-rose-50"
               >
                 Limpar filtros
               </Button>
@@ -398,8 +398,8 @@ export default function LogsAtividade() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5">
             {/* Campo de Busca Livre */}
             <div className="space-y-1 lg:col-span-2">
-              <label className="text-[11px] font-semibold text-slate-600 flex items-center gap-1">
-                <Search className="h-3 w-3 text-slate-400" /> Buscar nos detalhes
+              <label className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                <Search className="h-3 w-3 text-slate-600" /> Buscar nos detalhes
               </label>
               <div className="relative">
                 <Input
@@ -413,8 +413,8 @@ export default function LogsAtividade() {
 
             {/* Seletor de Usuário */}
             <div className="space-y-1">
-              <label className="text-[11px] font-semibold text-slate-600 flex items-center gap-1">
-                <User className="h-3 w-3 text-slate-400" /> Usuário
+              <label className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                <User className="h-3 w-3 text-slate-600" /> Usuário
               </label>
               <Select
                 value={selectedUsuario}
@@ -423,7 +423,10 @@ export default function LogsAtividade() {
                   setPage(1)
                 }}
               >
-                <SelectTrigger className="h-9 text-xs bg-slate-50/70 border-slate-200">
+                <SelectTrigger
+                  aria-label="Todos os usuários"
+                  className="h-9 text-xs bg-slate-50/70 border-slate-200"
+                >
                   <SelectValue placeholder="Todos os usuários" />
                 </SelectTrigger>
                 <SelectContent>
@@ -441,8 +444,8 @@ export default function LogsAtividade() {
 
             {/* Seletor de Ação */}
             <div className="space-y-1">
-              <label className="text-[11px] font-semibold text-slate-600 flex items-center gap-1">
-                <Activity className="h-3 w-3 text-slate-400" /> Ação
+              <label className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                <Activity className="h-3 w-3 text-slate-600" /> Ação
               </label>
               <Select
                 value={selectedAcao}
@@ -451,7 +454,10 @@ export default function LogsAtividade() {
                   setPage(1)
                 }}
               >
-                <SelectTrigger className="h-9 text-xs bg-slate-50/70 border-slate-200">
+                <SelectTrigger
+                  aria-label="Todas as ações"
+                  className="h-9 text-xs bg-slate-50/70 border-slate-200"
+                >
                   <SelectValue placeholder="Todas as ações" />
                 </SelectTrigger>
                 <SelectContent>
@@ -466,8 +472,8 @@ export default function LogsAtividade() {
 
             {/* Seletor de Entidade */}
             <div className="space-y-1">
-              <label className="text-[11px] font-semibold text-slate-600 flex items-center gap-1">
-                <Layers className="h-3 w-3 text-slate-400" /> Módulo / Entidade
+              <label className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                <Layers className="h-3 w-3 text-slate-600" /> Módulo / Entidade
               </label>
               <Select
                 value={selectedEntidade}
@@ -476,7 +482,10 @@ export default function LogsAtividade() {
                   setPage(1)
                 }}
               >
-                <SelectTrigger className="h-9 text-xs bg-slate-50/70 border-slate-200">
+                <SelectTrigger
+                  aria-label="Todas as entidades"
+                  className="h-9 text-xs bg-slate-50/70 border-slate-200"
+                >
                   <SelectValue placeholder="Todas as entidades" />
                 </SelectTrigger>
                 <SelectContent>
@@ -491,8 +500,8 @@ export default function LogsAtividade() {
 
             {/* Período (Data Início e Fim) */}
             <div className="space-y-1">
-              <label className="text-[11px] font-semibold text-slate-600 flex items-center gap-1">
-                <Calendar className="h-3 w-3 text-slate-400" /> Período
+              <label className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                <Calendar className="h-3 w-3 text-slate-600" /> Período
               </label>
               <div className="grid grid-cols-2 gap-1.5">
                 <Input
@@ -502,7 +511,7 @@ export default function LogsAtividade() {
                     setDataInicio(e.target.value)
                     setPage(1)
                   }}
-                  className="h-9 text-[11px] px-1.5 bg-slate-50/70 border-slate-200"
+                  className="h-9 text-xs px-1.5 bg-slate-50/70 border-slate-200"
                   title="Data Início"
                 />
                 <Input
@@ -512,7 +521,7 @@ export default function LogsAtividade() {
                     setDataFim(e.target.value)
                     setPage(1)
                   }}
-                  className="h-9 text-[11px] px-1.5 bg-slate-50/70 border-slate-200"
+                  className="h-9 text-xs px-1.5 bg-slate-50/70 border-slate-200"
                   title="Data Fim"
                 />
               </div>
@@ -528,13 +537,13 @@ export default function LogsAtividade() {
             <CardTitle className="text-sm font-bold text-slate-800">
               Registros Encontrados ({totalItems})
             </CardTitle>
-            <span className="text-xs text-slate-500 font-normal">
+            <span className="text-xs text-slate-600 font-normal">
               &bull; Ordenados por data mais recente
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500">Linhas por página:</span>
+            <span className="text-xs text-slate-600">Linhas por página:</span>
             <Select
               value={String(perPage)}
               onValueChange={(val) => {
@@ -587,7 +596,7 @@ export default function LogsAtividade() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="py-16 text-center text-slate-400">
+                  <TableCell colSpan={5} className="py-16 text-center text-slate-600">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <div className="h-7 w-7 animate-spin rounded-full border-2 border-gold-500 border-t-transparent" />
                       <span className="text-xs font-medium">
@@ -598,13 +607,13 @@ export default function LogsAtividade() {
                 </TableRow>
               ) : logs.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="py-12 text-center text-slate-400 text-sm">
+                  <TableCell colSpan={5} className="py-12 text-center text-slate-600 text-sm">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <History className="h-8 w-8 text-slate-300" />
                       <p className="font-medium text-slate-600">
                         Nenhum registro de log encontrado.
                       </p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-slate-600">
                         {hasActiveFilters
                           ? 'Tente ajustar ou limpar os filtros aplicados acima.'
                           : 'As ações executadas no sistema serão registradas automaticamente aqui.'}
@@ -627,7 +636,7 @@ export default function LogsAtividade() {
                       {/* Data / Hora */}
                       <TableCell className="text-xs text-slate-600 font-medium whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
-                          <Clock className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                          <Clock className="h-3.5 w-3.5 text-slate-600 shrink-0" />
                           <span>{formatDateTime(log.created)}</span>
                         </div>
                       </TableCell>
@@ -635,22 +644,20 @@ export default function LogsAtividade() {
                       {/* Usuário Responsável */}
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-navy-100 text-navy-800 font-bold text-[10px]">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-navy-100 text-navy-800 font-bold text-xs">
                             {usuarioName.slice(0, 2).toUpperCase()}
                           </div>
                           <div className="min-w-0">
                             <div className="font-semibold text-xs text-slate-900 truncate flex items-center gap-1">
                               {usuarioName}
                               {isCurrentUser && (
-                                <span className="text-[10px] text-gold-700 bg-gold-50 border border-gold-300 px-1 rounded">
+                                <span className="text-xs text-gold-700 bg-gold-50 border border-gold-300 px-1 rounded">
                                   Você
                                 </span>
                               )}
                             </div>
                             {usuarioEmail && (
-                              <div className="text-[11px] text-slate-500 truncate">
-                                {usuarioEmail}
-                              </div>
+                              <div className="text-xs text-slate-600 truncate">{usuarioEmail}</div>
                             )}
                           </div>
                         </div>
@@ -679,7 +686,7 @@ export default function LogsAtividade() {
         {/* Barra de Paginação */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-200 bg-slate-50/60">
-            <div className="text-xs text-slate-500">
+            <div className="text-xs text-slate-600">
               Página <strong className="text-slate-800">{page}</strong> de{' '}
               <strong className="text-slate-800">{totalPages}</strong> &bull; Total de{' '}
               <strong className="text-slate-800">{totalItems}</strong> registros

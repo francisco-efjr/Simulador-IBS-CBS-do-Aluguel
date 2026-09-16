@@ -54,13 +54,13 @@ export default function Index() {
       title: 'Inquilinos Ativos',
       value: stats.inquilinos,
       icon: Users,
-      color: 'text-emerald-600 bg-emerald-50',
+      color: 'text-emerald-700 bg-emerald-50',
     },
     {
       title: 'Contratos Vigentes',
       value: stats.contratos,
       icon: FileText,
-      color: 'text-amber-600 bg-amber-50',
+      color: 'text-amber-700 bg-amber-50',
     },
     {
       title: 'Receitas Totais',
@@ -100,7 +100,7 @@ export default function Index() {
             >
               <CardContent className="p-5 flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-medium text-slate-500">{card.title}</p>
+                  <p className="text-xs font-medium text-slate-600">{card.title}</p>
                   <p className="text-2xl font-bold text-slate-900 mt-1">{card.value}</p>
                 </div>
                 <div
@@ -117,7 +117,7 @@ export default function Index() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-slate-900">Módulos do Sistema</h2>
-          <span className="text-xs font-medium text-slate-500">
+          <span className="text-xs font-medium text-slate-600">
             {MODULES_LIST.length} módulos disponíveis
           </span>
         </div>
@@ -141,16 +141,16 @@ export default function Index() {
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <ArrowUpRight className="h-4 w-4 text-slate-400 opacity-0 transition-all group-hover:opacity-100 group-hover:text-indigo-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    <ArrowUpRight className="h-4 w-4 text-slate-600 opacity-0 transition-all group-hover:opacity-100 group-hover:text-indigo-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </div>
                   <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
                     {module.title}
                   </h3>
-                  <p className="mt-1 text-xs text-slate-500 leading-relaxed">
+                  <p className="mt-1 text-xs text-slate-600 leading-relaxed">
                     {module.description}
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-medium text-slate-400 group-hover:text-indigo-600">
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-slate-600 group-hover:text-indigo-600">
                   <span>Acessar módulo</span>
                   <span>→</span>
                 </div>

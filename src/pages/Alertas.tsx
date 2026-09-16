@@ -33,7 +33,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { ContratoDetailDialog } from '@/components/contratos/ContratoDetailDialog'
@@ -507,7 +506,7 @@ export default function Alertas() {
   const getAlertIcon = (tipo: AlertType) => {
     switch (tipo) {
       case 'contrato_termino':
-        return <FileText className="h-5 w-5 text-amber-600" />
+        return <FileText className="h-5 w-5 text-amber-700" />
       case 'contrato_reajuste':
         return <RefreshCw className="h-5 w-5 text-indigo-600" />
       case 'iptu_vencimento':
@@ -515,10 +514,10 @@ export default function Alertas() {
         return <Receipt className="h-5 w-5 text-gold-600" />
       case 'receita_vencimento':
       case 'receita_vencida':
-        return <TrendingUp className="h-5 w-5 text-emerald-600" />
+        return <TrendingUp className="h-5 w-5 text-emerald-700" />
       case 'despesa_vencimento':
       case 'despesa_vencida':
-        return <TrendingDown className="h-5 w-5 text-rose-600" />
+        return <TrendingDown className="h-5 w-5 text-rose-700" />
     }
   }
 
@@ -559,7 +558,7 @@ export default function Alertas() {
                 </span>
               )}
             </div>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <p className="text-sm text-slate-600 mt-0.5">
               Monitoramento centralizado e em tempo real de contratos, receitas, despesas e IPTU
             </p>
           </div>
@@ -598,13 +597,13 @@ export default function Alertas() {
           >
             <CardContent className="p-4 sm:p-5 flex items-start justify-between gap-2">
               <div className="space-y-1 min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate block">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 truncate block">
                   Total de Alertas
                 </span>
                 <p className="text-2xl sm:text-3xl font-extrabold text-slate-900">
                   {summaryKpis.total}
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600">
                   <Bell className="h-3 w-3 text-gold-500 shrink-0" /> Todas as pendências
                 </span>
               </div>
@@ -628,14 +627,14 @@ export default function Alertas() {
                 <span className="text-xs font-semibold uppercase tracking-wider text-rose-700 truncate block">
                   Itens Vencidos
                 </span>
-                <p className="text-2xl sm:text-3xl font-extrabold text-rose-600">
+                <p className="text-2xl sm:text-3xl font-extrabold text-rose-700">
                   {summaryKpis.vencidos}
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-600">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-rose-700">
                   <AlertTriangle className="h-3 w-3 shrink-0" /> Atenção imediata
                 </span>
               </div>
-              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-rose-100 text-rose-600 border border-rose-200 shrink-0">
+              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-rose-100 text-rose-700 border border-rose-200 shrink-0">
                 <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
             </CardContent>
@@ -651,14 +650,14 @@ export default function Alertas() {
                 <span className="text-xs font-semibold uppercase tracking-wider text-amber-700 truncate block">
                   A Vencer (7 dias)
                 </span>
-                <p className="text-2xl sm:text-3xl font-extrabold text-amber-600">
+                <p className="text-2xl sm:text-3xl font-extrabold text-amber-700">
                   {summaryKpis.aVencer7d}
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700">
                   <Clock className="h-3 w-3 shrink-0" /> Próxima semana
                 </span>
               </div>
-              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-200 shrink-0">
+              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
                 <Clock className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
             </CardContent>
@@ -677,7 +676,7 @@ export default function Alertas() {
                 <p className="text-2xl sm:text-3xl font-extrabold text-indigo-600">
                   {summaryKpis.aVencer30d}
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-indigo-600">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600">
                   <Calendar className="h-3 w-3 shrink-0" /> Próximo mês
                 </span>
               </div>
@@ -694,29 +693,61 @@ export default function Alertas() {
         <CardHeader className="pb-3 pt-4 px-5 border-b border-slate-100">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             {/* Abas por categoria */}
-            <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full lg:w-auto">
-              <TabsList className="bg-slate-100 p-1 border border-slate-200">
-                <TabsTrigger value="todos" className="text-xs px-3 py-1.5 font-medium">
-                  Todos ({allAlerts.length})
-                </TabsTrigger>
-                <TabsTrigger value="contratos" className="text-xs px-3 py-1.5 font-medium">
-                  Contratos ({allAlerts.filter((a) => a.categoriaAba === 'contratos').length})
-                </TabsTrigger>
-                <TabsTrigger value="receitas" className="text-xs px-3 py-1.5 font-medium">
-                  Receitas ({allAlerts.filter((a) => a.categoriaAba === 'receitas').length})
-                </TabsTrigger>
-                <TabsTrigger value="despesas" className="text-xs px-3 py-1.5 font-medium">
-                  Despesas ({allAlerts.filter((a) => a.categoriaAba === 'despesas').length})
-                </TabsTrigger>
-                <TabsTrigger value="iptu" className="text-xs px-3 py-1.5 font-medium">
-                  IPTU/Taxas ({allAlerts.filter((a) => a.categoriaAba === 'iptu').length})
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            {/* Filtro por categoria.
+                Não é um conjunto de abas: não há painel por categoria, e sim
+                uma lista única que muda de conteúdo. Como grupo de botões com
+                `aria-pressed`, o leitor de tela anuncia o estado certo — e o
+                `aria-controls` das abas deixa de apontar para painel nenhum. */}
+            <div
+              role="group"
+              aria-label="Filtrar alertas por categoria"
+              className="flex w-full items-center gap-1 overflow-x-auto rounded-lg border border-slate-200 bg-slate-100 p-1 lg:w-auto"
+            >
+              {[
+                { id: 'todos', rotulo: 'Todos', total: allAlerts.length },
+                {
+                  id: 'contratos',
+                  rotulo: 'Contratos',
+                  total: allAlerts.filter((a) => a.categoriaAba === 'contratos').length,
+                },
+                {
+                  id: 'receitas',
+                  rotulo: 'Receitas',
+                  total: allAlerts.filter((a) => a.categoriaAba === 'receitas').length,
+                },
+                {
+                  id: 'despesas',
+                  rotulo: 'Despesas',
+                  total: allAlerts.filter((a) => a.categoriaAba === 'despesas').length,
+                },
+                {
+                  id: 'iptu',
+                  rotulo: 'IPTU/Taxas',
+                  total: allAlerts.filter((a) => a.categoriaAba === 'iptu').length,
+                },
+              ].map((categoria) => {
+                const ativo = selectedTab === categoria.id
+                return (
+                  <button
+                    key={categoria.id}
+                    type="button"
+                    onClick={() => setSelectedTab(categoria.id)}
+                    aria-pressed={ativo}
+                    className={`shrink-0 rounded-md px-3 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-800 ${
+                      ativo
+                        ? 'bg-white text-navy-900 shadow-xs'
+                        : 'text-slate-700 hover:bg-white/70 hover:text-navy-900'
+                    }`}
+                  >
+                    {categoria.rotulo} ({categoria.total})
+                  </button>
+                )
+              })}
+            </div>
 
             {/* Quick Period selector */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
-              <span className="text-xs font-semibold text-slate-500 mr-1 shrink-0">Período:</span>
+              <span className="text-xs font-semibold text-slate-600 mr-1 shrink-0">Período:</span>
               {[
                 { id: '7', label: '7 dias' },
                 { id: '15', label: '15 dias' },
@@ -749,8 +780,9 @@ export default function Alertas() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {/* Search Input */}
             <div className="relative">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-600" />
               <Input
+                aria-label="Buscar por descrição, imóvel"
                 placeholder="Buscar por descrição, imóvel..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -761,7 +793,10 @@ export default function Alertas() {
             {/* Imóvel Selector */}
             <div>
               <Select value={filterImovel} onValueChange={setFilterImovel}>
-                <SelectTrigger className="h-9 text-xs bg-slate-50/50">
+                <SelectTrigger
+                  aria-label="Filtrar por imóvel"
+                  className="h-9 text-xs bg-slate-50/50"
+                >
                   <SelectValue placeholder="Filtrar por imóvel" />
                 </SelectTrigger>
                 <SelectContent>
@@ -778,7 +813,7 @@ export default function Alertas() {
             {/* Tipo de Alerta Selector */}
             <div>
               <Select value={filterTipoAlerta} onValueChange={setFilterTipoAlerta}>
-                <SelectTrigger className="h-9 text-xs bg-slate-50/50">
+                <SelectTrigger aria-label="Tipo de alerta" className="h-9 text-xs bg-slate-50/50">
                   <SelectValue placeholder="Tipo de alerta" />
                 </SelectTrigger>
                 <SelectContent>
@@ -802,10 +837,10 @@ export default function Alertas() {
       <Card className="border border-slate-200 bg-white shadow-sm overflow-hidden">
         <CardHeader className="border-b border-slate-100 bg-slate-50/50 py-3.5 px-5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">
               Lista de Alertas ({filteredAlerts.length} registro(s) encontrado(s))
             </span>
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-slate-600">
               Clique em qualquer item para ver detalhes
             </span>
           </div>
@@ -818,12 +853,12 @@ export default function Alertas() {
               ))}
             </div>
           ) : filteredAlerts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center text-slate-400">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200/60 mb-3">
+            <div className="flex flex-col items-center justify-center py-16 text-center text-slate-600">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 mb-3">
                 <CheckCircle2 className="h-7 w-7" />
               </div>
               <h3 className="text-base font-bold text-slate-800">Nenhum alerta pendente!</h3>
-              <p className="text-xs text-slate-500 max-w-sm mt-1">
+              <p className="text-xs text-slate-600 max-w-sm mt-1">
                 Todas as obrigações, contratos, receitas e despesas estão em dia no período
                 selecionado.
               </p>
@@ -849,7 +884,7 @@ export default function Alertas() {
                     </div>
                     <div className="space-y-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">
                           {alert.titulo}
                         </span>
                         {renderDaysBadge(alert.diasRestantes, alert.isVencido)}
@@ -857,14 +892,14 @@ export default function Alertas() {
                       <p className="text-sm font-bold text-slate-900 group-hover:text-navy-800 transition-colors truncate">
                         {alert.descricao}
                       </p>
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
                         <span className="flex items-center gap-1 font-medium text-slate-700">
-                          <Building2 className="h-3.5 w-3.5 text-slate-400" />
+                          <Building2 className="h-3.5 w-3.5 text-slate-600" />
                           {alert.imovelNome}
                           {alert.imovelCodigo ? ` (${alert.imovelCodigo})` : ''}
                         </span>
                         <span className="flex items-center gap-1">
-                          <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                          <Calendar className="h-3.5 w-3.5 text-slate-600" />
                           Vencimento:{' '}
                           <strong className="text-slate-700">
                             {formatDate(alert.dataVencimento)}
@@ -878,15 +913,15 @@ export default function Alertas() {
                   <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 sm:pl-4 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
                     {alert.valor != null && alert.valor > 0 ? (
                       <div className="text-left sm:text-right">
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                        <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider block">
                           Valor envolvido
                         </span>
                         <span
                           className={`text-sm font-bold ${
                             alert.tipo.includes('receita')
-                              ? 'text-emerald-600'
+                              ? 'text-emerald-700'
                               : alert.tipo.includes('despesa') || alert.tipo.includes('iptu')
-                                ? 'text-rose-600'
+                                ? 'text-rose-700'
                                 : 'text-slate-900'
                           }`}
                         >
@@ -906,7 +941,7 @@ export default function Alertas() {
                         <Eye className="h-3.5 w-3.5 mr-1" />
                         Ver detalhes
                       </Button>
-                      <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-navy-800 group-hover:translate-x-0.5 transition-transform hidden sm:block" />
+                      <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-navy-800 group-hover:translate-x-0.5 transition-transform hidden sm:block" />
                     </div>
                   </div>
                 </div>

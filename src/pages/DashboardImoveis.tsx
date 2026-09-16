@@ -760,7 +760,7 @@ export default function DashboardImoveis() {
             <h2 className="text-2xl font-bold tracking-tight text-slate-900">
               Dashboard de Imóveis
             </h2>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <p className="text-sm text-slate-600 mt-0.5">
               Visão geral e indicadores detalhados de ocupação e rentabilidade do portfólio
             </p>
           </div>
@@ -811,11 +811,11 @@ export default function DashboardImoveis() {
           <Card className="border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-5 flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate block">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 truncate block">
                   Total de Imóveis Ativos
                 </span>
                 <p className="text-lg sm:text-2xl font-bold text-slate-900">{kpis.totalAtivos}</p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600">
                   <Layers className="h-3 w-3 shrink-0" /> {kpis.totalGeral} cadastrados no total
                 </span>
               </div>
@@ -829,15 +829,15 @@ export default function DashboardImoveis() {
           <Card className="border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-5 flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate block">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 truncate block">
                   Imóveis Alugados
                 </span>
-                <p className="text-xl sm:text-2xl font-bold text-emerald-600">{kpis.alugados}</p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+                <p className="text-xl sm:text-2xl font-bold text-emerald-700">{kpis.alugados}</p>
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700">
                   <CheckCircle2 className="h-3 w-3 shrink-0" /> Gerando receita de locação
                 </span>
               </div>
-              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/60 shrink-0">
+              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 shrink-0">
                 <CheckCircle2 className="h-5 w-5" />
               </div>
             </CardContent>
@@ -847,15 +847,15 @@ export default function DashboardImoveis() {
           <Card className="border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-5 flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate block">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 truncate block">
                   Imóveis Vagos
                 </span>
-                <p className="text-xl sm:text-2xl font-bold text-sky-600">{kpis.vagos}</p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-sky-600">
+                <p className="text-xl sm:text-2xl font-bold text-sky-700">{kpis.vagos}</p>
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-sky-700">
                   <Clock className="h-3 w-3 shrink-0" /> Disponíveis para locação
                 </span>
               </div>
-              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-sky-50 text-sky-600 border border-sky-200/60 shrink-0">
+              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-sky-50 text-sky-700 border border-sky-200/60 shrink-0">
                 <Clock className="h-5 w-5" />
               </div>
             </CardContent>
@@ -865,15 +865,15 @@ export default function DashboardImoveis() {
           <Card className="border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-5 flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate block">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 truncate block">
                   Em Manutenção
                 </span>
-                <p className="text-xl sm:text-2xl font-bold text-amber-600">{kpis.emManutencao}</p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600">
+                <p className="text-xl sm:text-2xl font-bold text-amber-700">{kpis.emManutencao}</p>
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700">
                   <Wrench className="h-3 w-3 shrink-0" /> Obras ou reparos ativos
                 </span>
               </div>
-              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-200/60 shrink-0">
+              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-700 border border-amber-200/60 shrink-0">
                 <Wrench className="h-5 w-5" />
               </div>
             </CardContent>
@@ -883,13 +883,13 @@ export default function DashboardImoveis() {
           <Card className="border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-5 flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate block">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 truncate block">
                   Taxa de Ocupação
                 </span>
                 <p className="text-xl sm:text-2xl font-bold text-indigo-600">
                   {kpis.taxaOcupacao.toFixed(1)}%
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600">
                   <Percent className="h-3 w-3 shrink-0" /> (Alugados / Ativos) × 100
                 </span>
               </div>
@@ -903,17 +903,17 @@ export default function DashboardImoveis() {
           <Card className="border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-5 flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate block">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 truncate block">
                   Receita Total (Recebida)
                 </span>
-                <p className="text-lg sm:text-2xl font-bold text-emerald-600 truncate">
+                <p className="text-lg sm:text-2xl font-bold text-emerald-700 truncate">
                   {formatCurrency(kpis.receitaTotal)}
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700">
                   <TrendingUp className="h-3 w-3 shrink-0" /> Realizada no período
                 </span>
               </div>
-              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/60 shrink-0">
+              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 shrink-0">
                 <TrendingUp className="h-5 w-5" />
               </div>
             </CardContent>
@@ -923,17 +923,17 @@ export default function DashboardImoveis() {
           <Card className="border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-5 flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate block">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 truncate block">
                   Despesa Total (Paga)
                 </span>
-                <p className="text-lg sm:text-2xl font-bold text-rose-600 truncate">
+                <p className="text-lg sm:text-2xl font-bold text-rose-700 truncate">
                   {formatCurrency(kpis.despesaTotal)}
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-600">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-rose-700">
                   <TrendingDown className="h-3 w-3 shrink-0" /> Paga no período
                 </span>
               </div>
-              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-rose-50 text-rose-600 border border-rose-200/60 shrink-0">
+              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-rose-50 text-rose-700 border border-rose-200/60 shrink-0">
                 <TrendingDown className="h-5 w-5" />
               </div>
             </CardContent>
@@ -954,7 +954,7 @@ export default function DashboardImoveis() {
                     Resultado Portfólio
                   </span>
                   <span
-                    className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
+                    className={`text-xs uppercase font-bold px-2 py-0.5 rounded-full ${
                       kpis.resultadoPortfolio >= 0
                         ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30'
                         : 'bg-rose-500/20 text-rose-300 border border-rose-400/30'
@@ -966,7 +966,7 @@ export default function DashboardImoveis() {
                 <p className="text-lg sm:text-2xl font-extrabold tracking-tight truncate">
                   {formatCurrency(kpis.resultadoPortfolio)}
                 </p>
-                <p className="text-[11px] text-slate-300">Receitas − Despesas</p>
+                <p className="text-xs text-slate-300">Receitas − Despesas</p>
               </div>
               <div
                 className={`flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl shrink-0 ${
@@ -986,7 +986,7 @@ export default function DashboardImoveis() {
       <Card className="border border-slate-200 bg-white shadow-sm">
         <CardHeader className="pb-3 pt-4 px-5 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-slate-500" />
+            <Filter className="h-4 w-4 text-slate-600" />
             <CardTitle className="text-sm font-semibold text-slate-800">
               Filtros Globais do Portfólio
             </CardTitle>
@@ -995,7 +995,7 @@ export default function DashboardImoveis() {
         <CardContent className="p-5 space-y-4">
           {/* Quick period buttons */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 mr-2">Período Financeiro:</span>
+            <span className="text-xs font-semibold text-slate-600 mr-2">Período Financeiro:</span>
             {[
               { id: 'current_month', label: 'Mês atual' },
               { id: 'last_month', label: 'Mês anterior' },
@@ -1028,11 +1028,11 @@ export default function DashboardImoveis() {
             {/* Status do Imóvel */}
             <div className="space-y-1.5">
               <Label className="text-xs text-slate-600 font-medium flex items-center gap-1.5">
-                <Building className="h-3.5 w-3.5 text-slate-400" />
+                <Building className="h-3.5 w-3.5 text-slate-600" />
                 Status do Imóvel
               </Label>
               <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="h-9 text-xs bg-slate-50/50">
+                <SelectTrigger aria-label="Todos os status" className="h-9 text-xs bg-slate-50/50">
                   <SelectValue placeholder="Todos os status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1048,11 +1048,11 @@ export default function DashboardImoveis() {
             {/* Tipo do Imóvel */}
             <div className="space-y-1.5">
               <Label className="text-xs text-slate-600 font-medium flex items-center gap-1.5">
-                <Building2 className="h-3.5 w-3.5 text-slate-400" />
+                <Building2 className="h-3.5 w-3.5 text-slate-600" />
                 Tipo do Imóvel
               </Label>
               <Select value={filterTipo} onValueChange={setFilterTipo}>
-                <SelectTrigger className="h-9 text-xs bg-slate-50/50">
+                <SelectTrigger aria-label="Todos os tipos" className="h-9 text-xs bg-slate-50/50">
                   <SelectValue placeholder="Todos os tipos" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1095,7 +1095,7 @@ export default function DashboardImoveis() {
                 </div>
               </>
             ) : (
-              <div className="sm:col-span-2 flex items-center justify-end text-xs text-slate-500 pt-5">
+              <div className="sm:col-span-2 flex items-center justify-end text-xs text-slate-600 pt-5">
                 <span>
                   Exibindo dados de {startDateStr} até {endDateStr}
                 </span>
@@ -1111,17 +1111,17 @@ export default function DashboardImoveis() {
         <Card className="border border-slate-200 bg-white shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-emerald-600" />
+              <BarChart3 className="h-4 w-4 text-emerald-700" />
               Receitas por Imóvel
             </CardTitle>
-            <CardDescription className="text-xs text-slate-500 mt-0.5">
+            <CardDescription className="text-xs text-slate-600 mt-0.5">
               Valores recebidos no período selecionado ordenados do maior para o menor
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-2">
             <div className="h-[250px] sm:h-[320px] lg:h-[350px] w-full">
               {receitasPorImovelData.length === 0 ? (
-                <div className="flex h-full items-center justify-center text-xs text-slate-400">
+                <div className="flex h-full items-center justify-center text-xs text-slate-600">
                   Nenhuma receita recebida registrada para o filtro e período
                 </div>
               ) : (
@@ -1174,17 +1174,17 @@ export default function DashboardImoveis() {
         <Card className="border border-slate-200 bg-white shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-rose-600" />
+              <BarChart3 className="h-4 w-4 text-rose-700" />
               Despesas por Imóvel
             </CardTitle>
-            <CardDescription className="text-xs text-slate-500 mt-0.5">
+            <CardDescription className="text-xs text-slate-600 mt-0.5">
               Valores pagos no período selecionado ordenados do maior para o menor
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-2">
             <div className="h-[250px] sm:h-[320px] lg:h-[350px] w-full">
               {despesasPorImovelData.length === 0 ? (
-                <div className="flex h-full items-center justify-center text-xs text-slate-400">
+                <div className="flex h-full items-center justify-center text-xs text-slate-600">
                   Nenhuma despesa paga registrada para o filtro e período
                 </div>
               ) : (
@@ -1235,7 +1235,7 @@ export default function DashboardImoveis() {
               <PieIcon className="h-4 w-4 text-indigo-600" />
               Distribuição de Status dos Imóveis
             </CardTitle>
-            <CardDescription className="text-xs text-slate-500 mt-0.5">
+            <CardDescription className="text-xs text-slate-600 mt-0.5">
               Proporção de imóveis por situação atual (Vago, Alugado, Em manutenção, Inativo)
             </CardDescription>
           </CardHeader>
@@ -1244,7 +1244,7 @@ export default function DashboardImoveis() {
               <div className="h-[220px] sm:h-[260px] md:h-[280px] w-full md:flex-1">
                 {' '}
                 {statusDistributionData.length === 0 ? (
-                  <div className="flex h-full items-center justify-center text-xs text-slate-400">
+                  <div className="flex h-full items-center justify-center text-xs text-slate-600">
                     Nenhum imóvel encontrado
                   </div>
                 ) : (
@@ -1288,7 +1288,7 @@ export default function DashboardImoveis() {
                         className="h-2.5 w-2.5 rounded-full shrink-0"
                         style={{ backgroundColor: st.color }}
                       />
-                      <span className="font-medium text-slate-700 truncate text-[11px] sm:text-xs">
+                      <span className="font-medium text-slate-700 truncate text-xs sm:text-xs">
                         {st.name}
                       </span>
                     </div>
@@ -1304,10 +1304,10 @@ export default function DashboardImoveis() {
         <Card className="border border-slate-200 bg-white shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <LineIcon className="h-4 w-4 text-emerald-600" />
+              <LineIcon className="h-4 w-4 text-emerald-700" />
               Evolução da Ocupação
             </CardTitle>
-            <CardDescription className="text-xs text-slate-500 mt-0.5">
+            <CardDescription className="text-xs text-slate-600 mt-0.5">
               Histórico de contratos ativos por mês (baseado nas datas de vigência)
             </CardDescription>
           </CardHeader>
@@ -1362,14 +1362,14 @@ export default function DashboardImoveis() {
               <Receipt className="h-4 w-4 text-gold-500" />
               IPTU e Taxas por Status por Imóvel
             </CardTitle>
-            <CardDescription className="text-xs text-slate-500 mt-0.5">
+            <CardDescription className="text-xs text-slate-600 mt-0.5">
               Comparativo de valores Pagos, Pendentes e Vencidos por propriedade
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-2">
             <div className="h-[250px] sm:h-[320px] lg:h-[350px] w-full">
               {iptuTaxasPorStatusData.length === 0 ? (
-                <div className="flex h-full items-center justify-center text-xs text-slate-400">
+                <div className="flex h-full items-center justify-center text-xs text-slate-600">
                   Nenhuma taxa ou IPTU cadastrado para os imóveis filtrados
                 </div>
               ) : (
@@ -1446,19 +1446,19 @@ export default function DashboardImoveis() {
                 <Building2 className="h-4 w-4 text-navy-800" />
                 Resumo Detalhado por Imóvel
               </CardTitle>
-              <CardDescription className="text-xs text-slate-500 mt-0.5">
+              <CardDescription className="text-xs text-slate-600 mt-0.5">
                 Métricas consolidadas de receitas, despesas, contratos ativos e pendências de IPTU
                 por propriedade. Clique no imóvel para abrir a página de imóveis.
               </CardDescription>
             </div>
-            <div className="text-xs text-slate-500 font-medium">
+            <div className="text-xs text-slate-600 font-medium">
               {resumoPorImovelTable.length} imóvel(is) exibido(s)
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           {resumoPorImovelTable.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
+            <div className="flex flex-col items-center justify-center py-12 text-center text-slate-600">
               <Building2 className="h-10 w-10 text-slate-300 mb-2" />
               <p className="text-sm font-medium">
                 Nenhum imóvel corresponde aos filtros selecionados
@@ -1480,7 +1480,7 @@ export default function DashboardImoveis() {
                           {row.nome}
                         </div>
                         {row.rawImovel.endereco && (
-                          <div className="text-xs text-slate-500 truncate">
+                          <div className="text-xs text-slate-600 truncate">
                             {row.rawImovel.endereco}
                           </div>
                         )}
@@ -1490,27 +1490,25 @@ export default function DashboardImoveis() {
 
                     <div className="grid grid-cols-3 gap-2 text-xs pt-2 border-t border-slate-200/60">
                       <div>
-                        <span className="text-slate-400 block text-[10px] uppercase">Receitas</span>
-                        <span className="font-semibold text-emerald-600 truncate block">
+                        <span className="text-slate-600 block text-xs uppercase">Receitas</span>
+                        <span className="font-semibold text-emerald-700 truncate block">
                           {formatCurrency(row.receitas)}
                         </span>
                       </div>
                       <div>
-                        <span className="text-slate-400 block text-[10px] uppercase">Despesas</span>
-                        <span className="font-semibold text-rose-600 truncate block">
+                        <span className="text-slate-600 block text-xs uppercase">Despesas</span>
+                        <span className="font-semibold text-rose-700 truncate block">
                           {formatCurrency(row.despesas)}
                         </span>
                       </div>
                       <div className="text-right">
-                        <span className="text-slate-400 block text-[10px] uppercase">
-                          Resultado
-                        </span>
+                        <span className="text-slate-600 block text-xs uppercase">Resultado</span>
                         <span
                           className={`font-bold truncate block ${
                             row.resultado > 0
-                              ? 'text-emerald-600'
+                              ? 'text-emerald-700'
                               : row.resultado < 0
-                                ? 'text-rose-600'
+                                ? 'text-rose-700'
                                 : 'text-slate-600'
                           }`}
                         >
@@ -1522,18 +1520,18 @@ export default function DashboardImoveis() {
                     {(row.hasContratoAtivo || row.iptuPendente > 0) && (
                       <div className="flex items-center justify-between gap-2 pt-1.5 text-xs border-t border-slate-100">
                         {row.hasContratoAtivo ? (
-                          <span className="text-[11px] text-emerald-700 font-medium truncate">
+                          <span className="text-xs text-emerald-700 font-medium truncate">
                             Inquilino: {row.inquilinoNome || 'Locado'}
                           </span>
                         ) : (
-                          <span className="text-[11px] text-slate-400">Sem contrato</span>
+                          <span className="text-xs text-slate-600">Sem contrato</span>
                         )}
                         {row.iptuPendente > 0 ? (
-                          <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">
+                          <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">
                             IPTU: {formatCurrency(row.iptuPendente)}
                           </span>
                         ) : (
-                          <span className="text-[11px] text-emerald-600">IPTU em dia</span>
+                          <span className="text-xs text-emerald-700">IPTU em dia</span>
                         )}
                       </div>
                     )}
@@ -1670,10 +1668,10 @@ export default function DashboardImoveis() {
                         <TableCell className="py-3 sticky left-0 bg-white group-hover:bg-slate-50/80 z-10">
                           <div className="font-semibold text-slate-900 text-sm group-hover:text-indigo-600 flex items-center gap-1.5">
                             <span>{row.nome}</span>
-                            <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity text-indigo-500" />
+                            <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity text-indigo-600" />
                           </div>
                           {row.rawImovel.endereco && (
-                            <div className="text-xs text-slate-400 truncate max-w-[220px]">
+                            <div className="text-xs text-slate-600 truncate max-w-[220px]">
                               {row.rawImovel.endereco}
                               {row.rawImovel.bairro ? ` - ${row.rawImovel.bairro}` : ''}
                             </div>
@@ -1685,19 +1683,19 @@ export default function DashboardImoveis() {
                         <TableCell>
                           <StatusBadge type="imovel" status={row.status} />
                         </TableCell>
-                        <TableCell className="text-right text-sm font-medium text-emerald-600">
+                        <TableCell className="text-right text-sm font-medium text-emerald-700">
                           {formatCurrency(row.receitas)}
                         </TableCell>
-                        <TableCell className="text-right text-sm font-medium text-rose-600">
+                        <TableCell className="text-right text-sm font-medium text-rose-700">
                           {formatCurrency(row.despesas)}
                         </TableCell>
                         <TableCell className="text-right">
                           <span
                             className={`text-sm font-bold ${
                               row.resultado > 0
-                                ? 'text-emerald-600'
+                                ? 'text-emerald-700'
                                 : row.resultado < 0
-                                  ? 'text-rose-600'
+                                  ? 'text-rose-700'
                                   : 'text-slate-600'
                             }`}
                           >
@@ -1711,13 +1709,13 @@ export default function DashboardImoveis() {
                                 {row.inquilinoNome || 'Locado'}
                               </span>
                               {row.valorAluguel ? (
-                                <span className="block text-[11px] text-slate-400 mt-0.5">
+                                <span className="block text-xs text-slate-600 mt-0.5">
                                   {formatCurrency(row.valorAluguel)}/mês
                                 </span>
                               ) : null}
                             </div>
                           ) : (
-                            <span className="text-slate-400 italic">Nenhum</span>
+                            <span className="text-slate-600 italic">Nenhum</span>
                           )}
                         </TableCell>
                         <TableCell className="text-right text-xs font-semibold">
@@ -1726,7 +1724,7 @@ export default function DashboardImoveis() {
                               {formatCurrency(row.iptuPendente)}
                             </span>
                           ) : (
-                            <span className="text-emerald-600 font-normal">Em dia</span>
+                            <span className="text-emerald-700 font-normal">Em dia</span>
                           )}
                         </TableCell>
                       </TableRow>

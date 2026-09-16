@@ -1,14 +1,20 @@
 migrate(
   (app) => {
-    // 1. Ensure admin user exists
+    // 1. Ensure admin user exists.
+    // A busca e a criação precisam usar o mesmo endereço: com e-mail vindo do
+    // ambiente, procurar por um valor fixo faria a migration tentar criar uma
+    // conta que já existe e falhar na restrição de unicidade.
+    const emailAdmin = $os.getenv('PB_SEED_ADMIN_EMAIL') || 'jm.deaguiar@gmail.com'
     let adminUser
     try {
-      adminUser = app.findAuthRecordByEmail('_pb_users_auth_', 'jm.deaguiar@gmail.com')
+      adminUser = app.findAuthRecordByEmail('_pb_users_auth_', emailAdmin)
     } catch (_) {
       const usersCol = app.findCollectionByNameOrId('_pb_users_auth_')
       adminUser = new Record(usersCol)
-      adminUser.setEmail('jm.deaguiar@gmail.com')
-      adminUser.setPassword('Skip@Pass')
+      adminUser.setEmail(emailAdmin)
+      // Sem senha no ambiente, gera uma aleatória: a conta existe para
+      // referenciar os dados de exemplo, não para servir de acesso conhecido.
+      adminUser.setPassword($os.getenv('PB_SEED_ADMIN_SENHA') || $security.randomString(24))
       adminUser.setVerified(true)
       adminUser.set('name', 'Administrador Aguiar')
       app.save(adminUser)

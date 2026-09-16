@@ -31,6 +31,26 @@ export default {
       },
     },
     extend: {
+      /**
+       * Escala tipográfica elevada para o público do sistema (40 a 90 anos).
+       *
+       * Cada degrau subiu um passo e o piso passou a ser 14px: `text-xs` a 12px
+       * — o valor padrão do Tailwind — é ilegível para quem já usa óculos de
+       * perto, e era o tamanho mais usado nas telas. Como tudo está em `rem`, a
+       * escala inteira ainda responde ao ajuste de fonte do navegador e ao
+       * controle "A-/A/A+" do cabeçalho (WCAG 1.4.4).
+       */
+      fontSize: {
+        xs: ['0.875rem', { lineHeight: '1.25rem' }],
+        sm: ['1rem', { lineHeight: '1.5rem' }],
+        base: ['1.0625rem', { lineHeight: '1.625rem' }],
+        lg: ['1.1875rem', { lineHeight: '1.75rem' }],
+        xl: ['1.3125rem', { lineHeight: '1.875rem' }],
+        '2xl': ['1.5625rem', { lineHeight: '2.125rem' }],
+        '3xl': ['1.9375rem', { lineHeight: '2.375rem' }],
+        '4xl': ['2.375rem', { lineHeight: '2.625rem' }],
+        '5xl': ['3rem', { lineHeight: '1.1' }],
+      },
       fontFamily: {
         sans: ['Inter var', 'SF Pro Display', 'system-ui', 'sans-serif'],
         display: ['SF Pro Display', 'Inter var', 'system-ui', 'sans-serif'],

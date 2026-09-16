@@ -120,7 +120,7 @@ export default function Despesas() {
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
               Despesas
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
               Controle de custos, obras e manutenção
             </p>
           </div>
@@ -137,8 +137,9 @@ export default function Despesas() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <div className="relative sm:col-span-2 lg:col-span-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
           <Input
+            aria-label="Buscar por imóvel, fornecedor, categoria, descrição"
             placeholder="Buscar por imóvel, fornecedor, categoria, descrição..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -146,7 +147,7 @@ export default function Despesas() {
           />
         </div>
         <Select value={fStatus} onValueChange={setFStatus}>
-          <SelectTrigger className="w-full bg-slate-50/50 min-h-[44px]">
+          <SelectTrigger aria-label="Status" className="w-full bg-slate-50/50 min-h-[44px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -159,7 +160,7 @@ export default function Despesas() {
           </SelectContent>
         </Select>
         <Select value={fCategoria} onValueChange={setFCategoria}>
-          <SelectTrigger className="w-full bg-slate-50/50 min-h-[44px]">
+          <SelectTrigger aria-label="Categoria" className="w-full bg-slate-50/50 min-h-[44px]">
             <SelectValue placeholder="Categoria" />
           </SelectTrigger>
           <SelectContent>
@@ -190,12 +191,12 @@ export default function Despesas() {
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center py-12 text-center">
             <TrendingDown className="h-10 w-10 text-slate-300 mb-3" />
-            <p className="text-sm text-slate-500">Nenhuma despesa encontrada.</p>
+            <p className="text-sm text-slate-600">Nenhuma despesa encontrada.</p>
           </CardContent>
         </Card>
       ) : (
         <>
-          <p className="text-sm text-slate-500">{filtered.length} despesa(s)</p>
+          <p className="text-sm text-slate-600">{filtered.length} despesa(s)</p>
           <div className="hidden md:block rounded-lg border border-slate-200 overflow-x-auto">
             <Table className="min-w-[800px]">
               <TableHeader>
@@ -245,19 +246,23 @@ export default function Despesas() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 min-h-[36px] min-w-[36px]"
+                          aria-label="Ver detalhes"
+                          title="Ver detalhes"
+                          className="h-11 w-11 min-h-[44px] min-w-[44px]"
                           onClick={() => handleView(d)}
                         >
-                          <Eye className="h-4 w-4 text-slate-500" />
+                          <Eye className="h-4 w-4 text-slate-600" />
                         </Button>
                         {canEdit && (
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-9 w-9 min-h-[36px] min-w-[36px]"
+                            aria-label="Editar"
+                            title="Editar"
+                            className="h-11 w-11 min-h-[44px] min-w-[44px]"
                             onClick={() => handleEdit(d)}
                           >
-                            <Pencil className="h-4 w-4 text-slate-500" />
+                            <Pencil className="h-4 w-4 text-slate-600" />
                           </Button>
                         )}
                       </div>
@@ -280,7 +285,7 @@ export default function Despesas() {
                       <p className="font-semibold text-slate-900 text-sm truncate">
                         {d.expand?.imovel?.nome || d.expand?.imovel?.endereco || '—'}
                       </p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-slate-600">
                         {d.expand?.categoria?.nome || '—'} • Comp: {d.competencia || '—'}
                       </p>
                     </div>
@@ -297,11 +302,11 @@ export default function Despesas() {
                         {formatCurrency(d.valor_previsto)}
                       </span>
                       {d.valor_pago > 0 ? (
-                        <span className="text-[11px] text-emerald-600 font-medium">
+                        <span className="text-xs text-emerald-700 font-medium">
                           Pago: {formatCurrency(d.valor_pago)}
                         </span>
                       ) : (
-                        <span className="text-[11px] text-slate-400">
+                        <span className="text-xs text-slate-600">
                           Venc: {formatDate(d.data_vencimento)}
                         </span>
                       )}
@@ -312,15 +317,15 @@ export default function Despesas() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-9 px-3 min-h-[36px] text-xs"
+                            className="h-11 px-3 min-h-[44px] text-sm"
                             onClick={() => handleEdit(d)}
                           >
-                            <Pencil className="h-3.5 w-3.5 mr-1 text-slate-500" /> Editar
+                            <Pencil className="h-3.5 w-3.5 mr-1 text-slate-600" /> Editar
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-9 px-2.5 min-h-[36px] text-red-600 hover:bg-red-50 border-red-200"
+                            className="h-11 px-3 min-h-[44px] text-red-600 hover:bg-red-50 border-red-200"
                             onClick={() => handleDelete(d)}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -330,10 +335,10 @@ export default function Despesas() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-9 px-3 min-h-[36px] text-xs"
+                          className="h-11 px-3 min-h-[44px] text-sm"
                           onClick={() => handleView(d)}
                         >
-                          <Eye className="h-3.5 w-3.5 mr-1 text-slate-500" /> Detalhes
+                          <Eye className="h-3.5 w-3.5 mr-1 text-slate-600" /> Detalhes
                         </Button>
                       )}
                     </div>

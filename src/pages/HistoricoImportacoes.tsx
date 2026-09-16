@@ -118,7 +118,7 @@ export default function HistoricoImportacoes() {
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">
               Histórico de Importações
             </h1>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <p className="text-sm text-slate-600 mt-0.5">
               Acompanhe todos os arquivos importados, taxas de classificação e continue pendências a
               qualquer momento
             </p>
@@ -156,7 +156,7 @@ export default function HistoricoImportacoes() {
             <h3 className="text-base font-semibold text-slate-700">
               Nenhuma importação realizada ainda
             </h3>
-            <p className="text-xs text-slate-400 max-w-sm mt-1 mb-4">
+            <p className="text-xs text-slate-600 max-w-sm mt-1 mb-4">
               Envie seu primeiro arquivo de extrato bancário (OFX ou CSV) para começar o controle
               automatizado.
             </p>
@@ -209,16 +209,13 @@ export default function HistoricoImportacoes() {
                           <p className="font-semibold text-slate-900 text-sm truncate">
                             {imp.arquivo_nome}
                           </p>
-                          <p className="text-xs text-slate-400">
+                          <p className="text-xs text-slate-600">
                             {imp.expand?.conta_bancaria?.nome || 'Conta Bancária'} •{' '}
                             {formatDate(imp.data_importacao || imp.created)}
                           </p>
                         </div>
                       </div>
-                      <Badge
-                        variant="secondary"
-                        className="uppercase font-mono text-[10px] shrink-0"
-                      >
+                      <Badge variant="secondary" className="uppercase font-mono text-xs shrink-0">
                         {imp.formato}
                       </Badge>
                     </div>
@@ -239,7 +236,7 @@ export default function HistoricoImportacoes() {
                     <div className="flex items-center justify-between pt-1">
                       {isDone ? (
                         <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">
-                          <CheckCircle2 className="h-3 w-3 mr-1 text-emerald-600" /> Concluída
+                          <CheckCircle2 className="h-3 w-3 mr-1 text-emerald-700" /> Concluída
                         </Badge>
                       ) : (
                         <Badge
@@ -263,7 +260,7 @@ export default function HistoricoImportacoes() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDelete(imp)}
-                          className="h-10 w-10 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                          className="h-10 w-10 text-slate-600 hover:text-red-600 hover:bg-red-50"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -320,8 +317,8 @@ export default function HistoricoImportacoes() {
                               <div className="font-semibold text-slate-900 text-sm">
                                 {imp.arquivo_nome}
                               </div>
-                              <div className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
-                                <Landmark className="h-3.5 w-3.5 text-slate-400" />
+                              <div className="text-xs text-slate-600 flex items-center gap-1.5 mt-0.5">
+                                <Landmark className="h-3.5 w-3.5 text-slate-600" />
                                 <span>{imp.expand?.conta_bancaria?.nome || 'Conta Bancária'}</span>
                               </div>
                             </div>
@@ -331,7 +328,7 @@ export default function HistoricoImportacoes() {
                         <TableCell className="text-center">
                           <Badge
                             variant="secondary"
-                            className="uppercase font-mono text-[11px] font-bold"
+                            className="uppercase font-mono text-xs font-bold"
                           >
                             {imp.formato}
                           </Badge>
@@ -358,7 +355,7 @@ export default function HistoricoImportacoes() {
                         <TableCell className="text-center whitespace-nowrap">
                           {isDone ? (
                             <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200">
-                              <CheckCircle2 className="h-3 w-3 mr-1 text-emerald-600" /> Concluída
+                              <CheckCircle2 className="h-3 w-3 mr-1 text-emerald-700" /> Concluída
                             </Badge>
                           ) : stat.classificadas > 0 ? (
                             <Badge
@@ -394,7 +391,7 @@ export default function HistoricoImportacoes() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleDelete(imp)}
-                              className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                              className="h-8 w-8 text-slate-600 hover:text-red-600 hover:bg-red-50"
                               title="Excluir histórico de importação"
                             >
                               <Trash2 className="h-4 w-4" />

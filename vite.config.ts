@@ -49,6 +49,44 @@ function transitionApiPlugin(): Plugin {
   }
 }
 
+
+/**
+ * Política de segurança de conteúdo aplicada ao HTML publicado.
+ *
+ * O host também envia a política por cabeçalho (ver vercel.json); repeti-la no
+ * documento faz a proteção viajar junto com o arquivo, valendo em qualquer
+ * lugar onde o `dist/` for servido. Só entra no build de produção: em
+ * desenvolvimento o Vite usa script embutido e `eval` para recarregar módulos,
+ * e a política quebraria o servidor local.
+ */
+const CSP_PRODUCAO = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com data:",
+  "img-src 'self' data: blob:",
+  "connect-src 'self' https://api.fjin.work",
+  // `frame-ancestors` só vale por cabeçalho: no <meta> o navegador ignora e
+  // ainda registra erro no console. Quem cobre o enquadramento é o host
+  // (X-Frame-Options e CSP em vercel.json).
+  "base-uri 'self'",
+  "form-action 'self'",
+  "object-src 'none'",
+].join('; ')
+
+function cspPlugin(mode: string): Plugin {
+  return {
+    name: 'csp-no-html',
+    transformIndexHtml(html) {
+      if (mode === 'development') return html
+      return html.replace(
+        '<meta charset="UTF-8" />',
+        `<meta charset="UTF-8" />\n    <meta http-equiv="Content-Security-Policy" content="${CSP_PRODUCAO}" />`,
+      )
+    },
+  }
+}
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
@@ -74,6 +112,7 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' ? uidPlugin() : undefined,
     react(),
     transitionApiPlugin(),
+    cspPlugin(mode),
   ].filter(Boolean),
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode ?? process.env.NODE_ENV ?? 'production'),

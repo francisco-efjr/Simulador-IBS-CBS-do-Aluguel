@@ -128,7 +128,7 @@ export function DespesaFormDialog({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Imóvel" error={errors.imovel}>
               <Select value={form.imovel} onValueChange={(v) => upd('imovel', v)}>
-                <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
+                <SelectTrigger aria-label="Selecione..." className="bg-slate-50/50 min-h-[44px]">
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -142,7 +142,7 @@ export function DespesaFormDialog({
             </Field>
             <Field label="Fornecedor (opcional)">
               <Select value={form.fornecedor} onValueChange={(v) => upd('fornecedor', v)}>
-                <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
+                <SelectTrigger aria-label="Selecione..." className="bg-slate-50/50 min-h-[44px]">
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -157,7 +157,7 @@ export function DespesaFormDialog({
           </div>
           <Field label="Categoria" error={errors.categoria}>
             <Select value={form.categoria} onValueChange={(v) => upd('categoria', v)}>
-              <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
+              <SelectTrigger aria-label="Selecione..." className="bg-slate-50/50 min-h-[44px]">
                 <SelectValue placeholder="Selecione..." />
               </SelectTrigger>
               <SelectContent>
@@ -259,7 +259,7 @@ export function DespesaFormDialog({
             </Field>
             <Field label="Forma de pagamento">
               <Select value={form.forma_pagamento} onValueChange={(v) => upd('forma_pagamento', v)}>
-                <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
+                <SelectTrigger aria-label="Selecione..." className="bg-slate-50/50 min-h-[44px]">
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>

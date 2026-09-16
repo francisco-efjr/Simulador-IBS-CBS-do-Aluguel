@@ -377,7 +377,7 @@ export default function ImportarExtrato() {
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">
               Importação de Extratos Bancários
             </h1>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <p className="text-sm text-slate-600 mt-0.5">
               Envie extratos em CSV ou OFX, confira o preview com detecção de duplicatas e envie
               para classificação inteligente
             </p>
@@ -424,7 +424,10 @@ export default function ImportarExtrato() {
                   onValueChange={setSelectedContaId}
                   disabled={loadingContas}
                 >
-                  <SelectTrigger className="bg-slate-50/70 border-slate-300">
+                  <SelectTrigger
+                    aria-label="Selecione uma conta bancária..."
+                    className="bg-slate-50/70 border-slate-300"
+                  >
                     <SelectValue placeholder="Selecione uma conta bancária..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -451,7 +454,7 @@ export default function ImportarExtrato() {
               <div className="font-semibold text-navy-950 flex items-center gap-1.5">
                 <Info className="h-4 w-4 text-navy-800" /> Formatos Suportados:
               </div>
-              <ul className="list-disc list-inside space-y-1 pl-1 text-[11px] text-slate-600">
+              <ul className="list-disc list-inside space-y-1 pl-1 text-xs text-slate-600">
                 <li>
                   <strong className="text-slate-800">OFX (Open Financial Exchange):</strong> Padrão
                   bancário universal gerado por Itaú, Bradesco, Santander, Banco do Brasil, BTG,
@@ -517,7 +520,7 @@ export default function ImportarExtrato() {
                   </div>
                   <div>
                     <p className="font-semibold text-slate-900 text-base">{file.name}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-slate-600 mt-0.5">
                       {(file.size / 1024).toFixed(1)} KB • Formato{' '}
                       <span className="uppercase font-bold text-navy-900">{fileFormat}</span> •
                       Clique para trocar de arquivo
@@ -540,13 +543,13 @@ export default function ImportarExtrato() {
                     <p className="font-semibold text-slate-800 text-sm">
                       Clique para escolher ou arraste o arquivo até aqui
                     </p>
-                    <p className="text-xs text-slate-400">Suporta arquivos .OFX e .CSV</p>
+                    <p className="text-xs text-slate-600">Suporta arquivos .OFX e .CSV</p>
                   </div>
                   <div className="flex items-center gap-2 pt-1">
-                    <Badge variant="secondary" className="text-[11px] bg-slate-100 font-medium">
+                    <Badge variant="secondary" className="text-xs bg-slate-100 font-medium">
                       OFX
                     </Badge>
-                    <Badge variant="secondary" className="text-[11px] bg-slate-100 font-medium">
+                    <Badge variant="secondary" className="text-xs bg-slate-100 font-medium">
                       CSV
                     </Badge>
                   </div>
@@ -560,7 +563,7 @@ export default function ImportarExtrato() {
       {/* Duplicate Alert if detected */}
       {transactions.length > 0 && duplicateCount > 0 && (
         <Alert className="border-amber-300 bg-amber-50/90 text-amber-900 shadow-sm">
-          <AlertTriangle className="h-5 w-5 text-amber-600" />
+          <AlertTriangle className="h-5 w-5 text-amber-700" />
           <div className="ml-2 flex-1">
             <AlertTitle className="font-bold text-amber-950 flex items-center justify-between">
               <span>
@@ -595,7 +598,7 @@ export default function ImportarExtrato() {
                   {selectedCount} de {transactions.length} selecionadas
                 </Badge>
               </CardTitle>
-              <CardDescription className="text-xs text-slate-500 mt-0.5">
+              <CardDescription className="text-xs text-slate-600 mt-0.5">
                 Revise os lançamentos encontrados no extrato antes de gravar no sistema.
               </CardDescription>
             </div>
@@ -604,7 +607,7 @@ export default function ImportarExtrato() {
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full md:w-auto">
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <div className="px-3 py-2 sm:py-1.5 rounded-lg bg-emerald-50 border border-emerald-200/80 text-xs flex items-center justify-between sm:justify-start gap-2">
-                  <span className="text-slate-500">
+                  <span className="text-slate-600">
                     Créditos ({transactions.filter((t) => t.incluir && t.tipo === 'credito').length}
                     ):
                   </span>{' '}
@@ -613,7 +616,7 @@ export default function ImportarExtrato() {
                   </strong>
                 </div>
                 <div className="px-3 py-2 sm:py-1.5 rounded-lg bg-red-50 border border-red-200/80 text-xs flex items-center justify-between sm:justify-start gap-2">
-                  <span className="text-slate-500">
+                  <span className="text-slate-600">
                     Débitos ({transactions.filter((t) => t.incluir && t.tipo === 'debito').length}):
                   </span>{' '}
                   <strong className="text-red-700 font-bold">{formatCurrency(totalDebitos)}</strong>
@@ -692,7 +695,7 @@ export default function ImportarExtrato() {
                           {tx.descricao}
                         </div>
                         {tx.saldo !== undefined && (
-                          <span className="text-[11px] text-slate-400">
+                          <span className="text-xs text-slate-600">
                             Saldo: {formatCurrency(tx.saldo)}
                           </span>
                         )}
@@ -731,18 +734,18 @@ export default function ImportarExtrato() {
                                 variant="outline"
                                 className="bg-slate-100 text-slate-700 text-xs border-slate-300 flex items-center gap-1"
                               >
-                                <Building className="h-3 w-3 text-slate-500" />
+                                <Building className="h-3 w-3 text-slate-600" />
                                 {tx.sugestao_imovel}
                               </Badge>
                             )}
                             {tx.sugestao_confianca && tx.sugestao_confianca >= 0.7 && (
-                              <span className="text-[10px] text-emerald-600 font-semibold">
+                              <span className="text-xs text-emerald-700 font-semibold">
                                 {Math.round(tx.sugestao_confianca * 100)}% conf.
                               </span>
                             )}
                           </div>
                         ) : (
-                          <span className="text-xs text-slate-400 italic">
+                          <span className="text-xs text-slate-600 italic">
                             Classificação manual pendente
                           </span>
                         )}
@@ -754,7 +757,7 @@ export default function ImportarExtrato() {
                             className="bg-amber-100 text-amber-900 border-amber-300 text-xs font-semibold gap-1"
                             title={tx.duplicata_motivo}
                           >
-                            <AlertTriangle className="h-3 w-3 text-amber-600" /> Suspeita Duplicata
+                            <AlertTriangle className="h-3 w-3 text-amber-700" /> Suspeita Duplicata
                           </Badge>
                         ) : tx.incluir ? (
                           <Badge
@@ -764,7 +767,7 @@ export default function ImportarExtrato() {
                             Pronta
                           </Badge>
                         ) : (
-                          <Badge variant="secondary" className="text-slate-400 text-xs">
+                          <Badge variant="secondary" className="text-slate-600 text-xs">
                             Ignorada
                           </Badge>
                         )}

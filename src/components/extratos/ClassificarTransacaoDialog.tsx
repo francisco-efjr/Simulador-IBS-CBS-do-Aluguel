@@ -270,7 +270,7 @@ export function ClassificarTransacaoDialog({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Imóvel">
               <Select value={imovel} onValueChange={setImovel}>
-                <SelectTrigger className="bg-slate-50/50">
+                <SelectTrigger aria-label="Selecione o imóvel..." className="bg-slate-50/50">
                   <SelectValue placeholder="Selecione o imóvel..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -285,7 +285,7 @@ export function ClassificarTransacaoDialog({
 
             <Field label="Categoria Financeira">
               <Select value={categoria} onValueChange={setCategoria}>
-                <SelectTrigger className="bg-slate-50/50">
+                <SelectTrigger aria-label="Selecione a categoria..." className="bg-slate-50/50">
                   <SelectValue placeholder="Selecione a categoria..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -303,7 +303,7 @@ export function ClassificarTransacaoDialog({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Contrato de Locação (opcional)">
                 <Select value={contrato} onValueChange={handleContratoChange}>
-                  <SelectTrigger className="bg-slate-50/50">
+                  <SelectTrigger aria-label="Selecione o contrato..." className="bg-slate-50/50">
                     <SelectValue placeholder="Selecione o contrato..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -318,7 +318,7 @@ export function ClassificarTransacaoDialog({
 
               <Field label="Inquilino / Pagador (opcional)">
                 <Select value={inquilino} onValueChange={setInquilino}>
-                  <SelectTrigger className="bg-slate-50/50">
+                  <SelectTrigger aria-label="Selecione o inquilino..." className="bg-slate-50/50">
                     <SelectValue placeholder="Selecione o inquilino..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -334,7 +334,7 @@ export function ClassificarTransacaoDialog({
           ) : (
             <Field label="Fornecedor / Favorecido (opcional)">
               <Select value={fornecedor} onValueChange={setFornecedor}>
-                <SelectTrigger className="bg-slate-50/50">
+                <SelectTrigger aria-label="Selecione o fornecedor..." className="bg-slate-50/50">
                   <SelectValue placeholder="Selecione o fornecedor..." />
                 </SelectTrigger>
                 <SelectContent>

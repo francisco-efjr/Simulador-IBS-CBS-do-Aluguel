@@ -518,7 +518,7 @@ export default function ClassificarTransacoes() {
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">
               Classificação de Transações
             </h1>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <p className="text-sm text-slate-600 mt-0.5">
               Revise, aprove sugestões inteligentes com 1 clique ou classifique em lote no fluxo de
               receitas e despesas
             </p>
@@ -547,7 +547,7 @@ export default function ClassificarTransacoes() {
         <CardContent className="p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+              <p className="text-xs uppercase tracking-wider text-slate-600 font-semibold">
                 Progresso Geral da Fila
               </p>
               <h3 className="text-xl font-bold text-navy-950 mt-0.5">
@@ -567,14 +567,14 @@ export default function ClassificarTransacoes() {
                 variant="outline"
                 className="bg-emerald-50 text-emerald-800 border-emerald-200 text-xs px-2.5 py-1"
               >
-                <CheckCircle2 className="h-3.5 w-3.5 mr-1 text-emerald-600" /> {totalClassificadas}{' '}
+                <CheckCircle2 className="h-3.5 w-3.5 mr-1 text-emerald-700" /> {totalClassificadas}{' '}
                 Classificadas
               </Badge>
               <Badge
                 variant="outline"
                 className="bg-slate-100 text-slate-600 border-slate-200 text-xs px-2.5 py-1"
               >
-                <XCircle className="h-3.5 w-3.5 mr-1 text-slate-400" /> {totalIgnoradas} Ignoradas
+                <XCircle className="h-3.5 w-3.5 mr-1 text-slate-600" /> {totalIgnoradas} Ignoradas
               </Badge>
             </div>
           </div>
@@ -586,8 +586,9 @@ export default function ClassificarTransacoes() {
       {/* Filter and Search Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         <div className="relative sm:col-span-2">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
           <Input
+            aria-label="Buscar por descrição, imóvel ou categoria sugerida"
             placeholder="Buscar por descrição, imóvel ou categoria sugerida..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -597,7 +598,10 @@ export default function ClassificarTransacoes() {
 
         <div className="w-full">
           <Select value={selectedImportacao} onValueChange={handleImportacaoSelect}>
-            <SelectTrigger className="bg-slate-50/70 border-slate-300 w-full">
+            <SelectTrigger
+              aria-label="Filtrar por Importação..."
+              className="bg-slate-50/70 border-slate-300 w-full"
+            >
               <SelectValue placeholder="Filtrar por Importação..." />
             </SelectTrigger>
             <SelectContent>
@@ -613,7 +617,10 @@ export default function ClassificarTransacoes() {
 
         <div className="flex flex-col sm:flex-row gap-2 w-full">
           <Select value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)}>
-            <SelectTrigger className="bg-slate-50/70 border-slate-300 w-full sm:flex-1">
+            <SelectTrigger
+              aria-label="Status"
+              className="bg-slate-50/70 border-slate-300 w-full sm:flex-1"
+            >
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -625,7 +632,10 @@ export default function ClassificarTransacoes() {
           </Select>
 
           <Select value={tipoFilter} onValueChange={(v: any) => setTipoFilter(v)}>
-            <SelectTrigger className="bg-slate-50/70 border-slate-300 w-full sm:w-[110px]">
+            <SelectTrigger
+              aria-label="Tipo"
+              className="bg-slate-50/70 border-slate-300 w-full sm:w-[110px]"
+            >
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
             <SelectContent>
@@ -654,7 +664,7 @@ export default function ClassificarTransacoes() {
               onClick={handleBatchIgnore}
               className="border-slate-600 text-slate-200 hover:bg-navy-800 hover:text-white"
             >
-              <Trash2 className="h-3.5 w-3.5 mr-1 text-slate-400" /> Ignorar Selecionadas
+              <Trash2 className="h-3.5 w-3.5 mr-1 text-slate-600" /> Ignorar Selecionadas
             </Button>
             <Button
               size="sm"
@@ -686,7 +696,7 @@ export default function ClassificarTransacoes() {
           <CardContent className="flex flex-col items-center py-12 text-center">
             <ListChecks className="h-12 w-12 text-slate-300 mb-3" />
             <h3 className="text-base font-semibold text-slate-700">Nenhuma transação encontrada</h3>
-            <p className="text-xs text-slate-400 max-w-sm mt-1">
+            <p className="text-xs text-slate-600 max-w-sm mt-1">
               {statusFilter === 'pendentes'
                 ? 'Todas as transações do filtro selecionado já foram classificadas ou ignoradas!'
                 : 'Nenhum lançamento corresponde aos filtros atuais.'}
@@ -762,7 +772,7 @@ export default function ClassificarTransacoes() {
                         <TableCell>
                           <div className="font-semibold text-slate-900 text-sm">{t.descricao}</div>
                           {t.expand?.importacao && (
-                            <div className="text-[11px] text-slate-400 truncate max-w-xs">
+                            <div className="text-xs text-slate-600 truncate max-w-xs">
                               Arquivo: {t.expand.importacao.arquivo_nome}
                               {t.expand.importacao.expand?.conta_bancaria && (
                                 <> • {t.expand.importacao.expand.conta_bancaria.nome}</>
@@ -785,7 +795,7 @@ export default function ClassificarTransacoes() {
                           {t.classificada ? (
                             <div className="flex flex-wrap items-center gap-1.5">
                               <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300 font-medium text-xs">
-                                <CheckCircle2 className="h-3 w-3 mr-1 text-emerald-600" />
+                                <CheckCircle2 className="h-3 w-3 mr-1 text-emerald-700" />
                                 {t.receita_gerada ? 'Receita' : 'Despesa'}:{' '}
                                 {t.categoria_classificada || 'Geral'}
                               </Badge>
@@ -794,14 +804,14 @@ export default function ClassificarTransacoes() {
                                   variant="outline"
                                   className="text-xs text-slate-700 bg-white"
                                 >
-                                  <Building className="h-3 w-3 mr-1 text-slate-400" />
+                                  <Building className="h-3 w-3 mr-1 text-slate-600" />
                                   {t.imovel_classificado}
                                 </Badge>
                               )}
                               {t.receita_gerada && (
                                 <Link
                                   to="/receitas"
-                                  className="text-[11px] text-indigo-600 hover:underline inline-flex items-center"
+                                  className="text-xs text-indigo-600 hover:underline inline-flex items-center"
                                 >
                                   Ver em Receitas <ArrowRight className="h-2.5 w-2.5 ml-0.5" />
                                 </Link>
@@ -809,14 +819,14 @@ export default function ClassificarTransacoes() {
                               {t.despesa_gerada && (
                                 <Link
                                   to="/despesas"
-                                  className="text-[11px] text-indigo-600 hover:underline inline-flex items-center"
+                                  className="text-xs text-indigo-600 hover:underline inline-flex items-center"
                                 >
                                   Ver em Despesas <ArrowRight className="h-2.5 w-2.5 ml-0.5" />
                                 </Link>
                               )}
                             </div>
                           ) : t.ignorada ? (
-                            <span className="text-xs text-slate-400 italic">
+                            <span className="text-xs text-slate-600 italic">
                               Transação ignorada
                             </span>
                           ) : hasValidSuggestion ? (
@@ -837,13 +847,13 @@ export default function ClassificarTransacoes() {
                                     variant="outline"
                                     className="text-xs text-slate-700 bg-slate-50"
                                   >
-                                    <Building className="h-3 w-3 mr-1 text-slate-500" />
+                                    <Building className="h-3 w-3 mr-1 text-slate-600" />
                                     {t.sugestao_imovel}
                                   </Badge>
                                 )}
                               </div>
                               {t.sugestao_origem && (
-                                <p className="text-[10px] text-slate-400">
+                                <p className="text-xs text-slate-600">
                                   Baseado em: {t.sugestao_origem}
                                   {t.sugestao_confianca && (
                                     <> • Confiança: {Math.round(t.sugestao_confianca * 100)}%</>
@@ -852,7 +862,7 @@ export default function ClassificarTransacoes() {
                               )}
                             </div>
                           ) : (
-                            <span className="text-xs text-slate-400 italic">
+                            <span className="text-xs text-slate-600 italic">
                               Sem histórico prévio — ajuste manualmente
                             </span>
                           )}
@@ -865,7 +875,7 @@ export default function ClassificarTransacoes() {
                               Lançada
                             </Badge>
                           ) : t.ignorada ? (
-                            <Badge variant="secondary" className="text-slate-400">
+                            <Badge variant="secondary" className="text-slate-600">
                               Ignorada
                             </Badge>
                           ) : (
@@ -903,7 +913,7 @@ export default function ClassificarTransacoes() {
                                 className="h-8 text-xs border-slate-300 text-slate-700 hover:bg-slate-100 px-2"
                                 title="Ajustar classificação manualmente"
                               >
-                                <Pencil className="h-3.5 w-3.5 mr-1 text-slate-500" /> Ajustar
+                                <Pencil className="h-3.5 w-3.5 mr-1 text-slate-600" /> Ajustar
                               </Button>
 
                               {/* Ignore */}
@@ -911,7 +921,7 @@ export default function ClassificarTransacoes() {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => handleIgnoreTransaction(t)}
-                                className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                className="h-8 w-8 text-slate-600 hover:text-red-600 hover:bg-red-50"
                                 title="Ignorar transação"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
@@ -934,7 +944,7 @@ export default function ClassificarTransacoes() {
                                 setDialogItem(t)
                                 setDialogOpen(true)
                               }}
-                              className="h-7 text-xs text-slate-500"
+                              className="h-7 text-xs text-slate-600"
                             >
                               <Pencil className="h-3 w-3 mr-1" /> Editar
                             </Button>

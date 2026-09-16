@@ -11,15 +11,15 @@ const CONFIG: Record<string, Record<string, { label: string; className: string }
       label: 'Em manutenção',
       className: 'bg-amber-100 text-amber-700 hover:bg-amber-100',
     },
-    inativo: { label: 'Inativo', className: 'bg-slate-100 text-slate-500 hover:bg-slate-100' },
+    inativo: { label: 'Inativo', className: 'bg-slate-200 text-slate-700 hover:bg-slate-100' },
   },
   geral: {
     ativo: { label: 'Ativo', className: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100' },
-    inativo: { label: 'Inativo', className: 'bg-slate-100 text-slate-500 hover:bg-slate-100' },
+    inativo: { label: 'Inativo', className: 'bg-slate-200 text-slate-700 hover:bg-slate-100' },
   },
   contrato: {
     ativo: { label: 'Ativo', className: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100' },
-    encerrado: { label: 'Encerrado', className: 'bg-slate-100 text-slate-500 hover:bg-slate-100' },
+    encerrado: { label: 'Encerrado', className: 'bg-slate-200 text-slate-700 hover:bg-slate-100' },
     cancelado: { label: 'Cancelado', className: 'bg-red-100 text-red-700 hover:bg-red-100' },
   },
   iptu_taxas: {
@@ -54,6 +54,6 @@ export function StatusBadge({
   type: 'imovel' | 'geral' | 'contrato' | 'iptu_taxas' | 'receita' | 'despesa'
   status: string
 }) {
-  const cfg = CONFIG[type]?.[status] || { label: status, className: 'bg-slate-100 text-slate-500' }
+  const cfg = CONFIG[type]?.[status] || { label: status, className: 'bg-slate-200 text-slate-700' }
   return <Badge className={cfg.className}>{cfg.label}</Badge>
 }

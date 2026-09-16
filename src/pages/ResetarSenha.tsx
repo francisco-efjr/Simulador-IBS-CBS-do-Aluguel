@@ -163,10 +163,10 @@ export default function RedefinirSenha() {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-gold-500/15 border border-gold-500/30 text-gold-400 mb-2">
               <KeyRound className="h-6 w-6" />
             </div>
-            <CardTitle className="text-2xl font-bold tracking-tight text-white">
+            <CardTitle as="h1" className="text-2xl font-bold tracking-tight text-white">
               Redefinir Senha
             </CardTitle>
-            <CardDescription className="text-slate-300 text-xs sm:text-sm">
+            <CardDescription className="text-slate-200 text-sm sm:text-base">
               Crie uma nova senha de acesso institucional para sua conta.
             </CardDescription>
           </CardHeader>
@@ -236,7 +236,7 @@ export default function RedefinirSenha() {
                 )}
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="password" className="text-slate-200 font-medium text-xs">
+                  <Label htmlFor="password" className="text-slate-100 font-semibold text-sm">
                     Nova Senha
                   </Label>
                   <div className="relative">
@@ -248,7 +248,7 @@ export default function RedefinirSenha() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       disabled={submitting}
-                      className="pl-9 pr-10 bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-400 focus:border-gold-500 focus:ring-gold-500"
+                      className="pl-9 pr-14 min-h-[48px] text-base bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-300 focus:border-gold-500 focus:ring-gold-500"
                     />
                     <button
                       type="button"
@@ -259,13 +259,15 @@ export default function RedefinirSenha() {
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="text-xs font-medium text-red-400">{errors.password}</p>
+                    <p role="alert" className="text-sm font-semibold text-red-300">
+                      {errors.password}
+                    </p>
                   )}
 
                   {/* Indicador de Força de Senha */}
                   {password.length > 0 && (
                     <div className="pt-1.5 space-y-1">
-                      <div className="flex items-center justify-between text-[11px] text-slate-400">
+                      <div className="flex items-center justify-between text-xs text-slate-400">
                         <span>Força da senha:</span>
                         <span className="font-semibold text-slate-200">{strength.label}</span>
                       </div>
@@ -291,7 +293,7 @@ export default function RedefinirSenha() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="confirm" className="text-slate-200 font-medium text-xs">
+                  <Label htmlFor="confirm" className="text-slate-100 font-semibold text-sm">
                     Confirmar Nova Senha
                   </Label>
                   <div className="relative">
@@ -303,7 +305,7 @@ export default function RedefinirSenha() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       disabled={submitting}
-                      className="pl-9 pr-10 bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-400 focus:border-gold-500 focus:ring-gold-500"
+                      className="pl-9 pr-14 min-h-[48px] text-base bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-300 focus:border-gold-500 focus:ring-gold-500"
                     />
                     <button
                       type="button"
@@ -318,7 +320,9 @@ export default function RedefinirSenha() {
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <p className="text-xs font-medium text-red-400">{errors.confirmPassword}</p>
+                    <p role="alert" className="text-sm font-semibold text-red-300">
+                      {errors.confirmPassword}
+                    </p>
                   )}
                 </div>
 
@@ -353,7 +357,7 @@ export default function RedefinirSenha() {
           </CardContent>
         </Card>
 
-        <div className="mt-6 flex items-center justify-center gap-2 text-slate-400 text-xs font-medium">
+        <div className="mt-6 flex items-center justify-center gap-2 text-slate-300 text-sm font-medium">
           <ShieldCheck className="h-4 w-4 text-gold-400" />
           <span>Ambiente Seguro &bull; Holding Aguiar © 2026</span>
         </div>

@@ -6,6 +6,7 @@ import { MODULES_LIST } from '@/lib/constants'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { ControleDeFonte } from '@/components/ControleDeFonte'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -121,7 +122,7 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
         >
           <Menu className="h-5 w-5" />
           {alertasCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-bold text-navy-950 shadow-xs ring-2 ring-navy-800">
+            <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-400 px-1 text-xs font-bold text-navy-950 shadow-xs ring-2 ring-navy-800">
               {alertasCount > 99 ? '99+' : alertasCount}
             </span>
           )}
@@ -138,7 +139,7 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
             <h1 className="text-lg font-bold tracking-tight text-white sm:text-xl flex items-center gap-2">
               <span>{pageTitle}</span>
             </h1>
-            <span className="text-[11px] font-medium text-gold-400 tracking-wide uppercase hidden sm:inline-block">
+            <span className="text-xs font-semibold text-gold-300 tracking-wide uppercase hidden sm:inline-block">
               Holding Aguiar
             </span>
           </div>
@@ -146,9 +147,13 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-3">
+        <ControleDeFonte />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-3 rounded-full p-1 transition-colors hover:bg-navy-700/60 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2 focus:ring-offset-navy-800">
+            <button
+              aria-label="Abrir menu da conta"
+              className="flex min-h-[44px] items-center gap-3 rounded-full p-1 transition-colors hover:bg-navy-700/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-navy-800"
+            >
               <Avatar className="h-9 w-9 border-2 border-gold-500 bg-navy-900 text-gold-400 font-bold shadow-sm">
                 <AvatarFallback className="bg-navy-900 text-gold-400">
                   {getUserInitials()}
@@ -158,7 +163,7 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
                 <span className="text-sm font-semibold text-slate-100 leading-tight">
                   {user?.name || 'Administrador'}
                 </span>
-                <span className="text-xs text-gold-400/90 font-medium truncate">
+                <span className="text-xs text-gold-300 font-medium truncate">
                   {user?.email || 'Holding Aguiar'}
                 </span>
               </div>
@@ -174,7 +179,7 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
                   {user?.name || 'Administrador'}
                 </p>
                 <p className="text-xs leading-none text-slate-300 truncate">{user?.email}</p>
-                <div className="mt-1 flex items-center gap-1 text-[11px] font-medium text-gold-400">
+                <div className="mt-1 flex items-center gap-1 text-xs font-medium text-gold-300">
                   <ShieldCheck className="h-3.5 w-3.5" />
                   <span>Sócio / Gestor</span>
                 </div>

@@ -146,7 +146,7 @@ export function ReceitaFormDialog({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Imóvel" error={errors.imovel}>
               <Select value={form.imovel} onValueChange={(v) => upd('imovel', v)}>
-                <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
+                <SelectTrigger aria-label="Selecione..." className="bg-slate-50/50 min-h-[44px]">
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -160,7 +160,7 @@ export function ReceitaFormDialog({
             </Field>
             <Field label="Contrato (opcional)">
               <Select value={form.contrato} onValueChange={handleContratoChange}>
-                <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
+                <SelectTrigger aria-label="Selecione..." className="bg-slate-50/50 min-h-[44px]">
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -176,7 +176,7 @@ export function ReceitaFormDialog({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Inquilino">
               <Select value={form.inquilino} onValueChange={(v) => upd('inquilino', v)}>
-                <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
+                <SelectTrigger aria-label="Selecione..." className="bg-slate-50/50 min-h-[44px]">
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -190,7 +190,7 @@ export function ReceitaFormDialog({
             </Field>
             <Field label="Categoria" error={errors.categoria}>
               <Select value={form.categoria} onValueChange={(v) => upd('categoria', v)}>
-                <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
+                <SelectTrigger aria-label="Selecione..." className="bg-slate-50/50 min-h-[44px]">
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -270,7 +270,7 @@ export function ReceitaFormDialog({
                 value={form.forma_recebimento}
                 onValueChange={(v) => upd('forma_recebimento', v)}
               >
-                <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
+                <SelectTrigger aria-label="Selecione..." className="bg-slate-50/50 min-h-[44px]">
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>

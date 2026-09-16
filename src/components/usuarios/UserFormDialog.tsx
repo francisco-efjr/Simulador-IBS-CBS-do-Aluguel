@@ -199,7 +199,7 @@ export function UserFormDialog({
             <Input
               value={editingUser.email}
               disabled
-              className="bg-slate-100 text-slate-500 cursor-not-allowed border-slate-200"
+              className="bg-slate-100 text-slate-700 cursor-not-allowed border-slate-300"
             />
           </div>
 
@@ -225,7 +225,7 @@ export function UserFormDialog({
               </SelectContent>
             </Select>
             {isSelf && (
-              <p className="text-[11px] text-slate-500">
+              <p className="text-xs text-slate-500">
                 Você não pode rebaixar seu próprio perfil de administrador.
               </p>
             )}
@@ -254,7 +254,7 @@ export function UserFormDialog({
                     <Shield className="h-4 w-4 text-gold-500" />
                     Permissões de Acesso por Módulo
                   </Label>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
+                  <p className="text-xs text-slate-500 mt-0.5">
                     Defina o que este usuário pode visualizar ou editar no sistema.
                   </p>
                 </div>
@@ -277,7 +277,7 @@ export function UserFormDialog({
 
               {/* Tabela de módulos e níveis de acesso */}
               <div className="rounded-lg border border-slate-200 overflow-hidden bg-white shadow-2xs">
-                <div className="grid grid-cols-12 bg-slate-50/90 px-3 py-2 text-[11px] font-semibold text-slate-600 border-b border-slate-200">
+                <div className="grid grid-cols-12 bg-slate-50/90 px-3 py-2 text-xs font-semibold text-slate-600 border-b border-slate-200">
                   <div className="col-span-6 sm:col-span-7">Módulo</div>
                   <div className="col-span-6 sm:col-span-5 text-right sm:text-left">
                     Nível de Acesso
@@ -297,7 +297,7 @@ export function UserFormDialog({
                           <span className="text-xs font-semibold text-slate-900 block truncate">
                             {modulo.nome}
                           </span>
-                          <span className="text-[10px] text-slate-400 hidden sm:block truncate">
+                          <span className="text-xs text-slate-400 hidden sm:block truncate">
                             {modulo.descricao}
                           </span>
                         </div>
@@ -316,19 +316,19 @@ export function UserFormDialog({
                             <SelectContent>
                               <SelectItem value="sem_acesso">
                                 <div className="flex items-center gap-1.5 text-slate-600 text-xs">
-                                  <LockKeyhole className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                                  <LockKeyhole className="h-3.5 w-3.5 text-rose-700 shrink-0" />
                                   <span>🔒 Sem acesso</span>
                                 </div>
                               </SelectItem>
                               <SelectItem value="visualizacao">
                                 <div className="flex items-center gap-1.5 text-slate-700 text-xs">
-                                  <Eye className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+                                  <Eye className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
                                   <span>👁️ Visualização</span>
                                 </div>
                               </SelectItem>
                               <SelectItem value="edicao">
                                 <div className="flex items-center gap-1.5 text-slate-900 font-medium text-xs">
-                                  <Pencil className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                                  <Pencil className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
                                   <span>✏️ Edição</span>
                                 </div>
                               </SelectItem>

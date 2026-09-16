@@ -114,7 +114,7 @@ export default function IptuTaxas() {
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
               IPTU e Taxas
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
               IPTU, condomínio, seguro e demais obrigações
             </p>
           </div>
@@ -131,8 +131,9 @@ export default function IptuTaxas() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <div className="relative sm:col-span-2 lg:col-span-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
           <Input
+            aria-label="Buscar por imóvel, descrição ou tipo"
             placeholder="Buscar por imóvel, descrição ou tipo..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -140,7 +141,7 @@ export default function IptuTaxas() {
           />
         </div>
         <Select value={fTipo} onValueChange={setFTipo}>
-          <SelectTrigger className="w-full bg-slate-50/50 min-h-[44px]">
+          <SelectTrigger aria-label="Tipo" className="w-full bg-slate-50/50 min-h-[44px]">
             <SelectValue placeholder="Tipo" />
           </SelectTrigger>
           <SelectContent>
@@ -153,7 +154,7 @@ export default function IptuTaxas() {
           </SelectContent>
         </Select>
         <Select value={fStatus} onValueChange={setFStatus}>
-          <SelectTrigger className="w-full bg-slate-50/50 min-h-[44px]">
+          <SelectTrigger aria-label="Status" className="w-full bg-slate-50/50 min-h-[44px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -184,12 +185,12 @@ export default function IptuTaxas() {
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center py-12 text-center">
             <Receipt className="h-10 w-10 text-slate-300 mb-3" />
-            <p className="text-sm text-slate-500">Nenhuma obrigação encontrada.</p>
+            <p className="text-sm text-slate-600">Nenhuma obrigação encontrada.</p>
           </CardContent>
         </Card>
       ) : (
         <>
-          <p className="text-sm text-slate-500">{filtered.length} obrigação(ões)</p>
+          <p className="text-sm text-slate-600">{filtered.length} obrigação(ões)</p>
           <div className="hidden md:block rounded-lg border border-slate-200 overflow-x-auto">
             <Table className="min-w-[850px]">
               <TableHeader>
@@ -241,19 +242,23 @@ export default function IptuTaxas() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 min-h-[36px] min-w-[36px]"
+                          aria-label="Ver detalhes"
+                          title="Ver detalhes"
+                          className="h-11 w-11 min-h-[44px] min-w-[44px]"
                           onClick={() => handleView(c)}
                         >
-                          <Eye className="h-4 w-4 text-slate-500" />
+                          <Eye className="h-4 w-4 text-slate-600" />
                         </Button>
                         {canEdit && (
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-9 w-9 min-h-[36px] min-w-[36px]"
+                            aria-label="Editar"
+                            title="Editar"
+                            className="h-11 w-11 min-h-[44px] min-w-[44px]"
                             onClick={() => handleEdit(c)}
                           >
-                            <Pencil className="h-4 w-4 text-slate-500" />
+                            <Pencil className="h-4 w-4 text-slate-600" />
                           </Button>
                         )}
                       </div>
@@ -276,7 +281,7 @@ export default function IptuTaxas() {
                       <p className="font-semibold text-slate-900 text-sm truncate">
                         {c.expand?.imovel?.nome || c.expand?.imovel?.endereco || '—'}
                       </p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-slate-600">
                         {TIPO_IPTU_LABELS[c.tipo] || c.tipo} — {c.descricao || '—'}
                       </p>
                     </div>
@@ -287,7 +292,7 @@ export default function IptuTaxas() {
                       <span className="text-sm font-bold text-slate-900 block">
                         {formatCurrency(c.valor)}
                       </span>
-                      <span className="text-[11px] text-slate-400">
+                      <span className="text-xs text-slate-600">
                         Venc: {formatDate(c.vencimento)}
                       </span>
                     </div>
@@ -297,15 +302,15 @@ export default function IptuTaxas() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-9 px-3 min-h-[36px] text-xs"
+                            className="h-11 px-3 min-h-[44px] text-sm"
                             onClick={() => handleEdit(c)}
                           >
-                            <Pencil className="h-3.5 w-3.5 mr-1 text-slate-500" /> Editar
+                            <Pencil className="h-3.5 w-3.5 mr-1 text-slate-600" /> Editar
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-9 px-2.5 min-h-[36px] text-red-600 hover:bg-red-50 border-red-200"
+                            className="h-11 px-3 min-h-[44px] text-red-600 hover:bg-red-50 border-red-200"
                             onClick={() => handleDelete(c)}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -315,10 +320,10 @@ export default function IptuTaxas() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-9 px-3 min-h-[36px] text-xs"
+                          className="h-11 px-3 min-h-[44px] text-sm"
                           onClick={() => handleView(c)}
                         >
-                          <Eye className="h-3.5 w-3.5 mr-1 text-slate-500" /> Detalhes
+                          <Eye className="h-3.5 w-3.5 mr-1 text-slate-600" /> Detalhes
                         </Button>
                       )}
                     </div>

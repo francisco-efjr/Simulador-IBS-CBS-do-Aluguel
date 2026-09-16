@@ -140,10 +140,10 @@ export default function Signup() {
 
         <Card className="border border-navy-700/80 bg-navy-800/95 text-slate-100 shadow-2xl backdrop-blur-xl">
           <CardHeader className="space-y-1.5 pb-4 text-center">
-            <CardTitle className="text-2xl font-bold tracking-tight text-white">
+            <CardTitle as="h1" className="text-2xl font-bold tracking-tight text-white">
               {inviteStatus?.valid ? 'Ativar seu Convite' : 'Cadastrar Usuário'}
             </CardTitle>
-            <CardDescription className="text-slate-300 text-xs sm:text-sm">
+            <CardDescription className="text-slate-200 text-sm sm:text-base">
               {inviteStatus?.valid
                 ? 'Defina seu nome e senha para acessar o sistema da Holding Aguiar'
                 : 'Defina suas credenciais para acessar o sistema'}
@@ -162,7 +162,7 @@ export default function Signup() {
                   {inviteStatus.perfil && (
                     <div className="flex items-center gap-1.5 mt-1">
                       <span>Papel atribuído:</span>
-                      <Badge className="bg-gold-500 text-navy-950 font-bold text-[10px] uppercase">
+                      <Badge className="bg-gold-500 text-navy-950 font-bold text-xs uppercase">
                         {inviteStatus.perfil}
                       </Badge>
                     </div>
@@ -199,7 +199,7 @@ export default function Signup() {
                     className="text-slate-300 font-medium text-xs flex items-center justify-between"
                   >
                     <span>Possui um Código / Token de Convite?</span>
-                    <span className="text-[10px] text-gold-400 font-normal">Opcional</span>
+                    <span className="text-xs text-gold-400 font-normal">Opcional</span>
                   </Label>
                   <div className="flex gap-2">
                     <div className="relative flex-1">
@@ -228,7 +228,7 @@ export default function Signup() {
               )}
 
               <div className="space-y-1.5">
-                <Label htmlFor="name" className="text-slate-200 font-medium text-xs">
+                <Label htmlFor="name" className="text-slate-100 font-semibold text-sm">
                   Nome completo *
                 </Label>
                 <div className="relative">
@@ -240,16 +240,18 @@ export default function Signup() {
                     placeholder="Seu Nome Completo"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="pl-9 bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-400 focus:border-gold-500 focus:ring-gold-500"
+                    className="pl-9 bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-300 focus:border-gold-500 focus:ring-gold-500"
                   />
                 </div>
                 {fieldErrors.name && (
-                  <p className="text-xs font-medium text-red-400">{fieldErrors.name}</p>
+                  <p role="alert" className="text-sm font-semibold text-red-300">
+                    {fieldErrors.name}
+                  </p>
                 )}
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-slate-200 font-medium text-xs">
+                <Label htmlFor="email" className="text-slate-100 font-semibold text-sm">
                   E-mail *
                 </Label>
                 <div className="relative">
@@ -257,23 +259,29 @@ export default function Signup() {
                   <Input
                     id="email"
                     type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    autoCapitalize="none"
+                    spellCheck={false}
                     required
                     disabled={!!inviteStatus?.email}
                     placeholder="seu.email@exemplo.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className={`pl-9 bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-400 focus:border-gold-500 focus:ring-gold-500 ${
+                    className={`pl-9 bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-300 focus:border-gold-500 focus:ring-gold-500 ${
                       inviteStatus?.email ? 'opacity-80 cursor-not-allowed' : ''
                     }`}
                   />
                 </div>
                 {fieldErrors.email && (
-                  <p className="text-xs font-medium text-red-400">{fieldErrors.email}</p>
+                  <p role="alert" className="text-sm font-semibold text-red-300">
+                    {fieldErrors.email}
+                  </p>
                 )}
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-slate-200 font-medium text-xs">
+                <Label htmlFor="password" className="text-slate-100 font-semibold text-sm">
                   Definir Senha (mín. 8 caracteres) *
                 </Label>
                 <div className="relative">
@@ -281,27 +289,36 @@ export default function Signup() {
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
                     required
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-9 pr-10 bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-400 focus:border-gold-500 focus:ring-gold-500"
+                    className="pl-9 pr-14 min-h-[48px] text-base bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-300 focus:border-gold-500 focus:ring-gold-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-gold-400 transition-colors"
+                    aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                    aria-pressed={showPassword}
+                    className="absolute right-0 top-0 flex h-full min-h-[48px] w-12 items-center justify-center rounded-r-md text-slate-300 hover:text-gold-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 transition-colors"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" aria-hidden="true" />
+                    ) : (
+                      <Eye className="h-5 w-5" aria-hidden="true" />
+                    )}
                   </button>
                 </div>
                 {fieldErrors.password && (
-                  <p className="text-xs font-medium text-red-400">{fieldErrors.password}</p>
+                  <p role="alert" className="text-sm font-semibold text-red-300">
+                    {fieldErrors.password}
+                  </p>
                 )}
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="confirm-password" className="text-slate-200 font-medium text-xs">
+                <Label htmlFor="confirm-password" className="text-slate-100 font-semibold text-sm">
                   Confirmar Senha *
                 </Label>
                 <div className="relative">
@@ -309,26 +326,35 @@ export default function Signup() {
                   <Input
                     id="confirm-password"
                     type={showConfirmPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
                     required
                     placeholder="••••••••"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="pl-9 pr-10 bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-400 focus:border-gold-500 focus:ring-gold-500"
+                    className="pl-9 pr-14 min-h-[48px] text-base bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-300 focus:border-gold-500 focus:ring-gold-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-gold-400 transition-colors"
+                    aria-label={
+                      showConfirmPassword
+                        ? 'Ocultar confirmação de senha'
+                        : 'Mostrar confirmação de senha'
+                    }
+                    aria-pressed={showConfirmPassword}
+                    className="absolute right-0 top-0 flex h-full min-h-[48px] w-12 items-center justify-center rounded-r-md text-slate-300 hover:text-gold-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 transition-colors"
                   >
                     {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="h-5 w-5" aria-hidden="true" />
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-5 w-5" aria-hidden="true" />
                     )}
                   </button>
                 </div>
                 {fieldErrors.confirmPassword && (
-                  <p className="text-xs font-medium text-red-400">{fieldErrors.confirmPassword}</p>
+                  <p role="alert" className="text-sm font-semibold text-red-300">
+                    {fieldErrors.confirmPassword}
+                  </p>
                 )}
               </div>
 
@@ -360,7 +386,7 @@ export default function Signup() {
           </CardContent>
         </Card>
 
-        <div className="mt-6 flex items-center justify-center gap-2 text-slate-400 text-xs font-medium">
+        <div className="mt-6 flex items-center justify-center gap-2 text-slate-300 text-sm font-medium">
           <ShieldCheck className="h-4 w-4 text-gold-400" />
           <span>Ambiente Seguro &bull; Holding Aguiar © 2026</span>
         </div>

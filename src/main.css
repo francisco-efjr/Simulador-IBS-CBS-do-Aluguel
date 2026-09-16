@@ -9,6 +9,13 @@
 
 @layer base {
   :root {
+    /**
+     * Escala de leitura ajustável pelo usuário (controle A-/A/A+ no cabeçalho).
+     * Tudo no sistema está em `rem`, então mudar esta raiz aumenta texto,
+     * espaçamentos e alvos de toque juntos — sem quebrar o layout.
+     */
+    font-size: var(--escala-leitura, 100%);
+
     --background: 218 30% 98%;
     --foreground: 218 64% 11%;
 
@@ -281,5 +288,40 @@
 
   .animate-spotlight {
     animation: spotlight 2s ease forwards;
+  }
+}
+
+@layer base {
+  /**
+   * Foco sempre visível, em qualquer elemento operável pelo teclado.
+   *
+   * O anel tem contraste próprio contra fundo claro e escuro (WCAG 2.4.7 e
+   * 1.4.11) e usa `:focus-visible`, então não aparece no clique de mouse.
+   */
+  :focus-visible {
+    outline: 3px solid #b07d2b;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Alvo de toque mínimo recomendado para o público do sistema: 44px.
+     A regra vale para controles que não definem a própria altura. */
+  button:not([role='checkbox']):not([role='radio']):not([role='switch']),
+  [role='button'],
+  a[href].botao,
+  summary {
+    min-height: 44px;
+  }
+
+  /* Quem pediu menos animação no sistema operacional não deve receber nenhuma. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }

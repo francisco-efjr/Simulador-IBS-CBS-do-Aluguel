@@ -5,8 +5,13 @@ import { cn } from '@/lib/utils'
 
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-auto">
-      <table ref={ref} className={cn('w-full caption-bottom text-sm', className)} {...props} />
+    // A área rolável recebe foco: sem isso, quem navega só pelo teclado não
+    // alcança as colunas que ficaram fora da tela (WCAG 2.1.1).
+    <div
+      className="relative w-full overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-800"
+      tabIndex={0}
+    >
+      <table ref={ref} className={cn('w-full caption-bottom text-base', className)} {...props} />
     </div>
   ),
 )

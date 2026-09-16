@@ -711,7 +711,7 @@ export default function DashboardFinanceiro() {
             <h2 className="text-2xl font-bold tracking-tight text-slate-900">
               Dashboard Financeiro
             </h2>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <p className="text-sm text-slate-600 mt-0.5">
               Consolidado de receitas, despesas, fluxo de caixa e rentabilidade do portfólio
             </p>
           </div>
@@ -755,17 +755,17 @@ export default function DashboardFinanceiro() {
           <Card className="border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-5 flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate block">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 truncate block">
                   Receitas Recebidas
                 </span>
                 <p className="text-lg sm:text-2xl font-bold text-slate-900 truncate">
                   {formatCurrency(kpis.receitasRecebidas)}
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700">
                   <FileCheck2 className="h-3 w-3 shrink-0" /> Realizadas no período
                 </span>
               </div>
-              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/60 shrink-0">
+              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 shrink-0">
                 <TrendingUp className="h-5 w-5" />
               </div>
             </CardContent>
@@ -775,17 +775,17 @@ export default function DashboardFinanceiro() {
           <Card className="border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-5 flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate block">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 truncate block">
                   Despesas Pagas
                 </span>
                 <p className="text-lg sm:text-2xl font-bold text-slate-900 truncate">
                   {formatCurrency(kpis.despesasPagas)}
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-600">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-rose-700">
                   <Receipt className="h-3 w-3 shrink-0" /> Pagas no período
                 </span>
               </div>
-              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-rose-50 text-rose-600 border border-rose-200/60 shrink-0">
+              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-rose-50 text-rose-700 border border-rose-200/60 shrink-0">
                 <TrendingDown className="h-5 w-5" />
               </div>
             </CardContent>
@@ -806,7 +806,7 @@ export default function DashboardFinanceiro() {
                     Resultado Líquido
                   </span>
                   <span
-                    className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
+                    className={`text-xs uppercase font-bold px-2 py-0.5 rounded-full ${
                       kpis.resultadoLiquido >= 0
                         ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30'
                         : 'bg-rose-500/20 text-rose-300 border border-rose-400/30'
@@ -839,17 +839,17 @@ export default function DashboardFinanceiro() {
           <Card className="border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-5 flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate block">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 truncate block">
                   Receitas Pendentes
                 </span>
                 <p className="text-lg sm:text-2xl font-bold text-amber-700 truncate">
                   {formatCurrency(kpis.receitasPendentes)}
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700">
                   <Clock className="h-3 w-3 shrink-0" /> A receber no período
                 </span>
               </div>
-              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-200/60 shrink-0">
+              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-700 border border-amber-200/60 shrink-0">
                 <Clock className="h-5 w-5" />
               </div>
             </CardContent>
@@ -859,13 +859,13 @@ export default function DashboardFinanceiro() {
           <Card className="border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-5 flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate block">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 truncate block">
                   Receitas Vencidas
                 </span>
                 <p className="text-lg sm:text-2xl font-bold text-red-600 truncate">
                   {formatCurrency(kpis.receitasVencidas)}
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-red-600">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-red-600">
                   <AlertTriangle className="h-3 w-3 shrink-0" /> Inadimplência no período
                 </span>
               </div>
@@ -879,13 +879,13 @@ export default function DashboardFinanceiro() {
           <Card className="border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-5 flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate block">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 truncate block">
                   Despesas Pendentes
                 </span>
                 <p className="text-lg sm:text-2xl font-bold text-slate-700 truncate">
                   {formatCurrency(kpis.despesasPendentes)}
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600">
                   <Clock className="h-3 w-3 shrink-0" /> A pagar no período
                 </span>
               </div>
@@ -899,13 +899,13 @@ export default function DashboardFinanceiro() {
           <Card className="border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-5 flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate block">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 truncate block">
                   Despesas Vencidas
                 </span>
                 <p className="text-lg sm:text-2xl font-bold text-red-600 truncate">
                   {formatCurrency(kpis.despesasVencidas)}
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-red-600">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-red-600">
                   <AlertTriangle className="h-3 w-3 shrink-0" /> Em atraso no período
                 </span>
               </div>
@@ -921,7 +921,7 @@ export default function DashboardFinanceiro() {
       <Card className="border border-slate-200 bg-white shadow-sm">
         <CardHeader className="pb-3 pt-4 px-5 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-slate-500" />
+            <Calendar className="h-4 w-4 text-slate-600" />
             <CardTitle className="text-sm font-semibold text-slate-800">
               Filtros Globais de Análise
             </CardTitle>
@@ -930,7 +930,7 @@ export default function DashboardFinanceiro() {
         <CardContent className="p-5 space-y-4">
           {/* Quick period buttons */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 mr-2">Período:</span>
+            <span className="text-xs font-semibold text-slate-600 mr-2">Período:</span>
             {[
               { id: 'current_month', label: 'Mês atual' },
               { id: 'last_month', label: 'Mês anterior' },
@@ -997,11 +997,11 @@ export default function DashboardFinanceiro() {
               }`}
             >
               <Label className="text-xs text-slate-600 font-medium flex items-center gap-1.5">
-                <Building2 className="h-3.5 w-3.5 text-slate-400" />
+                <Building2 className="h-3.5 w-3.5 text-slate-600" />
                 Imóvel
               </Label>
               <Select value={selectedImovel} onValueChange={setSelectedImovel}>
-                <SelectTrigger className="h-9 text-xs bg-slate-50/50">
+                <SelectTrigger aria-label="Todos os imóveis" className="h-9 text-xs bg-slate-50/50">
                   <SelectValue placeholder="Todos os imóveis" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1022,11 +1022,14 @@ export default function DashboardFinanceiro() {
               }`}
             >
               <Label className="text-xs text-slate-600 font-medium flex items-center gap-1.5">
-                <Tag className="h-3.5 w-3.5 text-slate-400" />
+                <Tag className="h-3.5 w-3.5 text-slate-600" />
                 Categoria
               </Label>
               <Select value={selectedCategoria} onValueChange={setSelectedCategoria}>
-                <SelectTrigger className="h-9 text-xs bg-slate-50/50">
+                <SelectTrigger
+                  aria-label="Todas as categorias"
+                  className="h-9 text-xs bg-slate-50/50"
+                >
                   <SelectValue placeholder="Todas as categorias" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1054,7 +1057,7 @@ export default function DashboardFinanceiro() {
                   <BarChart2 className="h-4 w-4 text-indigo-600" />
                   Receitas × Despesas Realizadas
                 </CardTitle>
-                <CardDescription className="text-xs text-slate-500 mt-0.5">
+                <CardDescription className="text-xs text-slate-600 mt-0.5">
                   Comparação mensal entre receitas recebidas e despesas pagas
                 </CardDescription>
               </div>
@@ -1063,7 +1066,7 @@ export default function DashboardFinanceiro() {
           <CardContent className="pt-2">
             <div className="h-[250px] sm:h-[320px] lg:h-[350px] w-full">
               {monthlyData.length === 0 ? (
-                <div className="flex h-full items-center justify-center text-xs text-slate-400">
+                <div className="flex h-full items-center justify-center text-xs text-slate-600">
                   Nenhum dado encontrado para o período selecionado
                 </div>
               ) : (
@@ -1128,10 +1131,10 @@ export default function DashboardFinanceiro() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <LineIcon className="h-4 w-4 text-emerald-600" />
+                  <LineIcon className="h-4 w-4 text-emerald-700" />
                   Evolução do Resultado Mensal
                 </CardTitle>
-                <CardDescription className="text-xs text-slate-500 mt-0.5">
+                <CardDescription className="text-xs text-slate-600 mt-0.5">
                   Superávit ou déficit líquido apurado mês a mês
                 </CardDescription>
               </div>
@@ -1140,7 +1143,7 @@ export default function DashboardFinanceiro() {
           <CardContent className="pt-2">
             <div className="h-[250px] sm:h-[320px] lg:h-[350px] w-full">
               {monthlyData.length === 0 ? (
-                <div className="flex h-full items-center justify-center text-xs text-slate-400">
+                <div className="flex h-full items-center justify-center text-xs text-slate-600">
                   Nenhum dado encontrado para o período selecionado
                 </div>
               ) : (
@@ -1202,10 +1205,10 @@ export default function DashboardFinanceiro() {
           <CardHeader className="pb-2">
             <div>
               <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-sky-600" />
+                <Building2 className="h-4 w-4 text-sky-700" />
                 Receitas por Imóvel
               </CardTitle>
-              <CardDescription className="text-xs text-slate-500 mt-0.5">
+              <CardDescription className="text-xs text-slate-600 mt-0.5">
                 Total recebido no período ordenado pelo maior faturamento
               </CardDescription>
             </div>
@@ -1213,7 +1216,7 @@ export default function DashboardFinanceiro() {
           <CardContent className="pt-2">
             <div className="h-[250px] sm:h-[320px] lg:h-[350px] w-full">
               {receitasPorImovelData.length === 0 ? (
-                <div className="flex h-full items-center justify-center text-xs text-slate-400">
+                <div className="flex h-full items-center justify-center text-xs text-slate-600">
                   Nenhuma receita realizada para o período selecionado
                 </div>
               ) : (
@@ -1267,10 +1270,10 @@ export default function DashboardFinanceiro() {
           <CardHeader className="pb-2">
             <div>
               <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-rose-600" />
+                <Building2 className="h-4 w-4 text-rose-700" />
                 Despesas por Imóvel
               </CardTitle>
-              <CardDescription className="text-xs text-slate-500 mt-0.5">
+              <CardDescription className="text-xs text-slate-600 mt-0.5">
                 Custos pagos no período por propriedade
               </CardDescription>
             </div>
@@ -1278,7 +1281,7 @@ export default function DashboardFinanceiro() {
           <CardContent className="pt-2">
             <div className="h-[250px] sm:h-[320px] lg:h-[350px] w-full">
               {despesasPorImovelData.length === 0 ? (
-                <div className="flex h-full items-center justify-center text-xs text-slate-400">
+                <div className="flex h-full items-center justify-center text-xs text-slate-600">
                   Nenhuma despesa paga para o período selecionado
                 </div>
               ) : (
@@ -1328,10 +1331,10 @@ export default function DashboardFinanceiro() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <PieIcon className="h-4 w-4 text-amber-600" />
+                  <PieIcon className="h-4 w-4 text-amber-700" />
                   Distribuição de Despesas por Categoria
                 </CardTitle>
-                <CardDescription className="text-xs text-slate-500 mt-0.5">
+                <CardDescription className="text-xs text-slate-600 mt-0.5">
                   Composição percentual dos custos pagos no período
                 </CardDescription>
               </div>
@@ -1341,7 +1344,7 @@ export default function DashboardFinanceiro() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
               <div className="h-[250px] sm:h-[280px] md:col-span-2 w-full">
                 {despesasPorCategoriaData.length === 0 ? (
-                  <div className="flex h-full items-center justify-center text-xs text-slate-400">
+                  <div className="flex h-full items-center justify-center text-xs text-slate-600">
                     Nenhuma despesa paga com categoria para o período selecionado
                   </div>
                 ) : (
@@ -1384,7 +1387,7 @@ export default function DashboardFinanceiro() {
               {/* Legend list on the side */}
               <div className="space-y-2 max-h-[240px] overflow-y-auto pr-2">
                 {despesasPorCategoriaData.length === 0 ? (
-                  <p className="text-xs text-slate-400">Sem dados para detalhar.</p>
+                  <p className="text-xs text-slate-600">Sem dados para detalhar.</p>
                 ) : (
                   despesasPorCategoriaData.map((item, idx) => (
                     <div
@@ -1402,9 +1405,7 @@ export default function DashboardFinanceiro() {
                         <span className="font-semibold text-slate-900 block">
                           {formatCurrency(item.valor)}
                         </span>
-                        <span className="text-[10px] text-slate-400">
-                          {item.percent.toFixed(1)}%
-                        </span>
+                        <span className="text-xs text-slate-600">{item.percent.toFixed(1)}%</span>
                       </div>
                     </div>
                   ))
@@ -1424,19 +1425,19 @@ export default function DashboardFinanceiro() {
                 <Building2 className="h-4 w-4 text-indigo-600" />
                 Resumo Financeiro por Imóvel
               </CardTitle>
-              <CardDescription className="text-xs text-slate-500 mt-0.5">
+              <CardDescription className="text-xs text-slate-600 mt-0.5">
                 Comparativo de receitas realizadas, despesas pagas e margem operacional por
                 propriedade
               </CardDescription>
             </div>
-            <div className="text-xs text-slate-500 font-medium">
+            <div className="text-xs text-slate-600 font-medium">
               {resumoPorImovelTable.length} registro(s) listado(s)
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           {resumoPorImovelTable.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
+            <div className="flex flex-col items-center justify-center py-12 text-center text-slate-600">
               <Building2 className="h-10 w-10 text-slate-300 mb-2" />
               <p className="text-sm font-medium">
                 Nenhum dado encontrado para o período selecionado
@@ -1455,7 +1456,7 @@ export default function DashboardFinanceiro() {
                       <div>
                         <div className="font-semibold text-slate-900 text-sm">{row.nome}</div>
                         {row.codigo && (
-                          <div className="text-[11px] text-slate-500">Cód: {row.codigo}</div>
+                          <div className="text-xs text-slate-600">Cód: {row.codigo}</div>
                         )}
                       </div>
                       <span
@@ -1472,14 +1473,14 @@ export default function DashboardFinanceiro() {
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-200/60">
                       <div>
-                        <span className="text-slate-400 block text-[10px] uppercase">Receitas</span>
-                        <span className="font-medium text-emerald-600">
+                        <span className="text-slate-600 block text-xs uppercase">Receitas</span>
+                        <span className="font-medium text-emerald-700">
                           {formatCurrency(row.receitas)}
                         </span>
                       </div>
                       <div className="text-right">
-                        <span className="text-slate-400 block text-[10px] uppercase">Despesas</span>
-                        <span className="font-medium text-rose-600">
+                        <span className="text-slate-600 block text-xs uppercase">Despesas</span>
+                        <span className="font-medium text-rose-700">
                           {formatCurrency(row.despesas)}
                         </span>
                       </div>
@@ -1525,22 +1526,22 @@ export default function DashboardFinanceiro() {
                         <TableCell className="py-3 sticky left-0 bg-white hover:bg-slate-50/60 z-10">
                           <div className="font-medium text-slate-900 text-sm">{row.nome}</div>
                           {row.codigo && (
-                            <div className="text-xs text-slate-400">Cód: {row.codigo}</div>
+                            <div className="text-xs text-slate-600">Cód: {row.codigo}</div>
                           )}
                         </TableCell>
-                        <TableCell className="text-right py-3 text-sm font-medium text-emerald-600">
+                        <TableCell className="text-right py-3 text-sm font-medium text-emerald-700">
                           {formatCurrency(row.receitas)}
                         </TableCell>
-                        <TableCell className="text-right py-3 text-sm font-medium text-rose-600">
+                        <TableCell className="text-right py-3 text-sm font-medium text-rose-700">
                           {formatCurrency(row.despesas)}
                         </TableCell>
                         <TableCell className="text-right py-3">
                           <span
                             className={`inline-flex items-center gap-1 text-sm font-bold ${
                               row.resultado > 0
-                                ? 'text-emerald-600'
+                                ? 'text-emerald-700'
                                 : row.resultado < 0
-                                  ? 'text-rose-600'
+                                  ? 'text-rose-700'
                                   : 'text-slate-600'
                             }`}
                           >

@@ -4,6 +4,7 @@ import { Header } from '@/components/Header'
 import { SidebarContent } from '@/components/SidebarContent'
 import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { useTituloDaPagina } from '@/hooks/use-titulo-da-pagina'
 import { cn } from '@/lib/utils'
 
 interface LayoutProps {
@@ -18,6 +19,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const isMobile = useIsMobile()
+  useTituloDaPagina()
 
   const desktopSidebar = (
     <aside className="hidden lg:flex w-64 shrink-0">
@@ -27,6 +29,15 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-navy-950">
+      {/* Primeira parada do teclado: pular o menu inteiro e cair no conteúdo.
+          Sem isso, cada troca de tela custa uma dezena de tabulações. */}
+      <a
+        href="#conteudo"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-gold-500 focus:px-5 focus:py-3 focus:text-base focus:font-bold focus:text-navy-950"
+      >
+        Ir para o conteúdo
+      </a>
+
       {desktopSidebar}
 
       {/* Mobile & Tablet Drawer */}
@@ -41,7 +52,13 @@ export default function Layout({ children }: LayoutProps) {
 
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">
         <Header onOpenMobileSidebar={() => setMobileOpen(true)} />
-        <main className="flex-1 overflow-y-auto bg-slate-50">{children ?? <Outlet />}</main>
+        <main
+          id="conteudo"
+          tabIndex={-1}
+          className="flex-1 overflow-y-auto bg-slate-50 focus:outline-none"
+        >
+          {children ?? <Outlet />}
+        </main>
       </div>
     </div>
   )

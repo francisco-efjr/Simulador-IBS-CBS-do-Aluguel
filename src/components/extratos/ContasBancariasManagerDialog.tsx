@@ -129,7 +129,7 @@ export function ContasBancariasManagerDialog({
                         <TableCell className="font-medium text-slate-900">{c.nome}</TableCell>
                         <TableCell className="text-sm text-slate-600">
                           <div>{c.banco || 'Não informado'}</div>
-                          <Badge variant="outline" className="text-[10px] mt-0.5 font-normal">
+                          <Badge variant="outline" className="text-xs mt-0.5 font-normal">
                             {c.tipo || 'Conta Corrente'}
                           </Badge>
                         </TableCell>
@@ -143,7 +143,7 @@ export function ContasBancariasManagerDialog({
                         <TableCell className="text-center">
                           {c.ativo ? (
                             <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50">
-                              <CheckCircle className="h-3 w-3 mr-1 text-emerald-600" /> Ativa
+                              <CheckCircle className="h-3 w-3 mr-1 text-emerald-700" /> Ativa
                             </Badge>
                           ) : (
                             <Badge variant="secondary" className="text-slate-400">
@@ -167,7 +167,7 @@ export function ContasBancariasManagerDialog({
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                              className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
                               onClick={() => handleDelete(c)}
                             >
                               <Trash2 className="h-4 w-4" />

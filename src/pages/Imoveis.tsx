@@ -8,6 +8,7 @@ import { ImovelFormDialog } from '@/components/imoveis/ImovelFormDialog'
 import { ImovelDetailDialog } from '@/components/imoveis/ImovelDetailDialog'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/button'
+import { ConfirmarAcao } from '@/components/shared/ConfirmarAcao'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -106,7 +107,7 @@ export default function Imoveis() {
           </div>
           <div>
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Imóveis</h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
               Gestão de edifícios, casas e salas comerciais
             </p>
           </div>
@@ -123,8 +124,9 @@ export default function Imoveis() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <div className="relative sm:col-span-2 lg:col-span-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
           <Input
+            aria-label="Buscar por código, nome ou endereço"
             placeholder="Buscar por código, nome ou endereço..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -132,7 +134,7 @@ export default function Imoveis() {
           />
         </div>
         <Select value={fTipo} onValueChange={setFTipo}>
-          <SelectTrigger className="w-full bg-slate-50/50 min-h-[44px]">
+          <SelectTrigger aria-label="Tipo" className="w-full bg-slate-50/50 min-h-[44px]">
             <SelectValue placeholder="Tipo" />
           </SelectTrigger>
           <SelectContent>
@@ -145,7 +147,7 @@ export default function Imoveis() {
           </SelectContent>
         </Select>
         <Select value={fStatus} onValueChange={setFStatus}>
-          <SelectTrigger className="w-full bg-slate-50/50 min-h-[44px]">
+          <SelectTrigger aria-label="Status" className="w-full bg-slate-50/50 min-h-[44px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -176,12 +178,12 @@ export default function Imoveis() {
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center py-12 text-center">
             <Building2 className="h-10 w-10 text-slate-300 mb-3" />
-            <p className="text-sm text-slate-500">Nenhum imóvel encontrado.</p>
+            <p className="text-sm text-slate-600">Nenhum imóvel encontrado.</p>
           </CardContent>
         </Card>
       ) : (
         <>
-          <p className="text-sm text-slate-500">{filtered.length} imóvel(is)</p>
+          <p className="text-sm text-slate-600">{filtered.length} imóvel(is)</p>
           <div className="hidden md:block rounded-lg border border-slate-200 overflow-x-auto">
             <Table className="min-w-[700px]">
               <TableHeader>
@@ -204,7 +206,7 @@ export default function Imoveis() {
                     <TableCell className="font-medium">
                       {im.nome || im.codigo || '—'}
                       {im.codigo && (
-                        <span className="block text-xs text-slate-400">{im.codigo}</span>
+                        <span className="block text-xs text-slate-600">{im.codigo}</span>
                       )}
                     </TableCell>
                     <TableCell className="text-sm">{TIPO_IMOVEL_LABELS[im.tipo] || '—'}</TableCell>
@@ -215,7 +217,7 @@ export default function Imoveis() {
                       {im.endereco}
                       {im.numero ? `, ${im.numero}` : ''}
                       {im.bairro && (
-                        <span className="block text-xs text-slate-400">{im.bairro}</span>
+                        <span className="block text-xs text-slate-600">{im.bairro}</span>
                       )}
                     </TableCell>
                     <TableCell className="text-right text-sm font-medium">
@@ -226,30 +228,42 @@ export default function Imoveis() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 min-h-[36px] min-w-[36px]"
+                          aria-label="Ver detalhes"
+                          title="Ver detalhes"
+                          className="h-11 w-11 min-h-[44px] min-w-[44px]"
                           onClick={() => handleView(im)}
                         >
-                          <Eye className="h-4 w-4 text-slate-500" />
+                          <Eye className="h-4 w-4 text-slate-600" />
                         </Button>
                         {canEdit && (
                           <>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-9 w-9 min-h-[36px] min-w-[36px]"
+                              aria-label="Editar"
+                              title="Editar"
+                              className="h-11 w-11 min-h-[44px] min-w-[44px]"
                               onClick={() => handleEdit(im)}
                             >
-                              <Pencil className="h-4 w-4 text-slate-500" />
+                              <Pencil className="h-4 w-4 text-slate-600" />
                             </Button>
                             {im.status !== 'inativo' && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-9 w-9 min-h-[36px] min-w-[36px]"
-                                onClick={() => handleInactivate(im)}
+                              <ConfirmarAcao
+                                titulo="Inativar este imóvel?"
+                                descricao="O imóvel sai das listas ativas e deixa de entrar nos relatórios. Nada é apagado: dá para voltar atrás pela edição, mudando o status."
+                                rotuloConfirmar="Sim, inativar o imóvel"
+                                onConfirmar={() => handleInactivate(im)}
                               >
-                                <Ban className="h-4 w-4 text-red-500" />
-                              </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  aria-label="Inativar"
+                                  title="Inativar"
+                                  className="h-11 w-11 min-h-[44px] min-w-[44px]"
+                                >
+                                  <Ban className="h-4 w-4 text-red-600" />
+                                </Button>
+                              </ConfirmarAcao>
                             )}
                           </>
                         )}
@@ -273,13 +287,13 @@ export default function Imoveis() {
                       <p className="font-semibold text-slate-900 text-sm truncate">
                         {im.nome || im.codigo || '—'}
                       </p>
-                      <p className="text-xs text-slate-400">{TIPO_IMOVEL_LABELS[im.tipo] || '—'}</p>
+                      <p className="text-xs text-slate-600">{TIPO_IMOVEL_LABELS[im.tipo] || '—'}</p>
                     </div>
                     <StatusBadge type="imovel" status={im.status} />
                   </div>
                   <div className="text-xs text-slate-600 space-y-1">
                     {im.endereco && (
-                      <p className="text-slate-500 truncate">
+                      <p className="text-slate-600 truncate">
                         {im.endereco}
                         {im.numero ? `, ${im.numero}` : ''}
                         {im.bairro ? ` - ${im.bairro}` : ''}
@@ -296,30 +310,36 @@ export default function Imoveis() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-9 px-3 min-h-[36px] text-xs"
+                            className="h-11 px-3 min-h-[44px] text-sm"
                             onClick={() => handleEdit(im)}
                           >
-                            <Pencil className="h-3.5 w-3.5 mr-1 text-slate-500" /> Editar
+                            <Pencil className="h-3.5 w-3.5 mr-1 text-slate-600" /> Editar
                           </Button>
                           {im.status !== 'inativo' && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-9 px-2.5 min-h-[36px] text-red-600 hover:bg-red-50 border-red-200"
-                              onClick={() => handleInactivate(im)}
+                            <ConfirmarAcao
+                              titulo="Inativar este imóvel?"
+                              descricao="O imóvel sai das listas ativas e deixa de entrar nos relatórios. Nada é apagado: dá para voltar atrás pela edição, mudando o status."
+                              rotuloConfirmar="Sim, inativar o imóvel"
+                              onConfirmar={() => handleInactivate(im)}
                             >
-                              <Ban className="h-3.5 w-3.5" />
-                            </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-11 px-3 min-h-[44px] text-red-600 hover:bg-red-50 border-red-200"
+                              >
+                                <Ban className="h-3.5 w-3.5" />
+                              </Button>
+                            </ConfirmarAcao>
                           )}
                         </>
                       ) : (
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-9 px-3 min-h-[36px] text-xs"
+                          className="h-11 px-3 min-h-[44px] text-sm"
                           onClick={() => handleView(im)}
                         >
-                          <Eye className="h-3.5 w-3.5 mr-1 text-slate-500" /> Detalhes
+                          <Eye className="h-3.5 w-3.5 mr-1 text-slate-600" /> Detalhes
                         </Button>
                       )}
                     </div>

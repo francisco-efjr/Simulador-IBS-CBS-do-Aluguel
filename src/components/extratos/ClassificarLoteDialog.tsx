@@ -138,7 +138,10 @@ export function ClassificarLoteDialog({
 
           <Field label="Imóvel">
             <Select value={imovel} onValueChange={setImovel}>
-              <SelectTrigger className="bg-slate-50/50">
+              <SelectTrigger
+                aria-label="Selecione o imóvel de destino..."
+                className="bg-slate-50/50"
+              >
                 <SelectValue placeholder="Selecione o imóvel de destino..." />
               </SelectTrigger>
               <SelectContent>
@@ -153,7 +156,7 @@ export function ClassificarLoteDialog({
 
           <Field label="Categoria Financeira">
             <Select value={categoria} onValueChange={setCategoria}>
-              <SelectTrigger className="bg-slate-50/50">
+              <SelectTrigger aria-label="Selecione a categoria..." className="bg-slate-50/50">
                 <SelectValue placeholder="Selecione a categoria..." />
               </SelectTrigger>
               <SelectContent>
@@ -169,7 +172,7 @@ export function ClassificarLoteDialog({
           {tipo === 'despesa' && (
             <Field label="Fornecedor (opcional)">
               <Select value={fornecedor} onValueChange={setFornecedor}>
-                <SelectTrigger className="bg-slate-50/50">
+                <SelectTrigger aria-label="Selecione o fornecedor..." className="bg-slate-50/50">
                   <SelectValue placeholder="Selecione o fornecedor..." />
                 </SelectTrigger>
                 <SelectContent>

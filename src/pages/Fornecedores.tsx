@@ -8,6 +8,7 @@ import { FornecedorFormDialog } from '@/components/fornecedores/FornecedorFormDi
 import { FornecedorDetailDialog } from '@/components/fornecedores/FornecedorDetailDialog'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/button'
+import { ConfirmarAcao } from '@/components/shared/ConfirmarAcao'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -110,7 +111,7 @@ export default function Fornecedores() {
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
               Fornecedores
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
               Cadastro de prestadores de serviços, empreiteiras e utilidades
             </p>
           </div>
@@ -127,8 +128,9 @@ export default function Fornecedores() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <div className="relative sm:col-span-2 lg:col-span-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
           <Input
+            aria-label="Buscar por nome, CPF/CNPJ ou e-mail"
             placeholder="Buscar por nome, CPF/CNPJ ou e-mail..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -136,7 +138,7 @@ export default function Fornecedores() {
           />
         </div>
         <Select value={fTipo} onValueChange={setFTipo}>
-          <SelectTrigger className="w-full bg-slate-50/50 min-h-[44px]">
+          <SelectTrigger aria-label="Tipo" className="w-full bg-slate-50/50 min-h-[44px]">
             <SelectValue placeholder="Tipo" />
           </SelectTrigger>
           <SelectContent>
@@ -149,7 +151,7 @@ export default function Fornecedores() {
           </SelectContent>
         </Select>
         <Select value={fStatus} onValueChange={setFStatus}>
-          <SelectTrigger className="w-full bg-slate-50/50 min-h-[44px]">
+          <SelectTrigger aria-label="Status" className="w-full bg-slate-50/50 min-h-[44px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -177,12 +179,12 @@ export default function Fornecedores() {
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center py-12 text-center">
             <Truck className="h-10 w-10 text-slate-300 mb-3" />
-            <p className="text-sm text-slate-500">Nenhum fornecedor encontrado.</p>
+            <p className="text-sm text-slate-600">Nenhum fornecedor encontrado.</p>
           </CardContent>
         </Card>
       ) : (
         <>
-          <p className="text-sm text-slate-500">{filtered.length} fornecedor(es)</p>
+          <p className="text-sm text-slate-600">{filtered.length} fornecedor(es)</p>
           <div className="hidden md:block rounded-lg border border-slate-200 overflow-x-auto">
             <Table className="min-w-[650px]">
               <TableHeader>
@@ -204,7 +206,7 @@ export default function Fornecedores() {
                   >
                     <TableCell className="font-medium">
                       {fo.nome || '—'}
-                      {fo.email && <span className="block text-xs text-slate-400">{fo.email}</span>}
+                      {fo.email && <span className="block text-xs text-slate-600">{fo.email}</span>}
                     </TableCell>
                     <TableCell className="text-sm">
                       {TIPO_FORNECEDOR_LABELS[fo.tipo_fornecedor] || '—'}
@@ -221,30 +223,42 @@ export default function Fornecedores() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 min-h-[36px] min-w-[36px]"
+                          aria-label="Ver detalhes"
+                          title="Ver detalhes"
+                          className="h-11 w-11 min-h-[44px] min-w-[44px]"
                           onClick={() => handleView(fo)}
                         >
-                          <Eye className="h-4 w-4 text-slate-500" />
+                          <Eye className="h-4 w-4 text-slate-600" />
                         </Button>
                         {canEdit && (
                           <>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-9 w-9 min-h-[36px] min-w-[36px]"
+                              aria-label="Editar"
+                              title="Editar"
+                              className="h-11 w-11 min-h-[44px] min-w-[44px]"
                               onClick={() => handleEdit(fo)}
                             >
-                              <Pencil className="h-4 w-4 text-slate-500" />
+                              <Pencil className="h-4 w-4 text-slate-600" />
                             </Button>
                             {fo.status !== 'inativo' && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-9 w-9 min-h-[36px] min-w-[36px]"
-                                onClick={() => handleInactivate(fo)}
+                              <ConfirmarAcao
+                                titulo="Inativar este fornecedor?"
+                                descricao="O fornecedor sai das listas ativas e deixa de aparecer ao lançar despesas. O histórico continua guardado e o status pode ser revertido pela edição."
+                                rotuloConfirmar="Sim, inativar o fornecedor"
+                                onConfirmar={() => handleInactivate(fo)}
                               >
-                                <Ban className="h-4 w-4 text-red-500" />
-                              </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  aria-label="Inativar"
+                                  title="Inativar"
+                                  className="h-11 w-11 min-h-[44px] min-w-[44px]"
+                                >
+                                  <Ban className="h-4 w-4 text-red-600" />
+                                </Button>
+                              </ConfirmarAcao>
                             )}
                           </>
                         )}
@@ -268,7 +282,7 @@ export default function Fornecedores() {
                       <p className="font-semibold text-slate-900 text-sm truncate">
                         {fo.nome || '—'}
                       </p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-slate-600">
                         {TIPO_FORNECEDOR_LABELS[fo.tipo_fornecedor] || '—'}
                       </p>
                     </div>
@@ -276,18 +290,18 @@ export default function Fornecedores() {
                   </div>
                   <div className="text-xs text-slate-600 space-y-1">
                     <div className="flex justify-between">
-                      <span className="text-slate-400">CPF/CNPJ:</span>
+                      <span className="text-slate-600">CPF/CNPJ:</span>
                       <span className="font-medium">{fo.cnpj_cpf || '—'}</span>
                     </div>
                     {fo.email && (
                       <div className="flex justify-between truncate">
-                        <span className="text-slate-400">E-mail:</span>
+                        <span className="text-slate-600">E-mail:</span>
                         <span className="truncate ml-2">{fo.email}</span>
                       </div>
                     )}
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-slate-600">
                       {fo.telefone || fo.contato || 'Sem contato'}
                     </span>
                     <div className="flex gap-1.5" onClick={(e) => e.stopPropagation()}>
@@ -296,30 +310,36 @@ export default function Fornecedores() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-9 px-3 min-h-[36px] text-xs"
+                            className="h-11 px-3 min-h-[44px] text-sm"
                             onClick={() => handleEdit(fo)}
                           >
-                            <Pencil className="h-3.5 w-3.5 mr-1 text-slate-500" /> Editar
+                            <Pencil className="h-3.5 w-3.5 mr-1 text-slate-600" /> Editar
                           </Button>
                           {fo.status !== 'inativo' && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-9 px-2.5 min-h-[36px] text-red-600 hover:bg-red-50 border-red-200"
-                              onClick={() => handleInactivate(fo)}
+                            <ConfirmarAcao
+                              titulo="Inativar este fornecedor?"
+                              descricao="O fornecedor sai das listas ativas e deixa de aparecer ao lançar despesas. O histórico continua guardado e o status pode ser revertido pela edição."
+                              rotuloConfirmar="Sim, inativar o fornecedor"
+                              onConfirmar={() => handleInactivate(fo)}
                             >
-                              <Ban className="h-3.5 w-3.5" />
-                            </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-11 px-3 min-h-[44px] text-red-600 hover:bg-red-50 border-red-200"
+                              >
+                                <Ban className="h-3.5 w-3.5" />
+                              </Button>
+                            </ConfirmarAcao>
                           )}
                         </>
                       ) : (
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-9 px-3 min-h-[36px] text-xs"
+                          className="h-11 px-3 min-h-[44px] text-sm"
                           onClick={() => handleView(fo)}
                         >
-                          <Eye className="h-3.5 w-3.5 mr-1 text-slate-500" /> Detalhes
+                          <Eye className="h-3.5 w-3.5 mr-1 text-slate-600" /> Detalhes
                         </Button>
                       )}
                     </div>
