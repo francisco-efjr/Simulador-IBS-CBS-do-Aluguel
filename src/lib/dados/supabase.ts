@@ -11,14 +11,18 @@ import { createClient } from '@supabase/supabase-js'
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const chave = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 
-if (!url || !chave) {
-  throw new Error(
-    'Configuração ausente: defina VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no .env ' +
-      '(ver supabase/README.md).',
-  )
-}
+/**
+ * Falta configuração.
+ *
+ * Um build sem estas duas variáveis não pode subir fingindo que funciona — era
+ * o achado S-03. Mas também não pode morrer numa tela branca: aqui a falta é
+ * sinalizada, e `main.tsx` desenha uma tela que diz o que fazer. O cliente é
+ * criado com um endereço de sustentação só para os imports não quebrarem no
+ * caminho.
+ */
+export const CONFIGURACAO_AUSENTE = !url || !chave
 
-export const supabase = createClient(url, chave, {
+export const supabase = createClient(url || 'https://configuracao.ausente', chave || 'ausente', {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
@@ -27,4 +31,4 @@ export const supabase = createClient(url, chave, {
   },
 })
 
-export const URL_SUPABASE = url
+export const URL_SUPABASE = url ?? ''
