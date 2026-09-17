@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import { Menu, User, LogOut, ShieldCheck } from 'lucide-react'
-import pb from '@/lib/pocketbase/client'
+import dados from '@/lib/dados/cliente'
 import { MODULES_LIST } from '@/lib/constants'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
@@ -40,15 +40,15 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
     const checkAlerts = async () => {
       try {
         const [contratos, iptuTaxas, receitas, despesas] = await Promise.all([
-          pb
-            .collection('contratos')
+          dados
+            .colecao('contratos')
             .getFullList({ fields: 'id,status,data_fim,proxima_data_reajuste' }),
-          pb.collection('iptu_taxas').getFullList({ fields: 'id,status,vencimento' }),
-          pb
-            .collection('receitas')
+          dados.colecao('iptu_taxas').getFullList({ fields: 'id,status,vencimento' }),
+          dados
+            .colecao('receitas')
             .getFullList({ fields: 'id,status_financeiro,data_vencimento,data' }),
-          pb
-            .collection('despesas')
+          dados
+            .colecao('despesas')
             .getFullList({ fields: 'id,status_financeiro,data_vencimento,data' }),
         ])
         let count = 0
@@ -128,7 +128,7 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
           )}
         </Button>
         <div className="flex items-center gap-2.5">
-          <Link to="/" className="lg:hidden flex items-center shrink-0">
+          <Link to="/inicio" className="lg:hidden flex items-center shrink-0">
             <img
               src={symbolLogo}
               alt="Holding Aguiar"

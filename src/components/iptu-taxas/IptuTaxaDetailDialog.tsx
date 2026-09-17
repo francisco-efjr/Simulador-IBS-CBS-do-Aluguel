@@ -1,5 +1,5 @@
 import { Download, Pencil, Trash2 } from 'lucide-react'
-import pb from '@/lib/pocketbase/client'
+import dados from '@/lib/dados/cliente'
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { DocumentUpload } from '@/components/shared/DocumentUpload'
 import { formatCurrency, formatDate, TIPO_IPTU_LABELS, STATUS_IPTU_LABELS } from '@/lib/format'
+import { LinkDeArquivo } from '@/components/shared/ArquivoPrivado'
 
 function InfoItem({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -73,14 +74,14 @@ export function IptuTaxaDetailDialog({
           {data.comprovante && (
             <div>
               <p className="text-xs text-slate-400 mb-1.5">Comprovante</p>
-              <a
-                href={pb.files.getURL(data, data.comprovante)}
-                target="_blank"
-                rel="noopener noreferrer"
+              <LinkDeArquivo
+                tabela="iptu_taxas"
+                campo="comprovante"
+                caminho={data.comprovante}
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:underline"
               >
                 <Download className="h-4 w-4" /> Baixar comprovante
-              </a>
+              </LinkDeArquivo>
             </div>
           )}
           <div>

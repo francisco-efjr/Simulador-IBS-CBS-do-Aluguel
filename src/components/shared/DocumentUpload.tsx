@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Upload, Trash2, Paperclip } from 'lucide-react'
 import { toast } from 'sonner'
-import pb from '@/lib/pocketbase/client'
+import dados from '@/lib/dados/cliente'
 import { getDocumentos, createDocumento, deleteDocumento } from '@/services/documentos'
 import { useRealtime } from '@/hooks/use-realtime'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { LinkDeArquivo } from '@/components/shared/ArquivoPrivado'
 
 interface DocumentUploadProps {
   entidadeTipo: string
@@ -96,14 +97,14 @@ export function DocumentUpload({ entidadeTipo, entidadeId }: DocumentUploadProps
               className="flex items-center gap-2 rounded-lg border border-slate-200 p-2 hover:bg-slate-50/50"
             >
               <Paperclip className="h-4 w-4 text-slate-400 shrink-0" />
-              <a
-                href={pb.files.getURL(doc, doc.arquivo)}
-                target="_blank"
-                rel="noopener noreferrer"
+              <LinkDeArquivo
+                tabela="documentos_anexos"
+                campo="arquivo"
+                caminho={doc.arquivo}
                 className="text-xs font-medium text-indigo-600 hover:underline truncate flex-1"
               >
                 {doc.descricao || doc.arquivo}
-              </a>
+              </LinkDeArquivo>
               <Button
                 variant="ghost"
                 size="icon"

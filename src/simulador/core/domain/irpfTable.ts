@@ -1,4 +1,4 @@
-import { FinancialMath } from './FinancialMath.ts';
+import { FinancialMath } from './FinancialMath.ts'
 
 /**
  * Tabelas Progressivas Mensais do IRPF (Carnê-Leão) por ano-calendário.
@@ -13,30 +13,30 @@ import { FinancialMath } from './FinancialMath.ts';
 
 export interface IRPFBracket {
   /** Limite superior da faixa (R$/mês). Infinity na última faixa. */
-  upTo: number;
+  upTo: number
   /** Alíquota da faixa (%) */
-  rate: number;
+  rate: number
   /** Parcela a deduzir do imposto apurado (R$) */
-  deduction: number;
+  deduction: number
 }
 
 export interface IRPFTable {
   /** Ano-calendário a partir do qual a tabela vigora */
-  effectiveFrom: number;
-  label: string;
-  legalBasis: string;
-  brackets: IRPFBracket[];
+  effectiveFrom: number
+  label: string
+  legalBasis: string
+  brackets: IRPFBracket[]
   /** Desconto simplificado mensal alternativo às deduções legais (R$) */
-  simplifiedDeduction: number;
+  simplifiedDeduction: number
   /**
    * Redutor de isenção ampliada (Lei nº 15.270/2025, vigente a partir de 2026).
    * Zera o imposto até `fullExemptionUpTo` e reduz linearmente até
    * `phaseOutUpTo`, quando o redutor se extingue.
    */
   exemptionRelief?: {
-    fullExemptionUpTo: number;
-    phaseOutUpTo: number;
-  };
+    fullExemptionUpTo: number
+    phaseOutUpTo: number
+  }
 }
 
 /**
@@ -86,7 +86,7 @@ export const IRPF_TABLES: IRPFTable[] = [
       phaseOutUpTo: 7350.0,
     },
   },
-];
+]
 
 /**
  * Seleciona a tabela vigente no ano-calendário informado.
@@ -94,23 +94,24 @@ export const IRPF_TABLES: IRPFTable[] = [
  * anos posteriores à última usam a mais recente.
  */
 export function getIRPFTable(year: number): IRPFTable {
-  let selected = IRPF_TABLES[0];
+  let selected = IRPF_TABLES[0]
   for (const table of IRPF_TABLES) {
     if (year >= table.effectiveFrom) {
-      selected = table;
+      selected = table
     }
   }
-  return selected;
+  return selected
 }
 
 /**
  * Aplica a tabela progressiva sobre a base de cálculo mensal já deduzida.
  */
 function applyBrackets(taxableBase: number, table: IRPFTable): number {
-  if (taxableBase <= 0) return 0;
-  const bracket = table.brackets.find((b) => taxableBase <= b.upTo) ?? table.brackets[table.brackets.length - 1];
-  if (bracket.rate === 0) return 0;
-  return Math.max(0, FinancialMath.round((taxableBase * bracket.rate) / 100 - bracket.deduction));
+  if (taxableBase <= 0) return 0
+  const bracket =
+    table.brackets.find((b) => taxableBase <= b.upTo) ?? table.brackets[table.brackets.length - 1]
+  if (bracket.rate === 0) return 0
+  return Math.max(0, FinancialMath.round((taxableBase * bracket.rate) / 100 - bracket.deduction))
 }
 
 /**
@@ -125,30 +126,30 @@ function applyBrackets(taxableBase: number, table: IRPFTable): number {
 export function calculateMonthlyIRPF(
   grossIncome: number,
   legalDeductions: number = 0,
-  year: number = new Date().getFullYear()
+  year: number = new Date().getFullYear(),
 ): number {
-  if (grossIncome <= 0) return 0;
+  if (grossIncome <= 0) return 0
 
-  const table = getIRPFTable(year);
+  const table = getIRPFTable(year)
 
   // O contribuinte adota o critério mais vantajoso: deduções legais efetivas
   // ou o desconto simplificado, nunca os dois cumulativamente.
-  const effectiveDeduction = Math.max(legalDeductions, table.simplifiedDeduction);
-  const taxableBase = Math.max(0, FinancialMath.subtract(grossIncome, effectiveDeduction));
+  const effectiveDeduction = Math.max(legalDeductions, table.simplifiedDeduction)
+  const taxableBase = Math.max(0, FinancialMath.subtract(grossIncome, effectiveDeduction))
 
-  const taxByBrackets = applyBrackets(taxableBase, table);
-  if (taxByBrackets <= 0) return 0;
+  const taxByBrackets = applyBrackets(taxableBase, table)
+  if (taxByBrackets <= 0) return 0
 
-  const relief = table.exemptionRelief;
-  if (!relief) return taxByBrackets;
+  const relief = table.exemptionRelief
+  if (!relief) return taxByBrackets
 
   // Redutor de isenção ampliada: incide sobre o rendimento bruto do mês.
-  if (grossIncome <= relief.fullExemptionUpTo) return 0;
-  if (grossIncome >= relief.phaseOutUpTo) return taxByBrackets;
+  if (grossIncome <= relief.fullExemptionUpTo) return 0
+  if (grossIncome >= relief.phaseOutUpTo) return taxByBrackets
 
   // Entre os dois tetos o redutor decresce linearmente, partindo do imposto
   // integral apurado no teto de isenção até zerar no teto do redutor.
-  const range = relief.phaseOutUpTo - relief.fullExemptionUpTo;
-  const remainingShare = (grossIncome - relief.fullExemptionUpTo) / range;
-  return Math.max(0, FinancialMath.round(taxByBrackets * remainingShare));
+  const range = relief.phaseOutUpTo - relief.fullExemptionUpTo
+  const remainingShare = (grossIncome - relief.fullExemptionUpTo) / range
+  return Math.max(0, FinancialMath.round(taxByBrackets * remainingShare))
 }

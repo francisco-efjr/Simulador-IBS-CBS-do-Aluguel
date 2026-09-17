@@ -1,8 +1,8 @@
-import React from 'react';
-import { KeyRound, X } from 'lucide-react';
+import React from 'react'
+import { KeyRound, X } from 'lucide-react'
 
 interface ProfessionalModeBarProps {
-  onExit: () => void;
+  onExit: () => void
 }
 
 /**
@@ -20,11 +20,11 @@ export const ProfessionalModeBar: React.FC<ProfessionalModeBarProps> = ({ onExit
       <button
         type="button"
         onClick={onExit}
- className="flex items-center gap-1.5 min-h-[36px] px-3 rounded-lg text-sm font-medium text-accent-fg/80 hover:text-accent-fg hover:bg-accent-fg/10 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-fg/40"
+        className="flex items-center gap-1.5 min-h-[36px] px-3 rounded-lg text-sm font-medium text-accent-fg/80 hover:text-accent-fg hover:bg-accent-fg/10 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-fg/40"
       >
         <X className="w-4 h-4" aria-hidden="true" />
         Sair
       </button>
     </div>
   </div>
-);
+)

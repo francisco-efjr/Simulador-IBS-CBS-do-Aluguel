@@ -1,52 +1,52 @@
 import { useEffect, useRef } from 'react'
-import type { RecordModel, RecordSubscription } from 'pocketbase'
+import { supabase } from '@/lib/dados/supabase'
 
-import pb from '@/lib/pocketbase/client'
+export interface EventoTempoReal<T = Record<string, unknown>> {
+  action: 'create' | 'update' | 'delete'
+  record: T
+}
+
+const ACOES = {
+  INSERT: 'create',
+  UPDATE: 'update',
+  DELETE: 'delete',
+} as const
 
 /**
- * Hook for real-time subscriptions to a PocketBase collection.
- * ALWAYS use this hook instead of subscribing inline.
- * Uses the per-listener UnsubscribeFunc so multiple components
- * can safely subscribe to the same collection without conflicts.
+ * Assina as mudanças de uma tabela e avisa a tela.
  *
- * Generic over the record type: pass your collection's interface as
- * `useRealtime<MyRecord>(...)` to get a typed subscription payload
- * instead of `unknown`.
+ * Use sempre este hook em vez de assinar no corpo do componente: ele mantém um
+ * canal por montagem e desliga na saída, sem deixar assinatura órfã quando a
+ * pessoa troca de tela no meio de um carregamento.
+ *
+ * A tabela precisa estar na publicação `supabase_realtime` (ver a migração
+ * …_tempo_real.sql); fora dela, o canal abre e nunca recebe evento.
  */
-export function useRealtime<TRecord extends RecordModel = RecordModel>(
-  collectionName: string,
-  callback: (data: RecordSubscription<TRecord>) => void,
-  enabled: boolean = true,
+export function useRealtime<T = Record<string, unknown>>(
+  tabela: string,
+  callback: (evento: EventoTempoReal<T>) => void,
+  habilitado: boolean = true,
 ) {
   const callbackRef = useRef(callback)
   callbackRef.current = callback
 
   useEffect(() => {
-    if (!enabled) return
+    if (!habilitado) return
 
-    let unsubscribeFn: (() => Promise<void>) | undefined
-    let cancelled = false
-
-    pb.collection<TRecord>(collectionName)
-      .subscribe('*', (e) => {
-        callbackRef.current(e)
+    const canal = supabase
+      .channel(`tempo-real:${tabela}:${crypto.randomUUID()}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: tabela }, (payload) => {
+        callbackRef.current({
+          action: ACOES[payload.eventType as keyof typeof ACOES] ?? 'update',
+          record: (payload.new ?? payload.old) as T,
+        })
       })
-      .then((fn) => {
-        if (cancelled) {
-          fn().catch(() => {})
-        } else {
-          unsubscribeFn = fn
-        }
-      })
-      .catch(() => {})
+      .subscribe()
 
     return () => {
-      cancelled = true
-      if (unsubscribeFn) {
-        unsubscribeFn().catch(() => {})
-      }
+      supabase.removeChannel(canal)
     }
-  }, [collectionName, enabled])
+  }, [tabela, habilitado])
 }
 
 export default useRealtime

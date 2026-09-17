@@ -19,7 +19,7 @@ import {
   ArrowUpDown,
   Search,
 } from 'lucide-react'
-import pb from '@/lib/pocketbase/client'
+import dados from '@/lib/dados/cliente'
 import { useRealtime } from '@/hooks/use-realtime'
 import { formatCurrency, formatDate } from '@/lib/format'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -119,14 +119,14 @@ export default function Alertas() {
     try {
       setLoading(true)
       const [imoveisData, contratosData, iptuData, receitasData, despesasData] = await Promise.all([
-        pb.collection('imoveis').getFullList({ sort: 'nome,codigo,endereco' }),
-        pb.collection('contratos').getFullList({ sort: '-created', expand: 'imovel,inquilino' }),
-        pb.collection('iptu_taxas').getFullList({ sort: '-created', expand: 'imovel' }),
-        pb.collection('receitas').getFullList({
+        dados.colecao('imoveis').getFullList({ sort: 'nome,codigo,endereco' }),
+        dados.colecao('contratos').getFullList({ sort: '-created', expand: 'imovel,inquilino' }),
+        dados.colecao('iptu_taxas').getFullList({ sort: '-created', expand: 'imovel' }),
+        dados.colecao('receitas').getFullList({
           sort: '-created',
           expand: 'imovel,inquilino,categoria,contrato',
         }),
-        pb.collection('despesas').getFullList({
+        dados.colecao('despesas').getFullList({
           sort: '-created',
           expand: 'imovel,fornecedor,categoria',
         }),

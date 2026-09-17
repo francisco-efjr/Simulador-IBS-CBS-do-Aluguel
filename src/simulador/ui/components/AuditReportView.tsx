@@ -1,23 +1,23 @@
-import React from 'react';
-import { ShieldCheck, ShieldAlert, AlertCircle, FileCheck, Landmark } from 'lucide-react';
-import { AuditReport } from '../../core/domain/types.ts';
+import React from 'react'
+import { ShieldCheck, ShieldAlert, AlertCircle, FileCheck, Landmark } from 'lucide-react'
+import { AuditReport } from '../../core/domain/types.ts'
 
 interface AuditReportViewProps {
-  report: AuditReport;
+  report: AuditReport
 }
 
 export const AuditReportView: React.FC<AuditReportViewProps> = ({ report }) => {
   const getBadgeColor = () => {
     switch (report.complianceStatus) {
       case 'CONFORME':
-        return 'bg-positive-bg border-positive-border text-positive-text';
+        return 'bg-positive-bg border-positive-border text-positive-text'
       case 'ISENTO':
-        return 'bg-info-bg border-info-border text-info-text';
+        return 'bg-info-bg border-info-border text-info-text'
       case 'ALERTA':
       default:
-        return 'bg-warning-bg border-warning-border text-warning-text';
+        return 'bg-warning-bg border-warning-border text-warning-text'
     }
-  };
+  }
 
   return (
     <div className="space-y-4">
@@ -36,7 +36,9 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ report }) => {
           </div>
         </div>
 
-        <span className={`px-3.5 py-1 rounded-full text-xs font-semibold font-sim-mono border uppercase tracking-wider self-start sm:self-auto ${getBadgeColor()}`}>
+        <span
+          className={`px-3.5 py-1 rounded-full text-xs font-semibold font-sim-mono border uppercase tracking-wider self-start sm:self-auto ${getBadgeColor()}`}
+        >
           {report.complianceStatus}
         </span>
       </div>
@@ -58,7 +60,7 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ report }) => {
           {report.findings.map((item, idx) => (
             <div
               key={idx}
- className="p-4 bg-surface-muted rounded-2xl border border-sim-border flex items-start gap-3 hover:border-accent-bg transition-colors"
+              className="p-4 bg-surface-muted rounded-2xl border border-sim-border flex items-start gap-3 hover:border-accent-bg transition-colors"
             >
               {item.status === 'passed' ? (
                 <ShieldCheck className="w-4 h-4 text-positive-text shrink-0 mt-0.5" />
@@ -97,7 +99,7 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ report }) => {
           {report.legalBasis.map((basis, idx) => (
             <span
               key={idx}
- className="bg-surface-muted border border-sim-border px-2.5 py-0.5 rounded-full text-[10px] font-sim-mono text-text-secondary"
+              className="bg-surface-muted border border-sim-border px-2.5 py-0.5 rounded-full text-[10px] font-sim-mono text-text-secondary"
             >
               {basis}
             </span>
@@ -105,5 +107,5 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ report }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

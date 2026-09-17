@@ -1,4 +1,5 @@
-import pb from '@/lib/pocketbase/client'
+import { colecao } from '@/lib/dados/cliente'
+import { supabase } from '@/lib/dados/supabase'
 
 export type StatusConvite = 'pendente' | 'aceito' | 'cancelado' | 'expirado'
 export type Perfil = 'administrador' | 'usuario'
@@ -39,8 +40,15 @@ export interface ValidarConviteResponse {
 /**
  * Retorna todos os convites da coleção ordenados pelos mais recentes
  */
+const VALIDADE_EM_DIAS = 7
+
+const gerarToken = () => crypto.randomUUID().replace(/-/g, '')
+
+const validadePadrao = () =>
+  new Date(Date.now() + VALIDADE_EM_DIAS * 24 * 60 * 60 * 1000).toISOString()
+
 export const getConvites = async (): Promise<ConviteRecord[]> => {
-  return pb.collection('convites').getFullList<ConviteRecord>({
+  return colecao('convites').getFullList<ConviteRecord>({
     sort: '-created',
     expand: 'criado_por',
   })
@@ -51,10 +59,11 @@ export const getConvites = async (): Promise<ConviteRecord[]> => {
  */
 export const countConvitesPendentes = async (): Promise<number> => {
   try {
-    const today = new Date().toISOString().slice(0, 10)
-    const result = await pb.collection('convites').getList(1, 1, {
-      filter: `status = 'pendente' && data_expiracao >= '${today}'`,
-      fields: 'id',
+    const result = await colecao('convites').getList(1, 1, {
+      where: [
+        ['status', '=', 'pendente'],
+        ['data_expiracao', '>=', new Date().toISOString()],
+      ],
     })
     return result.totalItems
   } catch {
@@ -67,66 +76,29 @@ export const countConvitesPendentes = async (): Promise<number> => {
  */
 export const enviarConvite = async (
   data: EnviarConvitePayload,
-): Promise<{ success: boolean; convite?: any; message?: string }> => {
-  try {
-    const response = await pb.send<{
-      success: boolean
-      convite: any
-      message?: string
-    }>('/backend/v1/convites/enviar', {
-      method: 'POST',
-      body: data,
-    })
-    return response
-  } catch (err: any) {
-    // Fallback: se o endpoint der erro ou não estiver acessível, criar direto na coleção
-    if (err?.status === 403 || err?.status === 400) {
-      throw err
-    }
-    const token = Math.random().toString(36).substring(2) + Date.now().toString(36)
-    const expDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
-    const record = await pb.collection('convites').create({
-      email: data.email.trim().toLowerCase(),
-      token,
-      perfil: data.perfil,
-      status: 'pendente',
-      data_expiracao: expDate,
-      criado_por: pb.authStore.record?.id,
-    })
-    return { success: true, convite: record }
-  }
+): Promise<{ success: boolean; convite?: ConviteRecord; message?: string }> => {
+  const { data: sessao } = await supabase.auth.getUser()
+
+  const convite = await colecao('convites').create<ConviteRecord>({
+    email: data.email.trim().toLowerCase(),
+    token: gerarToken(),
+    perfil: data.perfil,
+    status: 'pendente',
+    data_expiracao: validadePadrao(),
+    criado_por: sessao.user?.id ?? null,
+  })
+
+  return { success: true, convite }
 }
 
 /**
  * Reenvia um convite (gera novo token e renova expiração por mais 7 dias)
  */
 export const reenviarConvite = async (conviteId: string): Promise<ConviteRecord> => {
-  try {
-    const response = await pb.send<{ success: boolean; convite: ConviteRecord }>(
-      '/backend/v1/convites/reenviar',
-      {
-        method: 'POST',
-        body: { id: conviteId },
-      },
-    )
-    if (response?.convite) {
-      return response.convite
-    }
-  } catch (err: any) {
-    // Se o backend retornou erro 400 ou 403 (ex: usuário já ativo), propague
-    if (err?.status === 400 || err?.status === 403) {
-      throw err
-    }
-  }
-
-  // Fallback: se o endpoint dedicado falhar, renova direto na coleção
-  const expDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
-  const novoToken = Math.random().toString(36).substring(2) + Date.now().toString(36)
-
-  return pb.collection('convites').update<ConviteRecord>(conviteId, {
+  return colecao('convites').update<ConviteRecord>(conviteId, {
     status: 'pendente',
-    token: novoToken,
-    data_expiracao: expDate,
+    token: gerarToken(),
+    data_expiracao: validadePadrao(),
   })
 }
 
@@ -134,7 +106,7 @@ export const reenviarConvite = async (conviteId: string): Promise<ConviteRecord>
  * Cancela um convite pendente
  */
 export const cancelarConvite = async (conviteId: string): Promise<ConviteRecord> => {
-  return pb.collection('convites').update<ConviteRecord>(conviteId, {
+  return colecao('convites').update<ConviteRecord>(conviteId, {
     status: 'cancelado',
   })
 }
@@ -143,58 +115,44 @@ export const cancelarConvite = async (conviteId: string): Promise<ConviteRecord>
  * Remove definitivamente um convite
  */
 export const deleteConvite = async (conviteId: string): Promise<boolean> => {
-  return pb.collection('convites').delete(conviteId)
+  return colecao('convites').delete(conviteId)
 }
 
 /**
  * Valida um token de convite no backend
  */
 export const validarConviteToken = async (token: string): Promise<ValidarConviteResponse> => {
-  if (!token) {
-    return { valid: false, message: 'Token não informado.' }
+  if (!token.trim()) return { valid: false, message: 'Token não informado.' }
+
+  // Quem abre o convite ainda não tem login, e a tabela de convites é fechada a
+  // administradores. A função no banco é a única porta: recebe o token e
+  // devolve só o e-mail e o perfil daquele convite, sem expor a lista.
+  const { data, error } = await supabase.rpc('validar_convite', { p_token: token.trim() })
+
+  if (error) {
+    return { valid: false, message: 'Não foi possível verificar o convite no momento.' }
   }
 
-  try {
-    const res = await pb.send<ValidarConviteResponse>(
-      `/backend/v1/convites/validar?token=${encodeURIComponent(token)}`,
-      { method: 'GET' },
-    )
-    return res
-  } catch {
-    // Fallback de consulta via filtro caso o hook de rota não responda
-    try {
-      const records = await pb.collection('convites').getFullList<ConviteRecord>({
-        filter: `token = '${token.replace(/'/g, "''")}'`,
-        sort: '-created',
-        requestKey: null,
-      })
+  const resultado = (Array.isArray(data) ? data[0] : data) as
+    | { valido: boolean; email: string | null; perfil: Perfil | null; situacao: string | null }
+    | undefined
 
-      if (records.length === 0) {
-        return { valid: false, message: 'Convite não encontrado.' }
-      }
-
-      const c = records[0]
-      if (c.status !== 'pendente') {
-        return {
-          valid: false,
-          status: c.status,
-          message: `Este convite não está mais pendente (${c.status}).`,
-        }
-      }
-
-      const today = new Date().toISOString().slice(0, 10)
-      if (c.data_expiracao && c.data_expiracao < today) {
-        return { valid: false, status: 'expirado', message: 'Este convite expirou.' }
-      }
-
-      return {
-        valid: true,
-        email: c.email,
-        perfil: c.perfil,
-        expiracao: c.data_expiracao,
-      }
-    } catch {
-      return { valid: false, message: 'Não foi possível verificar o convite no momento.' }
+  if (!resultado?.valido) {
+    return {
+      valid: false,
+      status: resultado?.situacao ?? undefined,
+      message:
+        resultado?.situacao === 'expirado'
+          ? 'Este convite expirou. Peça um novo ao administrador.'
+          : resultado?.situacao
+            ? `Este convite não está mais pendente (${resultado.situacao}).`
+            : 'Convite não encontrado.',
     }
+  }
+
+  return {
+    valid: true,
+    email: resultado.email ?? undefined,
+    perfil: resultado.perfil ?? undefined,
   }
 }

@@ -19,7 +19,7 @@ import {
 import { Field } from '@/components/shared/Field'
 import { createImovel, updateImovel } from '@/services/imoveis'
 import { TIPO_IMOVEL_LABELS, STATUS_IMOVEL_LABELS } from '@/lib/format'
-import { extractFieldErrors, type FieldErrors } from '@/lib/pocketbase/errors'
+import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
 import { toast } from 'sonner'
 
 const EMPTY = {

@@ -5,7 +5,7 @@ import { MODULES_LIST } from '@/lib/constants'
 import { useAuth } from '@/hooks/use-auth'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import pb from '@/lib/pocketbase/client'
+import dados from '@/lib/dados/cliente'
 import { useRealtime } from '@/hooks/use-realtime'
 import darkLogo from '@/assets/chatgpt-image-aug-7-2026-061737-pm-5-f38c6.png'
 import symbolLogo from '@/assets/chatgpt-image-aug-7-2026-061736-pm-2-f5529.png'
@@ -37,15 +37,15 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
   const computeActiveAlerts = useCallback(async () => {
     try {
       const [contratos, iptuTaxas, receitas, despesas] = await Promise.all([
-        pb
-          .collection('contratos')
+        dados
+          .colecao('contratos')
           .getFullList({ fields: 'id,status,data_fim,proxima_data_reajuste' }),
-        pb.collection('iptu_taxas').getFullList({ fields: 'id,status,vencimento' }),
-        pb
-          .collection('receitas')
+        dados.colecao('iptu_taxas').getFullList({ fields: 'id,status,vencimento' }),
+        dados
+          .colecao('receitas')
           .getFullList({ fields: 'id,status_financeiro,data_vencimento,data' }),
-        pb
-          .collection('despesas')
+        dados
+          .colecao('despesas')
           .getFullList({ fields: 'id,status_financeiro,data_vencimento,data' }),
       ])
 
@@ -101,9 +101,12 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
       return
     }
     try {
-      const today = new Date().toISOString().slice(0, 10)
-      const res = await pb.collection('convites').getList(1, 1, {
-        filter: `status = 'pendente' && data_expiracao >= '${today}'`,
+      const today = new Date().toISOString()
+      const res = await dados.colecao('convites').getList(1, 1, {
+        where: [
+          ['status', '=', 'pendente'],
+          ['data_expiracao', '>=', today],
+        ],
         fields: 'id',
       })
       setConvitesPendentesCount(res.totalItems)
@@ -136,7 +139,7 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
             <Tooltip delayDuration={100}>
               <TooltipTrigger asChild>
                 <Link
-                  to="/"
+                  to="/inicio"
                   className="flex h-11 w-11 items-center justify-center rounded-xl bg-navy-900 p-1.5 border border-gold-500/30 shadow-md transition-transform hover:scale-105"
                 >
                   <img
@@ -154,7 +157,7 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
               </TooltipContent>
             </Tooltip>
           ) : (
-            <Link to="/" className="flex items-center gap-3 group">
+            <Link to="/inicio" className="flex items-center gap-3 group">
               <img
                 src={darkLogo}
                 alt="Holding Aguiar"

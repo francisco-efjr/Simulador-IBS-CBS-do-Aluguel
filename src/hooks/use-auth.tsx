@@ -1,9 +1,20 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
-import pb from '@/lib/pocketbase/client'
-import type { ModuloPermissao, NivelPermissao } from '@/lib/constants'
+import type { Session } from '@supabase/supabase-js'
+import { supabase } from '@/lib/dados/supabase'
+import type { ModuloPermissao, NivelPermissao, PermissaoModulo } from '@/lib/constants'
+
+interface UsuarioLogado {
+  id: string
+  email: string
+  name: string
+  perfil: 'administrador' | 'usuario'
+  ativo: boolean
+  avatar?: string | null
+  permissoes: PermissaoModulo[]
+}
 
 interface AuthContextType {
-  user: any
+  user: UsuarioLogado | null
   isAuthenticated: boolean
   isAdministrador: boolean
   temPermissao: (modulo: ModuloPermissao) => boolean
@@ -25,127 +36,139 @@ export const useAuth = () => {
   return context
 }
 
+/**
+ * Carrega o perfil e as permissões de quem está na sessão.
+ *
+ * As mesmas regras valem no banco, em RLS: isto aqui é o que a tela usa para
+ * decidir o que desenhar, não o que autoriza. Se as duas discordarem, quem
+ * decide é o banco — e a tela apenas mostra um erro.
+ */
+async function carregarUsuario(session: Session | null): Promise<UsuarioLogado | null> {
+  if (!session?.user) return null
+
+  const { data: perfil, error } = await supabase
+    .from('users')
+    .select('id, email, name, perfil, ativo, avatar')
+    .eq('id', session.user.id)
+    .maybeSingle()
+
+  if (error || !perfil || perfil.ativo === false) return null
+
+  const { data: permissoes } = await supabase
+    .from('permissoes')
+    .select('modulo, nivel')
+    .eq('usuario', session.user.id)
+
+  return {
+    id: perfil.id,
+    email: perfil.email,
+    name: perfil.name ?? '',
+    perfil: perfil.perfil,
+    ativo: perfil.ativo,
+    avatar: perfil.avatar,
+    permissoes: (permissoes ?? []) as PermissaoModulo[],
+  }
+}
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<any>(pb.authStore.isValid ? pb.authStore.record : null)
-  const [isAuthenticated, setIsAuthenticated] = useState(pb.authStore.isValid)
+  const [user, setUser] = useState<UsuarioLogado | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const isAdministrador = user?.perfil === 'administrador' || user?.perfil === 'admin'
+  const isAuthenticated = user !== null
+  const isAdministrador = user?.perfil === 'administrador'
 
   /**
-   * Helper function to get the permission level for a given module.
-   * Rules:
-   * - If user is Admin (or Administrador), always 'edicao'
-   * - If user is regular and permissoes is missing or empty array -> retrocompatible: 'edicao' (full access)
-   * - If user has configured permissoes -> look up the module level:
-   *   - If not found in array, defaults to 'sem_acesso'
+   * Nível de acesso da pessoa num módulo.
+   *
+   * Sem permissão registrada o resultado é 'sem_acesso'. Antes era o contrário
+   * — lista vazia liberava tudo —, e era o achado S-04 da auditoria: quem fosse
+   * cadastrado e esquecido nascia com acesso total.
    */
   const getModulePermission = useCallback(
     (modulo: ModuloPermissao): NivelPermissao => {
-      if (!user) return 'sem_acesso'
-      if (isAdministrador) return 'edicao'
+      if (!user || !user.ativo) return 'sem_acesso'
+      if (user.perfil === 'administrador') return 'edicao'
 
-      const permissoes = user.permissoes
-      // Backward compatibility: If no permissions array or empty array, user sees all with full edit
-      if (!permissoes || !Array.isArray(permissoes) || permissoes.length === 0) {
-        return 'edicao'
-      }
-
-      const match = permissoes.find((p: any) => p.modulo === modulo)
-      if (!match) {
-        return 'sem_acesso'
-      }
-
-      return match.nivel || 'sem_acesso'
+      return user.permissoes.find((p) => p.modulo === modulo)?.nivel ?? 'sem_acesso'
     },
-    [user, isAdministrador],
+    [user],
   )
 
-  /**
-   * Check if user can view a module (level 'visualizacao' or 'edicao')
-   */
   const canViewModule = useCallback(
     (modulo: ModuloPermissao): boolean => {
-      const level = getModulePermission(modulo)
-      return level === 'visualizacao' || level === 'edicao'
+      const nivel = getModulePermission(modulo)
+      return nivel === 'visualizacao' || nivel === 'edicao'
     },
     [getModulePermission],
   )
 
-  /**
-   * Check if user can edit / create / delete in a module (level 'edicao')
-   */
   const canEditModule = useCallback(
-    (modulo: ModuloPermissao): boolean => {
-      const level = getModulePermission(modulo)
-      return level === 'edicao'
-    },
+    (modulo: ModuloPermissao): boolean => getModulePermission(modulo) === 'edicao',
     [getModulePermission],
   )
 
   useEffect(() => {
-    const unsubscribe = pb.authStore.onChange((_token, record) => {
-      setUser(pb.authStore.isValid ? record : null)
-      setIsAuthenticated(pb.authStore.isValid)
+    let ativo = true
+
+    supabase.auth.getSession().then(async ({ data }) => {
+      const carregado = await carregarUsuario(data.session)
+      if (!ativo) return
+      setUser(carregado)
+      setLoading(false)
     })
 
-    if (pb.authStore.isValid) {
-      pb.collection('users')
-        .authRefresh()
-        .then(() => {
-          const record = pb.authStore.record as any
-          if (record && record.ativo === false) {
-            pb.authStore.clear()
-          }
-        })
-        .catch(() => pb.authStore.clear())
-        .finally(() => setLoading(false))
-    } else {
-      if (pb.authStore.record) pb.authStore.clear()
+    const { data: assinatura } = supabase.auth.onAuthStateChange(async (evento, session) => {
+      // A recuperação de senha abre uma sessão de propósito curto: quem chegou
+      // por ela está na tela de trocar a senha, não navegando pelo sistema.
+      if (evento === 'PASSWORD_RECOVERY') return
+
+      const carregado = await carregarUsuario(session)
+      if (!ativo) return
+      setUser(carregado)
       setLoading(false)
-    }
+    })
+
     return () => {
-      unsubscribe()
+      ativo = false
+      assinatura.subscription.unsubscribe()
     }
   }, [])
 
   const signUp = async (email: string, password: string, name?: string) => {
-    try {
-      await pb.collection('users').create({
-        email,
-        password,
-        passwordConfirm: password,
-        name: name || '',
-        ativo: true,
-        perfil: 'usuario',
-      })
-      await pb.collection('users').authWithPassword(email, password)
-      return { error: null }
-    } catch (error) {
-      return { error }
-    }
+    const { error } = await supabase.auth.signUp({
+      email: email.trim().toLowerCase(),
+      password,
+      options: { data: { name: name || '' } },
+    })
+    return { error }
   }
 
   const signIn = async (email: string, password: string) => {
-    try {
-      await pb.collection('users').authWithPassword(email, password)
-      const record = pb.authStore.record as any
-      if (record && record.ativo === false) {
-        pb.authStore.clear()
-        return {
-          error: {
-            message: 'Sua conta foi desativada. Entre em contato com o administrador.',
-          },
-        }
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password,
+    })
+
+    if (error) return { error }
+
+    const carregado = await carregarUsuario(data.session)
+    if (!carregado) {
+      await supabase.auth.signOut()
+      return {
+        error: {
+          message:
+            'Sua conta não está ativa no sistema. Procure um administrador do Controle de Imóveis.',
+        },
       }
-      return { error: null }
-    } catch (error) {
-      return { error }
     }
+
+    setUser(carregado)
+    return { error: null }
   }
 
   const signOut = () => {
-    pb.authStore.clear()
+    supabase.auth.signOut()
+    setUser(null)
   }
 
   return (

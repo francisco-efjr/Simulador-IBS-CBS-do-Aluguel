@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import { TaxParameters } from '../../core/domain/types.ts';
-import { TransitionCalendar, TransitionSchedulePayload } from '../../core/services/TransitionCalendar.ts';
+import React, { useState } from 'react'
+import { TaxParameters } from '../../core/domain/types.ts'
+import {
+  TransitionCalendar,
+  TransitionSchedulePayload,
+} from '../../core/services/TransitionCalendar.ts'
 import {
   Code2,
   Copy,
@@ -12,52 +15,52 @@ import {
   CheckCircle2,
   ExternalLink,
   Terminal,
-} from 'lucide-react';
+} from 'lucide-react'
 
 /**
  * Em desenvolvimento o middleware do Vite responde nesta rota; no build ela é
  * emitida como arquivo estático, de modo que o link funciona nos dois ambientes.
  */
-const SCHEDULE_ENDPOINT = '/api/cronograma-transicao.json';
+const SCHEDULE_ENDPOINT = '/api/cronograma-transicao.json'
 
 interface TransitionApiExplorerProps {
-  params: TaxParameters;
+  params: TaxParameters
 }
 
 export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ params }) => {
-  const [copied, setCopied] = useState(false);
-  const [curlCopied, setCurlCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState<'table' | 'json'>('table');
-  const [lastFetchTime, setLastFetchTime] = useState<string>(new Date().toLocaleTimeString());
+  const [copied, setCopied] = useState(false)
+  const [curlCopied, setCurlCopied] = useState(false)
+  const [activeTab, setActiveTab] = useState<'table' | 'json'>('table')
+  const [lastFetchTime, setLastFetchTime] = useState<string>(new Date().toLocaleTimeString())
 
   // Gera o payload oficial atualizado
   const payload: TransitionSchedulePayload = TransitionCalendar.getFullSchedule(
     params.referenceRate,
     params.cbsShare,
     params.ibsShare,
-    params.realEstateDiscountPercent
-  );
+    params.realEstateDiscountPercent,
+  )
 
-  const jsonString = JSON.stringify(payload, null, 2);
+  const jsonString = JSON.stringify(payload, null, 2)
 
   const handleCopyJson = () => {
-    navigator.clipboard.writeText(jsonString);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    navigator.clipboard.writeText(jsonString)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   const handleCopyCurl = () => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const origin = typeof window !== 'undefined' ? window.location.origin : ''
     const curlCommand = `curl -X GET "${origin}${SCHEDULE_ENDPOINT}" \\
-  -H "Accept: application/json"`;
-    navigator.clipboard.writeText(curlCommand);
-    setCurlCopied(true);
-    setTimeout(() => setCurlCopied(false), 2000);
-  };
+  -H "Accept: application/json"`
+    navigator.clipboard.writeText(curlCommand)
+    setCurlCopied(true)
+    setTimeout(() => setCurlCopied(false), 2000)
+  }
 
   const handleRefresh = () => {
-    setLastFetchTime(new Date().toLocaleTimeString());
-  };
+    setLastFetchTime(new Date().toLocaleTimeString())
+  }
 
   return (
     <div className="space-y-6">
@@ -77,14 +80,15 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
               </span>
             </div>
             <p className="text-xs text-text-secondary mt-1">
-              Interface programática do Cronograma Constitucional da Transição Tributária (2026 – 2033) para locação imobiliária.
+              Interface programática do Cronograma Constitucional da Transição Tributária (2026 –
+              2033) para locação imobiliária.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={handleRefresh}
- className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-muted hover:bg-surface-muted text-text-primary rounded-full text-xs font-medium transition-all border border-sim-border"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-muted hover:bg-surface-muted text-text-primary rounded-full text-xs font-medium transition-all border border-sim-border"
               title="Recarregar dados"
             >
               <RefreshCw className="w-3.5 h-3.5 text-text-muted" />
@@ -93,16 +97,20 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
 
             <button
               onClick={handleCopyCurl}
- className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-muted hover:bg-surface-muted text-text-primary rounded-full text-xs font-medium transition-all border border-sim-border"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-muted hover:bg-surface-muted text-text-primary rounded-full text-xs font-medium transition-all border border-sim-border"
               title="Copiar comando cURL"
             >
-              {curlCopied ? <Check className="w-3.5 h-3.5 text-positive-text" /> : <Terminal className="w-3.5 h-3.5 text-info-text" />}
+              {curlCopied ? (
+                <Check className="w-3.5 h-3.5 text-positive-text" />
+              ) : (
+                <Terminal className="w-3.5 h-3.5 text-info-text" />
+              )}
               <span>{curlCopied ? 'cURL Copiado!' : 'Copiar cURL'}</span>
             </button>
 
             <button
               onClick={handleCopyJson}
- className="flex items-center gap-1.5 px-4 py-1.5 bg-accent-bg hover:bg-accent-bg/90 text-accent-fg font-semibold rounded-full text-xs transition-all shadow-sm"
+              className="flex items-center gap-1.5 px-4 py-1.5 bg-accent-bg hover:bg-accent-bg/90 text-accent-fg font-semibold rounded-full text-xs transition-all shadow-sm"
               title="Copiar payload JSON completo"
             >
               {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -131,9 +139,7 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
               <Calendar className="w-3.5 h-3.5 text-info-text" />
               Horizonte Temporal
             </span>
-            <div className="text-text-primary font-bold font-sim-mono">
-              2026 – 2033 (8 Fases)
-            </div>
+            <div className="text-text-primary font-bold font-sim-mono">2026 – 2033 (8 Fases)</div>
             <p className="text-[11px] text-text-secondary">
               Fase teste (1%) &rarr; CBS plena &rarr; IBS escalonado.
             </p>
@@ -157,7 +163,7 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
         <div className="flex items-center gap-2 pt-2 border-t border-sim-border">
           <button
             onClick={() => setActiveTab('table')}
- className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
               activeTab === 'table'
                 ? 'bg-accent-bg text-accent-fg shadow-sm'
                 : 'text-text-secondary hover:text-text-primary'
@@ -167,7 +173,7 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
           </button>
           <button
             onClick={() => setActiveTab('json')}
- className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
               activeTab === 'json'
                 ? 'bg-accent-bg text-accent-fg shadow-sm'
                 : 'text-text-secondary hover:text-text-primary'
@@ -190,7 +196,9 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
                 <th className="pb-3 font-sim font-semibold">CBS Nominal</th>
                 <th className="pb-3 font-sim font-semibold">IBS Nominal</th>
                 <th className="pb-3 font-sim font-semibold">Total Nominal</th>
-                <th className="pb-3 font-sim font-semibold text-text-primary">Efetiva Locação (-70%)</th>
+                <th className="pb-3 font-sim font-semibold text-text-primary">
+                  Efetiva Locação (-70%)
+                </th>
                 <th className="pb-3 font-sim font-semibold">Status</th>
               </tr>
             </thead>
@@ -198,7 +206,7 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
               {payload.years.map((item) => (
                 <tr
                   key={item.year}
- className={`hover:bg-surface-muted transition-colors ${
+                  className={`hover:bg-surface-muted transition-colors ${
                     item.year === params.transitionYear ? 'bg-surface-muted font-semibold' : ''
                   }`}
                 >
@@ -212,13 +220,20 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
                     <div className="font-medium text-text-primary">{item.label}</div>
                     <div className="text-[10px] text-text-muted">{item.description}</div>
                   </td>
-                  <td className="py-3.5 text-text-secondary tabular-nums">{item.nominalCbsRate.toFixed(2)}%</td>
-                  <td className="py-3.5 text-text-secondary tabular-nums">{item.nominalIbsRate.toFixed(2)}%</td>
-                  <td className="py-3.5 text-text-primary font-semibold tabular-nums">{item.nominalTotalRate.toFixed(2)}%</td>
+                  <td className="py-3.5 text-text-secondary tabular-nums">
+                    {item.nominalCbsRate.toFixed(2)}%
+                  </td>
+                  <td className="py-3.5 text-text-secondary tabular-nums">
+                    {item.nominalIbsRate.toFixed(2)}%
+                  </td>
+                  <td className="py-3.5 text-text-primary font-semibold tabular-nums">
+                    {item.nominalTotalRate.toFixed(2)}%
+                  </td>
                   <td className="py-3.5 text-positive-text font-bold text-sm tabular-nums">
                     {item.effectiveTotalRate.toFixed(2)}%
                     <span className="text-[10px] font-normal text-text-muted block">
-                      CBS: {item.effectiveCbsRate.toFixed(2)}% | IBS: {item.effectiveIbsRate.toFixed(2)}%
+                      CBS: {item.effectiveCbsRate.toFixed(2)}% | IBS:{' '}
+                      {item.effectiveIbsRate.toFixed(2)}%
                     </span>
                   </td>
                   <td className="py-3.5 font-sim">
@@ -241,7 +256,10 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
             </tbody>
           </table>
           <div className="mt-4 pt-3 border-t border-sim-border text-[11px] text-text-muted flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <span>* Linha destacada representa o ano atualmente selecionado no simulador ({params.transitionYear}).</span>
+            <span>
+              * Linha destacada representa o ano atualmente selecionado no simulador (
+              {params.transitionYear}).
+            </span>
             <span className="text-positive-text flex items-center gap-1.5 font-medium">
               <CheckCircle2 className="w-3.5 h-3.5" /> Dados calculados dinamicamente em memória
             </span>
@@ -274,5 +292,5 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
         </div>
       )}
     </div>
-  );
-};
+  )
+}

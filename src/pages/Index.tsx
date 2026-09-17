@@ -124,7 +124,8 @@ export default function Index() {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {MODULES_LIST.filter((module) => {
-            if (module.path === '/') return false
+            // O próprio Início não vira cartão dentro do Início.
+            if (module.path === '/' || module.path === '/inicio') return false
             if (module.adminOnly && !isAdministrador) return false
             if (module.modulo && !canViewModule(module.modulo)) return false
             return true

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react'
 import {
   Plus,
   Trash2,
@@ -10,45 +10,38 @@ import {
   Coins,
   Percent,
   TrendingDown,
-} from 'lucide-react';
-import {
-  PortfolioItem,
-  TaxParameters,
-  PropertyType,
-  PersonType,
-} from '../../core/domain/types.ts';
-import { PortfolioEngine } from '../../core/services/PortfolioEngine.ts';
-import { BRLInput } from './BRLInput.tsx';
-import { SegmentedControl } from './SegmentedControl.tsx';
+} from 'lucide-react'
+import { PortfolioItem, TaxParameters, PropertyType, PersonType } from '../../core/domain/types.ts'
+import { PortfolioEngine } from '../../core/services/PortfolioEngine.ts'
+import { BRLInput } from './BRLInput.tsx'
+import { SegmentedControl } from './SegmentedControl.tsx'
 
 interface PortfolioSimulationTabProps {
-  params: TaxParameters;
+  params: TaxParameters
 }
 
-const INITIAL_PORTFOLIO: PortfolioItem[] = [];
+const INITIAL_PORTFOLIO: PortfolioItem[] = []
 
 export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ params }) => {
-  const [properties, setProperties] = useState<PortfolioItem[]>(INITIAL_PORTFOLIO);
-  const [isPJ, setIsPJ] = useState<boolean>(false);
+  const [properties, setProperties] = useState<PortfolioItem[]>(INITIAL_PORTFOLIO)
+  const [isPJ, setIsPJ] = useState<boolean>(false)
 
   // Formulário para novo imóvel (inicia zerado)
-  const [newName, setNewName] = useState('');
-  const [newType, setNewType] = useState<PropertyType>('residential');
-  const [newUnitsCount, setNewUnitsCount] = useState<number | undefined>(undefined);
-  const [rentPricingMode, setRentPricingMode] = useState<'per_unit' | 'total'>('total');
-  const [newRent, setNewRent] = useState<number>(0);
-  const [newCondo, setNewCondo] = useState<number>(0);
-  const [newIptu, setNewIptu] = useState<number>(0);
-  const [newTenantType, setNewTenantType] = useState<PersonType>('pf');
+  const [newName, setNewName] = useState('')
+  const [newType, setNewType] = useState<PropertyType>('residential')
+  const [newUnitsCount, setNewUnitsCount] = useState<number | undefined>(undefined)
+  const [rentPricingMode, setRentPricingMode] = useState<'per_unit' | 'total'>('total')
+  const [newRent, setNewRent] = useState<number>(0)
+  const [newCondo, setNewCondo] = useState<number>(0)
+  const [newIptu, setNewIptu] = useState<number>(0)
+  const [newTenantType, setNewTenantType] = useState<PersonType>('pf')
 
   const handleAddProperty = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newName.trim() || newRent <= 0) return;
+    e.preventDefault()
+    if (!newName.trim() || newRent <= 0) return
 
-    const units = newUnitsCount && newUnitsCount > 1 ? newUnitsCount : 1;
-    const finalMonthlyRent = units > 1 && rentPricingMode === 'per_unit'
-      ? newRent * units
-      : newRent;
+    const units = newUnitsCount && newUnitsCount > 1 ? newUnitsCount : 1
+    const finalMonthlyRent = units > 1 && rentPricingMode === 'per_unit' ? newRent * units : newRent
 
     const newItem: PortfolioItem = {
       id: Date.now().toString(),
@@ -59,29 +52,29 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
       iptuAmount: newIptu,
       tenantType: newTenantType,
       unitsCount: units > 1 ? units : undefined,
-    };
+    }
 
-    setProperties([...properties, newItem]);
-    setNewName('');
-    setNewUnitsCount(undefined);
-    setRentPricingMode('total');
-    setNewRent(0);
-    setNewCondo(0);
-    setNewIptu(0);
-  };
+    setProperties([...properties, newItem])
+    setNewName('')
+    setNewUnitsCount(undefined)
+    setRentPricingMode('total')
+    setNewRent(0)
+    setNewCondo(0)
+    setNewIptu(0)
+  }
 
   const handleRemoveProperty = (id: string) => {
-    setProperties(properties.filter((p) => p.id !== id));
-  };
+    setProperties(properties.filter((p) => p.id !== id))
+  }
 
   // A carteira inteira é reavaliada a cada tecla no formulário sem esta memoização.
   const summary = useMemo(
     () => PortfolioEngine.evaluatePortfolio(properties, isPJ, params, params.transitionYear),
-    [properties, isPJ, params]
-  );
+    [properties, isPJ, params],
+  )
 
   const formatBRL = (val: number) =>
-    val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
   return (
     <div className="space-y-6">
@@ -98,16 +91,19 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
             </span>
           </div>
           <p className="text-xs text-text-secondary mt-1">
-            Projeção agregada de carga fiscal de IBS/CBS, teste de habitualidade da PF e dedução de encargos não tributáveis
+            Projeção agregada de carga fiscal de IBS/CBS, teste de habitualidade da PF e dedução de
+            encargos não tributáveis
           </p>
         </div>
 
         <div className="flex items-center gap-1.5 bg-surface-muted p-1.5 rounded-full border border-sim-border shrink-0">
-          <span className="text-xs text-text-muted font-medium pl-2 hidden sm:inline">Titularidade:</span>
+          <span className="text-xs text-text-muted font-medium pl-2 hidden sm:inline">
+            Titularidade:
+          </span>
           <button
             type="button"
             onClick={() => setIsPJ(false)}
- className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
               !isPJ
                 ? 'bg-accent-bg text-accent-fg shadow-sm'
                 : 'text-text-secondary hover:text-text-primary'
@@ -118,7 +114,7 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
           <button
             type="button"
             onClick={() => setIsPJ(true)}
- className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
               isPJ
                 ? 'bg-accent-bg text-accent-fg shadow-sm'
                 : 'text-text-secondary hover:text-text-primary'
@@ -140,7 +136,8 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
             {formatBRL(summary.totalMonthlyRent)}
           </div>
           <div className="text-xs text-text-secondary font-sim-mono">
-            {formatBRL(summary.totalAnnualRent)} <span className="text-text-muted font-sim">ao ano</span>
+            {formatBRL(summary.totalAnnualRent)}{' '}
+            <span className="text-text-muted font-sim">ao ano</span>
           </div>
         </div>
 
@@ -153,7 +150,8 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
             - {formatBRL(summary.totalMonthlySocialDeduction)}
           </div>
           <div className="text-xs text-text-secondary">
-            {summary.residentialUnitsCount} {summary.residentialUnitsCount === 1 ? 'imóvel residencial' : 'unidades residenciais'}
+            {summary.residentialUnitsCount}{' '}
+            {summary.residentialUnitsCount === 1 ? 'imóvel residencial' : 'unidades residenciais'}
           </div>
         </div>
 
@@ -166,7 +164,8 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
             {formatBRL(summary.totalMonthlyIBSCBS)}
           </div>
           <div className="text-xs text-text-secondary font-sim-mono">
-            {formatBRL(summary.totalAnnualIBSCBS)} <span className="text-text-muted font-sim">ao ano</span>
+            {formatBRL(summary.totalAnnualIBSCBS)}{' '}
+            <span className="text-text-muted font-sim">ao ano</span>
           </div>
         </div>
 
@@ -178,20 +177,18 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
           <div className="text-2xl sm:text-3xl font-serif text-text-primary font-normal tracking-tight tabular-nums">
             {summary.effectiveAverageRate}%
           </div>
-          <div className="text-xs text-text-secondary">
-            Ponderada sobre o portfólio
-          </div>
+          <div className="text-xs text-text-secondary">Ponderada sobre o portfólio</div>
         </div>
       </div>
 
       {/* Alerta Executivo de Enquadramento da Carteira */}
       <div
- className={`p-4 sm:p-5 rounded-2xl border flex items-start gap-3.5 transition-all ${
+        className={`p-4 sm:p-5 rounded-2xl border flex items-start gap-3.5 transition-all ${
           properties.length === 0
             ? 'bg-surface-muted border-sim-border text-text-secondary'
             : summary.isLandlordTaxpayer
-            ? 'bg-positive-bg border-positive-border text-positive-text'
-            : 'bg-surface-muted border-sim-border text-text-primary'
+              ? 'bg-positive-bg border-positive-border text-positive-text'
+              : 'bg-surface-muted border-sim-border text-text-primary'
         }`}
       >
         {properties.length === 0 ? (
@@ -206,8 +203,8 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
             {properties.length === 0
               ? 'Status da Carteira: AGUARDANDO ATIVOS • CARTEIRA ZERADA'
               : summary.isLandlordTaxpayer
-              ? 'Status da Carteira: CONTRIBUINTE ENQUADRADO NO IBS/CBS'
-              : 'Status da Carteira: NÃO CONTRIBUINTE (REGIME DE ISENÇÃO PF)'}
+                ? 'Status da Carteira: CONTRIBUINTE ENQUADRADO NO IBS/CBS'
+                : 'Status da Carteira: NÃO CONTRIBUINTE (REGIME DE ISENÇÃO PF)'}
           </div>
           <p className="text-text-secondary text-xs">
             {properties.length === 0
@@ -233,9 +230,12 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
           {properties.length === 0 ? (
             <div className="text-center py-12 px-4 border border-dashed border-sim-border rounded-2xl space-y-3 bg-surface-muted/50">
               <Building className="w-10 h-10 text-text-muted mx-auto" />
-              <div className="text-sm sm:text-base font-serif font-medium text-text-primary">Nenhum ativo cadastrado no portfólio</div>
+              <div className="text-sm sm:text-base font-serif font-medium text-text-primary">
+                Nenhum ativo cadastrado no portfólio
+              </div>
               <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed">
-                Cadastre contratos de locação pelo formulário ao lado para consultar a apuração agregada, enquadramento de habitualidade e projeção de carga tributária.
+                Cadastre contratos de locação pelo formulário ao lado para consultar a apuração
+                agregada, enquadramento de habitualidade e projeção de carga tributária.
               </p>
             </div>
           ) : (
@@ -260,49 +260,63 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
                           <span className="font-semibold text-text-primary">{item.name}</span>
                           {item.unitsCount && item.unitsCount > 1 && (
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-sim-mono font-semibold bg-surface-muted border border-sim-border text-text-primary">
-                              {item.unitsCount} {item.propertyType === 'residential' ? 'apartamentos' : 'unidades'}
+                              {item.unitsCount}{' '}
+                              {item.propertyType === 'residential' ? 'apartamentos' : 'unidades'}
                             </span>
                           )}
                         </div>
                         {((item.condominiumFee ?? 0) > 0 || (item.iptuAmount ?? 0) > 0) && (
                           <div className="text-[10px] text-text-muted font-sim-mono mt-0.5">
-                            Cond.: {formatBRL(item.condominiumFee ?? 0)} &bull; IPTU: {formatBRL(item.iptuAmount ?? 0)}
+                            Cond.: {formatBRL(item.condominiumFee ?? 0)} &bull; IPTU:{' '}
+                            {formatBRL(item.iptuAmount ?? 0)}
                           </div>
                         )}
                       </td>
                       <td className="py-3.5">
                         <span
- className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-sim font-semibold border ${
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-sim font-semibold border ${
                             item.propertyType === 'residential'
                               ? 'bg-positive-bg text-positive-text border-positive-border'
                               : 'bg-info-bg text-info-text border-info-border'
                           }`}
                         >
-                          {item.propertyType === 'residential' ? <Home className="w-3 h-3" /> : <Building className="w-3 h-3" />}
+                          {item.propertyType === 'residential' ? (
+                            <Home className="w-3 h-3" />
+                          ) : (
+                            <Building className="w-3 h-3" />
+                          )}
                           {item.propertyType === 'residential' ? 'Residencial' : 'Comercial'}
                         </span>
                       </td>
-                      <td className="py-3.5 text-text-primary tabular-nums font-semibold">{formatBRL(item.monthlyRent)}</td>
+                      <td className="py-3.5 text-text-primary tabular-nums font-semibold">
+                        {formatBRL(item.monthlyRent)}
+                      </td>
                       <td className="py-3.5 text-info-text tabular-nums">
                         {calculation.socialDeductionApplied > 0 ? (
                           <div>
-                            <span className="font-semibold">-{formatBRL(calculation.socialDeductionApplied)}</span>
+                            <span className="font-semibold">
+                              -{formatBRL(calculation.socialDeductionApplied)}
+                            </span>
                             {item.unitsCount && item.unitsCount > 1 && (
                               <div className="text-[9px] text-text-muted font-sim">
                                 {item.unitsCount}&times; redutor social
                               </div>
                             )}
                           </div>
-                        ) : '—'}
+                        ) : (
+                          '—'
+                        )}
                       </td>
-                      <td className="py-3.5 text-text-secondary tabular-nums">{formatBRL(calculation.taxableBase)}</td>
+                      <td className="py-3.5 text-text-secondary tabular-nums">
+                        {formatBRL(calculation.taxableBase)}
+                      </td>
                       <td className="py-3.5 text-right font-bold text-positive-text tabular-nums">
                         {formatBRL(calculation.totalTaxDue)}
                       </td>
                       <td className="py-3.5 text-center">
                         <button
                           onClick={() => handleRemoveProperty(item.id)}
- className="text-text-muted hover:text-danger-text p-1.5 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-red-500/50"
+                          className="text-text-muted hover:text-danger-text p-1.5 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-red-500/50"
                           title="Remover imóvel da carteira"
                           aria-label={`Remover ${item.name}`}
                         >
@@ -331,7 +345,10 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
 
           <form onSubmit={handleAddProperty} className="space-y-3.5 text-xs">
             <div>
-              <label htmlFor="novo-imovel-nome" className="block text-base font-semibold text-text-primary mb-2">
+              <label
+                htmlFor="novo-imovel-nome"
+                className="block text-base font-semibold text-text-primary mb-2"
+              >
                 Nome do imóvel
               </label>
               <input
@@ -340,13 +357,16 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
                 placeholder="Ex: Apartamento 101"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
- className="w-full min-h-[52px] bg-surface-muted border border-sim-border-strong rounded-xl px-3.5 text-lg font-semibold text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-bg focus-visible:ring-4 focus-visible:ring-accent-bg/40"
+                className="w-full min-h-[52px] bg-surface-muted border border-sim-border-strong rounded-xl px-3.5 text-lg font-semibold text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-bg focus-visible:ring-4 focus-visible:ring-accent-bg/40"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="novo-imovel-unidades" className="block text-base font-semibold text-text-primary mb-2">
+              <label
+                htmlFor="novo-imovel-unidades"
+                className="block text-base font-semibold text-text-primary mb-2"
+              >
                 Quantas unidades
               </label>
               <input
@@ -357,10 +377,10 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
                 placeholder="1"
                 value={newUnitsCount !== undefined ? newUnitsCount : ''}
                 onChange={(e) => {
-                  const val = e.target.value ? parseInt(e.target.value, 10) : undefined;
-                  setNewUnitsCount(val && val > 0 ? val : undefined);
+                  const val = e.target.value ? parseInt(e.target.value, 10) : undefined
+                  setNewUnitsCount(val && val > 0 ? val : undefined)
                 }}
- className="w-full min-h-[52px] bg-surface-muted border border-sim-border-strong rounded-xl px-3.5 text-lg font-semibold tabular-nums text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-bg focus-visible:ring-4 focus-visible:ring-accent-bg/40"
+                className="w-full min-h-[52px] bg-surface-muted border border-sim-border-strong rounded-xl px-3.5 text-lg font-semibold tabular-nums text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-bg focus-visible:ring-4 focus-visible:ring-accent-bg/40"
               />
             </div>
 
@@ -374,7 +394,7 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
                     <button
                       type="button"
                       onClick={() => setRentPricingMode('per_unit')}
- className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all ${
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all ${
                         rentPricingMode === 'per_unit'
                           ? 'bg-accent-bg text-accent-fg shadow-sm'
                           : 'text-text-secondary hover:text-text-primary'
@@ -385,7 +405,7 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
                     <button
                       type="button"
                       onClick={() => setRentPricingMode('total')}
- className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all ${
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all ${
                         rentPricingMode === 'total'
                           ? 'bg-accent-bg text-accent-fg shadow-sm'
                           : 'text-text-secondary hover:text-text-primary'
@@ -399,11 +419,18 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
                 <div className="text-[11px] text-text-secondary font-sim-mono pt-1 border-t border-sim-border">
                   {rentPricingMode === 'per_unit' ? (
                     <span>
-                      Receita total consolidada: <strong className="text-text-primary">{formatBRL(newRent * newUnitsCount)}</strong> ({newUnitsCount} aptos &times; {formatBRL(newRent)})
+                      Receita total consolidada:{' '}
+                      <strong className="text-text-primary">
+                        {formatBRL(newRent * newUnitsCount)}
+                      </strong>{' '}
+                      ({newUnitsCount} aptos &times; {formatBRL(newRent)})
                     </span>
                   ) : (
                     <span>
-                      Aluguel médio por unidade: <strong className="text-text-primary">{formatBRL(newUnitsCount > 0 ? newRent / newUnitsCount : 0)}</strong>
+                      Aluguel médio por unidade:{' '}
+                      <strong className="text-text-primary">
+                        {formatBRL(newUnitsCount > 0 ? newRent / newUnitsCount : 0)}
+                      </strong>
                     </span>
                   )}
                 </div>
@@ -439,7 +466,13 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <BRLInput label="Condomínio" prefix="R$" value={newCondo} onChange={setNewCondo} min={0} />
+              <BRLInput
+                label="Condomínio"
+                prefix="R$"
+                value={newCondo}
+                onChange={setNewCondo}
+                min={0}
+              />
               <BRLInput label="IPTU" prefix="R$" value={newIptu} onChange={setNewIptu} min={0} />
             </div>
 
@@ -457,7 +490,7 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
 
             <button
               type="submit"
- className="w-full min-h-[52px] bg-accent-bg hover:bg-accent-bg/90 text-accent-fg text-lg font-semibold rounded-xl transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-bg/40 flex items-center justify-center gap-2"
+              className="w-full min-h-[52px] bg-accent-bg hover:bg-accent-bg/90 text-accent-fg text-lg font-semibold rounded-xl transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-bg/40 flex items-center justify-center gap-2"
             >
               <Plus className="w-5 h-5" aria-hidden="true" />
               Adicionar imóvel
@@ -466,5 +499,5 @@ export const PortfolioSimulationTab: React.FC<PortfolioSimulationTabProps> = ({ 
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

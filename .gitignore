@@ -47,7 +47,7 @@ screenshot.png
 .eslintcache
 .oxlintcache
 
-# Variáveis de ambiente (a aplicação roda em modo mock por padrão, sem .env)
+# Variáveis de ambiente (ver .env.example; sem elas a aplicação não sobe)
 .env
 .env.local
 .env.*.local

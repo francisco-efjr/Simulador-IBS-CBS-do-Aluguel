@@ -26,7 +26,7 @@ import {
   type NivelPermissao,
   type PermissaoModulo,
 } from '@/lib/constants'
-import { extractFieldErrors, type FieldErrors } from '@/lib/pocketbase/errors'
+import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
 import { toast } from 'sonner'
 import { Shield, User, LockKeyhole, Eye, Pencil, Sparkles } from 'lucide-react'
 

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react'
 import {
   Home,
   Building,
@@ -10,7 +10,7 @@ import {
   AlertTriangle,
   FileSpreadsheet,
   FileCheck2,
-} from 'lucide-react';
+} from 'lucide-react'
 import {
   PropertyType,
   PersonType,
@@ -18,40 +18,41 @@ import {
   LandlordProfile,
   TenantProfile,
   TaxRegimePJ,
-} from '../../core/domain/types.ts';
-import { TaxCalculatorEngine } from '../../core/services/TaxCalculatorEngine.ts';
-import { ValidationEngine } from '../../core/domain/ValidationEngine.ts';
-import { AuditReportView } from './AuditReportView.tsx';
-import { BRLInput } from './BRLInput.tsx';
-import { SegmentedControl } from './SegmentedControl.tsx';
+} from '../../core/domain/types.ts'
+import { TaxCalculatorEngine } from '../../core/services/TaxCalculatorEngine.ts'
+import { ValidationEngine } from '../../core/domain/ValidationEngine.ts'
+import { AuditReportView } from './AuditReportView.tsx'
+import { BRLInput } from './BRLInput.tsx'
+import { SegmentedControl } from './SegmentedControl.tsx'
 
 interface SingleSimulationTabProps {
-  params: TaxParameters;
-  isProfessional?: boolean;
+  params: TaxParameters
+  isProfessional?: boolean
 }
 
-const formatBRL = (val: number) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const formatBRL = (val: number) =>
+  val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
   params,
   isProfessional = false,
 }) => {
-  const [propertyType, setPropertyType] = useState<PropertyType>('residential');
-  const [landlordType, setLandlordType] = useState<PersonType>('pf');
-  const [landlordPropertiesCount, setLandlordPropertiesCount] = useState<number>(0);
-  const [landlordAnnualIncome, setLandlordAnnualIncome] = useState<number>(0);
-  const [landlordPjRegime, setLandlordPjRegime] = useState<TaxRegimePJ>('lucro_presumido');
-  const [managementFeePercent, setManagementFeePercent] = useState<number>(0);
+  const [propertyType, setPropertyType] = useState<PropertyType>('residential')
+  const [landlordType, setLandlordType] = useState<PersonType>('pf')
+  const [landlordPropertiesCount, setLandlordPropertiesCount] = useState<number>(0)
+  const [landlordAnnualIncome, setLandlordAnnualIncome] = useState<number>(0)
+  const [landlordPjRegime, setLandlordPjRegime] = useState<TaxRegimePJ>('lucro_presumido')
+  const [managementFeePercent, setManagementFeePercent] = useState<number>(0)
 
-  const [tenantType, setTenantType] = useState<PersonType>('pf');
-  const [tenantPjRegime, setTenantPjRegime] = useState<TaxRegimePJ>('lucro_real');
+  const [tenantType, setTenantType] = useState<PersonType>('pf')
+  const [tenantPjRegime, setTenantPjRegime] = useState<TaxRegimePJ>('lucro_real')
 
-  const [baseRent, setBaseRent] = useState<number>(0);
-  const [condominiumFee, setCondominiumFee] = useState<number>(0);
-  const iptuAmount = 0;
+  const [baseRent, setBaseRent] = useState<number>(0)
+  const [condominiumFee, setCondominiumFee] = useState<number>(0)
+  const iptuAmount = 0
 
-  const [activeSubView, setActiveSubView] = useState<'simulation' | 'audit'>('simulation');
-  const showAudit = isProfessional && activeSubView === 'audit';
+  const [activeSubView, setActiveSubView] = useState<'simulation' | 'audit'>('simulation')
+  const showAudit = isProfessional && activeSubView === 'audit'
 
   const contractInput = useMemo(() => {
     const landlord: LandlordProfile = {
@@ -60,11 +61,11 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
       totalAnnualRentalIncome: landlordType === 'pf' ? landlordAnnualIncome : undefined,
       pjTaxRegime: landlordType === 'pj' ? landlordPjRegime : undefined,
       managementFeePercent,
-    };
+    }
     const tenant: TenantProfile = {
       personType: tenantType,
       pjTaxRegime: tenantType === 'pj' ? tenantPjRegime : undefined,
-    };
+    }
     return {
       baseRent,
       propertyType,
@@ -73,7 +74,7 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
       transitionYear: params.transitionYear,
       landlord,
       tenant,
-    };
+    }
   }, [
     baseRent,
     propertyType,
@@ -86,30 +87,36 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
     tenantType,
     tenantPjRegime,
     params.transitionYear,
-  ]);
+  ])
 
-  const validation = useMemo(() => ValidationEngine.validateLeaseInput(contractInput), [contractInput]);
+  const validation = useMemo(
+    () => ValidationEngine.validateLeaseInput(contractInput),
+    [contractInput],
+  )
 
   const fieldErrors = useMemo(
     () =>
       validation.errors.reduce<Record<string, string>>((acc, err) => {
-        acc[err.field] = err.message;
-        return acc;
+        acc[err.field] = err.message
+        return acc
       }, {}),
-    [validation]
-  );
+    [validation],
+  )
 
-  const isConsulted = baseRent > 0;
+  const isConsulted = baseRent > 0
 
   const { result, executionError } = useMemo(() => {
-    if (!isConsulted || !validation.isValid) return { result: null, executionError: null };
+    if (!isConsulted || !validation.isValid) return { result: null, executionError: null }
     try {
-      return { result: TaxCalculatorEngine.calculateContract(contractInput, params), executionError: null };
+      return {
+        result: TaxCalculatorEngine.calculateContract(contractInput, params),
+        executionError: null,
+      }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro inesperado na apuração tributária';
-      return { result: null, executionError: message };
+      const message = err instanceof Error ? err.message : 'Erro inesperado na apuração tributária'
+      return { result: null, executionError: message }
     }
-  }, [isConsulted, validation.isValid, contractInput, params]);
+  }, [isConsulted, validation.isValid, contractInput, params])
 
   // Cada erro já aparece sob o seu próprio campo; aqui só o aviso de que há
   // algo a corrigir, para não repetir a mesma frase duas vezes na tela.
@@ -121,7 +128,7 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
       </h3>
       {executionError && <p className="text-base text-danger-text">{executionError}</p>}
     </div>
-  );
+  )
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -195,7 +202,7 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
               <div>
                 <label
                   htmlFor="regime-locador"
- className="block text-base font-semibold text-text-primary mb-2"
+                  className="block text-base font-semibold text-text-primary mb-2"
                 >
                   Regime da empresa
                 </label>
@@ -203,7 +210,7 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
                   id="regime-locador"
                   value={landlordPjRegime}
                   onChange={(e) => setLandlordPjRegime(e.target.value as TaxRegimePJ)}
- className="w-full min-h-[52px] bg-surface border border-sim-border-strong rounded-xl px-3.5 text-lg font-semibold text-text-primary focus:border-accent-bg focus:outline-none focus-visible:ring-4 focus-visible:ring-accent-bg/40 cursor-pointer"
+                  className="w-full min-h-[52px] bg-surface border border-sim-border-strong rounded-xl px-3.5 text-lg font-semibold text-text-primary focus:border-accent-bg focus:outline-none focus-visible:ring-4 focus-visible:ring-accent-bg/40 cursor-pointer"
                 >
                   <option value="lucro_presumido">Lucro Presumido</option>
                   <option value="lucro_real">Lucro Real</option>
@@ -239,14 +246,17 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
 
           {tenantType === 'pj' && (
             <div>
-              <label htmlFor="regime-locatario" className="block text-base font-semibold text-text-primary mb-2">
+              <label
+                htmlFor="regime-locatario"
+                className="block text-base font-semibold text-text-primary mb-2"
+              >
                 Regime de quem aluga
               </label>
               <select
                 id="regime-locatario"
                 value={tenantPjRegime}
                 onChange={(e) => setTenantPjRegime(e.target.value as TaxRegimePJ)}
- className="w-full min-h-[52px] bg-surface border border-sim-border-strong rounded-xl px-3.5 text-lg font-semibold text-text-primary focus:border-accent-bg focus:outline-none focus-visible:ring-4 focus-visible:ring-accent-bg/40 cursor-pointer"
+                className="w-full min-h-[52px] bg-surface border border-sim-border-strong rounded-xl px-3.5 text-lg font-semibold text-text-primary focus:border-accent-bg focus:outline-none focus-visible:ring-4 focus-visible:ring-accent-bg/40 cursor-pointer"
               >
                 <option value="lucro_real">Lucro Real</option>
                 <option value="lucro_presumido">Lucro Presumido</option>
@@ -260,7 +270,9 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
       {/* Resultado */}
       <section className="lg:col-span-6 bg-surface border border-sim-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] space-y-5">
         <div className="flex items-center justify-between gap-3 border-b border-sim-border pb-4">
-          <h2 className="text-lg sm:text-xl font-semibold text-text-primary tracking-tight">Resultado</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-text-primary tracking-tight">
+            Resultado
+          </h2>
 
           {isProfessional && (
             <div className="flex items-center gap-1 p-1 bg-surface-muted border border-sim-border rounded-full">
@@ -268,8 +280,10 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
                 type="button"
                 onClick={() => setActiveSubView('simulation')}
                 aria-pressed={activeSubView === 'simulation'}
- className={`flex items-center gap-2 px-3.5 min-h-[40px] rounded-full text-sm font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-bg/40 ${
-                  activeSubView === 'simulation' ? 'bg-accent-bg text-accent-fg' : 'text-text-secondary hover:text-text-primary'
+                className={`flex items-center gap-2 px-3.5 min-h-[40px] rounded-full text-sm font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-bg/40 ${
+                  activeSubView === 'simulation'
+                    ? 'bg-accent-bg text-accent-fg'
+                    : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 <FileSpreadsheet className="w-4 h-4" aria-hidden="true" />
@@ -279,8 +293,10 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
                 type="button"
                 onClick={() => setActiveSubView('audit')}
                 aria-pressed={activeSubView === 'audit'}
- className={`flex items-center gap-2 px-3.5 min-h-[40px] rounded-full text-sm font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-bg/40 ${
-                  activeSubView === 'audit' ? 'bg-accent-bg text-accent-fg' : 'text-text-secondary hover:text-text-primary'
+                className={`flex items-center gap-2 px-3.5 min-h-[40px] rounded-full text-sm font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-bg/40 ${
+                  activeSubView === 'audit'
+                    ? 'bg-accent-bg text-accent-fg'
+                    : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 <FileCheck2 className="w-4 h-4" aria-hidden="true" />
@@ -325,7 +341,7 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
                 </div>
 
                 <p
- className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-base font-semibold ${
+                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-base font-semibold ${
                     result.enquadramento.isTaxpayer
                       ? 'bg-positive-bg border border-positive-border text-positive-text'
                       : 'bg-surface-muted border border-sim-border-strong text-text-secondary'
@@ -343,7 +359,9 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
               <dl className="bg-surface-muted rounded-2xl p-5 border border-sim-border text-base space-y-3">
                 <div className="flex justify-between gap-4">
                   <dt className="text-text-secondary">Aluguel</dt>
-                  <dd className="font-semibold tabular-nums text-text-primary">{formatBRL(result.baseRent)}</dd>
+                  <dd className="font-semibold tabular-nums text-text-primary">
+                    {formatBRL(result.baseRent)}
+                  </dd>
                 </div>
 
                 {result.excludedCharges > 0 && (
@@ -379,7 +397,9 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
                     </div>
                     <div className="flex justify-between gap-4 border-t border-sim-border pt-3 text-lg font-bold text-text-primary">
                       <dt>Imposto a pagar</dt>
-                      <dd className="tabular-nums">{formatBRL(result.landlordCredits.netTaxToPay)}</dd>
+                      <dd className="tabular-nums">
+                        {formatBRL(result.landlordCredits.netTaxToPay)}
+                      </dd>
                     </div>
                   </>
                 )}
@@ -415,5 +435,5 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
         </div>
       </section>
     </div>
-  );
-};
+  )
+}

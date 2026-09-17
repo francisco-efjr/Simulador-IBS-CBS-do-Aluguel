@@ -23,7 +23,7 @@ import {
   updateContaBancaria,
   type ContaBancaria,
 } from '@/services/contas-bancarias'
-import { extractFieldErrors, type FieldErrors } from '@/lib/pocketbase/errors'
+import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
 import { toast } from 'sonner'
 
 const TIPOS_CONTA = ['Conta Corrente', 'Conta Poupança', 'Conta Investimento', 'Outros'] as const

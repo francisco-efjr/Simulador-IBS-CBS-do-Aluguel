@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { X, Upload, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
-import pb from '@/lib/pocketbase/client'
+import dados from '@/lib/dados/cliente'
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,7 @@ import { StatusBadge } from '@/components/shared/StatusBadge'
 import { DocumentUpload } from '@/components/shared/DocumentUpload'
 import { updateImovel } from '@/services/imoveis'
 import { formatCurrency, formatDate, TIPO_IMOVEL_LABELS, STATUS_IMOVEL_LABELS } from '@/lib/format'
+import { ImagemDeArquivo } from '@/components/shared/ArquivoPrivado'
 
 function InfoItem({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -107,8 +108,10 @@ export function ImovelDetailDialog({
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {fotos.map((f) => (
                 <div key={f} className="relative group">
-                  <img
-                    src={pb.files.getURL(imovel, f)}
+                  <ImagemDeArquivo
+                    tabela="imoveis"
+                    campo="fotos"
+                    caminho={f}
                     alt=""
                     className="aspect-square w-full rounded-lg object-cover"
                   />

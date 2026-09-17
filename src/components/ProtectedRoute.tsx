@@ -41,7 +41,7 @@ export function ProtectedRoute({ requireAdmin = false, modulo }: ProtectedRouteP
   }
 
   if (!hasAccess) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/inicio" replace />
   }
 
   return <Outlet />

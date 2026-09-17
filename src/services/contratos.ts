@@ -1,18 +1,18 @@
-import pb from '@/lib/pocketbase/client'
+import { colecao } from '@/lib/dados/cliente'
 
 export const getContratos = () =>
-  pb.collection('contratos').getFullList({
+  colecao('contratos').getFullList({
     sort: '-created',
     expand: 'imovel,inquilino',
   })
 
 export const getContrato = (id: string) =>
-  pb.collection('contratos').getOne(id, { expand: 'imovel,inquilino' })
+  colecao('contratos').getOne(id, { expand: 'imovel,inquilino' })
 
 export const createContrato = (data: Record<string, any> | FormData) =>
-  pb.collection('contratos').create(data)
+  colecao('contratos').create(data)
 
 export const updateContrato = (id: string, data: Record<string, any> | FormData) =>
-  pb.collection('contratos').update(id, data)
+  colecao('contratos').update(id, data)
 
-export const deleteContrato = (id: string) => pb.collection('contratos').delete(id)
+export const deleteContrato = (id: string) => colecao('contratos').delete(id)

@@ -21,7 +21,6 @@ export default function RecuperarSenha() {
   const [sent, setSent] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [devToken, setDevToken] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,15 +35,11 @@ export default function RecuperarSenha() {
 
     setSubmitting(true)
     setError('')
-    setDevToken(null)
 
     try {
       const res = await solicitarRecuperacaoSenha(email)
       if (res.success) {
         setSent(true)
-        if (res.token) {
-          setDevToken(res.token)
-        }
       } else {
         setError(res.message || 'Não foi possível solicitar a recuperação de senha.')
       }
@@ -108,30 +103,12 @@ export default function RecuperarSenha() {
                   </div>
                 </div>
 
-                {devToken && (
-                  <div className="rounded-lg bg-navy-900/90 p-3.5 border border-gold-500/30 space-y-2">
-                    <span className="text-xs font-semibold text-gold-400 uppercase tracking-wide flex items-center gap-1.5">
-                      <KeyRound className="h-3.5 w-3.5" /> Acesso direto de redefinição:
-                    </span>
-                    <p className="text-xs text-slate-300">
-                      Para continuar no navegador ou caso o serviço de e-mail externo demore:
-                    </p>
-                    <Link
-                      to={`/redefinir-senha?token=${devToken}`}
-                      className="inline-flex items-center gap-2 text-xs font-bold text-gold-400 hover:text-gold-300 underline bg-gold-500/10 px-3 py-2 rounded-md border border-gold-500/20 w-full justify-center transition-colors"
-                    >
-                      Abrir Tela de Redefinição de Senha &rarr;
-                    </Link>
-                  </div>
-                )}
-
                 <div className="flex flex-col gap-2 pt-2">
                   <Button
                     variant="outline"
                     onClick={() => {
                       setSent(false)
                       setEmail('')
-                      setDevToken(null)
                     }}
                     className="w-full min-h-[44px] border-navy-600 bg-navy-900/80 text-white hover:bg-navy-700 font-medium text-xs sm:text-sm"
                   >

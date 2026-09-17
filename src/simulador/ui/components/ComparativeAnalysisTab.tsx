@@ -1,23 +1,29 @@
-import React, { useMemo, useState } from 'react';
-import { Scale, Building2, User } from 'lucide-react';
-import { PropertyType, PersonType, TaxParameters, LandlordProfile } from '../../core/domain/types.ts';
-import { ComparativeEngine } from '../../core/services/ComparativeEngine.ts';
-import { BRLInput } from './BRLInput.tsx';
-import { SegmentedControl } from './SegmentedControl.tsx';
+import React, { useMemo, useState } from 'react'
+import { Scale, Building2, User } from 'lucide-react'
+import {
+  PropertyType,
+  PersonType,
+  TaxParameters,
+  LandlordProfile,
+} from '../../core/domain/types.ts'
+import { ComparativeEngine } from '../../core/services/ComparativeEngine.ts'
+import { BRLInput } from './BRLInput.tsx'
+import { SegmentedControl } from './SegmentedControl.tsx'
 
 interface ComparativeAnalysisTabProps {
-  params: TaxParameters;
+  params: TaxParameters
 }
 
-const formatBRL = (val: number) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const formatBRL = (val: number) =>
+  val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 export const ComparativeAnalysisTab: React.FC<ComparativeAnalysisTabProps> = ({ params }) => {
-  const [rent, setRent] = useState<number>(0);
-  const [propertyType, setPropertyType] = useState<PropertyType>('residential');
-  const [personType, setPersonType] = useState<PersonType>('pf');
-  const [propertiesCount, setPropertiesCount] = useState<number>(0);
-  const [annualIncome, setAnnualIncome] = useState<number>(0);
-  const [managementFee, setManagementFee] = useState<number>(0);
+  const [rent, setRent] = useState<number>(0)
+  const [propertyType, setPropertyType] = useState<PropertyType>('residential')
+  const [personType, setPersonType] = useState<PersonType>('pf')
+  const [propertiesCount, setPropertiesCount] = useState<number>(0)
+  const [annualIncome, setAnnualIncome] = useState<number>(0)
+  const [managementFee, setManagementFee] = useState<number>(0)
 
   const comparison = useMemo(() => {
     const landlord: LandlordProfile = {
@@ -25,12 +31,12 @@ export const ComparativeAnalysisTab: React.FC<ComparativeAnalysisTabProps> = ({ 
       totalPropertiesRented: propertiesCount,
       totalAnnualRentalIncome: annualIncome,
       managementFeePercent: managementFee,
-    };
-    return ComparativeEngine.compare(rent, propertyType, landlord, params, params.transitionYear);
-  }, [rent, propertyType, personType, propertiesCount, annualIncome, managementFee, params]);
+    }
+    return ComparativeEngine.compare(rent, propertyType, landlord, params, params.transitionYear)
+  }, [rent, propertyType, personType, propertiesCount, annualIncome, managementFee, params])
 
-  const difference = comparison.postReform.differenceAmount;
-  const isIncrease = difference > 0;
+  const difference = comparison.postReform.differenceAmount
+  const isIncrease = difference > 0
 
   return (
     <div className="space-y-6">
@@ -106,7 +112,9 @@ export const ComparativeAnalysisTab: React.FC<ComparativeAnalysisTabProps> = ({ 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <section className="bg-surface border border-sim-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-4">
                 <div className="border-b border-sim-border pb-3">
-                  <p className="text-sm font-semibold uppercase tracking-wider text-text-muted">Hoje</p>
+                  <p className="text-sm font-semibold uppercase tracking-wider text-text-muted">
+                    Hoje
+                  </p>
                   <h3 className="text-lg font-semibold text-text-primary tracking-tight">
                     {comparison.preReform.systemName}
                   </h3>
@@ -156,12 +164,18 @@ export const ComparativeAnalysisTab: React.FC<ComparativeAnalysisTabProps> = ({ 
             </div>
 
             <section
- className={`rounded-2xl sm:rounded-3xl p-6 border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                isIncrease ? 'bg-warning-bg border-warning-border' : 'bg-positive-bg border-positive-border'
+              className={`rounded-2xl sm:rounded-3xl p-6 border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                isIncrease
+                  ? 'bg-warning-bg border-warning-border'
+                  : 'bg-positive-bg border-positive-border'
               }`}
             >
               <h3 className="text-lg sm:text-xl font-semibold text-text-primary tracking-tight">
-                {isIncrease ? 'Você vai pagar a mais' : difference < 0 ? 'Você vai pagar a menos' : 'Não muda nada'}
+                {isIncrease
+                  ? 'Você vai pagar a mais'
+                  : difference < 0
+                    ? 'Você vai pagar a menos'
+                    : 'Não muda nada'}
               </h3>
               <p className="text-3xl sm:text-4xl font-bold tabular-nums text-text-primary">
                 {formatBRL(Math.abs(difference))}
@@ -172,5 +186,5 @@ export const ComparativeAnalysisTab: React.FC<ComparativeAnalysisTabProps> = ({ 
         )}
       </div>
     </div>
-  );
-};
+  )
+}

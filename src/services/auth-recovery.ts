@@ -1,16 +1,23 @@
-import pb from '@/lib/pocketbase/client'
+import { supabase } from '@/lib/dados/supabase'
+
+/**
+ * Recuperação de senha.
+ *
+ * Quem cuida disso agora é o Supabase Auth: o token vai por e-mail, num link
+ * que abre esta aplicação já com uma sessão temporária. Ele nunca passa pela
+ * resposta da requisição — era exatamente esse o achado S-01 da auditoria, em
+ * que qualquer pessoa pedia recuperação para o e-mail alheio e recebia de
+ * volta o token para trocar a senha.
+ */
 
 export interface SolicitarRecuperacaoResponse {
   success: boolean
   message: string
-  token?: string
 }
 
 export interface ValidarTokenResetResponse {
   valid: boolean
   email?: string
-  expires_at?: string
-  status?: string
   message?: string
 }
 
@@ -19,50 +26,48 @@ export interface RedefinirSenhaResponse {
   message: string
 }
 
-/**
- * Solicita envio de email e geração de token de recuperação de senha
- */
+const DESTINO = () => `${window.location.origin}/redefinir-senha`
+
 export async function solicitarRecuperacaoSenha(
   email: string,
 ): Promise<SolicitarRecuperacaoResponse> {
-  const res = await pb.send<SolicitarRecuperacaoResponse>(
-    '/backend/v1/auth/solicitar-recuperacao',
-    {
-      method: 'POST',
-      body: { email: email.trim().toLowerCase() },
-    },
-  )
-  return res
-}
-
-/**
- * Valida se um token de recuperação é existente e não expirou
- */
-export async function validarTokenReset(token: string): Promise<ValidarTokenResetResponse> {
-  const res = await pb.send<ValidarTokenResetResponse>(
-    `/backend/v1/auth/validar-token-reset?token=${encodeURIComponent(token.trim())}`,
-    {
-      method: 'GET',
-    },
-  )
-  return res
-}
-
-/**
- * Redefine a senha com o token fornecido
- */
-export async function redefinirSenha(
-  token: string,
-  password: string,
-  passwordConfirm: string,
-): Promise<RedefinirSenhaResponse> {
-  const res = await pb.send<RedefinirSenhaResponse>('/backend/v1/auth/redefinir-senha', {
-    method: 'POST',
-    body: {
-      token: token.trim(),
-      password,
-      passwordConfirm,
-    },
+  const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+    redirectTo: DESTINO(),
   })
-  return res
+
+  if (error) return { success: false, message: error.message }
+
+  // A mesma resposta para e-mail que existe e para e-mail que não existe: dizer
+  // qual é qual entregaria a lista de quem tem conta no sistema.
+  return {
+    success: true,
+    message: 'Se houver uma conta com esse e-mail, o link de recuperação foi enviado.',
+  }
+}
+
+/**
+ * Confere se a pessoa chegou por um link de recuperação válido.
+ *
+ * O link traz a credencial no fragmento da URL, que o cliente do Supabase
+ * consome ao iniciar e converte numa sessão curta — daí não haver mais token
+ * para ler da query string.
+ */
+export async function validarLinkDeRecuperacao(): Promise<ValidarTokenResetResponse> {
+  const { data, error } = await supabase.auth.getSession()
+
+  if (error || !data.session) {
+    return {
+      valid: false,
+      message: 'O link de recuperação é inválido ou já expirou. Peça um novo.',
+    }
+  }
+
+  return { valid: true, email: data.session.user.email ?? undefined }
+}
+
+export async function redefinirSenha(password: string): Promise<RedefinirSenhaResponse> {
+  const { error } = await supabase.auth.updateUser({ password })
+
+  if (error) return { success: false, message: error.message }
+  return { success: true, message: 'Senha redefinida com sucesso.' }
 }

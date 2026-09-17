@@ -1,0 +1,1739 @@
+openapi: 3.1.0
+
+info:
+  title: API — Plataforma de Gestão Imobiliária e Tributária
+  version: 1.0.0-draft
+  summary: Contrato API-First do backend de gestão de carteira imobiliária, conciliação bancária e apuração IBS/CBS.
+  description: |
+    Contrato de referência gerado na **Fase 3** das Diretrizes Arquiteturais, após a conclusão da
+    [modelagem de dados](../02-modelagem-de-dados.md).
+
+    ## Status
+    `1.0.0-draft`. A implementação atual usa a **API REST gerada pelo PocketBase**
+    (`/api/collections/{coleção}/records`). Esta especificação descreve o contrato **estável e
+    versionado** que o frontend web e o app mobile devem consumir, seja ele servido por um gateway
+    fino sobre o PocketBase ou por rotas customizadas em hooks. O objetivo é desacoplar os clientes
+    do formato interno do BaaS — ver [ADR-0001](../05-adr/0001-pocketbase-como-backend.md).
+
+    ## Convenções
+    - Todos os corpos são `application/json` em UTF-8, exceto upload de extrato (`multipart/form-data`).
+    - Valores monetários trafegam como **inteiro em centavos** (`valorCentavos`), nunca como float.
+      Motivo: o domínio fiscal opera em aritmética decimal de centavos (`FinancialMath`) e float em
+      trânsito reintroduz erro de arredondamento. Ver RD-01 na modelagem de dados.
+    - Datas: `date` (`YYYY-MM-DD`). Timestamps: `date-time` em UTC (RFC 3339).
+    - Competência contábil: string `YYYY-MM`.
+    - Listagens são paginadas (`page`, `perPage`) e devolvem envelope `Paginated*`.
+    - Erros seguem **RFC 9457** (`application/problem+json`).
+    - Toda resposta carrega `X-Request-Id` para correlação com `logs_atividade`.
+    - Mutações aceitam `Idempotency-Key`; obrigatório onde indicado.
+
+    ## Autorização
+    Todo endpoint exige `bearerAuth`, exceto os marcados como públicos. A autorização é avaliada
+    **no servidor** contra `(usuario, modulo, nivel)`: `visualizacao` habilita `GET`, `edicao` habilita
+    `POST`/`PATCH`/`DELETE`, `sem_acesso` resulta em `403`. Ver
+    [ADR-0003](../05-adr/0003-rbac-servidor-e-tenancy.md) — este é o contrato que corrige o RBAC
+    client-side descrito em [06-seguranca.md](../06-seguranca.md).
+  contact:
+    name: Equipe de Arquitetura
+  license:
+    name: MIT
+
+servers:
+  - url: https://api.fjin.work/v1
+    description: Produção
+  - url: http://localhost:8090/api/v1
+    description: PocketBase local
+
+tags:
+  - name: Autenticação
+    description: Sessão, rotação de token e recuperação de senha
+  - name: Imóveis
+  - name: Inquilinos
+  - name: Fornecedores
+  - name: Contratos
+  - name: Financeiro
+    description: Receitas, despesas, IPTU e taxas
+  - name: Conciliação
+    description: Importação de extrato e classificação de transações
+  - name: Tributário
+    description: Simulação de IBS/CBS e cronograma de transição
+  - name: Administração
+    description: Usuários, convites e auditoria
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ----------------------------------------------------------------- Autenticação
+  /auth/login:
+    post:
+      tags: [Autenticação]
+      summary: Autentica por e-mail e senha
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, senha]
+              properties:
+                email: { type: string, format: email }
+                senha: { type: string, format: password, minLength: 8 }
+      responses:
+        '200':
+          description: Sessão criada
+          headers:
+            Set-Cookie:
+              description: |
+                `refresh_token` como cookie `HttpOnly; Secure; SameSite=Strict; Path=/auth`.
+                Clientes mobile recebem o refresh no corpo e devem guardá-lo em Keychain/Keystore.
+              schema: { type: string }
+            X-RateLimit-Remaining: { $ref: '#/components/headers/XRateLimitRemaining' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SessaoResponse' }
+        '401': { $ref: '#/components/responses/NaoAutenticado' }
+        '403':
+          description: Conta desativada (`users.ativo = false`)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '429': { $ref: '#/components/responses/LimiteExcedido' }
+
+  /auth/refresh:
+    post:
+      tags: [Autenticação]
+      summary: Rotaciona o par de tokens
+      description: |
+        Implementa **rotação de refresh token** conforme RFC 9700 / OAuth 2.1: cada uso emite um novo
+        refresh e invalida o anterior. O servidor rastreia a *família* de tokens; reuso de um refresh já
+        invalidado revoga a família inteira e devolve `401`, forçando reautenticação.
+      operationId: refresh
+      security: []
+      requestBody:
+        description: Omitido quando o refresh vem por cookie HttpOnly (web).
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken: { type: string }
+      responses:
+        '200':
+          description: Novo par emitido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SessaoResponse' }
+        '401':
+          description: Refresh inválido, expirado ou reusado — família revogada
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /auth/logout:
+    post:
+      tags: [Autenticação]
+      summary: Encerra a sessão e revoga a família de tokens
+      operationId: logout
+      responses:
+        '204': { description: Sessão encerrada }
+
+  /auth/senha/recuperacao:
+    post:
+      tags: [Autenticação]
+      summary: Solicita e-mail de recuperação de senha
+      description: |
+        Responde sempre `202`, exista ou não a conta — evita enumeração de usuários.
+        Implementado hoje pelo hook `auth_solicitar_recuperacao.js` sobre `password_resets`.
+      operationId: solicitarRecuperacaoSenha
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '202': { description: Solicitação registrada }
+        '429': { $ref: '#/components/responses/LimiteExcedido' }
+
+  /auth/senha/redefinicao:
+    post:
+      tags: [Autenticação]
+      summary: Redefine a senha com token de uso único
+      operationId: redefinirSenha
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, novaSenha]
+              properties:
+                token: { type: string, description: Token de uso único, expirável }
+                novaSenha: { type: string, format: password, minLength: 8 }
+      responses:
+        '204': { description: Senha redefinida; todas as sessões anteriores foram revogadas }
+        '400': { $ref: '#/components/responses/EntradaInvalida' }
+        '410':
+          description: Token expirado ou já utilizado
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /auth/me:
+    get:
+      tags: [Autenticação]
+      summary: Retorna o usuário da sessão e suas permissões efetivas
+      operationId: obterSessaoAtual
+      responses:
+        '200':
+          description: Usuário autenticado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioAtual' }
+        '401': { $ref: '#/components/responses/NaoAutenticado' }
+
+  # ----------------------------------------------------------------- Imóveis
+  /imoveis:
+    get:
+      tags: [Imóveis]
+      summary: Lista imóveis
+      operationId: listarImoveis
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Expand'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [vago, alugado, em_manutencao, inativo]
+        - name: tipo
+          in: query
+          schema:
+            type: string
+            enum: [casa, apartamento, sala_comercial, loja, galpao, terreno, outro]
+        - name: busca
+          in: query
+          description: Busca textual em nome, código, endereço e matrícula
+          schema: { type: string, maxLength: 120 }
+      responses:
+        '200':
+          description: Página de imóveis
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedImoveis' }
+        '401': { $ref: '#/components/responses/NaoAutenticado' }
+        '403': { $ref: '#/components/responses/SemPermissao' }
+    post:
+      tags: [Imóveis]
+      summary: Cadastra imóvel
+      operationId: criarImovel
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ImovelInput' }
+      responses:
+        '201':
+          description: Imóvel criado
+          headers:
+            Location: { schema: { type: string, format: uri-reference } }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Imovel' }
+        '403': { $ref: '#/components/responses/SemPermissao' }
+        '422': { $ref: '#/components/responses/EntidadeInvalida' }
+
+  /imoveis/{id}:
+    parameters:
+      - $ref: '#/components/parameters/RecordId'
+    get:
+      tags: [Imóveis]
+      summary: Detalha imóvel
+      operationId: obterImovel
+      parameters:
+        - $ref: '#/components/parameters/Expand'
+      responses:
+        '200':
+          description: Imóvel
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Imovel' }
+        '404': { $ref: '#/components/responses/NaoEncontrado' }
+    patch:
+      tags: [Imóveis]
+      summary: Atualiza imóvel parcialmente
+      operationId: atualizarImovel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ImovelInput' }
+      responses:
+        '200':
+          description: Imóvel atualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Imovel' }
+        '403': { $ref: '#/components/responses/SemPermissao' }
+        '422': { $ref: '#/components/responses/EntidadeInvalida' }
+    delete:
+      tags: [Imóveis]
+      summary: Remove imóvel
+      description: Recusado com `409` se houver contrato, receita, despesa ou lançamento de IPTU vinculado.
+      operationId: removerImovel
+      responses:
+        '204': { description: Removido }
+        '409': { $ref: '#/components/responses/Conflito' }
+
+  # ----------------------------------------------------------------- Inquilinos
+  /inquilinos:
+    get:
+      tags: [Inquilinos]
+      summary: Lista inquilinos
+      operationId: listarInquilinos
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - name: tipoPessoa
+          in: query
+          schema: { type: string, enum: [pf, pj] }
+        - name: status
+          in: query
+          schema: { type: string, enum: [ativo, inativo] }
+      responses:
+        '200':
+          description: Página de inquilinos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedInquilinos' }
+    post:
+      tags: [Inquilinos]
+      summary: Cadastra inquilino
+      description: |
+        `cpf` é único quando informado (índice parcial). CPF/CNPJ são validados por dígito verificador
+        **no servidor** antes da persistência.
+      operationId: criarInquilino
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/InquilinoInput' }
+      responses:
+        '201':
+          description: Inquilino criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Inquilino' }
+        '409':
+          description: CPF ou CNPJ já cadastrado
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '422': { $ref: '#/components/responses/EntidadeInvalida' }
+
+  /inquilinos/{id}:
+    parameters:
+      - $ref: '#/components/parameters/RecordId'
+    get:
+      tags: [Inquilinos]
+      summary: Detalha inquilino
+      operationId: obterInquilino
+      responses:
+        '200':
+          description: Inquilino
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Inquilino' }
+        '404': { $ref: '#/components/responses/NaoEncontrado' }
+    patch:
+      tags: [Inquilinos]
+      summary: Atualiza inquilino
+      operationId: atualizarInquilino
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/InquilinoInput' }
+      responses:
+        '200':
+          description: Atualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Inquilino' }
+
+  # ----------------------------------------------------------------- Contratos
+  /contratos:
+    get:
+      tags: [Contratos]
+      summary: Lista contratos
+      operationId: listarContratos
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - $ref: '#/components/parameters/Expand'
+        - name: status
+          in: query
+          schema: { type: string, enum: [rascunho, ativo, encerrado] }
+        - name: imovelId
+          in: query
+          schema: { $ref: '#/components/schemas/RecordId' }
+        - name: vencendoEm
+          in: query
+          description: Contratos com `dataFim` nos próximos N dias
+          schema: { type: integer, minimum: 1, maximum: 365 }
+      responses:
+        '200':
+          description: Página de contratos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedContratos' }
+    post:
+      tags: [Contratos]
+      summary: Cria contrato (em rascunho)
+      operationId: criarContrato
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContratoInput' }
+      responses:
+        '201':
+          description: Contrato criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Contrato' }
+        '409':
+          description: Imóvel já possui contrato ativo no período
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '422': { $ref: '#/components/responses/EntidadeInvalida' }
+
+  /contratos/{id}/ativacao:
+    parameters:
+      - $ref: '#/components/parameters/RecordId'
+    post:
+      tags: [Contratos]
+      summary: Ativa o contrato e gera as receitas previstas da vigência
+      description: |
+        Operação composta e **idempotente** (`Idempotency-Key` obrigatório). Em uma transação:
+        marca o contrato como `ativo`, atualiza `imoveis.status = 'alugado'` e
+        `imoveis.inquilinoAtual`, e gera um lançamento em `receitas` por competência da vigência
+        (`valorPrevisto = valorAluguel`, `dataVencimento` derivada de `diaVencimento`).
+        Ver o diagrama de sequência em [04-uml.md](../04-uml.md).
+      operationId: ativarContrato
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKeyObrigatoria'
+      responses:
+        '200':
+          description: Contrato ativado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contrato: { $ref: '#/components/schemas/Contrato' }
+                  receitasGeradas: { type: integer, examples: [12] }
+        '409':
+          description: Contrato já ativo, ou imóvel ocupado por outro contrato ativo
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /contratos/{id}/reajuste:
+    parameters:
+      - $ref: '#/components/parameters/RecordId'
+    post:
+      tags: [Contratos]
+      summary: Aplica reajuste por índice e registra o histórico
+      description: |
+        Usa o snapshot mensal de `indices_economicos` (coletado por job assíncrono — ver Fase 1).
+        Se o índice da competência não estiver disponível, responde `424` sem alterar o contrato:
+        **jamais** reajustar com índice estimado.
+      operationId: reajustarContrato
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKeyObrigatoria'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [competencia]
+              properties:
+                competencia: { $ref: '#/components/schemas/Competencia' }
+                indice:
+                  type: string
+                  enum: [igpm, ipca, incc, fixo]
+                  description: Omitido, usa `contrato.indiceReajuste`
+                percentualManual:
+                  type: number
+                  description: Obrigatório quando `indice = fixo`
+      responses:
+        '200':
+          description: Reajuste aplicado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Reajuste' }
+        '424':
+          description: Índice da competência indisponível (dependência externa em falha)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  # ----------------------------------------------------------------- Financeiro
+  /receitas:
+    get:
+      tags: [Financeiro]
+      summary: Lista receitas
+      operationId: listarReceitas
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - $ref: '#/components/parameters/Expand'
+        - name: competencia
+          in: query
+          schema: { $ref: '#/components/schemas/Competencia' }
+        - name: statusFinanceiro
+          in: query
+          schema: { type: string, enum: [previsto, recebido, em_atraso, parcial] }
+        - name: imovelId
+          in: query
+          schema: { $ref: '#/components/schemas/RecordId' }
+        - name: vencimentoDe
+          in: query
+          schema: { type: string, format: date }
+        - name: vencimentoAte
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Página de receitas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedReceitas' }
+    post:
+      tags: [Financeiro]
+      summary: Lança receita
+      operationId: criarReceita
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReceitaInput' }
+      responses:
+        '201':
+          description: Receita criada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Receita' }
+        '422': { $ref: '#/components/responses/EntidadeInvalida' }
+
+  /receitas/{id}/liquidacao:
+    parameters:
+      - $ref: '#/components/parameters/RecordId'
+    post:
+      tags: [Financeiro]
+      summary: Registra o recebimento (total ou parcial)
+      description: |
+        Define `valorRecebido`, `dataRecebimento` e recalcula `statusFinanceiro`
+        (`recebido` quando integral, `parcial` quando menor que o previsto).
+      operationId: liquidarReceita
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [valorRecebidoCentavos, dataRecebimento]
+              properties:
+                valorRecebidoCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+                dataRecebimento: { type: string, format: date }
+                formaRecebimento: { type: string, maxLength: 60 }
+      responses:
+        '200':
+          description: Receita liquidada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Receita' }
+        '409':
+          description: Receita já liquidada integralmente
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /despesas:
+    get:
+      tags: [Financeiro]
+      summary: Lista despesas
+      description: 'Mesmos parâmetros de `/receitas`, trocando `inquilino` por `fornecedor` e `statusFinanceiro` por `previsto|pago|em_atraso|parcial`.'
+      operationId: listarDespesas
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - name: competencia
+          in: query
+          schema: { $ref: '#/components/schemas/Competencia' }
+        - name: statusFinanceiro
+          in: query
+          schema: { type: string, enum: [previsto, pago, em_atraso, parcial] }
+      responses:
+        '200':
+          description: Página de despesas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedDespesas' }
+    post:
+      tags: [Financeiro]
+      summary: Lança despesa
+      operationId: criarDespesa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DespesaInput' }
+      responses:
+        '201':
+          description: Despesa criada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Despesa' }
+
+  /iptu-taxas:
+    get:
+      tags: [Financeiro]
+      summary: Lista lançamentos de IPTU e taxas
+      operationId: listarIptuTaxas
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - name: anoReferencia
+          in: query
+          schema: { type: integer, minimum: 2000, maximum: 2100 }
+        - name: tipo
+          in: query
+          schema: { type: string, enum: [iptu, taxa_condominio, outro] }
+      responses:
+        '200':
+          description: Página de lançamentos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedIptuTaxas' }
+    post:
+      tags: [Financeiro]
+      summary: Lança IPTU ou taxa
+      operationId: criarIptuTaxa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/IptuTaxaInput' }
+      responses:
+        '201':
+          description: Lançamento criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/IptuTaxa' }
+
+  # ----------------------------------------------------------------- Conciliação
+  /importacoes:
+    get:
+      tags: [Conciliação]
+      summary: Histórico de importações
+      operationId: listarImportacoes
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - name: contaBancariaId
+          in: query
+          schema: { $ref: '#/components/schemas/RecordId' }
+        - name: status
+          in: query
+          schema: { type: string, enum: [pendente, concluida, parcial] }
+      responses:
+        '200':
+          description: Página de importações
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedImportacoes' }
+    post:
+      tags: [Conciliação]
+      summary: Envia extrato (OFX ou CSV) para processamento
+      description: |
+        O arquivo é parseado no servidor (OFX e dialetos CSV de Itaú, Bradesco, Nubank, Inter,
+        Santander e BB), com deduplicação por *fuzzy match* e geração de sugestões de classificação.
+        Processamento **síncrono** até 5 MB; acima disso responde `202` com `status = pendente` e o
+        cliente acompanha por *polling* ou subscrição realtime.
+        Limites: 20 MB, `text/csv` ou `application/x-ofx`, `Content-Type` verificado por conteúdo,
+        não por extensão.
+      operationId: criarImportacao
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [contaBancariaId, arquivo]
+              properties:
+                contaBancariaId: { $ref: '#/components/schemas/RecordId' }
+                arquivo: { type: string, format: binary }
+                formato: { type: string, enum: [csv, ofx] }
+      responses:
+        '201':
+          description: Importação processada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ImportacaoResultado' }
+        '202':
+          description: Arquivo aceito; processamento assíncrono em curso
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Importacao' }
+        '413':
+          description: Arquivo acima de 20 MB
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '415':
+          description: Formato não suportado
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '422': { $ref: '#/components/responses/EntidadeInvalida' }
+
+  /importacoes/{id}/transacoes:
+    parameters:
+      - $ref: '#/components/parameters/RecordId'
+    get:
+      tags: [Conciliação]
+      summary: Lista as transações do lote com suas sugestões
+      operationId: listarTransacoesImportacao
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - name: classificada
+          in: query
+          schema: { type: boolean }
+        - name: duplicataDetectada
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Página de transações
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedTransacoes' }
+
+  /transacoes/classificacao:
+    post:
+      tags: [Conciliação]
+      summary: Classifica transações em lote, gerando receitas e despesas
+      description: |
+        Transação atômica por item: classificar gera **um** lançamento em `receitas` ou `despesas` e
+        grava o vínculo bidirecional (`receitaGerada`/`despesaGerada` ↔ `transacaoImportadaId`).
+        A `sugestaoConfianca` do motor é **consultiva**: nenhum lançamento é criado sem confirmação
+        explícita no payload (RN-IMP-02). Uma transação já classificada devolve `409` — reclassificar
+        exige estorno (RN-IMP-01).
+      operationId: classificarTransacoes
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKeyObrigatoria'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [itens]
+              properties:
+                itens:
+                  type: array
+                  minItems: 1
+                  maxItems: 500
+                  items: { $ref: '#/components/schemas/ClassificacaoItem' }
+      responses:
+        '200':
+          description: Resultado por item (sucesso parcial é possível)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processadas: { type: integer }
+                  falhas: { type: integer }
+                  resultados:
+                    type: array
+                    items: { $ref: '#/components/schemas/ClassificacaoResultado' }
+        '409': { $ref: '#/components/responses/Conflito' }
+        '422': { $ref: '#/components/responses/EntidadeInvalida' }
+
+  # ----------------------------------------------------------------- Tributário
+  /tributario/simulacoes:
+    post:
+      tags: [Tributário]
+      summary: Simula IBS/CBS de um contrato de locação e emite laudo de auditoria
+      description: |
+        Endpoint **público** (sem autenticação), espelhando a rota `/simulador` do frontend. Não
+        persiste dados pessoais. Executa o núcleo de domínio: enquadramento de habitualidade,
+        exclusão de encargos acessórios, redutor social residencial, fator de transição do
+        ano-calendário e comparativo pré/pós-reforma.
+        Base legal: EC 132/2023, LC 214/2025 (Arts. 248–265) e LC 227/2026.
+      operationId: simularTributacao
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SimulacaoInput' }
+      responses:
+        '200':
+          description: Resultado com memória de cálculo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SimulacaoResultado' }
+        '422': { $ref: '#/components/responses/EntidadeInvalida' }
+        '429': { $ref: '#/components/responses/LimiteExcedido' }
+
+  /tributario/simulacoes/carteira:
+    post:
+      tags: [Tributário]
+      summary: Simula a carteira consolidada do usuário autenticado
+      description: |
+        Agrega os contratos ativos da carteira (`PortfolioEngine`) e avalia o enquadramento de
+        habitualidade da PF com os dados reais: mais de 3 imóveis alugados **E** receita anual de
+        locação acima de R$ 240.000,00 — critérios **cumulativos**.
+      operationId: simularCarteira
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [anoCalendario]
+              properties:
+                anoCalendario: { $ref: '#/components/schemas/AnoTransicao' }
+                naturezaLocador: { type: string, enum: [pf, pj], default: pf }
+                regimePj: { type: string, enum: [lucro_presumido, lucro_real] }
+      responses:
+        '200':
+          description: Consolidado da carteira
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CarteiraResultado' }
+
+  /tributario/cronograma:
+    get:
+      tags: [Tributário]
+      summary: Retorna a matriz de alíquotas de transição 2026–2033
+      description: |
+        Dados servidos da tabela versionada em código (`TransitionCalendar`), sem dependência externa —
+        por isso é cacheável agressivamente e não tem modo de falha de rede.
+      operationId: obterCronogramaTransicao
+      security: []
+      parameters:
+        - name: ano
+          in: query
+          schema: { $ref: '#/components/schemas/AnoTransicao' }
+      responses:
+        '200':
+          description: Cronograma
+          headers:
+            Cache-Control:
+              schema: { type: string, examples: ['public, max-age=86400'] }
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AliquotaAno' }
+
+  # ----------------------------------------------------------------- Administração
+  /usuarios:
+    get:
+      tags: [Administração]
+      summary: Lista usuários
+      description: Exige `perfil = administrador`.
+      operationId: listarUsuarios
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Página de usuários
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedUsuarios' }
+        '403': { $ref: '#/components/responses/SemPermissao' }
+
+  /usuarios/{id}/permissoes:
+    parameters:
+      - $ref: '#/components/parameters/RecordId'
+    put:
+      tags: [Administração]
+      summary: Substitui o conjunto de permissões do usuário
+      description: |
+        **Fail-closed:** módulo ausente do payload é gravado como `sem_acesso`. Corrige o
+        comportamento atual do cliente, que concede `edicao` quando a lista está vazia.
+      operationId: definirPermissoes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [permissoes]
+              properties:
+                permissoes:
+                  type: array
+                  items: { $ref: '#/components/schemas/Permissao' }
+      responses:
+        '200':
+          description: Permissões efetivas após a operação
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  permissoes:
+                    type: array
+                    items: { $ref: '#/components/schemas/Permissao' }
+        '403': { $ref: '#/components/responses/SemPermissao' }
+
+  /convites:
+    post:
+      tags: [Administração]
+      summary: Convida usuário por e-mail
+      description: Gera token único com expiração. Exige `perfil = administrador`.
+      operationId: criarConvite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, perfil]
+              properties:
+                email: { type: string, format: email }
+                perfil: { type: string, enum: [administrador, usuario] }
+                permissoes:
+                  type: array
+                  items: { $ref: '#/components/schemas/Permissao' }
+      responses:
+        '201':
+          description: Convite criado e e-mail enfileirado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Convite' }
+        '409':
+          description: Já existe convite pendente para o e-mail
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /logs-atividade:
+    get:
+      tags: [Administração]
+      summary: Consulta a trilha de auditoria
+      description: |
+        Somente leitura — não há endpoint de escrita: os registros são produzidos exclusivamente por
+        hooks server-side. Exige `perfil = administrador`.
+      operationId: listarLogsAtividade
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - name: usuarioId
+          in: query
+          schema: { $ref: '#/components/schemas/RecordId' }
+        - name: entidade
+          in: query
+          schema: { type: string }
+        - name: acao
+          in: query
+          schema: { type: string, examples: [criou, editou, removeu] }
+        - name: de
+          in: query
+          schema: { type: string, format: date-time }
+        - name: ate
+          in: query
+          schema: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Página de registros
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedLogs' }
+        '403': { $ref: '#/components/responses/SemPermissao' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Access token de vida curta (15 min) em `Authorization: Bearer`. O refresh token **nunca**
+        viaja neste header: web usa cookie `HttpOnly`, mobile usa Keychain/Keystore.
+        Ver [ADR-0004](../05-adr/0004-tokens-e-sessao.md).
+
+  headers:
+    XRateLimitRemaining:
+      description: Requisições restantes na janela atual
+      schema: { type: integer }
+    RetryAfter:
+      description: Segundos até a próxima tentativa permitida
+      schema: { type: integer }
+
+  parameters:
+    RecordId:
+      name: id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/RecordId' }
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    PerPage:
+      name: perPage
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 200, default: 30 }
+    Sort:
+      name: sort
+      in: query
+      description: 'Campos separados por vírgula; prefixo `-` inverte. Ex.: `-created,nome`'
+      schema: { type: string, maxLength: 120 }
+    Expand:
+      name: expand
+      in: query
+      description: 'Relações a expandir, separadas por vírgula. Ex.: `imovel,inquilino`'
+      schema: { type: string, maxLength: 200 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      description: UUID v4. Repetir a chave devolve o resultado original, sem reexecutar.
+      schema: { type: string, format: uuid }
+    IdempotencyKeyObrigatoria:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, format: uuid }
+
+  responses:
+    NaoAutenticado:
+      description: Ausência ou invalidez de credencial
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    SemPermissao:
+      description: Autenticado, porém sem o nível necessário no módulo
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NaoEncontrado:
+      description: Registro inexistente ou fora do escopo de acesso do usuário
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Conflito:
+      description: Conflito com o estado atual do recurso
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    EntradaInvalida:
+      description: Requisição malformada
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    EntidadeInvalida:
+      description: Falha de validação de schema ou de regra de negócio
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ProblemValidacao' }
+    LimiteExcedido:
+      description: Limite de requisições excedido
+      headers:
+        Retry-After: { $ref: '#/components/headers/RetryAfter' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+
+  schemas:
+    RecordId:
+      type: string
+      pattern: '^[a-z0-9]{15}$'
+      examples: ['r7k2p9x4m1a8b3c']
+
+    ValorCentavos:
+      type: integer
+      minimum: 0
+      description: Valor monetário em centavos de real. `250000` = R$ 2.500,00.
+      examples: [250000]
+
+    Competencia:
+      type: string
+      pattern: '^\d{4}-(0[1-9]|1[0-2])$'
+      examples: ['2026-09']
+
+    AnoTransicao:
+      type: integer
+      minimum: 2026
+      maximum: 2033
+
+    Problem:
+      type: object
+      description: RFC 9457 — Problem Details for HTTP APIs
+      required: [type, title, status]
+      properties:
+        type:
+          { type: string, format: uri, examples: ['https://api.fjin.work/problems/sem-permissao'] }
+        title: { type: string, examples: ['Sem permissão para o módulo receitas'] }
+        status: { type: integer, examples: [403] }
+        detail:
+          {
+            type: string,
+            description: 'Mensagem segura para exibição; nunca contém dado sensível nem trecho de SQL.',
+          }
+        instance: { type: string, format: uri-reference }
+        requestId: { type: string }
+
+    ProblemValidacao:
+      allOf:
+        - $ref: '#/components/schemas/Problem'
+        - type: object
+          properties:
+            errors:
+              type: array
+              items:
+                type: object
+                properties:
+                  field: { type: string, examples: ['dataFim'] }
+                  code: { type: string, examples: ['data_fim_anterior_ao_inicio'] }
+                  message: { type: string }
+
+    Paginacao:
+      type: object
+      required: [page, perPage, totalItems, totalPages]
+      properties:
+        page: { type: integer }
+        perPage: { type: integer }
+        totalItems: { type: integer }
+        totalPages: { type: integer }
+
+    Auditoria:
+      type: object
+      readOnly: true
+      properties:
+        id: { $ref: '#/components/schemas/RecordId' }
+        created: { type: string, format: date-time }
+        updated: { type: string, format: date-time }
+        createdBy: { $ref: '#/components/schemas/RecordId' }
+        updatedBy: { $ref: '#/components/schemas/RecordId' }
+
+    SessaoResponse:
+      type: object
+      required: [accessToken, expiresIn, usuario]
+      properties:
+        accessToken: { type: string }
+        expiresIn:
+          { type: integer, description: Segundos de validade do access token, examples: [900] }
+        refreshToken:
+          type: string
+          description: Presente apenas para clientes mobile; na web vai por cookie HttpOnly.
+        usuario: { $ref: '#/components/schemas/UsuarioAtual' }
+
+    UsuarioAtual:
+      type: object
+      properties:
+        id: { $ref: '#/components/schemas/RecordId' }
+        nome: { type: string }
+        email: { type: string, format: email }
+        perfil: { type: string, enum: [administrador, usuario] }
+        ativo: { type: boolean }
+        permissoes:
+          type: array
+          description: Permissões **efetivas** calculadas no servidor. O cliente as usa para desenhar o menu, jamais como controle de acesso.
+          items: { $ref: '#/components/schemas/Permissao' }
+
+    Permissao:
+      type: object
+      required: [modulo, nivel]
+      properties:
+        modulo:
+          type: string
+          enum:
+            [
+              imoveis,
+              inquilinos,
+              fornecedores,
+              contratos,
+              receitas,
+              despesas,
+              iptu_taxas,
+              dashboards,
+              alertas,
+              relatorios,
+              importar_extrato,
+              classificar_transacoes,
+            ]
+        nivel:
+          type: string
+          enum: [sem_acesso, visualizacao, edicao]
+
+    Endereco:
+      type: object
+      properties:
+        logradouro: { type: string, maxLength: 200 }
+        numero: { type: string, maxLength: 20 }
+        complemento: { type: string, maxLength: 80 }
+        bairro: { type: string, maxLength: 80 }
+        cidade: { type: string, maxLength: 80 }
+        estado: { type: string, pattern: '^[A-Z]{2}$' }
+        cep: { type: string, pattern: '^\d{5}-?\d{3}$' }
+
+    ImovelInput:
+      type: object
+      required: [endereco]
+      properties:
+        codigo: { type: string, maxLength: 30 }
+        nome: { type: string, maxLength: 120 }
+        endereco: { $ref: '#/components/schemas/Endereco' }
+        tipo:
+          { type: string, enum: [casa, apartamento, sala_comercial, loja, galpao, terreno, outro] }
+        status: { type: string, enum: [vago, alugado, em_manutencao, inativo], default: vago }
+        matricula: { type: string, maxLength: 60 }
+        inscricaoImobiliaria: { type: string, maxLength: 60 }
+        area: { type: number, minimum: 0 }
+        quartos: { type: integer, minimum: 0 }
+        banheiros: { type: integer, minimum: 0 }
+        vagas: { type: integer, minimum: 0 }
+        valorCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+        valorEstimadoCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+        observacoes: { type: string, maxLength: 2000 }
+
+    Imovel:
+      allOf:
+        - $ref: '#/components/schemas/Auditoria'
+        - $ref: '#/components/schemas/ImovelInput'
+        - type: object
+          properties:
+            inquilinoAtual:
+              oneOf:
+                - $ref: '#/components/schemas/RecordId'
+                - $ref: '#/components/schemas/Inquilino'
+            fotos:
+              type: array
+              items: { type: string, format: uri }
+
+    InquilinoInput:
+      type: object
+      required: [nome, tipoPessoa]
+      properties:
+        nome: { type: string, maxLength: 150 }
+        tipoPessoa: { type: string, enum: [pf, pj] }
+        cpf:
+          {
+            type: string,
+            pattern: '^\d{11}$',
+            description: Obrigatório e validado por dígito verificador quando `tipoPessoa = pf`,
+          }
+        cnpj:
+          {
+            type: string,
+            pattern: '^\d{14}$',
+            description: Obrigatório e validado por dígito verificador quando `tipoPessoa = pj`,
+          }
+        rg: { type: string, maxLength: 20 }
+        dataNascimento: { type: string, format: date }
+        nomeFantasia: { type: string, maxLength: 150 }
+        responsavel: { type: string, maxLength: 150 }
+        email: { type: string, format: email }
+        telefone: { type: string, maxLength: 20 }
+        endereco: { type: string, maxLength: 250 }
+        status: { type: string, enum: [ativo, inativo], default: ativo }
+        observacoes: { type: string, maxLength: 2000 }
+
+    Inquilino:
+      allOf:
+        - $ref: '#/components/schemas/Auditoria'
+        - $ref: '#/components/schemas/InquilinoInput'
+
+    ContratoInput:
+      type: object
+      required: [imovelId, inquilinoId, dataInicio, valorAluguelCentavos, diaVencimento]
+      properties:
+        numero: { type: string, maxLength: 30 }
+        imovelId: { $ref: '#/components/schemas/RecordId' }
+        inquilinoId: { $ref: '#/components/schemas/RecordId' }
+        dataInicio: { type: string, format: date }
+        dataFim: { type: string, format: date, description: Deve ser posterior a `dataInicio` }
+        valorAluguelCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+        diaVencimento: { type: integer, minimum: 1, maximum: 31 }
+        indiceReajuste: { type: string, enum: [igpm, ipca, incc, fixo] }
+        periodicidadeReajuste: { type: string, enum: [anual, semestral, nenhuma], default: anual }
+        proximaDataReajuste: { type: string, format: date }
+        tipoGarantia: { type: string, enum: [caucao, fiador, seguro_fianca, nenhuma] }
+        valorGarantiaCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+        observacoes: { type: string, maxLength: 2000 }
+
+    Contrato:
+      allOf:
+        - $ref: '#/components/schemas/Auditoria'
+        - $ref: '#/components/schemas/ContratoInput'
+        - type: object
+          properties:
+            status: { type: string, enum: [rascunho, ativo, encerrado] }
+            documento: { type: string, format: uri }
+
+    Reajuste:
+      type: object
+      properties:
+        contratoId: { $ref: '#/components/schemas/RecordId' }
+        competencia: { $ref: '#/components/schemas/Competencia' }
+        indice: { type: string, enum: [igpm, ipca, incc, fixo] }
+        percentual: { type: number, examples: [4.62] }
+        fonteIndice: { type: string, examples: ['snapshot indices_economicos 2026-08'] }
+        valorAnteriorCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+        valorNovoCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+        aplicadoEm: { type: string, format: date-time }
+
+    LancamentoBase:
+      type: object
+      properties:
+        imovelId: { $ref: '#/components/schemas/RecordId' }
+        categoriaId: { $ref: '#/components/schemas/RecordId' }
+        descricao: { type: string, maxLength: 250 }
+        competencia: { $ref: '#/components/schemas/Competencia' }
+        dataVencimento: { type: string, format: date }
+        valorPrevistoCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+        observacoes: { type: string, maxLength: 2000 }
+
+    ReceitaInput:
+      allOf:
+        - $ref: '#/components/schemas/LancamentoBase'
+        - type: object
+          required: [imovelId, competencia, valorPrevistoCentavos]
+          properties:
+            contratoId: { $ref: '#/components/schemas/RecordId' }
+            inquilinoId: { $ref: '#/components/schemas/RecordId' }
+
+    Receita:
+      allOf:
+        - $ref: '#/components/schemas/Auditoria'
+        - $ref: '#/components/schemas/ReceitaInput'
+        - type: object
+          properties:
+            valorRecebidoCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+            dataRecebimento: { type: string, format: date }
+            formaRecebimento: { type: string }
+            statusFinanceiro: { type: string, enum: [previsto, recebido, em_atraso, parcial] }
+            transacaoImportadaId:
+              type: string
+              description: Origem na conciliação bancária, quando o lançamento nasceu de um extrato.
+
+    DespesaInput:
+      allOf:
+        - $ref: '#/components/schemas/LancamentoBase'
+        - type: object
+          required: [imovelId, competencia, valorPrevistoCentavos]
+          properties:
+            fornecedorId: { $ref: '#/components/schemas/RecordId' }
+
+    Despesa:
+      allOf:
+        - $ref: '#/components/schemas/Auditoria'
+        - $ref: '#/components/schemas/DespesaInput'
+        - type: object
+          properties:
+            valorPagoCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+            dataPagamento: { type: string, format: date }
+            formaPagamento: { type: string }
+            statusFinanceiro: { type: string, enum: [previsto, pago, em_atraso, parcial] }
+            transacaoImportadaId: { type: string }
+
+    IptuTaxaInput:
+      type: object
+      required: [imovelId, tipo, valorCentavos, vencimento]
+      properties:
+        imovelId: { $ref: '#/components/schemas/RecordId' }
+        tipo: { type: string, enum: [iptu, taxa_condominio, outro] }
+        descricao: { type: string, maxLength: 250 }
+        valorCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+        vencimento: { type: string, format: date }
+        anoReferencia: { type: integer, minimum: 2000, maximum: 2100 }
+
+    IptuTaxa:
+      allOf:
+        - $ref: '#/components/schemas/Auditoria'
+        - $ref: '#/components/schemas/IptuTaxaInput'
+        - type: object
+          properties:
+            status: { type: string, enum: [pago, pendente] }
+            dataPagamento: { type: string, format: date }
+            comprovante: { type: string, format: uri }
+
+    Importacao:
+      allOf:
+        - $ref: '#/components/schemas/Auditoria'
+        - type: object
+          properties:
+            contaBancariaId: { $ref: '#/components/schemas/RecordId' }
+            arquivoNome: { type: string }
+            formato: { type: string, enum: [csv, ofx] }
+            dataImportacao: { type: string, format: date }
+            totalTransacoes: { type: integer }
+            transacoesClassificadas: { type: integer }
+            transacoesIgnoradas: { type: integer }
+            status: { type: string, enum: [pendente, concluida, parcial] }
+
+    ImportacaoResultado:
+      type: object
+      properties:
+        importacao: { $ref: '#/components/schemas/Importacao' }
+        duplicatasDetectadas: { type: integer }
+        transacoes:
+          type: array
+          items: { $ref: '#/components/schemas/TransacaoImportada' }
+
+    TransacaoImportada:
+      type: object
+      properties:
+        id: { $ref: '#/components/schemas/RecordId' }
+        importacaoId: { $ref: '#/components/schemas/RecordId' }
+        data: { type: string, format: date }
+        descricao: { type: string }
+        descricaoNormalizada:
+          {
+            type: string,
+            description: Descrição após remoção de diacríticos,
+            pontuação e prefixos PIX/TED/DOC/PAGTO/TRANSF,
+          }
+        valorCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+        tipo: { type: string, enum: [credito, debito] }
+        saldoCentavos: { type: integer }
+        classificada: { type: boolean }
+        ignorada: { type: boolean }
+        duplicataDetectada: { type: boolean }
+        duplicataMotivo: { type: string }
+        duplicataIds:
+          type: array
+          items: { $ref: '#/components/schemas/RecordId' }
+        sugestao: { $ref: '#/components/schemas/Sugestao' }
+
+    Sugestao:
+      type: object
+      description: Saída consultiva do motor de classificação. Nunca é aplicada automaticamente.
+      properties:
+        tipo: { type: string, enum: [receita, despesa] }
+        categoriaId: { $ref: '#/components/schemas/RecordId' }
+        categoriaNome: { type: string }
+        imovelId: { $ref: '#/components/schemas/RecordId' }
+        imovelNome: { type: string }
+        confianca: { type: number, minimum: 0, maximum: 1, examples: [0.87] }
+        origem: { type: string, examples: ['historico_classificacao'] }
+
+    ClassificacaoItem:
+      type: object
+      required: [transacaoId, tipo, categoriaId, imovelId]
+      properties:
+        transacaoId: { $ref: '#/components/schemas/RecordId' }
+        tipo: { type: string, enum: [receita, despesa] }
+        categoriaId: { $ref: '#/components/schemas/RecordId' }
+        imovelId: { $ref: '#/components/schemas/RecordId' }
+        contratoId: { $ref: '#/components/schemas/RecordId' }
+        competencia: { $ref: '#/components/schemas/Competencia' }
+        ignorar:
+          {
+            type: boolean,
+            default: false,
+            description: Marca a transação como ignorada em vez de gerar lançamento,
+          }
+
+    ClassificacaoResultado:
+      type: object
+      properties:
+        transacaoId: { $ref: '#/components/schemas/RecordId' }
+        sucesso: { type: boolean }
+        lancamentoId: { $ref: '#/components/schemas/RecordId' }
+        lancamentoTipo: { type: string, enum: [receita, despesa] }
+        erro: { $ref: '#/components/schemas/Problem' }
+
+    SimulacaoInput:
+      type: object
+      required: [anoCalendario, naturezaLocador, destinacao, aluguelBaseCentavos]
+      properties:
+        anoCalendario: { $ref: '#/components/schemas/AnoTransicao' }
+        naturezaLocador: { type: string, enum: [pf, pj] }
+        destinacao: { type: string, enum: [residencial, comercial] }
+        aluguelBaseCentavos:
+          $ref: '#/components/schemas/ValorCentavos'
+        condominioCentavos:
+          allOf: [{ $ref: '#/components/schemas/ValorCentavos' }]
+          description: Excluído da base (Arts. 255 e 260 da LC 214/2025)
+        iptuCentavos:
+          allOf: [{ $ref: '#/components/schemas/ValorCentavos' }]
+          description: Excluído da base (Arts. 255 e 260 da LC 214/2025)
+        taxaAdministracaoCentavos:
+          allOf: [{ $ref: '#/components/schemas/ValorCentavos' }]
+          description: Insumo de intermediação; gera crédito para locador PJ
+        quantidadeImoveisAlugados:
+          type: integer
+          minimum: 0
+          description: Critério de habitualidade da PF — contribuinte somente se **maior que 3**
+        receitaAnualLocacaoCentavos:
+          allOf: [{ $ref: '#/components/schemas/ValorCentavos' }]
+          description: Critério de habitualidade da PF — contribuinte somente se **acima de R$ 240.000,00**
+        inquilinoContribuinte:
+          type: boolean
+          description: Inquilino PJ no regime não-cumulativo apropria crédito no B2B
+        parametros:
+          $ref: '#/components/schemas/ParametrosTributarios'
+
+    ParametrosTributarios:
+      type: object
+      description: Sobrescreve as premissas padrão. Uso reservado ao modo profissional; o valor aplicado é sempre declarado no laudo.
+      properties:
+        referenceRate: { type: number, default: 26.5 }
+        cbsShare: { type: number, default: 8.8 }
+        ibsShare: { type: number, default: 17.7 }
+        realEstateDiscountPercent: { type: number, default: 70.0 }
+        socialDeductionResidentialCentavos:
+          {
+            type: integer,
+            default: 60000,
+            description: R$ 600,
+            00 por imóvel residencial,
+            mensal (Art. 260; aplicação mensal esclarecida pela LC 227/2026),
+          }
+        pfPropertyThreshold: { type: integer, default: 3 }
+        pfAnnualIncomeThresholdCentavos: { type: integer, default: 24000000 }
+
+    SimulacaoResultado:
+      type: object
+      properties:
+        enquadramento:
+          type: object
+          properties:
+            contribuinte: { type: boolean }
+            motivo:
+              {
+                type: string,
+                examples:
+                  [
+                    'PF não contribuinte: 2 imóveis alugados (≤ 3) e receita anual de R$ 96.000,00 (≤ R$ 240.000,00)',
+                  ],
+              }
+            criteriosAtendidos:
+              type: object
+              properties:
+                imoveisAcimaDoLimite: { type: boolean }
+                receitaAcimaDoLimite: { type: boolean }
+        baseCalculo:
+          type: object
+          properties:
+            reciboTotalCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+            encargosExcluidosCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+            baseBrutaCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+            redutorSocialCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+            baseLiquidaCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+        aliquotas: { $ref: '#/components/schemas/AliquotaAno' }
+        tributos:
+          type: object
+          properties:
+            cbsCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+            ibsCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+            totalCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+            creditosCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+            totalLiquidoCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+        comparativo:
+          type: object
+          description: Pré vs. pós-reforma — Carnê-Leão (PF) ou PIS/COFINS cumulativo a 3,65% (PJ Lucro Presumido)
+          properties:
+            regimeAnteriorCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+            regimeNovoCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+            variacaoPercentual: { type: number }
+        laudo: { $ref: '#/components/schemas/LaudoAuditoria' }
+
+    LaudoAuditoria:
+      type: object
+      description: Parecer técnico com memória de cálculo. Requisito NFR-01.
+      properties:
+        versaoMotor: { type: string, examples: ['1.4.0'] }
+        geradoEm: { type: string, format: date-time }
+        memoriaCalculo:
+          type: array
+          items:
+            type: object
+            properties:
+              passo: { type: integer }
+              descricao: { type: string }
+              formula: { type: string }
+              resultadoCentavos: { type: integer }
+        baseLegal:
+          type: array
+          items:
+            type: object
+            properties:
+              norma: { type: string, examples: ['LC 214/2025'] }
+              artigo: { type: string, examples: ['Art. 260'] }
+              aplicacao: { type: string }
+        notasConformidade:
+          type: array
+          items: { type: string }
+
+    AliquotaAno:
+      type: object
+      properties:
+        ano: { $ref: '#/components/schemas/AnoTransicao' }
+        fase: { type: string, examples: ['Regime definitivo pleno'] }
+        cbsNominal: { type: number }
+        ibsNominal: { type: number }
+        fatorTransicao: { type: string }
+        cbsEfetiva: { type: number }
+        ibsEfetiva: { type: number }
+        totalEfetivo: { type: number, examples: [7.95] }
+
+    CarteiraResultado:
+      type: object
+      properties:
+        enquadramento: { $ref: '#/components/schemas/SimulacaoResultado/properties/enquadramento' }
+        totalImoveisAlugados: { type: integer }
+        receitaAnualCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+        tributoAnualCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+        porImovel:
+          type: array
+          items:
+            type: object
+            properties:
+              imovelId: { $ref: '#/components/schemas/RecordId' }
+              destinacao: { type: string, enum: [residencial, comercial] }
+              baseLiquidaCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+              tributoCentavos: { $ref: '#/components/schemas/ValorCentavos' }
+        laudo: { $ref: '#/components/schemas/LaudoAuditoria' }
+
+    Convite:
+      type: object
+      properties:
+        id: { $ref: '#/components/schemas/RecordId' }
+        email: { type: string, format: email }
+        perfil: { type: string, enum: [administrador, usuario] }
+        status: { type: string, enum: [pendente, aceito, cancelado, expirado] }
+        dataExpiracao: { type: string, format: date-time }
+        criadoPor: { $ref: '#/components/schemas/RecordId' }
+
+    LogAtividade:
+      type: object
+      properties:
+        id: { $ref: '#/components/schemas/RecordId' }
+        usuarioId: { $ref: '#/components/schemas/RecordId' }
+        acao: { type: string, examples: [criou, editou, removeu] }
+        entidade: { type: string, examples: [imovel, contrato, receita] }
+        detalhes:
+          {
+            type: string,
+            description: Rótulo legível. Nunca contém credencial,
+            token,
+            chave de API ou dado bancário completo.,
+          }
+        created: { type: string, format: date-time }
+
+    PaginatedImoveis:
+      allOf:
+        - $ref: '#/components/schemas/Paginacao'
+        - type: object
+          properties:
+            items:
+              type: array
+              items: { $ref: '#/components/schemas/Imovel' }
+
+    PaginatedInquilinos:
+      allOf:
+        - $ref: '#/components/schemas/Paginacao'
+        - type: object
+          properties:
+            items:
+              type: array
+              items: { $ref: '#/components/schemas/Inquilino' }
+
+    PaginatedContratos:
+      allOf:
+        - $ref: '#/components/schemas/Paginacao'
+        - type: object
+          properties:
+            items:
+              type: array
+              items: { $ref: '#/components/schemas/Contrato' }
+
+    PaginatedReceitas:
+      allOf:
+        - $ref: '#/components/schemas/Paginacao'
+        - type: object
+          properties:
+            items:
+              type: array
+              items: { $ref: '#/components/schemas/Receita' }
+
+    PaginatedDespesas:
+      allOf:
+        - $ref: '#/components/schemas/Paginacao'
+        - type: object
+          properties:
+            items:
+              type: array
+              items: { $ref: '#/components/schemas/Despesa' }
+
+    PaginatedIptuTaxas:
+      allOf:
+        - $ref: '#/components/schemas/Paginacao'
+        - type: object
+          properties:
+            items:
+              type: array
+              items: { $ref: '#/components/schemas/IptuTaxa' }
+
+    PaginatedImportacoes:
+      allOf:
+        - $ref: '#/components/schemas/Paginacao'
+        - type: object
+          properties:
+            items:
+              type: array
+              items: { $ref: '#/components/schemas/Importacao' }
+
+    PaginatedTransacoes:
+      allOf:
+        - $ref: '#/components/schemas/Paginacao'
+        - type: object
+          properties:
+            items:
+              type: array
+              items: { $ref: '#/components/schemas/TransacaoImportada' }
+
+    PaginatedUsuarios:
+      allOf:
+        - $ref: '#/components/schemas/Paginacao'
+        - type: object
+          properties:
+            items:
+              type: array
+              items: { $ref: '#/components/schemas/UsuarioAtual' }
+
+    PaginatedLogs:
+      allOf:
+        - $ref: '#/components/schemas/Paginacao'
+        - type: object
+          properties:
+            items:
+              type: array
+              items: { $ref: '#/components/schemas/LogAtividade' }

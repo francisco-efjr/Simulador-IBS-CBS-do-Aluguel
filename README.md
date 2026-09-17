@@ -4,11 +4,11 @@ Sistema de gestão imobiliária e controle financeiro, publicado em
 **[fjin.work](https://fjin.work/)**. Inclui o **Simulador IBS/CBS da locação**
 como módulo em `/simulador`.
 
-> **Modo demonstração.** A aplicação roda inteiramente no navegador, sobre dados
-> fictícios. **Qualquer e-mail e senha fazem login** — não há backend, não há
-> credencial válida ou inválida. É uma vitrine navegável, não um controle de
-> acesso. Veja [Modo demonstração](#modo-demonstração) antes de publicar isto
-> com dados reais.
+> **Em fase de desenvolvimento.** A raiz do site mostra um quadro público de
+> andamento (arquivo `src/pages/StatusDesenvolvimento.tsx`, temporário) e o
+> painel do sistema vive em `/inicio`. O banco de produção no Supabase está
+> criado e vazio, à espera dos dados reais da holding — ver
+> [`supabase/README.md`](supabase/README.md).
 
 ---
 
@@ -18,7 +18,7 @@ como módulo em `/simulador`.
 - **Tailwind CSS 3** + **shadcn/ui** (Radix)
 - **React Router 7**, **React Hook Form**, **Zod**, **Recharts**
 - **Vitest** para a suíte do motor de cálculo tributário
-- **PocketBase** como backend real (hoje desligado — ver abaixo)
+- **Supabase** (Postgres + Auth + Storage + Realtime) como backend
 
 ## Como rodar
 
@@ -112,36 +112,49 @@ documentadas em [`docs/simulador.md`](docs/simulador.md).
 
 ---
 
-## Modo demonstração
+## Backend
 
-O cliente do PocketBase em [`src/lib/pocketbase/client.ts`](src/lib/pocketbase/client.ts)
-resolve para uma implementação falsa em [`src/lib/mock/`](src/lib/mock):
+O banco é um projeto **Supabase**: Postgres com Row Level Security, autenticação,
+arquivos em buckets privados e tempo real. As migrações versionadas e o que cada
+uma faz estão em [`supabase/`](supabase/README.md).
 
-- **`dataset.ts`** — 8 imóveis, 8 inquilinos, 7 contratos, 51 receitas, 18
-  despesas, 10 obrigações de IPTU, extratos e auditoria. As datas são calculadas
-  a partir de hoje, então alertas e gráficos continuam coerentes com o
-  calendário em qualquer dia.
-- **`client.ts`** — implementa `getFullList`/`getList`/`getOne`, `create`,
-  `update`, `delete`, `expand` (inclusive aninhado), `sort`, `filter`, realtime
-  e `authStore`. Nenhum service ou página sabe que não há backend.
-- **`filter.ts`** — avaliador da sintaxe de filtro do PocketBase.
-
-As alterações feitas durante a navegação ficam no `localStorage`: criar um
-imóvel e recarregar a página não desfaz o que foi feito. Para voltar ao estado
-inicial, limpe o armazenamento do site ou chame `resetMockDatabase()`.
-
-### Voltar a usar o PocketBase de verdade
-
-O schema versionado continua no repositório: 17 migrations e 23 hooks em
-[`pocketbase/`](pocketbase) (auditoria por domínio, crons de inadimplência,
-fluxo de convite e recuperação de senha).
+Para rodar, copie `.env.example` para `.env` e preencha:
 
 ```bash
-VITE_USE_MOCK=false VITE_POCKETBASE_URL=https://seu-pocketbase pnpm build
+cp .env.example .env
 ```
 
-Com `VITE_USE_MOCK=false` a aplicação volta a falar com o servidor, e o login
-passa a exigir credenciais válidas de novo.
+| Variável | O que é |
+| --- | --- |
+| `VITE_SUPABASE_URL` | Endereço do projeto |
+| `VITE_SUPABASE_ANON_KEY` | Chave publicável — feita para viver no navegador |
+
+Sem essas duas variáveis a aplicação não sobe: erra no boot, em vez de subir
+sobre dados falsos aceitando qualquer senha, que era o comportamento anterior e
+o achado **S-03** da auditoria.
+
+A camada de dados fica em [`src/lib/dados/`](src/lib/dados):
+
+- **`supabase.ts`** — o cliente.
+- **`cliente.ts`** — `colecao(tabela)` com `getFullList`/`getList`/`getOne`,
+  `create`, `update`, `delete`. Traduz `expand` para relação embutida do
+  PostgREST e devolve o registro no formato que as telas já conheciam.
+- **`arquivos.ts`** — envio para bucket privado e link assinado de validade curta.
+- **`esquema.ts`** — mapa de relações e de campos de arquivo. É o único lugar a
+  mexer quando entra uma relação nova.
+
+### Quem pode o quê
+
+As 12 permissões de módulo vivem na tabela `permissoes` e são avaliadas **pelo
+banco**, em toda consulta. A tela usa as mesmas regras apenas para decidir o que
+desenhar: se as duas discordarem, quem decide é o banco.
+
+### O PocketBase anterior
+
+O schema e os hooks do backend anterior seguem versionados em
+[`pocketbase/`](pocketbase) como referência histórica — 17 migrações e 23 hooks.
+Nada na aplicação os usa. A tradução de cada regra para o Postgres está descrita
+em [`supabase/README.md`](supabase/README.md).
 
 ---
 

@@ -34,7 +34,7 @@ import {
   Pie,
   Cell,
 } from 'recharts'
-import pb from '@/lib/pocketbase/client'
+import dados from '@/lib/dados/cliente'
 import { formatCurrency } from '@/lib/format'
 import { useRealtime } from '@/hooks/use-realtime'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -239,11 +239,11 @@ export default function DashboardFinanceiro() {
   const loadOptions = useCallback(async () => {
     try {
       const [imoveisData, categoriasData] = await Promise.all([
-        pb.collection('imoveis').getFullList<ImovelItem>({
+        dados.colecao('imoveis').getFullList<ImovelItem>({
           sort: 'nome,codigo,endereco',
         }),
-        pb.collection('categorias_financeiras').getFullList<CategoriaItem>({
-          filter: 'status != "inativo"',
+        dados.colecao('categorias_financeiras').getFullList<CategoriaItem>({
+          where: [['status', '!=', 'inativo']],
           sort: 'nome',
         }),
       ])
@@ -261,11 +261,11 @@ export default function DashboardFinanceiro() {
       setError(null)
 
       const [recData, despData] = await Promise.all([
-        pb.collection('receitas').getFullList<ReceitaItem>({
+        dados.colecao('receitas').getFullList<ReceitaItem>({
           sort: '-created',
           expand: 'imovel,categoria,inquilino,contrato',
         }),
-        pb.collection('despesas').getFullList<DespesaItem>({
+        dados.colecao('despesas').getFullList<DespesaItem>({
           sort: '-created',
           expand: 'imovel,categoria,fornecedor',
         }),

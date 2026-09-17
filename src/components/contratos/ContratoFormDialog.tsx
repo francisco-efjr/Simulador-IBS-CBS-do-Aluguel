@@ -21,7 +21,7 @@ import { createContrato, updateContrato } from '@/services/contratos'
 import { getImoveis } from '@/services/imoveis'
 import { getInquilinos } from '@/services/inquilinos'
 import { TIPO_GARANTIA_LABELS, STATUS_CONTRATO_LABELS } from '@/lib/format'
-import { extractFieldErrors, type FieldErrors } from '@/lib/pocketbase/errors'
+import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
 import { toast } from 'sonner'
 
 const EMPTY = {

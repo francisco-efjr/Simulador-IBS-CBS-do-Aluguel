@@ -19,7 +19,7 @@ import {
 import { Field } from '@/components/shared/Field'
 import { createFornecedor, updateFornecedor } from '@/services/fornecedores'
 import { TIPO_FORNECEDOR_LABELS } from '@/lib/format'
-import { extractFieldErrors, type FieldErrors } from '@/lib/pocketbase/errors'
+import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
 import { toast } from 'sonner'
 
 const EMPTY = {

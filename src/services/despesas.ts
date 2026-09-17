@@ -1,17 +1,17 @@
-import pb from '@/lib/pocketbase/client'
+import { colecao } from '@/lib/dados/cliente'
 
 export const getDespesas = () =>
-  pb.collection('despesas').getFullList({
+  colecao('despesas').getFullList({
     sort: '-created',
     expand: 'imovel,fornecedor,categoria',
   })
 
 export const getDespesa = (id: string) =>
-  pb.collection('despesas').getOne(id, { expand: 'imovel,fornecedor,categoria' })
+  colecao('despesas').getOne(id, { expand: 'imovel,fornecedor,categoria' })
 
-export const createDespesa = (data: Record<string, any>) => pb.collection('despesas').create(data)
+export const createDespesa = (data: Record<string, any>) => colecao('despesas').create(data)
 
 export const updateDespesa = (id: string, data: Record<string, any>) =>
-  pb.collection('despesas').update(id, data)
+  colecao('despesas').update(id, data)
 
-export const deleteDespesa = (id: string) => pb.collection('despesas').delete(id)
+export const deleteDespesa = (id: string) => colecao('despesas').delete(id)

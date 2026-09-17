@@ -1,31 +1,39 @@
-import React, { useState } from 'react';
-import { Sliders, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
-import { TaxParameters } from '../../core/domain/types.ts';
-import { DEFAULT_TAX_PARAMETERS } from '../../core/domain/constants.ts';
-import { BRLInput } from './BRLInput.tsx';
+import React, { useState } from 'react'
+import { Sliders, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react'
+import { TaxParameters } from '../../core/domain/types.ts'
+import { DEFAULT_TAX_PARAMETERS } from '../../core/domain/constants.ts'
+import { BRLInput } from './BRLInput.tsx'
 
 interface TaxParametersCardProps {
-  params: TaxParameters;
-  onChange: (params: TaxParameters) => void;
+  params: TaxParameters
+  onChange: (params: TaxParameters) => void
 }
 
 export const TaxParametersCard: React.FC<TaxParametersCardProps> = ({ params, onChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
 
   const handleReset = () => {
-    onChange({ ...DEFAULT_TAX_PARAMETERS });
-  };
+    onChange({ ...DEFAULT_TAX_PARAMETERS })
+  }
 
-  const calculatedEffectiveRate = (params.referenceRate * (1 - params.realEstateDiscountPercent / 100)).toFixed(2);
+  const calculatedEffectiveRate = (
+    params.referenceRate *
+    (1 - params.realEstateDiscountPercent / 100)
+  ).toFixed(2)
 
   return (
     <div className="bg-surface border border-sim-border rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition-all">
-      <div 
- className="flex items-center justify-between cursor-pointer select-none" 
+      <div
+        className="flex items-center justify-between cursor-pointer select-none"
         onClick={() => setIsOpen(!isOpen)}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsOpen(!isOpen); } }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            setIsOpen(!isOpen)
+          }
+        }}
         aria-expanded={isOpen}
       >
         <div className="flex items-center gap-3">
@@ -42,7 +50,18 @@ export const TaxParametersCard: React.FC<TaxParametersCardProps> = ({ params, on
               </span>
             </div>
             <p className="text-xs text-text-secondary mt-0.5">
-              Alíquota-base de referência: <span className="font-sim-mono font-medium text-text-primary">{params.referenceRate}%</span> &bull; Redução setorial: <span className="font-sim-mono font-medium text-text-primary">{params.realEstateDiscountPercent}%</span> &bull; Alíquota efetiva base: <span className="text-positive-text font-semibold font-sim-mono">{calculatedEffectiveRate}%</span>
+              Alíquota-base de referência:{' '}
+              <span className="font-sim-mono font-medium text-text-primary">
+                {params.referenceRate}%
+              </span>{' '}
+              &bull; Redução setorial:{' '}
+              <span className="font-sim-mono font-medium text-text-primary">
+                {params.realEstateDiscountPercent}%
+              </span>{' '}
+              &bull; Alíquota efetiva base:{' '}
+              <span className="text-positive-text font-semibold font-sim-mono">
+                {calculatedEffectiveRate}%
+              </span>
             </p>
           </div>
         </div>
@@ -51,10 +70,10 @@ export const TaxParametersCard: React.FC<TaxParametersCardProps> = ({ params, on
           <button
             type="button"
             onClick={(e) => {
-              e.stopPropagation();
-              handleReset();
+              e.stopPropagation()
+              handleReset()
             }}
- className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs text-text-primary bg-surface-muted hover:bg-surface-muted border border-sim-border rounded-full transition-all focus-visible:ring-2 focus-visible:ring-accent-bg/40"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs text-text-primary bg-surface-muted hover:bg-surface-muted border border-sim-border rounded-full transition-all focus-visible:ring-2 focus-visible:ring-accent-bg/40"
             title="Restaurar parâmetros oficiais da LC 214/2025"
           >
             <RotateCcw className="w-3.5 h-3.5 text-text-secondary" />
@@ -79,7 +98,7 @@ export const TaxParametersCard: React.FC<TaxParametersCardProps> = ({ params, on
                 placeholder="0,0"
                 min={0}
                 max={100}
-                              />
+              />
               <span className="text-xs text-text-muted mt-1.5 block">Teto sugerido: 26,5%</span>
             </div>
 
@@ -93,8 +112,10 @@ export const TaxParametersCard: React.FC<TaxParametersCardProps> = ({ params, on
                 placeholder="0"
                 min={0}
                 max={100}
-                              />
-              <span className="text-xs text-text-muted mt-1.5 block">Art. 260 LC 214/2025: 70%</span>
+              />
+              <span className="text-xs text-text-muted mt-1.5 block">
+                Art. 260 LC 214/2025: 70%
+              </span>
             </div>
 
             <div className="bg-surface-muted p-3.5 rounded-2xl border border-sim-border">
@@ -106,8 +127,10 @@ export const TaxParametersCard: React.FC<TaxParametersCardProps> = ({ params, on
                 onChange={(val) => onChange({ ...params, socialDeductionResidential: val })}
                 placeholder="0,00"
                 min={0}
-                              />
-              <span className="text-xs text-text-muted mt-1.5 block">Dedução mensal: R$ 600,00</span>
+              />
+              <span className="text-xs text-text-muted mt-1.5 block">
+                Dedução mensal: R$ 600,00
+              </span>
             </div>
 
             <div className="bg-surface-muted p-3.5 rounded-2xl border border-sim-border">
@@ -119,8 +142,10 @@ export const TaxParametersCard: React.FC<TaxParametersCardProps> = ({ params, on
                 onChange={(val) => onChange({ ...params, pfPropertyThreshold: val })}
                 placeholder="0"
                 min={1}
-                              />
-              <span className="text-xs text-text-muted mt-1.5 block">Não-contribuinte: até 3 imóveis locados (Art. 4º, §2º)</span>
+              />
+              <span className="text-xs text-text-muted mt-1.5 block">
+                Não-contribuinte: até 3 imóveis locados (Art. 4º, §2º)
+              </span>
             </div>
 
             <div className="bg-surface-muted p-3.5 rounded-2xl border border-sim-border">
@@ -132,12 +157,14 @@ export const TaxParametersCard: React.FC<TaxParametersCardProps> = ({ params, on
                 onChange={(val) => onChange({ ...params, pfAnnualIncomeThreshold: val })}
                 placeholder="0,00"
                 min={0}
-                              />
-              <span className="text-xs text-text-muted mt-1.5 block">Limite MEI/Simples: R$ 240k</span>
+              />
+              <span className="text-xs text-text-muted mt-1.5 block">
+                Limite MEI/Simples: R$ 240k
+              </span>
             </div>
           </div>
         </div>
       )}
     </div>
-  );
-};
+  )
+}

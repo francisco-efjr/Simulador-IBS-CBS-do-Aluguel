@@ -1,4 +1,4 @@
-import pb from '@/lib/pocketbase/client'
+import { colecao, type Filtro } from '@/lib/dados/cliente'
 import type { ContaBancaria } from './contas-bancarias'
 
 export interface Importacao {
@@ -49,69 +49,53 @@ export interface TransacaoImportada {
 }
 
 export const getImportacoes = () =>
-  pb.collection('importacoes').getFullList<Importacao>({
+  colecao('importacoes').getFullList<Importacao>({
     sort: '-created',
     expand: 'conta_bancaria',
   })
 
 export const getImportacao = (id: string) =>
-  pb.collection('importacoes').getOne<Importacao>(id, {
+  colecao('importacoes').getOne<Importacao>(id, {
     expand: 'conta_bancaria',
   })
 
 export const createImportacao = (data: Partial<Importacao>) =>
-  pb.collection('importacoes').create<Importacao>(data)
+  colecao('importacoes').create<Importacao>(data)
 
 export const updateImportacao = (id: string, data: Partial<Importacao>) =>
-  pb.collection('importacoes').update<Importacao>(id, data)
+  colecao('importacoes').update<Importacao>(id, data)
 
-export const deleteImportacao = async (id: string) => {
-  // Cascading cleanup of associated transactions
-  try {
-    const trans = await pb.collection('transacoes_importadas').getFullList({
-      filter: `importacao = "${id}"`,
-      fields: 'id',
-    })
-    for (const t of trans) {
-      await pb
-        .collection('transacoes_importadas')
-        .delete(t.id)
-        .catch(() => {})
-    }
-  } catch {
-    /* intentionally ignored */
-  }
-  return pb.collection('importacoes').delete(id)
-}
+// As transações do lote caem junto: a chave estrangeira é ON DELETE CASCADE,
+// então a limpeza é do banco e não de um laço no navegador que pode parar no meio.
+export const deleteImportacao = (id: string) => colecao('importacoes').delete(id)
 
 export const getTransacoesImportadas = (importacaoId?: string, onlyUnclassified = false) => {
-  const filters: string[] = []
-  if (importacaoId) filters.push(`importacao = "${importacaoId}"`)
-  if (onlyUnclassified) filters.push(`classificada = false && ignorada = false`)
+  const where: Filtro[] = []
+  if (importacaoId) where.push(['importacao', '=', importacaoId])
+  if (onlyUnclassified) where.push(['classificada', '=', false], ['ignorada', '=', false])
 
-  return pb.collection('transacoes_importadas').getFullList<TransacaoImportada>({
-    filter: filters.join(' && '),
+  return colecao('transacoes_importadas').getFullList<TransacaoImportada>({
+    where,
     sort: '-data,created',
     expand: 'importacao.conta_bancaria',
   })
 }
 
 export const getHistoricoTransacoesClassificadas = () =>
-  pb.collection('transacoes_importadas').getFullList<TransacaoImportada>({
-    filter: 'classificada = true',
+  colecao('transacoes_importadas').getFullList<TransacaoImportada>({
+    where: [['classificada', '=', true]],
     sort: '-created',
   })
 
 export const getAllTransacoesImportadas = () =>
-  pb.collection('transacoes_importadas').getFullList<TransacaoImportada>({
+  colecao('transacoes_importadas').getFullList<TransacaoImportada>({
     sort: '-data',
   })
 
 export const createTransacaoImportada = (data: Partial<TransacaoImportada>) =>
-  pb.collection('transacoes_importadas').create<TransacaoImportada>(data)
+  colecao('transacoes_importadas').create<TransacaoImportada>(data)
 
 export const updateTransacaoImportada = (id: string, data: Partial<TransacaoImportada>) =>
-  pb.collection('transacoes_importadas').update<TransacaoImportada>(id, data)
+  colecao('transacoes_importadas').update<TransacaoImportada>(id, data)
 
-export const deleteTransacaoImportada = (id: string) =>
-  pb.collection('transacoes_importadas').delete(id)
+export const deleteTransacaoImportada = (id: string) => colecao('transacoes_importadas').delete(id)

@@ -23,7 +23,7 @@ import { getInquilinos } from '@/services/inquilinos'
 import { getContratos } from '@/services/contratos'
 import { getCategoriasReceita } from '@/services/categorias-financeiras'
 import { STATUS_RECEITA_LABELS, FORMA_RECEBIMENTO_LABELS } from '@/lib/format'
-import { extractFieldErrors, type FieldErrors } from '@/lib/pocketbase/errors'
+import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
 import { toast } from 'sonner'
 
 const EMPTY = {

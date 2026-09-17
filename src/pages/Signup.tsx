@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { extractFieldErrors } from '@/lib/pocketbase/errors'
+import { extractFieldErrors } from '@/lib/dados/erros'
 import { validarConviteToken } from '@/services/convites'
 import darkLogo from '@/assets/chatgpt-image-aug-7-2026-061737-pm-5-f38c6.png'
 import { toast } from 'sonner'
@@ -116,7 +116,7 @@ export default function Signup() {
       }
     } else {
       toast.success('Conta ativada com sucesso! Bem-vindo(a) à Holding Aguiar.')
-      navigate('/', { replace: true })
+      navigate('/inicio', { replace: true })
     }
   }
 

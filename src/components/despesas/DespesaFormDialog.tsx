@@ -22,7 +22,7 @@ import { getImoveis } from '@/services/imoveis'
 import { getFornecedores } from '@/services/fornecedores'
 import { getCategoriasDespesa } from '@/services/categorias-financeiras'
 import { STATUS_DESPESA_LABELS, FORMA_PAGAMENTO_LABELS } from '@/lib/format'
-import { extractFieldErrors, type FieldErrors } from '@/lib/pocketbase/errors'
+import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
 import { toast } from 'sonner'
 
 const EMPTY = {

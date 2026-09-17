@@ -1,4 +1,4 @@
-import pb from '@/lib/pocketbase/client'
+import { colecao, type Filtro } from '@/lib/dados/cliente'
 
 export interface LogAtividadeRecord {
   id: string
@@ -44,47 +44,28 @@ export interface GetLogsResponse {
 export async function getLogsAtividade(options: GetLogsOptions = {}): Promise<GetLogsResponse> {
   const { page = 1, perPage = 25, usuario, acao, entidade, dataInicio, dataFim, search } = options
 
-  const filterParts: string[] = []
+  const where: Filtro[] = []
 
-  if (usuario && usuario !== 'todos') {
-    filterParts.push(`usuario = '${usuario.replace(/'/g, "''")}'`)
-  }
+  if (usuario && usuario !== 'todos') where.push(['usuario', '=', usuario])
+  if (acao && acao !== 'todas') where.push(['acao', '=', acao])
+  if (entidade && entidade !== 'todas') where.push(['entidade', '=', entidade])
+  if (dataInicio) where.push(['created', '>=', `${dataInicio}T00:00:00`])
+  if (dataFim) where.push(['created', '<=', `${dataFim}T23:59:59`])
 
-  if (acao && acao !== 'todas') {
-    filterParts.push(`acao = '${acao.replace(/'/g, "''")}'`)
-  }
+  // A busca livre varre os três campos de texto. O termo vai escapado: vírgula
+  // e parêntese são separadores na sintaxe do PostgREST e quebrariam a consulta.
+  const termo = search
+    ?.trim()
+    .replace(/[,()*]/g, ' ')
+    .trim()
+  const ou = termo
+    ? `detalhes.ilike.*${termo}*,acao.ilike.*${termo}*,entidade.ilike.*${termo}*`
+    : undefined
 
-  if (entidade && entidade !== 'todas') {
-    filterParts.push(`entidade = '${entidade.replace(/'/g, "''")}'`)
-  }
-
-  if (dataInicio) {
-    filterParts.push(`created >= '${dataInicio} 00:00:00'`)
-  }
-
-  if (dataFim) {
-    filterParts.push(`created <= '${dataFim} 23:59:59'`)
-  }
-
-  if (search && search.trim()) {
-    const s = search.trim().replace(/'/g, "''")
-    filterParts.push(`(detalhes ~ '${s}' || acao ~ '${s}' || entidade ~ '${s}')`)
-  }
-
-  const filter = filterParts.length > 0 ? filterParts.join(' && ') : ''
-
-  const res = await pb.collection('logs_atividade').getList<LogAtividadeRecord>(page, perPage, {
-    filter,
+  return colecao('logs_atividade').getList<LogAtividadeRecord>(page, perPage, {
+    where,
+    ou,
     sort: '-created',
     expand: 'usuario',
-    requestKey: null,
   })
-
-  return {
-    items: res.items,
-    page: res.page,
-    perPage: res.perPage,
-    totalItems: res.totalItems,
-    totalPages: res.totalPages,
-  }
 }

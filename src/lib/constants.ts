@@ -134,7 +134,7 @@ export const MODULOS_SISTEMA: ModuloInfo[] = [
 export const MODULES_LIST: MenuItem[] = [
   {
     title: 'Início',
-    path: '/',
+    path: '/inicio',
     icon: Home,
     description: 'Visão geral e acesso rápido aos módulos',
   },

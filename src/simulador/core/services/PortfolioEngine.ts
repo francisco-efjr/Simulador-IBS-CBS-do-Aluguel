@@ -4,36 +4,36 @@ import {
   PortfolioItem,
   TaxParameters,
   TransitionYear,
-} from '../domain/types.ts';
-import { DEFAULT_TAX_PARAMETERS } from '../domain/constants.ts';
-import { FinancialMath } from '../domain/FinancialMath.ts';
-import { TaxCalculatorEngine } from './TaxCalculatorEngine.ts';
+} from '../domain/types.ts'
+import { DEFAULT_TAX_PARAMETERS } from '../domain/constants.ts'
+import { FinancialMath } from '../domain/FinancialMath.ts'
+import { TaxCalculatorEngine } from './TaxCalculatorEngine.ts'
 
 export interface PortfolioSummary {
-  totalProperties: number;
-  totalUnits: number;
-  residentialCount: number;
-  residentialUnitsCount: number;
-  commercialCount: number;
-  commercialUnitsCount: number;
-  transitionYear: TransitionYear;
-  totalMonthlyRent: number;
-  totalAnnualRent: number;
-  totalMonthlyExcludedCharges: number;
-  totalMonthlyManagementFee: number;
-  isLandlordTaxpayer: boolean;
-  enquadramentoReason: string;
-  totalMonthlySocialDeduction: number;
-  totalMonthlyTaxableBase: number;
-  totalMonthlyIBSCBS: number;
-  totalAnnualIBSCBS: number;
-  totalNetIfPassed: number;
-  totalNetIfAbsorbed: number;
-  effectiveAverageRate: number;
+  totalProperties: number
+  totalUnits: number
+  residentialCount: number
+  residentialUnitsCount: number
+  commercialCount: number
+  commercialUnitsCount: number
+  transitionYear: TransitionYear
+  totalMonthlyRent: number
+  totalAnnualRent: number
+  totalMonthlyExcludedCharges: number
+  totalMonthlyManagementFee: number
+  isLandlordTaxpayer: boolean
+  enquadramentoReason: string
+  totalMonthlySocialDeduction: number
+  totalMonthlyTaxableBase: number
+  totalMonthlyIBSCBS: number
+  totalAnnualIBSCBS: number
+  totalNetIfPassed: number
+  totalNetIfAbsorbed: number
+  effectiveAverageRate: number
   propertyBreakdowns: Array<{
-    item: PortfolioItem;
-    calculation: CalculationResult;
-  }>;
+    item: PortfolioItem
+    calculation: CalculationResult
+  }>
 }
 
 /**
@@ -45,10 +45,10 @@ export class PortfolioEngine {
     items: PortfolioItem[],
     isPJ: boolean = false,
     params: TaxParameters = DEFAULT_TAX_PARAMETERS,
-    year?: TransitionYear
+    year?: TransitionYear,
   ): PortfolioSummary {
-    const totalProperties = items.length;
-    const transitionYear = year ?? params.transitionYear ?? 2033;
+    const totalProperties = items.length
+    const transitionYear = year ?? params.transitionYear ?? 2033
 
     if (totalProperties === 0) {
       return {
@@ -73,37 +73,40 @@ export class PortfolioEngine {
         totalNetIfAbsorbed: 0,
         effectiveAverageRate: 0,
         propertyBreakdowns: [],
-      };
+      }
     }
 
-    const getItemUnits = (item: PortfolioItem) => (item.unitsCount && item.unitsCount > 0 ? item.unitsCount : 1);
-    const totalUnits = items.reduce((acc, item) => acc + getItemUnits(item), 0);
-    const residentialCount = items.filter((i) => i.propertyType === 'residential').length;
+    const getItemUnits = (item: PortfolioItem) =>
+      item.unitsCount && item.unitsCount > 0 ? item.unitsCount : 1
+    const totalUnits = items.reduce((acc, item) => acc + getItemUnits(item), 0)
+    const residentialCount = items.filter((i) => i.propertyType === 'residential').length
     const residentialUnitsCount = items
       .filter((i) => i.propertyType === 'residential')
-      .reduce((acc, item) => acc + getItemUnits(item), 0);
-    const commercialCount = items.filter((i) => i.propertyType === 'commercial').length;
+      .reduce((acc, item) => acc + getItemUnits(item), 0)
+    const commercialCount = items.filter((i) => i.propertyType === 'commercial').length
     const commercialUnitsCount = items
       .filter((i) => i.propertyType === 'commercial')
-      .reduce((acc, item) => acc + getItemUnits(item), 0);
+      .reduce((acc, item) => acc + getItemUnits(item), 0)
 
-    const totalMonthlyRent = FinancialMath.round(items.reduce((acc, item) => acc + item.monthlyRent, 0));
-    const totalAnnualRent = FinancialMath.round(totalMonthlyRent * 12);
+    const totalMonthlyRent = FinancialMath.round(
+      items.reduce((acc, item) => acc + item.monthlyRent, 0),
+    )
+    const totalAnnualRent = FinancialMath.round(totalMonthlyRent * 12)
     const totalMonthlyExcludedCharges = FinancialMath.round(
-      items.reduce((acc, item) => acc + (item.condominiumFee ?? 0) + (item.iptuAmount ?? 0), 0)
-    );
+      items.reduce((acc, item) => acc + (item.condominiumFee ?? 0) + (item.iptuAmount ?? 0), 0),
+    )
 
     const landlordProfile: LandlordProfile = {
       personType: isPJ ? 'pj' : 'pf',
       totalPropertiesRented: totalUnits,
       totalAnnualRentalIncome: totalAnnualRent,
       managementFeePercent: 10.0,
-    };
+    }
 
-    let totalMonthlySocialDeduction = 0;
-    let totalMonthlyTaxableBase = 0;
-    let totalMonthlyIBSCBS = 0;
-    let totalMonthlyManagementFee = 0;
+    let totalMonthlySocialDeduction = 0
+    let totalMonthlyTaxableBase = 0
+    let totalMonthlyIBSCBS = 0
+    let totalMonthlyManagementFee = 0
 
     const propertyBreakdowns = items.map((item) => {
       const calculation = TaxCalculatorEngine.calculateContract(
@@ -117,33 +120,35 @@ export class PortfolioEngine {
           tenant: { personType: item.tenantType },
           unitsCount: getItemUnits(item),
         },
-        params
-      );
+        params,
+      )
 
-      totalMonthlySocialDeduction = FinancialMath.sum(totalMonthlySocialDeduction, calculation.socialDeductionApplied);
-      totalMonthlyTaxableBase = FinancialMath.sum(totalMonthlyTaxableBase, calculation.taxableBase);
-      totalMonthlyIBSCBS = FinancialMath.sum(totalMonthlyIBSCBS, calculation.totalTaxDue);
+      totalMonthlySocialDeduction = FinancialMath.sum(
+        totalMonthlySocialDeduction,
+        calculation.socialDeductionApplied,
+      )
+      totalMonthlyTaxableBase = FinancialMath.sum(totalMonthlyTaxableBase, calculation.taxableBase)
+      totalMonthlyIBSCBS = FinancialMath.sum(totalMonthlyIBSCBS, calculation.totalTaxDue)
       totalMonthlyManagementFee = FinancialMath.sum(
         totalMonthlyManagementFee,
-        calculation.landlordCredits.managementFeeAmount
-      );
+        calculation.landlordCredits.managementFeeAmount,
+      )
 
       return {
         item,
         calculation,
-      };
-    });
+      }
+    })
 
-    const isLandlordTaxpayer = propertyBreakdowns[0]?.calculation.enquadramento.isTaxpayer ?? false;
-    const enquadramentoReason = propertyBreakdowns[0]?.calculation.enquadramento.reason ?? '';
-    const totalAnnualIBSCBS = FinancialMath.round(totalMonthlyIBSCBS * 12);
+    const isLandlordTaxpayer = propertyBreakdowns[0]?.calculation.enquadramento.isTaxpayer ?? false
+    const enquadramentoReason = propertyBreakdowns[0]?.calculation.enquadramento.reason ?? ''
+    const totalAnnualIBSCBS = FinancialMath.round(totalMonthlyIBSCBS * 12)
     // Mesma semântica do cálculo por contrato: o líquido do locador é sempre
     // apurado após a comissão da imobiliária, com ou sem repasse do tributo.
-    const totalNetIfPassed = FinancialMath.subtract(totalMonthlyRent, totalMonthlyManagementFee);
-    const totalNetIfAbsorbed = FinancialMath.subtract(totalNetIfPassed, totalMonthlyIBSCBS);
-    const effectiveAverageRate = totalMonthlyRent > 0
-      ? FinancialMath.round((totalMonthlyIBSCBS / totalMonthlyRent) * 100)
-      : 0;
+    const totalNetIfPassed = FinancialMath.subtract(totalMonthlyRent, totalMonthlyManagementFee)
+    const totalNetIfAbsorbed = FinancialMath.subtract(totalNetIfPassed, totalMonthlyIBSCBS)
+    const effectiveAverageRate =
+      totalMonthlyRent > 0 ? FinancialMath.round((totalMonthlyIBSCBS / totalMonthlyRent) * 100) : 0
 
     return {
       totalProperties,
@@ -167,6 +172,6 @@ export class PortfolioEngine {
       totalNetIfAbsorbed,
       effectiveAverageRate,
       propertyBreakdowns,
-    };
+    }
   }
 }

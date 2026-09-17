@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   Lock,
   Eye,
@@ -16,13 +16,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { validarTokenReset, redefinirSenha } from '@/services/auth-recovery'
+import { validarLinkDeRecuperacao, redefinirSenha } from '@/services/auth-recovery'
 import darkLogo from '@/assets/chatgpt-image-aug-7-2026-061737-pm-5-f38c6.png'
 
 export default function RedefinirSenha() {
-  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const token = (searchParams.get('token') || '').trim()
 
   const [checkingToken, setCheckingToken] = useState(true)
   const [tokenValid, setTokenValid] = useState(false)
@@ -37,19 +35,14 @@ export default function RedefinirSenha() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [success, setSuccess] = useState(false)
 
-  // Validação preliminar do token no carregamento da página
+  // O link do e-mail traz a credencial no fragmento da URL; o cliente do
+  // Supabase a converte em sessão antes desta tela montar. Aqui só se confere
+  // se essa sessão existe.
   useEffect(() => {
-    if (!token) {
-      setCheckingToken(false)
-      setTokenValid(false)
-      setTokenErrorMsg('Link incompleto: nenhum código de token foi informado na URL.')
-      return
-    }
-
     let isMounted = true
     setCheckingToken(true)
 
-    validarTokenReset(token)
+    validarLinkDeRecuperacao()
       .then((res) => {
         if (!isMounted) return
         if (res.valid) {
@@ -57,15 +50,13 @@ export default function RedefinirSenha() {
           if (res.email) setAccountEmail(res.email)
         } else {
           setTokenValid(false)
-          setTokenErrorMsg(res.message || 'O link de recuperação informado é inválido ou expirou.')
+          setTokenErrorMsg(res.message || 'O link de recuperação é inválido ou expirou.')
         }
       })
-      .catch((err) => {
+      .catch(() => {
         if (!isMounted) return
         setTokenValid(false)
-        const msg =
-          err?.data?.message || err?.message || 'Link de recuperação expirado ou inválido.'
-        setTokenErrorMsg(msg)
+        setTokenErrorMsg('Link de recuperação expirado ou inválido.')
       })
       .finally(() => {
         if (isMounted) setCheckingToken(false)
@@ -74,7 +65,7 @@ export default function RedefinirSenha() {
     return () => {
       isMounted = false
     }
-  }, [token])
+  }, [])
 
   // Cálculo da força da senha
   const getPasswordStrength = (pwd: string) => {
@@ -117,7 +108,7 @@ export default function RedefinirSenha() {
 
     setSubmitting(true)
     try {
-      const res = await redefinirSenha(token, password, confirmPassword)
+      const res = await redefinirSenha(password)
       if (res.success) {
         setSuccess(true)
         toast.success('Senha redefinida com sucesso!')

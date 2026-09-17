@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { extractFieldErrors } from '@/lib/pocketbase/errors'
+import { extractFieldErrors } from '@/lib/dados/erros'
 import darkLogo from '@/assets/chatgpt-image-aug-7-2026-061737-pm-5-f38c6.png'
 
 export default function Login() {
@@ -22,7 +22,7 @@ export default function Login() {
   const { signIn } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/'
+  const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/inicio'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

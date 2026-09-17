@@ -12,12 +12,12 @@ export function formatBRL(value: number, decimals: number = 2): string {
     return (0).toLocaleString('pt-BR', {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
-    });
+    })
   }
   return value.toLocaleString('pt-BR', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-  });
+  })
 }
 
 /**
@@ -28,43 +28,43 @@ export function formatBRL(value: number, decimals: number = 2): string {
  * "" -> 0
  */
 export function parseBRL(raw: string): number {
-  if (!raw || typeof raw !== 'string') return 0;
-  
+  if (!raw || typeof raw !== 'string') return 0
+
   // Remove tudo exceto dígitos, vírgula, ponto e sinal de menos
-  const cleaned = raw.replace(/[^\d.,-]/g, '').trim();
-  if (!cleaned) return 0;
+  const cleaned = raw.replace(/[^\d.,-]/g, '').trim()
+  if (!cleaned) return 0
 
   // Se tiver vírgula e pontos: ex "1.234,56"
   if (cleaned.includes(',') && cleaned.includes('.')) {
-    const normalized = cleaned.replace(/\./g, '').replace(',', '.');
-    const parsed = parseFloat(normalized);
-    return isNaN(parsed) ? 0 : parsed;
+    const normalized = cleaned.replace(/\./g, '').replace(',', '.')
+    const parsed = parseFloat(normalized)
+    return isNaN(parsed) ? 0 : parsed
   }
 
   // Se tiver apenas vírgula: ex "1234,56" ou "3500,"
   if (cleaned.includes(',')) {
-    const normalized = cleaned.replace(',', '.');
-    const parsed = parseFloat(normalized);
-    return isNaN(parsed) ? 0 : parsed;
+    const normalized = cleaned.replace(',', '.')
+    const parsed = parseFloat(normalized)
+    return isNaN(parsed) ? 0 : parsed
   }
 
   // Se tiver apenas ponto:
   // Se tiver mais de 2 casas após o ponto ou múltiplos pontos: ex "1.000" ou "1.000.000" -> separador de milhar!
   if (cleaned.includes('.')) {
-    const parts = cleaned.split('.');
+    const parts = cleaned.split('.')
     if (parts.length > 2 || (parts[1] && parts[1].length === 3 && parts.length === 2)) {
       // É separador de milhar: "1.000" -> 1000
-      const parsed = parseFloat(cleaned.replace(/\./g, ''));
-      return isNaN(parsed) ? 0 : parsed;
+      const parsed = parseFloat(cleaned.replace(/\./g, ''))
+      return isNaN(parsed) ? 0 : parsed
     }
     // Caso contrário é decimal em notação comum "3500.50"
-    const parsed = parseFloat(cleaned);
-    return isNaN(parsed) ? 0 : parsed;
+    const parsed = parseFloat(cleaned)
+    return isNaN(parsed) ? 0 : parsed
   }
 
   // Apenas dígitos
-  const parsed = parseFloat(cleaned);
-  return isNaN(parsed) ? 0 : parsed;
+  const parsed = parseFloat(cleaned)
+  return isNaN(parsed) ? 0 : parsed
 }
 
 /**
@@ -81,39 +81,41 @@ export function parseBRL(raw: string): number {
  * - Suporta decimais = 0 (inteiros) e decimais customizados.
  * - Suporta valores negativos (sinal '-' preservado).
  */
-export function applyLiveBRLMask(raw: string, decimals: number = 2): { display: string; value: number } {
+export function applyLiveBRLMask(
+  raw: string,
+  decimals: number = 2,
+): { display: string; value: number } {
   if (!raw || raw.trim() === '') {
-    return { display: '', value: 0 };
+    return { display: '', value: 0 }
   }
 
-  const isNegative = raw.trim().startsWith('-');
-  const sign = isNegative ? '-' : '';
+  const isNegative = raw.trim().startsWith('-')
+  const sign = isNegative ? '-' : ''
 
   // Extrai apenas os dígitos numéricos
-  const cleanDigits = raw.replace(/\D/g, '');
+  const cleanDigits = raw.replace(/\D/g, '')
 
   if (!cleanDigits || cleanDigits === '') {
-    return { display: sign, value: 0 };
+    return { display: sign, value: 0 }
   }
 
-  const intVal = parseInt(cleanDigits, 10);
+  const intVal = parseInt(cleanDigits, 10)
   if (isNaN(intVal) || intVal === 0) {
-    return { display: '', value: 0 };
+    return { display: '', value: 0 }
   }
 
   if (decimals === 0) {
-    const display = `${sign}${intVal.toLocaleString('pt-BR')}`;
-    return { display, value: (isNegative ? -1 : 1) * intVal };
+    const display = `${sign}${intVal.toLocaleString('pt-BR')}`
+    return { display, value: (isNegative ? -1 : 1) * intVal }
   }
 
-  const factor = Math.pow(10, decimals);
-  const numValue = (isNegative ? -1 : 1) * (intVal / factor);
+  const factor = Math.pow(10, decimals)
+  const numValue = (isNegative ? -1 : 1) * (intVal / factor)
 
   const display = `${sign}${(intVal / factor).toLocaleString('pt-BR', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-  })}`;
+  })}`
 
-  return { display, value: numValue };
+  return { display, value: numValue }
 }
-

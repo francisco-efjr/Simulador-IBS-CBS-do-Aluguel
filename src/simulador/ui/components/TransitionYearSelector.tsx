@@ -1,15 +1,15 @@
-import React, { useMemo } from 'react';
-import { Calendar } from 'lucide-react';
-import { TransitionYear } from '../../core/domain/types.ts';
-import { TransitionCalendar } from '../../core/services/TransitionCalendar.ts';
+import React, { useMemo } from 'react'
+import { Calendar } from 'lucide-react'
+import { TransitionYear } from '../../core/domain/types.ts'
+import { TransitionCalendar } from '../../core/services/TransitionCalendar.ts'
 
 interface TransitionYearSelectorProps {
-  selectedYear: TransitionYear;
-  onSelectYear: (year: TransitionYear) => void;
-  referenceRate: number;
-  cbsShare: number;
-  ibsShare: number;
-  discountPercent: number;
+  selectedYear: TransitionYear
+  onSelectYear: (year: TransitionYear) => void
+  referenceRate: number
+  cbsShare: number
+  ibsShare: number
+  discountPercent: number
 }
 
 export const TransitionYearSelector: React.FC<TransitionYearSelectorProps> = ({
@@ -21,9 +21,16 @@ export const TransitionYearSelector: React.FC<TransitionYearSelectorProps> = ({
   discountPercent,
 }) => {
   const currentRates = useMemo(
-    () => TransitionCalendar.getRatesForYear(selectedYear, referenceRate, cbsShare, ibsShare, discountPercent),
-    [selectedYear, referenceRate, cbsShare, ibsShare, discountPercent]
-  );
+    () =>
+      TransitionCalendar.getRatesForYear(
+        selectedYear,
+        referenceRate,
+        cbsShare,
+        ibsShare,
+        discountPercent,
+      ),
+    [selectedYear, referenceRate, cbsShare, ibsShare, discountPercent],
+  )
 
   return (
     <section className="bg-surface border border-sim-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] space-y-5">
@@ -36,19 +43,19 @@ export const TransitionYearSelector: React.FC<TransitionYearSelectorProps> = ({
         </h2>
 
         <div
- className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 lg:pb-0"
+          className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 lg:pb-0"
           role="group"
           aria-label="Ano da apuração"
         >
           {TransitionCalendar.TRANSITION_YEARS.map((yr) => {
-            const isSelected = selectedYear === yr;
+            const isSelected = selectedYear === yr
             return (
               <button
                 key={yr}
                 type="button"
                 onClick={() => onSelectYear(yr)}
                 aria-pressed={isSelected}
- className={`px-4 min-h-[48px] rounded-full text-base font-semibold transition-colors shrink-0 select-none cursor-pointer tabular-nums focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-bg/40 ${
+                className={`px-4 min-h-[48px] rounded-full text-base font-semibold transition-colors shrink-0 select-none cursor-pointer tabular-nums focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-bg/40 ${
                   isSelected
                     ? 'bg-accent-bg text-accent-fg'
                     : 'bg-surface-muted border border-sim-border-strong text-text-secondary hover:text-text-primary hover:border-accent-bg'
@@ -56,7 +63,7 @@ export const TransitionYearSelector: React.FC<TransitionYearSelectorProps> = ({
               >
                 {yr}
               </button>
-            );
+            )
           })}
         </div>
       </div>
@@ -76,5 +83,5 @@ export const TransitionYearSelector: React.FC<TransitionYearSelectorProps> = ({
         </div>
       </div>
     </section>
-  );
-};
+  )
+}

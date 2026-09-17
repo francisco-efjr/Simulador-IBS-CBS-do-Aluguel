@@ -20,7 +20,7 @@ import { Field } from '@/components/shared/Field'
 import { createIptuTaxa, updateIptuTaxa } from '@/services/iptu-taxas'
 import { getImoveis } from '@/services/imoveis'
 import { TIPO_IPTU_LABELS, STATUS_IPTU_LABELS } from '@/lib/format'
-import { extractFieldErrors, type FieldErrors } from '@/lib/pocketbase/errors'
+import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
 import { toast } from 'sonner'
 
 const EMPTY = {

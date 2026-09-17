@@ -40,7 +40,7 @@ import {
   Pie,
   Cell,
 } from 'recharts'
-import pb from '@/lib/pocketbase/client'
+import dados from '@/lib/dados/cliente'
 import { formatCurrency, TIPO_IMOVEL_LABELS, STATUS_IMOVEL_LABELS } from '@/lib/format'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { useRealtime } from '@/hooks/use-realtime'
@@ -265,22 +265,22 @@ export default function DashboardImoveis() {
       setError(null)
 
       const [imoveisData, contratosData, receitasData, despesasData, iptuData] = await Promise.all([
-        pb.collection('imoveis').getFullList<ImovelItem>({
+        dados.colecao('imoveis').getFullList<ImovelItem>({
           sort: 'nome,codigo,endereco',
         }),
-        pb.collection('contratos').getFullList<ContratoItem>({
+        dados.colecao('contratos').getFullList<ContratoItem>({
           sort: '-created',
           expand: 'imovel,inquilino',
         }),
-        pb.collection('receitas').getFullList<ReceitaItem>({
+        dados.colecao('receitas').getFullList<ReceitaItem>({
           sort: '-created',
           expand: 'imovel',
         }),
-        pb.collection('despesas').getFullList<DespesaItem>({
+        dados.colecao('despesas').getFullList<DespesaItem>({
           sort: '-created',
           expand: 'imovel',
         }),
-        pb.collection('iptu_taxas').getFullList<IptuTaxaItem>({
+        dados.colecao('iptu_taxas').getFullList<IptuTaxaItem>({
           sort: '-created',
           expand: 'imovel',
         }),

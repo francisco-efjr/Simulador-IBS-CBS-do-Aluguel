@@ -28,6 +28,7 @@ import ImportarExtrato from '@/pages/ImportarExtrato'
 import ClassificarTransacoes from '@/pages/ClassificarTransacoes'
 import HistoricoImportacoes from '@/pages/HistoricoImportacoes'
 import Simulador from '@/pages/Simulador'
+import StatusDesenvolvimento from '@/pages/StatusDesenvolvimento'
 import NotFound from '@/pages/NotFound'
 
 const App = () => (
@@ -47,9 +48,14 @@ const App = () => (
               desenha dentro do shell do sistema (ver pages/Simulador). */}
           <Route path="/simulador" element={<Simulador />} />
 
+          {/* Fase de desenvolvimento: a raiz mostra o quadro público de
+              andamento e o painel do sistema passou a viver em /inicio.
+              Ao publicar, apagar a rota abaixo e devolver "/" ao <Index />.
+              Ver o cabeçalho de pages/StatusDesenvolvimento. */}
+          <Route path="/" element={<StatusDesenvolvimento />} />
+
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
-              <Route path="/" element={<Index />} />
               <Route path="/inicio" element={<Index />} />
 
               <Route element={<ProtectedRoute modulo="importar_extrato" />}>
