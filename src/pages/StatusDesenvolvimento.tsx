@@ -28,7 +28,7 @@ import { useTituloDaPagina } from '@/hooks/use-titulo-da-pagina'
  * Todo o conteúdo mora nas listas abaixo: para atualizar o quadro, mexa só nelas.
  */
 
-const ATUALIZADO_EM = '17 de setembro de 2026'
+const ATUALIZADO_EM = '18 de setembro de 2026'
 
 type Situacao = 'pronto' | 'andamento' | 'pendente'
 
@@ -61,6 +61,18 @@ const FRENTES: Frente[] = [
         titulo: 'Contratos',
         detalhe: 'Prazos, valores, reajuste e anexo do contrato assinado.',
         situacao: 'pronto',
+      },
+      {
+        titulo: 'Um contrato ativo por imóvel',
+        detalhe:
+          'Hoje dá para registrar dois contratos ativos no mesmo imóvel no mesmo período; falta o banco recusar a sobreposição.',
+        situacao: 'pendente',
+      },
+      {
+        titulo: 'Inativar só sem contrato ativo',
+        detalhe:
+          'Imóvel ou inquilino com contrato em vigor ainda pode ser inativado; falta o aviso e o bloqueio.',
+        situacao: 'pendente',
       },
       {
         titulo: 'Fornecedores',
@@ -186,6 +198,18 @@ const FRENTES: Frente[] = [
         situacao: 'pronto',
       },
       {
+        titulo: 'Abrir qualquer tela pelo endereço',
+        detalhe:
+          'Link de convite, de recuperação de senha e o botão de atualizar do navegador devolviam página não encontrada fora da tela inicial. Corrigido.',
+        situacao: 'pronto',
+      },
+      {
+        titulo: 'Testes automáticos no banco novo',
+        detalhe:
+          'A bateria de 561 testes foi escrita sobre a versão de demonstração; falta uma conta de teste e dados de ensaio no Supabase para ela voltar a rodar inteira.',
+        situacao: 'pendente',
+      },
+      {
         titulo: 'Registro de atividade',
         detalhe: 'Auditoria de acessos, criações, edições e exclusões.',
         situacao: 'pronto',
@@ -232,24 +256,30 @@ const FRENTES: Frente[] = [
 const PENDENCIAS = [
   {
     codigo: '1',
-    titulo: 'Criar o primeiro administrador',
+    titulo: 'Criar as contas de administrador',
     detalhe:
-      'O banco está pronto e vazio. Quem se cadastra nasce sem permissão nenhuma — o primeiro acesso precisa ser promovido a administrador no painel do Supabase.',
+      'O banco está pronto e vazio. A conta nasce em Authentication → Users no painel do Supabase, com senha de pelo menos 6 caracteres — a mínima que o Supabase aceita — e depois é promovida a administrador por um comando no editor SQL.',
   },
   {
     codigo: '2',
+    titulo: 'Fechar o cadastro aberto',
+    detalhe:
+      'O Supabase aceita cadastro de qualquer pessoa pela API. A conta nasce sem permissão e não vê nada, mas existe. Para um sistema interno, o certo é desligar o cadastro público e entrar só por convite.',
+  },
+  {
+    codigo: '3',
     titulo: 'Remetente próprio para os e-mails',
     detalhe:
       'Convite e recuperação de senha saem hoje pelo remetente padrão do Supabase, que limita o volume. Para uso diário, ligar um serviço de e-mail com o domínio da holding.',
   },
   {
-    codigo: '3',
+    codigo: '4',
     titulo: 'Validação de formato na borda',
     detalhe:
       'O banco já recusa valor fora da lista, campo obrigatório vazio e CPF duplicado. Falta a checagem de CPF, CNPJ e CEP antes do envio, para o erro aparecer no campo certo.',
   },
   {
-    codigo: '4',
+    codigo: '5',
     titulo: 'Separação por organização',
     detalhe:
       'Hoje o sistema atende uma holding. Para atender mais de uma sem que uma enxergue a outra, falta o campo de organização em cada tabela.',
