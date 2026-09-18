@@ -100,19 +100,19 @@ export default function Contratos() {
   const handleEncerrar = async (c: any) => {
     try {
       await updateContrato(c.id, { status: 'encerrado' })
-      toast.success('Contrato encerrado')
+      toast.success('Contrato encerrado com sucesso.')
       load()
     } catch {
-      toast.error('Erro ao encerrar contrato')
+      toast.error('Não foi possível encerrar o contrato. Tente novamente.')
     }
   }
   const handleCancelar = async (c: any) => {
     try {
       await updateContrato(c.id, { status: 'cancelado' })
-      toast.success('Contrato cancelado')
+      toast.success('Contrato cancelado com sucesso.')
       load()
     } catch {
-      toast.error('Erro ao cancelar contrato')
+      toast.error('Não foi possível cancelar o contrato. Tente novamente.')
     }
   }
 

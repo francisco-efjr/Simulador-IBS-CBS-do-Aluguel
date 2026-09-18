@@ -122,10 +122,10 @@ export function ContratoFormDialog({
     try {
       if (editing) {
         await updateContrato(editing.id, payload)
-        toast.success('Contrato atualizado!')
+        toast.success('Contrato atualizado com sucesso.')
       } else {
         await createContrato(payload)
-        toast.success('Contrato criado!')
+        toast.success('Contrato cadastrado com sucesso.')
       }
       onOpenChange(false)
       onSaved()
@@ -134,7 +134,7 @@ export function ContratoFormDialog({
       if (Object.keys(ext).length) {
         setErrors(ext)
       } else {
-        toast.error('Erro ao salvar contrato')
+        toast.error('Não foi possível salvar o contrato. Confira os campos e tente novamente.')
       }
     } finally {
       setSubmitting(false)

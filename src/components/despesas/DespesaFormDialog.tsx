@@ -102,17 +102,17 @@ export function DespesaFormDialog({
     try {
       if (editing) {
         await updateDespesa(editing.id, data)
-        toast.success('Despesa atualizada!')
+        toast.success('Despesa atualizada com sucesso.')
       } else {
         await createDespesa(data)
-        toast.success('Despesa criada!')
+        toast.success('Despesa cadastrada com sucesso.')
       }
       onOpenChange(false)
       onSaved()
     } catch (err) {
       const ext = extractFieldErrors(err)
       if (Object.keys(ext).length) setErrors(ext)
-      else toast.error('Erro ao salvar despesa')
+      else toast.error('Não foi possível salvar a despesa. Confira os campos e tente novamente.')
     } finally {
       setSubmitting(false)
     }

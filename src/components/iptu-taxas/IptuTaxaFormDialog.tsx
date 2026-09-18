@@ -109,10 +109,10 @@ export function IptuTaxaFormDialog({
     try {
       if (editing) {
         await updateIptuTaxa(editing.id, payload)
-        toast.success('Obrigação atualizada!')
+        toast.success('Obrigação atualizada com sucesso.')
       } else {
         await createIptuTaxa(payload)
-        toast.success('Obrigação criada!')
+        toast.success('Obrigação cadastrada com sucesso.')
       }
       onOpenChange(false)
       onSaved()
@@ -121,7 +121,7 @@ export function IptuTaxaFormDialog({
       if (Object.keys(ext).length) {
         setErrors(ext)
       } else {
-        toast.error('Erro ao salvar obrigação')
+        toast.error('Não foi possível salvar a obrigação. Confira os campos e tente novamente.')
       }
     } finally {
       setSubmitting(false)

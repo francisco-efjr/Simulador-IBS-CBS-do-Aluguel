@@ -96,7 +96,7 @@ export default function Relatorios() {
       setIptuTaxas(iptuData)
     } catch (err) {
       console.error('Erro ao carregar dados para relatórios:', err)
-      toast.error('Erro ao carregar dados do servidor')
+      toast.error('Não foi possível carregar os dados. Atualize a página e tente novamente.')
     } finally {
       setLoading(false)
     }
@@ -376,7 +376,7 @@ export default function Relatorios() {
         } else {
           exportarRelatorioFinanceiroExcel(payload)
         }
-        toast.success('Relatório Financeiro gerado com sucesso!')
+        toast.success('Relatório financeiro gerado com sucesso.')
       }
 
       // 2. RELATÓRIO DE IMÓVEIS
@@ -480,7 +480,7 @@ export default function Relatorios() {
         } else {
           exportarRelatorioImoveisExcel(payload)
         }
-        toast.success('Relatório de Imóveis gerado com sucesso!')
+        toast.success('Relatório de imóveis gerado com sucesso.')
       }
 
       // 3. RELATÓRIO DE CONTRATOS
@@ -526,7 +526,7 @@ export default function Relatorios() {
         } else {
           exportarRelatorioContratosExcel(payload)
         }
-        toast.success('Relatório de Contratos gerado com sucesso!')
+        toast.success('Relatório de contratos gerado com sucesso.')
       }
 
       // 4. RELATÓRIO DE INADIMPLÊNCIA
@@ -599,11 +599,11 @@ export default function Relatorios() {
         } else {
           exportarRelatorioInadimplenciaExcel(payload)
         }
-        toast.success('Relatório de Inadimplência gerado com sucesso!')
+        toast.success('Relatório de inadimplência gerado com sucesso.')
       }
     } catch (err) {
       console.error('Erro ao gerar relatório:', err)
-      toast.error('Erro ao gerar o documento exportável')
+      toast.error('Não foi possível gerar o arquivo. Tente novamente.')
     } finally {
       setGenerating(false)
     }

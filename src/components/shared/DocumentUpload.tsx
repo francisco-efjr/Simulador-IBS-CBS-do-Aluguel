@@ -47,9 +47,9 @@ export function DocumentUpload({ entidadeTipo, entidadeId }: DocumentUploadProps
       await createDocumento(fd)
       setFile(null)
       setDescricao('')
-      toast.success('Documento anexado!')
+      toast.success('Documento anexado com sucesso.')
     } catch {
-      toast.error('Erro ao anexar documento')
+      toast.error('Não foi possível anexar o documento. Tente novamente.')
     } finally {
       setUploading(false)
     }
@@ -58,9 +58,9 @@ export function DocumentUpload({ entidadeTipo, entidadeId }: DocumentUploadProps
   const handleDelete = async (id: string) => {
     try {
       await deleteDocumento(id)
-      toast.success('Documento removido')
+      toast.success('Documento removido com sucesso.')
     } catch {
-      toast.error('Erro ao remover documento')
+      toast.error('Não foi possível remover o documento. Tente novamente.')
     }
   }
 

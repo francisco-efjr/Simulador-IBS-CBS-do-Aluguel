@@ -101,11 +101,11 @@ export default function Despesas() {
   const handleDelete = async (d: any) => {
     try {
       await deleteDespesa(d.id)
-      toast.success('Despesa excluída')
+      toast.success('Despesa excluída com sucesso.')
       setDetailOpen(false)
       load()
     } catch {
-      toast.error('Erro ao excluir despesa')
+      toast.error('Não foi possível excluir a despesa. Tente novamente.')
     }
   }
 

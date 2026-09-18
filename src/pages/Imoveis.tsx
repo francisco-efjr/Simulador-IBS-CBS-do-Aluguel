@@ -91,10 +91,10 @@ export default function Imoveis() {
   const handleInactivate = async (im: any) => {
     try {
       await updateImovel(im.id, { status: 'inativo' })
-      toast.success('Imóvel inativado')
+      toast.success('Imóvel marcado como inativo.')
       load()
     } catch {
-      toast.error('Erro ao inativar imóvel')
+      toast.error('Não foi possível inativar o imóvel. Tente novamente.')
     }
   }
 

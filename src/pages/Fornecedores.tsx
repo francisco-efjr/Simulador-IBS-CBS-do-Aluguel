@@ -93,10 +93,10 @@ export default function Fornecedores() {
   const handleInactivate = async (fo: any) => {
     try {
       await updateFornecedor(fo.id, { status: 'inativo' })
-      toast.success('Fornecedor inativado')
+      toast.success('Fornecedor marcado como inativo.')
       load()
     } catch {
-      toast.error('Erro ao inativar fornecedor')
+      toast.error('Não foi possível inativar o fornecedor. Tente novamente.')
     }
   }
 

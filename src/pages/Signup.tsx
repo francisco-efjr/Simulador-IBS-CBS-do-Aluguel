@@ -67,7 +67,7 @@ export default function Signup() {
       if (res.valid) {
         setInviteStatus(res)
         if (res.email) setEmail(res.email)
-        toast.success('Convite validado com sucesso!')
+        toast.success('Convite validado com sucesso.')
       } else {
         setInviteStatus(res)
         setGeneralError(res.message || 'Convite inválido ou expirado.')
@@ -115,7 +115,7 @@ export default function Signup() {
         setGeneralError(errorMsg)
       }
     } else {
-      toast.success('Conta ativada com sucesso! Bem-vindo(a) à Holding Aguiar.')
+      toast.success('Conta ativada com sucesso. Boas-vindas à Holding Aguiar.')
       navigate('/inicio', { replace: true })
     }
   }

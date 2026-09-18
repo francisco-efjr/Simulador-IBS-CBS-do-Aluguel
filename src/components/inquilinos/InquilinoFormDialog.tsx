@@ -91,10 +91,10 @@ export function InquilinoFormDialog({
     try {
       if (editing) {
         await updateInquilino(editing.id, data)
-        toast.success('Inquilino atualizado!')
+        toast.success('Inquilino atualizado com sucesso.')
       } else {
         await createInquilino(data)
-        toast.success('Inquilino criado!')
+        toast.success('Inquilino cadastrado com sucesso.')
       }
       onOpenChange(false)
       onSaved()
@@ -103,7 +103,7 @@ export function InquilinoFormDialog({
       if (Object.keys(ext).length) {
         setErrors(ext)
       } else {
-        toast.error('Erro ao salvar inquilino')
+        toast.error('Não foi possível salvar o inquilino. Confira os campos e tente novamente.')
       }
     } finally {
       setSubmitting(false)

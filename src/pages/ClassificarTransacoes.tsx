@@ -273,12 +273,12 @@ export default function ClassificarTransacoes() {
       })
 
       toast.success(
-        `Transação lançada como ${isReceita ? 'Receita' : 'Despesa'} (${catObj?.nome || 'Geral'})!`,
+        `Transação lançada como ${isReceita ? 'receita' : 'despesa'} na categoria ${catObj?.nome || 'Geral'}.`,
       )
       loadData()
     } catch (err) {
       console.error(err)
-      toast.error('Erro ao aceitar sugestão e gerar lançamento financeiro.')
+      toast.error('Não foi possível aceitar a sugestão e criar o lançamento. Tente novamente.')
     }
   }
 
@@ -289,10 +289,10 @@ export default function ClassificarTransacoes() {
         ignorada: true,
         classificada: false,
       })
-      toast.info('Transação ignorada e não será contabilizada.')
+      toast.info('Transação ignorada. Ela não entra nos cálculos.')
       loadData()
     } catch {
-      toast.error('Erro ao ignorar transação.')
+      toast.error('Não foi possível ignorar a transação. Tente novamente.')
     }
   }
 
@@ -306,7 +306,7 @@ export default function ClassificarTransacoes() {
       toast.success('Transação reaberta para classificação.')
       loadData()
     } catch {
-      toast.error('Erro ao reabrir transação.')
+      toast.error('Não foi possível reabrir a transação. Tente novamente.')
     }
   }
 
@@ -386,7 +386,7 @@ export default function ClassificarTransacoes() {
       despesa_gerada: !isReceita ? createdId : '',
     })
 
-    toast.success(`Lançamento realizado com sucesso como ${isReceita ? 'Receita' : 'Despesa'}!`)
+    toast.success(`Lançamento registrado com sucesso como ${isReceita ? 'receita' : 'despesa'}.`)
     loadData()
   }
 
@@ -468,7 +468,7 @@ export default function ClassificarTransacoes() {
       }
     }
 
-    toast.success(`${successCount} transações classificadas com sucesso em lote!`)
+    toast.success(successCount === 1 ? '1 transação classificada com sucesso.' : `${successCount} transações classificadas com sucesso.`)
     setSelectedIds([])
     loadData()
   }
@@ -497,11 +497,11 @@ export default function ClassificarTransacoes() {
         for (const id of selectedIds) {
           await updateTransacaoImportada(id, { ignorada: true, classificada: false })
         }
-        toast.info(`${selectedIds.length} transações foram ignoradas.`)
+        toast.info(selectedIds.length === 1 ? '1 transação foi ignorada.' : `${selectedIds.length} transações foram ignoradas.`)
         setSelectedIds([])
         loadData()
       } catch {
-        toast.error('Erro ao ignorar transações em lote.')
+        toast.error('Não foi possível ignorar as transações selecionadas. Tente novamente.')
       }
     }
   }

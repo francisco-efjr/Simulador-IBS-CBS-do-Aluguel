@@ -99,17 +99,17 @@ export function ContaBancariaFormDialog({
       let res: ContaBancaria
       if (editing) {
         res = await updateContaBancaria(editing.id, payload)
-        toast.success('Conta bancária atualizada com sucesso!')
+        toast.success('Conta bancária atualizada com sucesso.')
       } else {
         res = await createContaBancaria(payload)
-        toast.success('Conta bancária cadastrada com sucesso!')
+        toast.success('Conta bancária cadastrada com sucesso.')
       }
       onOpenChange(false)
       onSaved(res)
     } catch (err) {
       const ext = extractFieldErrors(err)
       if (Object.keys(ext).length) setErrors(ext)
-      else toast.error('Erro ao salvar conta bancária')
+      else toast.error('Não foi possível salvar a conta bancária. Confira os campos e tente novamente.')
     } finally {
       setSubmitting(false)
     }

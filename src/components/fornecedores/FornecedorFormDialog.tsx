@@ -86,10 +86,10 @@ export function FornecedorFormDialog({
     try {
       if (editing) {
         await updateFornecedor(editing.id, data)
-        toast.success('Fornecedor atualizado!')
+        toast.success('Fornecedor atualizado com sucesso.')
       } else {
         await createFornecedor(data)
-        toast.success('Fornecedor criado!')
+        toast.success('Fornecedor cadastrado com sucesso.')
       }
       onOpenChange(false)
       onSaved()
@@ -98,7 +98,7 @@ export function FornecedorFormDialog({
       if (Object.keys(ext).length) {
         setErrors(ext)
       } else {
-        toast.error('Erro ao salvar fornecedor')
+        toast.error('Não foi possível salvar o fornecedor. Confira os campos e tente novamente.')
       }
     } finally {
       setSubmitting(false)

@@ -135,7 +135,7 @@ export default function LogsAtividade() {
       setTotalItems(res.totalItems)
       setTotalPages(res.totalPages)
     } catch {
-      toast.error('Erro ao carregar histórico de auditoria')
+      toast.error('Não foi possível carregar o histórico de atividades. Atualize a página e tente novamente.')
     } finally {
       setLoading(false)
     }
@@ -185,7 +185,7 @@ export default function LogsAtividade() {
   // Exportar logs filtrados para CSV
   const handleExportCsv = () => {
     if (logs.length === 0) {
-      toast.error('Nenhum registro para exportar')
+      toast.error('Não há registros para exportar.')
       return
     }
 
@@ -213,7 +213,7 @@ export default function LogsAtividade() {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    toast.success('Relatório de auditoria exportado com sucesso!')
+    toast.success('Relatório de atividades exportado com sucesso.')
   }
 
   // Estilização de badges para Ações

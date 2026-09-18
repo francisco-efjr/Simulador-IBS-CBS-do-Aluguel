@@ -82,7 +82,7 @@ export default function Usuarios() {
       const usersData = await getUsuarios()
       setUsers(usersData)
     } catch {
-      toast.error('Erro ao carregar lista de usuários')
+      toast.error('Não foi possível carregar a lista de usuários. Atualize a página e tente novamente.')
     } finally {
       setLoadingUsers(false)
     }
@@ -115,29 +115,29 @@ export default function Usuarios() {
 
   const handleToggleAtivo = async (user: UsuarioRecord) => {
     if (user.id === currentUser?.id) {
-      toast.error('Você não pode desativar sua própria conta.')
+      toast.error('Você não pode desativar a sua própria conta.')
       return
     }
     const novoStatus = user.ativo !== false
     try {
       await updateUsuario(user.id, { ativo: !novoStatus })
-      toast.success(novoStatus ? 'Usuário desativado com sucesso' : 'Usuário ativado com sucesso')
+      toast.success(novoStatus ? 'Usuário desativado com sucesso.' : 'Usuário ativado com sucesso.')
       loadData()
     } catch {
-      toast.error('Erro ao atualizar status do usuário')
+      toast.error('Não foi possível alterar a situação do usuário. Tente novamente.')
     }
   }
 
   const handleTogglePerfil = async (user: UsuarioRecord) => {
     if (user.id === currentUser?.id) {
-      toast.error('Você não pode alterar seu próprio perfil de administrador.')
+      toast.error('Você não pode alterar o seu próprio perfil de administrador.')
       return
     }
     const novoPerfil = user.perfil === 'administrador' ? 'usuario' : 'administrador'
     try {
       await updateUsuario(user.id, { perfil: novoPerfil })
       toast.success(
-        `Perfil de ${user.name || user.email} alterado para ${novoPerfil === 'administrador' ? 'Administrador' : 'Usuário'}`,
+        `Perfil de ${user.name || user.email} alterado para ${novoPerfil === 'administrador' ? 'administrador' : 'usuário'}.`,
       )
       loadData()
     } catch (err: any) {
@@ -149,7 +149,7 @@ export default function Usuarios() {
   const handleConfirmDeleteUser = async () => {
     if (!deleteUserTarget) return
     if (deleteUserTarget.id === currentUser?.id) {
-      toast.error('Você não pode remover sua própria conta.')
+      toast.error('Você não pode remover a sua própria conta.')
       setDeleteUserTarget(null)
       return
     }
@@ -157,7 +157,7 @@ export default function Usuarios() {
     setActionLoading(true)
     try {
       await deleteUsuario(deleteUserTarget.id)
-      toast.success('Usuário removido com sucesso!')
+      toast.success('Usuário removido com sucesso.')
       setDeleteUserTarget(null)
       loadData()
     } catch (err: any) {
@@ -171,7 +171,7 @@ export default function Usuarios() {
   const handleReenviarConvite = async (convite: ConviteRecord) => {
     try {
       await reenviarConvite(convite.id)
-      toast.success(`E-mail de convite reenviado para ${convite.email}! (Válido por mais 7 dias)`)
+      toast.success(`Convite reenviado para ${convite.email}. O novo link vale por 7 dias.`)
       loadData()
     } catch (err: any) {
       const msg = err?.data?.message || err?.message || 'Erro ao reenviar convite.'
@@ -184,11 +184,11 @@ export default function Usuarios() {
     setActionLoading(true)
     try {
       await cancelarConvite(cancelInviteTarget.id)
-      toast.success('Convite cancelado!')
+      toast.success('Convite cancelado com sucesso.')
       setCancelInviteTarget(null)
       loadData()
     } catch {
-      toast.error('Erro ao cancelar convite.')
+      toast.error('Não foi possível cancelar o convite. Tente novamente.')
     } finally {
       setActionLoading(false)
     }
@@ -197,10 +197,10 @@ export default function Usuarios() {
   const handleDeleteInvite = async (conviteId: string) => {
     try {
       await deleteConvite(conviteId)
-      toast.success('Registro de convite excluído.')
+      toast.success('Registro de convite excluído com sucesso.')
       loadData()
     } catch {
-      toast.error('Erro ao excluir convite.')
+      toast.error('Não foi possível excluir o convite. Tente novamente.')
     }
   }
 
@@ -208,7 +208,7 @@ export default function Usuarios() {
     const link = `${window.location.origin}/signup?token=${convite.token}`
     navigator.clipboard.writeText(link)
     setCopiedTokenId(convite.id)
-    toast.success('Link do convite copiado!')
+    toast.success('Link do convite copiado. Agora é só colar onde quiser.')
     setTimeout(() => setCopiedTokenId(null), 3000)
   }
 

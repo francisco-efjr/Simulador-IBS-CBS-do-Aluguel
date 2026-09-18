@@ -95,11 +95,11 @@ export default function IptuTaxas() {
   const handleDelete = async (c: any) => {
     try {
       await deleteIptuTaxa(c.id)
-      toast.success('Obrigação excluída')
+      toast.success('Obrigação excluída com sucesso.')
       setDetailOpen(false)
       load()
     } catch {
-      toast.error('Erro ao excluir obrigação')
+      toast.error('Não foi possível excluir a obrigação. Tente novamente.')
     }
   }
 

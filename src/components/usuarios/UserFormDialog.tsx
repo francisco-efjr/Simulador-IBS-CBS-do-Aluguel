@@ -124,12 +124,12 @@ export function UserFormDialog({
     }
 
     if (isSelf && perfil !== 'administrador') {
-      toast.error('Você não pode remover seu próprio papel de administrador.')
+      toast.error('Você não pode retirar o seu próprio perfil de administrador.')
       return
     }
 
     if (isSelf && !ativo) {
-      toast.error('Você não pode desativar sua própria conta.')
+      toast.error('Você não pode desativar a sua própria conta.')
       return
     }
 
@@ -150,7 +150,7 @@ export function UserFormDialog({
         ativo,
         permissoes: permissoesArray,
       })
-      toast.success('Usuário atualizado com sucesso!')
+      toast.success('Usuário atualizado com sucesso.')
       onOpenChange(false)
       onSaved()
     } catch (err) {
@@ -158,7 +158,7 @@ export function UserFormDialog({
       if (Object.keys(extracted).length > 0) {
         setErrors(extracted)
       } else {
-        toast.error('Ocorreu um erro ao atualizar usuário.')
+        toast.error('Não foi possível atualizar o usuário. Tente novamente.')
       }
     } finally {
       setSubmitting(false)

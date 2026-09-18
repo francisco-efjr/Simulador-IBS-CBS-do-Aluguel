@@ -40,7 +40,7 @@ export function ContasBancariasManagerDialog({
       const data = await getContasBancarias()
       setContas(data)
     } catch {
-      toast.error('Erro ao carregar contas bancárias')
+      toast.error('Não foi possível carregar as contas bancárias. Atualize a página e tente novamente.')
     } finally {
       setLoading(false)
     }
@@ -56,10 +56,10 @@ export function ContasBancariasManagerDialog({
     if (confirm(`Tem certeza que deseja excluir a conta "${conta.nome}"?`)) {
       try {
         await deleteContaBancaria(conta.id)
-        toast.success('Conta bancária excluída')
+        toast.success('Conta bancária excluída com sucesso.')
         loadContas()
       } catch {
-        toast.error('Não foi possível excluir esta conta')
+        toast.error('Não foi possível excluir esta conta bancária. Tente novamente.')
       }
     }
   }

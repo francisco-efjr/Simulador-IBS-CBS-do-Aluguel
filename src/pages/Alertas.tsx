@@ -139,7 +139,7 @@ export default function Alertas() {
       setDespesas(despesasData)
     } catch (err) {
       console.error('Erro ao carregar alertas:', err)
-      toast.error('Erro ao buscar dados de alertas')
+      toast.error('Não foi possível carregar os avisos. Atualize a página e tente novamente.')
     } finally {
       setLoading(false)
     }
@@ -413,11 +413,11 @@ export default function Alertas() {
     if (!confirm('Tem certeza que deseja excluir esta receita?')) return
     try {
       await deleteReceita(id)
-      toast.success('Receita excluída!')
+      toast.success('Receita excluída com sucesso.')
       setShowReceitaDetail(false)
       loadData()
     } catch {
-      toast.error('Erro ao excluir receita')
+      toast.error('Não foi possível excluir a receita. Tente novamente.')
     }
   }
 
@@ -425,11 +425,11 @@ export default function Alertas() {
     if (!confirm('Tem certeza que deseja excluir esta despesa?')) return
     try {
       await deleteDespesa(id)
-      toast.success('Despesa excluída!')
+      toast.success('Despesa excluída com sucesso.')
       setShowDespesaDetail(false)
       loadData()
     } catch {
-      toast.error('Erro ao excluir despesa')
+      toast.error('Não foi possível excluir a despesa. Tente novamente.')
     }
   }
 
@@ -437,11 +437,11 @@ export default function Alertas() {
     if (!confirm('Tem certeza que deseja excluir esta taxa/IPTU?')) return
     try {
       await deleteIptuTaxa(id)
-      toast.success('Obrigação excluída!')
+      toast.success('Obrigação excluída com sucesso.')
       setShowIptuDetail(false)
       loadData()
     } catch {
-      toast.error('Erro ao excluir obrigação')
+      toast.error('Não foi possível excluir a obrigação. Tente novamente.')
     }
   }
 

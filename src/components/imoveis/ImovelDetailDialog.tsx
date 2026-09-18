@@ -57,9 +57,9 @@ export function ImovelDetailDialog({
       for (const f of Array.from(files)) fd.append('fotos', f)
       await updateImovel(imovel.id, fd)
       onRefresh()
-      toast.success('Fotos enviadas!')
+      toast.success('Fotos enviadas com sucesso.')
     } catch {
-      toast.error('Erro ao enviar fotos')
+      toast.error('Não foi possível enviar as fotos. Tente novamente.')
     } finally {
       setUploading(false)
     }
@@ -71,9 +71,9 @@ export function ImovelDetailDialog({
       for (const f of fotos.filter((x) => x !== filename)) fd.append('fotos', f)
       await updateImovel(imovel.id, fd)
       onRefresh()
-      toast.success('Foto removida')
+      toast.success('Foto removida com sucesso.')
     } catch {
-      toast.error('Erro ao remover foto')
+      toast.error('Não foi possível remover a foto. Tente novamente.')
     }
   }
 

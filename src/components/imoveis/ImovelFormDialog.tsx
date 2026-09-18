@@ -94,10 +94,10 @@ export function ImovelFormDialog({
     try {
       if (editing) {
         await updateImovel(editing.id, data)
-        toast.success('Imóvel atualizado!')
+        toast.success('Imóvel atualizado com sucesso.')
       } else {
         await createImovel(data)
-        toast.success('Imóvel criado!')
+        toast.success('Imóvel cadastrado com sucesso.')
       }
       onOpenChange(false)
       onSaved()
@@ -106,7 +106,7 @@ export function ImovelFormDialog({
       if (Object.keys(ext).length) {
         setErrors(ext)
       } else {
-        toast.error('Erro ao salvar imóvel')
+        toast.error('Não foi possível salvar o imóvel. Confira os campos e tente novamente.')
       }
     } finally {
       setSubmitting(false)

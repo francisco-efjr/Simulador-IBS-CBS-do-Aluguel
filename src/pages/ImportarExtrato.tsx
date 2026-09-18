@@ -121,7 +121,7 @@ export default function ImportarExtrato() {
       setImoveis(imovList)
       setCategorias(catList)
     } catch {
-      toast.error('Erro ao carregar dados iniciais')
+      toast.error('Não foi possível carregar os dados. Atualize a página e tente novamente.')
     } finally {
       setLoadingContas(false)
     }
@@ -144,7 +144,7 @@ export default function ImportarExtrato() {
 
       if (rawTxs.length === 0) {
         toast.error(
-          `Não foi possível extrair transações do arquivo ${fileName}. Verifique o formato.`,
+          `Não foi possível ler as transações do arquivo ${fileName}. Confira se o formato é .CSV ou .OFX.`,
         )
         setTransactions([])
         setParsing(false)
@@ -186,11 +186,11 @@ export default function ImportarExtrato() {
       if (dupCount > 0) {
         setDuplicateModalOpen(true)
       } else {
-        toast.success(`${processed.length} transações extraídas com sucesso!`)
+        toast.success(processed.length === 1 ? '1 transação encontrada no arquivo.' : `${processed.length} transações encontradas no arquivo.`)
       }
     } catch (err) {
       console.error(err)
-      toast.error('Erro ao processar o conteúdo do arquivo.')
+      toast.error('Não foi possível ler o conteúdo do arquivo. Confira se ele está completo e tente novamente.')
     } finally {
       setParsing(false)
     }
@@ -203,7 +203,7 @@ export default function ImportarExtrato() {
 
     const ext = selectedFile.name.split('.').pop()?.toLowerCase()
     if (ext !== 'csv' && ext !== 'ofx') {
-      toast.error('Formato não suportado. Por favor, envie um arquivo .CSV ou .OFX.')
+      toast.error('Formato não aceito. Envie um arquivo .CSV ou .OFX.')
       return
     }
 
@@ -238,7 +238,7 @@ export default function ImportarExtrato() {
 
     const ext = droppedFile.name.split('.').pop()?.toLowerCase()
     if (ext !== 'csv' && ext !== 'ofx') {
-      toast.error('Apenas arquivos .CSV e .OFX são aceitos.')
+      toast.error('Só são aceitos arquivos .CSV e .OFX.')
       return
     }
 
@@ -272,7 +272,7 @@ export default function ImportarExtrato() {
       prev.map((t) => (t.duplicata_detectada ? { ...t, incluir: false } : t)),
     )
     setDuplicateModalOpen(false)
-    toast.info(`${duplicateCount} transação(ões) duplicada(s) foram desmarcadas.`)
+    toast.info(duplicateCount === 1 ? '1 transação duplicada foi desmarcada.' : `${duplicateCount} transações duplicadas foram desmarcadas.`)
   }
 
   const handleIncludeAllDuplicates = () => {
@@ -280,7 +280,7 @@ export default function ImportarExtrato() {
       prev.map((t) => (t.duplicata_detectada ? { ...t, incluir: true } : t)),
     )
     setDuplicateModalOpen(false)
-    toast.warning(`${duplicateCount} transação(ões) duplicada(s) serão importadas mesmo assim.`)
+    toast.warning(`${duplicateCount === 1 ? '1 transação duplicada será importada' : `${duplicateCount} transações duplicadas serão importadas`} mesmo assim.`)
   }
 
   // Confirm import and save into PocketBase
@@ -292,7 +292,7 @@ export default function ImportarExtrato() {
 
     const selectedTxs = transactions.filter((t) => t.incluir)
     if (selectedTxs.length === 0) {
-      toast.error('Nenhuma transação selecionada para importação.')
+      toast.error('Selecione ao menos uma transação para importar.')
       return
     }
 
@@ -343,7 +343,7 @@ export default function ImportarExtrato() {
 
       setImportProgress(100)
       toast.success(
-        `Importação de ${selectedTxs.length} transações concluída! Redirecionando para classificação...`,
+        `Importação de ${selectedTxs.length} transações concluída. Levando você para a tela de classificação.`,
       )
 
       setTimeout(() => {
@@ -351,7 +351,7 @@ export default function ImportarExtrato() {
       }, 700)
     } catch (err) {
       console.error(err)
-      toast.error('Erro ao salvar as transações no banco de dados.')
+      toast.error('Não foi possível salvar as transações. Tente novamente.')
       setImporting(false)
     }
   }

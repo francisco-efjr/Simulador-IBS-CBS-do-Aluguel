@@ -120,17 +120,17 @@ export function ReceitaFormDialog({
     try {
       if (editing) {
         await updateReceita(editing.id, data)
-        toast.success('Receita atualizada!')
+        toast.success('Receita atualizada com sucesso.')
       } else {
         await createReceita(data)
-        toast.success('Receita criada!')
+        toast.success('Receita cadastrada com sucesso.')
       }
       onOpenChange(false)
       onSaved()
     } catch (err) {
       const ext = extractFieldErrors(err)
       if (Object.keys(ext).length) setErrors(ext)
-      else toast.error('Erro ao salvar receita')
+      else toast.error('Não foi possível salvar a receita. Confira os campos e tente novamente.')
     } finally {
       setSubmitting(false)
     }

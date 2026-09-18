@@ -101,7 +101,7 @@ export default function HistoricoImportacoes() {
         toast.success('Importação excluída com sucesso.')
         load()
       } catch {
-        toast.error('Erro ao excluir importação.')
+        toast.error('Não foi possível excluir a importação. Tente novamente.')
       }
     }
   }

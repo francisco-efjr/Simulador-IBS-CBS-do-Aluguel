@@ -21,7 +21,7 @@ export function ProtectedRoute({ requireAdmin = false, modulo }: ProtectedRouteP
 
   useEffect(() => {
     if (!loading && isAuthenticated && !hasAccess) {
-      toast.error('Você não tem permissão para acessar este módulo.')
+      toast.error('Você não tem permissão para acessar esta área. Fale com quem administra o sistema.')
     }
   }, [loading, isAuthenticated, hasAccess])
 

@@ -111,12 +111,12 @@ export default function RedefinirSenha() {
       const res = await redefinirSenha(password)
       if (res.success) {
         setSuccess(true)
-        toast.success('Senha redefinida com sucesso!')
+        toast.success('Senha redefinida com sucesso. Você já pode entrar com a sua nova senha.')
         setTimeout(() => {
           navigate('/login', { replace: true })
         }, 2500)
       } else {
-        toast.error(res.message || 'Erro ao redefinir a senha.')
+        toast.error(res.message || 'Não foi possível redefinir a senha. Tente novamente.')
         setTokenErrorMsg(res.message)
       }
     } catch (err: any) {

@@ -102,11 +102,11 @@ export default function Receitas() {
   const handleDelete = async (r: any) => {
     try {
       await deleteReceita(r.id)
-      toast.success('Receita excluída')
+      toast.success('Receita excluída com sucesso.')
       setDetailOpen(false)
       load()
     } catch {
-      toast.error('Erro ao excluir receita')
+      toast.error('Não foi possível excluir a receita. Tente novamente.')
     }
   }
 

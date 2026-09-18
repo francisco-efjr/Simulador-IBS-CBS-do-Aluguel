@@ -49,7 +49,7 @@ export function ConvidarUsuarioDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim() || !email.includes('@')) {
-      toast.error('Informe um e-mail válido para envio do convite.')
+      toast.error('Informe um endereço de e-mail válido para enviar o convite.')
       return
     }
 
@@ -62,15 +62,15 @@ export function ConvidarUsuarioDialog({
 
       if (res && res.convite) {
         setCreatedInvite(res.convite)
-        toast.success('Convite gerado com sucesso!')
+        toast.success('Convite gerado com sucesso.')
         onInviteSent()
       } else {
-        toast.success('Convite enviado com sucesso!')
+        toast.success('Convite enviado com sucesso.')
         handleClose()
         onInviteSent()
       }
     } catch (err: any) {
-      const msg = err?.data?.message || err?.message || 'Erro ao enviar convite.'
+      const msg = err?.data?.message || err?.message || 'Não foi possível enviar o convite. Tente novamente.'
       toast.error(msg)
     } finally {
       setSubmitting(false)
@@ -86,7 +86,7 @@ export function ConvidarUsuarioDialog({
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     setCopied(true)
-    toast.success('Link copiado para a área de transferência!')
+    toast.success('Link copiado. Agora é só colar onde quiser.')
     setTimeout(() => setCopied(false), 3000)
   }
 

@@ -93,10 +93,10 @@ export default function Inquilinos() {
   const handleInactivate = async (iq: any) => {
     try {
       await updateInquilino(iq.id, { status: 'inativo' })
-      toast.success('Inquilino inativado')
+      toast.success('Inquilino marcado como inativo.')
       load()
     } catch {
-      toast.error('Erro ao inativar inquilino')
+      toast.error('Não foi possível inativar o inquilino. Tente novamente.')
     }
   }
 
