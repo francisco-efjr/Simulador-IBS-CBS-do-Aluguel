@@ -1,6 +1,34 @@
 [
   {
     "data": "2026-09-19",
+    "titulo": "Atividades da equipe ao vivo na tela Início",
+    "texto": "O administrador vê, na tela Início, quem cadastrou, alterou ou excluiu o quê, no momento em que acontece. Os números do topo também se atualizam sozinhos.",
+    "tipo": "entrega",
+    "referencia": "PR #3"
+  },
+  {
+    "data": "2026-09-19",
+    "titulo": "Cadastros conferidos antes de salvar",
+    "texto": "CPF e CNPJ com dígito errado, valores negativos e datas fora de ordem são recusados com uma mensagem clara embaixo do campo. O banco confere as mesmas regras, e passa a impedir dois contratos ativos no mesmo imóvel e a inativação de quem tem contrato em vigor.",
+    "tipo": "entrega",
+    "referencia": "PR #3"
+  },
+  {
+    "data": "2026-09-19",
+    "titulo": "Importação de extrato sem risco de ficar pela metade",
+    "texto": "O extrato é gravado de uma vez só: se a conexão cair no meio, nada fica salvo e basta importar de novo.",
+    "tipo": "correcao",
+    "referencia": "PR #3"
+  },
+  {
+    "data": "2026-09-19",
+    "titulo": "Banco de dados testado a cada publicação",
+    "texto": "Mais de cem testes automáticos conferem quem pode ver e editar cada informação. Eles encontraram e já corrigiram cinco falhas, entre elas a que impedia criar o primeiro administrador e a que deixava um imóvel marcado como alugado depois de o contrato ser apagado.",
+    "tipo": "seguranca",
+    "referencia": "PR #3"
+  },
+  {
+    "data": "2026-09-19",
     "titulo": "Esta página passa a se atualizar sozinha",
     "texto": "A cada nova versão publicada, o sistema confere a própria saúde — testes, regras de segurança e organização do código — e mostra o resultado aqui, junto com a lista de novidades.",
     "tipo": "entrega"

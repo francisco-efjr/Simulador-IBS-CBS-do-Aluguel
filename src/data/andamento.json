@@ -20,13 +20,18 @@
         },
         {
           "titulo": "Um contrato ativo por imóvel",
-          "detalhe": "Hoje dá para registrar dois contratos ativos no mesmo imóvel no mesmo período; falta o banco recusar a sobreposição.",
-          "situacao": "pendente"
+          "detalhe": "O banco recusa um segundo contrato ativo no mesmo imóvel quando os períodos se sobrepõem.",
+          "situacao": "pronto"
         },
         {
           "titulo": "Inativar só sem contrato ativo",
-          "detalhe": "Imóvel ou inquilino com contrato em vigor ainda pode ser inativado; falta o aviso e o bloqueio.",
-          "situacao": "pendente"
+          "detalhe": "Imóvel ou inquilino com contrato em vigor não pode ser inativado nem excluído; o sistema explica o que fazer antes.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "CPF, CNPJ e datas conferidos",
+          "detalhe": "O formulário e o banco recusam documento com dígito errado, valor negativo e data fora de ordem, dizendo o que corrigir.",
+          "situacao": "pronto"
         },
         {
           "titulo": "Fornecedores",
@@ -55,7 +60,7 @@
         },
         {
           "titulo": "Importação de extrato bancário",
-          "detalhe": "Leitura de OFX e CSV de Itaú, Bradesco, Nubank, Inter, Santander e Banco do Brasil.",
+          "detalhe": "Leitura de OFX e CSV de Itaú, Bradesco, Nubank, Inter, Santander e Banco do Brasil. O extrato entra inteiro ou não entra nada: uma queda de conexão não deixa importação pela metade.",
           "situacao": "pronto"
         },
         {
@@ -155,12 +160,12 @@
         },
         {
           "titulo": "Testes automáticos no banco novo",
-          "detalhe": "A bateria de 561 testes foi escrita sobre a versão de demonstração; falta uma conta de teste e dados de ensaio no Supabase para ela voltar a rodar inteira.",
-          "situacao": "pendente"
+          "detalhe": "Mais de cem testes conferem, a cada publicação, as permissões e as regras automáticas do banco.",
+          "situacao": "pronto"
         },
         {
           "titulo": "Registro de atividade",
-          "detalhe": "Auditoria de acessos, criações, edições e exclusões.",
+          "detalhe": "Auditoria de acessos, criações, edições e exclusões. A tela Início mostra as atividades ao vivo para o administrador.",
           "situacao": "pronto"
         },
         {
