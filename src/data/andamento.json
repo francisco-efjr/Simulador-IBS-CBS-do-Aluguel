@@ -1,0 +1,239 @@
+{
+  "frentes": [
+    {
+      "nome": "Cadastros",
+      "entregas": [
+        {
+          "titulo": "Imóveis",
+          "detalhe": "Cadastro, edição, busca e situação de cada propriedade.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Inquilinos",
+          "detalhe": "Dados de contato, documentos e vínculo com o contrato.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Contratos",
+          "detalhe": "Prazos, valores, reajuste e anexo do contrato assinado.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Um contrato ativo por imóvel",
+          "detalhe": "O banco recusa um segundo contrato ativo no mesmo imóvel quando os períodos se sobrepõem.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Inativar só sem contrato ativo",
+          "detalhe": "Imóvel ou inquilino com contrato em vigor não pode ser inativado nem excluído; o sistema explica o que fazer antes.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "CPF, CNPJ e datas conferidos",
+          "detalhe": "O formulário e o banco recusam documento com dígito errado, valor negativo e data fora de ordem, dizendo o que corrigir.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Fornecedores",
+          "detalhe": "Prestadores de serviço e parceiros ligados às despesas.",
+          "situacao": "pronto"
+        }
+      ]
+    },
+    {
+      "nome": "Financeiro",
+      "entregas": [
+        {
+          "titulo": "Receitas",
+          "detalhe": "Aluguéis e entradas, com baixa por recebimento.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Despesas",
+          "detalhe": "Custos, obras e manutenção por imóvel e por fornecedor.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "IPTU e taxas",
+          "detalhe": "Parcelas, vencimentos e comprovante de pagamento.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Importação de extrato bancário",
+          "detalhe": "Leitura de OFX e CSV de Itaú, Bradesco, Nubank, Inter, Santander e Banco do Brasil. O extrato entra inteiro ou não entra nada: uma queda de conexão não deixa importação pela metade.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Classificação de transações",
+          "detalhe": "Fila de conciliação que transforma a linha do extrato em receita ou despesa.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Cobrança por boleto e PIX",
+          "detalhe": "Hoje o sistema registra o recebimento; ainda não emite a cobrança.",
+          "situacao": "pendente"
+        },
+        {
+          "titulo": "Reajuste automático por IGP-M e IPCA",
+          "detalhe": "Os campos já existem no contrato; falta a coleta do índice e a aplicação na data.",
+          "situacao": "pendente"
+        }
+      ]
+    },
+    {
+      "nome": "Acompanhamento",
+      "entregas": [
+        {
+          "titulo": "Dashboard financeiro",
+          "detalhe": "Fluxo de caixa, comparativos e indicadores do período.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Dashboard de imóveis",
+          "detalhe": "Ocupação, rendimento e distribuição da carteira.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Alertas",
+          "detalhe": "Central de vencimentos de contratos, receitas, despesas e IPTU.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Relatórios em PDF e Excel",
+          "detalhe": "Geração e exportação dos relatórios de cada módulo.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Envio automático de relatório por e-mail",
+          "detalhe": "Fechamento mensal chegando na caixa de entrada, sem abrir o sistema.",
+          "situacao": "pendente"
+        }
+      ]
+    },
+    {
+      "nome": "Simulador IBS/CBS",
+      "entregas": [
+        {
+          "titulo": "Motor de cálculo da Reforma Tributária",
+          "detalhe": "IBS e CBS sobre a locação pela LC 214/2025, com regime de transição ano a ano.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Comparativo e simulação de carteira",
+          "detalhe": "Pessoa física x pessoa jurídica e projeção do conjunto dos imóveis.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Laudo de auditoria",
+          "detalhe": "Memória de cálculo passo a passo, com a base legal de cada número.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Atualização para a LC 227/2026",
+          "detalhe": "O cálculo já está correto; falta citar a lei nova nas referências e no laudo.",
+          "situacao": "andamento"
+        },
+        {
+          "titulo": "Página pública e otimização de busca",
+          "detalhe": "O simulador é aberto a qualquer pessoa, mas ainda não tem apresentação própria nem título de busca.",
+          "situacao": "pendente"
+        }
+      ]
+    },
+    {
+      "nome": "Acesso e administração",
+      "entregas": [
+        {
+          "titulo": "Entrada no sistema",
+          "detalhe": "Login, cadastro por convite, recuperação e redefinição de senha.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Usuários e permissões por módulo",
+          "detalhe": "Sem acesso, somente ver ou editar, módulo a módulo.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Abrir qualquer tela pelo endereço",
+          "detalhe": "Link de convite, de recuperação de senha e o botão de atualizar do navegador devolviam página não encontrada fora da tela inicial. Corrigido.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Testes automáticos no banco novo",
+          "detalhe": "Mais de cem testes conferem, a cada publicação, as permissões e as regras automáticas do banco.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Registro de atividade",
+          "detalhe": "Auditoria de acessos, criações, edições e exclusões. A tela Início mostra as atividades ao vivo para o administrador.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Conferência automática a cada publicação",
+          "detalhe": "Antes de cada versão ir ao ar, o sistema roda testes e confere regras de segurança e de organização; o resultado aparece nesta página.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Acessibilidade WCAG 2.2 AA",
+          "detalhe": "Contraste, navegação por teclado, leitor de tela e ajuste do tamanho da letra.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Permissões verificadas no servidor",
+          "detalhe": "O banco confere o nível de acesso em toda consulta, por qualquer caminho — não só na tela.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Arquivos protegidos por login",
+          "detalhe": "Contrato assinado e comprovante deixaram de ser servidos por endereço aberto: o link é assinado e expira.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Banco de dados de produção",
+          "detalhe": "Base no Supabase com as 16 tabelas, as regras de acesso e a varredura diária de vencidos.",
+          "situacao": "pronto"
+        },
+        {
+          "titulo": "Separação por organização",
+          "detalhe": "Necessária para mais de uma holding usar o mesmo sistema sem se enxergarem.",
+          "situacao": "pendente"
+        },
+        {
+          "titulo": "Aplicativo para celular",
+          "detalhe": "As telas funcionam no navegador do celular; um aplicativo próprio é etapa futura.",
+          "situacao": "pendente"
+        }
+      ]
+    }
+  ],
+  "pendencias": {
+    "introducao": "As quatro correções críticas de segurança apontadas na auditoria foram fechadas com a mudança de banco. O que resta é preparo de operação.",
+    "itens": [
+      {
+        "codigo": "1",
+        "titulo": "Criar as contas de administrador",
+        "detalhe": "O banco está pronto e vazio. A conta nasce em Authentication → Users no painel do Supabase, com senha de pelo menos 6 caracteres — a mínima que o Supabase aceita — e depois é promovida a administrador por um comando no editor SQL."
+      },
+      {
+        "codigo": "2",
+        "titulo": "Fechar o cadastro aberto",
+        "detalhe": "O Supabase aceita cadastro de qualquer pessoa pela API. A conta nasce sem permissão e não vê nada, mas existe. Para um sistema interno, o certo é desligar o cadastro público e entrar só por convite."
+      },
+      {
+        "codigo": "3",
+        "titulo": "Remetente próprio para os e-mails",
+        "detalhe": "Convite e recuperação de senha saem hoje pelo remetente padrão do Supabase, que limita o volume. Para uso diário, ligar um serviço de e-mail com o domínio da holding."
+      },
+      {
+        "codigo": "4",
+        "titulo": "Validação de formato na borda",
+        "detalhe": "O banco já recusa valor fora da lista, campo obrigatório vazio e CPF duplicado. Falta a checagem de CPF, CNPJ e CEP antes do envio, para o erro aparecer no campo certo."
+      },
+      {
+        "codigo": "5",
+        "titulo": "Separação por organização",
+        "detalhe": "Hoje o sistema atende uma holding. Para atender mais de uma sem que uma enxergue a outra, falta o campo de organização em cada tabela."
+      }
+    ]
+  }
+}

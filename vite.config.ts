@@ -119,6 +119,9 @@ export default defineConfig(({ mode }) => ({
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/simulador/__tests__/setup.ts',
+    // As cópias de trabalho dos agentes vivem em .claude/worktrees e trazem
+    // testes próprios; contá-los aqui duplicaria (e confundiria) o resultado.
+    exclude: ['**/node_modules/**', '**/dist/**', '.claude/**'],
   },
   resolve: {
     alias: [

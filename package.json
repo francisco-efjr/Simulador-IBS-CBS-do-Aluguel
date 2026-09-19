@@ -8,7 +8,8 @@
   "scripts": {
     "start": "vite dev",
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/auditor.mjs && vite build",
+    "auditor": "node scripts/auditor.mjs",
     "build:dev": "vite build --mode development",
     "lint": "oxlint src",
     "lint:fix": "oxlint src --fix",
@@ -17,6 +18,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:banco": "vitest run supabase/tests",
     "typecheck": "tsc -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
@@ -76,6 +78,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@tailwindcss/typography": "^0.5.20",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",

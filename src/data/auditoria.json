@@ -1,0 +1,69 @@
+{
+  "geradoEm": "2026-09-19T16:27:38.136Z",
+  "commit": "48e4a4a",
+  "verificacoes": [
+    {
+      "id": "tipos",
+      "nome": "Código coerente",
+      "descricao": "Confere, antes de publicar, se todas as partes do código se encaixam (checagem de tipos do TypeScript).",
+      "situacao": "ok",
+      "detalhe": "Todas as partes do código se encaixam corretamente."
+    },
+    {
+      "id": "testes",
+      "nome": "Testes automáticos",
+      "descricao": "Roda a bateria de testes que confere os cálculos e o comportamento das telas.",
+      "situacao": "ok",
+      "detalhe": "Todos os 359 testes automáticos passaram."
+    },
+    {
+      "id": "lint",
+      "nome": "Boas práticas de escrita",
+      "descricao": "Revisa o código contra as regras de escrita do projeto (oxlint). Erro reprova; avisos acima do teto de 90 pedem atenção.",
+      "situacao": "ok",
+      "detalhe": "Nenhum erro. Há 90 pontos de melhoria anotados para arrumar com calma, e esse número não pode crescer."
+    },
+    {
+      "id": "camadas",
+      "nome": "Acesso ao banco organizado",
+      "descricao": "Nenhuma tela (src/pages) nem componente (src/components) fala direto com o banco: o acesso passa só por src/services e src/lib/dados.",
+      "situacao": "ok",
+      "detalhe": "Todas as telas passam pela camada própria para ler e gravar dados."
+    },
+    {
+      "id": "sem-modo-demonstracao",
+      "nome": "Sem dados de demonstração",
+      "descricao": "Não sobrou resto do antigo modo de demonstração (VITE_USE_MOCK, IS_MOCK_MODE, src/lib/mock), que aceitava qualquer senha.",
+      "situacao": "ok",
+      "detalhe": "O sistema só funciona com o banco de verdade; o modo de demonstração foi removido."
+    },
+    {
+      "id": "rls",
+      "nome": "Proteção de cada tabela",
+      "descricao": "Toda tabela criada em supabase/migrations tem a segurança por linha (RLS) ligada, para que cada pessoa só veja o que pode.",
+      "situacao": "ok",
+      "detalhe": "As 16 tabelas do banco têm a proteção que limita cada pessoa ao que ela pode ver."
+    },
+    {
+      "id": "segredos",
+      "nome": "Nenhuma senha exposta",
+      "descricao": "Nenhuma chave secreta foi guardada junto do código: nada de chave service_role, chave sb_secret_ ou arquivo .env no repositório.",
+      "situacao": "ok",
+      "detalhe": "Nenhuma chave secreta ou arquivo de senhas foi guardado junto do código."
+    },
+    {
+      "id": "decisoes",
+      "nome": "Decisões técnicas registradas",
+      "descricao": "Todo registro de decisão em docs/05-adr diz em que situação está (proposta, aceita, substituída).",
+      "situacao": "ok",
+      "detalhe": "Os 9 registros de decisão técnica dizem em que situação estão."
+    },
+    {
+      "id": "feed-em-dia",
+      "nome": "Lista de novidades em dia",
+      "descricao": "A seção \"Últimas atualizações\" não ficou para trás: a entrega (feat) ou correção (fix) mais recente do histórico não é mais nova que a última entrada de src/data/feed.json.",
+      "situacao": "ok",
+      "detalhe": "A lista de novidades acompanha o código. Última novidade: 19/09/2026."
+    }
+  ]
+}

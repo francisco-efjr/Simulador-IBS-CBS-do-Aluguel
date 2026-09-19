@@ -1,0 +1,54 @@
+# Auditor — funções de aptidão (ver docs/07-auditor.md).
+#
+# Roda em todo PR e em todo push para main. Em modo estrito: qualquer
+# verificação com "falha" reprova o job. O resultado vai para o resumo do job.
+#
+# Não faz commit: o auditoria.json de produção é regenerado pelo build da
+# Vercel (o `pnpm build` roda o auditor antes do `vite build`).
+name: Auditor
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: auditor-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  auditor:
+    name: Funções de aptidão
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Baixar o código com o histórico completo
+        uses: actions/checkout@v4
+        with:
+          # O "feed em dia" compara o último feat/fix com a última novidade.
+          fetch-depth: 0
+
+      - name: Instalar o pnpm (versão do campo packageManager)
+        uses: pnpm/action-setup@v4
+
+      - name: Instalar o Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Instalar as dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: Rodar o auditor (estrito)
+        run: pnpm auditor --estrito
+
+      - name: Publicar o resultado no resumo do job
+        if: always()
+        run: |
+          if [ -f src/data/auditoria.json ]; then
+            node scripts/auditor.mjs --markdown >> "$GITHUB_STEP_SUMMARY"
+          fi

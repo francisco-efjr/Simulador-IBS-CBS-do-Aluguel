@@ -1,6 +1,6 @@
 # ADR-0006 — Parsing de extrato migra para o servidor
 
-- **Status:** Proposta
+- **Status:** Proposta — gravação atômica implementada (ver atualização de 19/09/2026)
 - **Data:** 2026-09-15
 
 ## Contexto
@@ -60,3 +60,34 @@ que é complexidade nova.
 **Alternativa descartada** — manter no cliente e validar no servidor apenas o resultado. Validar
 deduplicação sem o arquivo original é reimplementar o motor no servidor de todo modo, com o dobro do
 custo e sem o benefício.
+
+## Atualização de 19/09/2026
+
+Com a troca do PocketBase pelo Supabase (sem servidor próprio), o passo de maior valor deste ADR foi
+feito primeiro e de forma isolada: **a gravação atômica** (problema 2).
+
+**O que foi feito.** A migração `supabase/migrations/20260919120002_importacao_atomica.sql` cria a função
+`public.importar_extrato(p_importacao jsonb, p_transacoes jsonb) returns uuid`. O navegador continua
+parseando o arquivo, mas envia o lote inteiro numa chamada (`importarExtrato` em
+`src/services/importacoes.ts`); a função grava `importacoes` e todas as `transacoes_importadas` numa
+única transação do Postgres. Ou o lote inteiro existe, ou nenhuma linha dele — inclusive a trilha de
+auditoria. Detalhes:
+
+- `security invoker`: a RLS continua valendo com a permissão de quem chama (`edicao` em
+  `importar_extrato` para a importação e em `classificar_transacoes` para as transações), exatamente como
+  quando o cliente inseria direto. Só `authenticated` executa.
+- Data, contadores e status da importação nascem no banco; `classificada`, `ignorada` e os vínculos com
+  receita/despesa não são aceitos do cliente — toda transação nasce pendente.
+- Teto de 5.000 transações por chamada, com mensagem em português; linha incompleta é recusada antes de
+  gravar, apontando a posição no lote.
+
+**O que continua proposto.** Parsing, deduplicação e sugestão seguem no navegador, e com eles os
+problemas 1, 3 e 5 acima. Em particular, a **detecção de duplicata não foi para a função**: ela é um
+_fuzzy match_ (`calculateSimilarity` ≥ 0,65 sobre texto normalizado) que roda na pré-visualização,
+*antes* de a pessoa decidir se inclui ou ignora cada duplicata. Levá-la para o banco exigiria ou
+reescrever o algoritmo em PL/pgSQL — duas implementações que divergem — ou decidir a duplicata depois
+da gravação, mudando a experiência. A função grava as marcas de duplicata e as sugestões que o
+navegador calculou, como consultivas que são. O desenho descrito na Decisão (motor compartilhado no
+servidor — no Supabase, o lugar natural seria uma Edge Function —, validação por conteúdo, não retenção
+do arquivo) continua sendo o alvo; quando vier, ele pode reaproveitar `importar_extrato` como etapa de
+gravação.

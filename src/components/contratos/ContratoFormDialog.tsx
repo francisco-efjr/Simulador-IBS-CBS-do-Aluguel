@@ -22,6 +22,7 @@ import { getImoveis } from '@/services/imoveis'
 import { getInquilinos } from '@/services/inquilinos'
 import { TIPO_GARANTIA_LABELS, STATUS_CONTRATO_LABELS } from '@/lib/format'
 import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
+import { contratoSchema, validarFormulario } from '@/lib/validacao/esquemas'
 import { toast } from 'sonner'
 
 const EMPTY = {
@@ -84,15 +85,7 @@ export function ContratoFormDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
-    const fe: FieldErrors = {}
-    if (!form.imovel) fe.imovel = 'Imóvel é obrigatório'
-    if (!form.inquilino) fe.inquilino = 'Inquilino é obrigatório'
-    if (!form.data_inicio) fe.data_inicio = 'Data de início é obrigatória'
-    if (!form.data_fim) fe.data_fim = 'Data de término é obrigatória'
-    if (form.data_inicio && form.data_fim && form.data_inicio > form.data_fim) {
-      fe.data_fim = 'Data de término deve ser posterior à data de início'
-    }
-    if (!form.valor_aluguel) fe.valor_aluguel = 'Valor do aluguel é obrigatório'
+    const fe = validarFormulario(contratoSchema, form)
     if (Object.keys(fe).length) {
       setErrors(fe)
       return
@@ -147,7 +140,7 @@ export function ContratoFormDialog({
         <DialogHeader>
           <DialogTitle>{editing ? 'Editar Contrato' : 'Novo Contrato'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Field label="Número do contrato" error={errors.numero}>
               <Input
@@ -237,7 +230,7 @@ export function ContratoFormDialog({
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
-            <Field label="Valor da garantia (R$)">
+            <Field label="Valor da garantia (R$)" error={errors.valor_garantia}>
               <Input
                 type="number"
                 step="0.01"
