@@ -95,3 +95,23 @@ referência do que cada hook fazia.
    Supabase, que limita o volume diário. Para uso de verdade, ligar um SMTP próprio em
    Authentication → Emails.
 4. **Cadastrar.** Imóveis → Inquilinos → Contratos, nessa ordem: contrato exige os dois.
+
+## Testes do banco
+
+`pnpm test:banco` (e também `pnpm test`) sobe um Postgres embutido — [PGlite](https://pglite.dev),
+em WebAssembly, sem Docker nem conta no Supabase — aplica **todas** as migrações desta pasta em
+ordem alfabética e testa o que protege os dados: RLS por módulo (inclusive _fail-closed_ e
+anônimo), `tg_proteger_privilegio`, status derivado, imóvel ↔ contrato, autoria, trilha de
+auditoria e `marcar_lancamentos_em_atraso()`. Roda em poucos segundos, no CI também.
+
+- `tests/harness.ts` cria o banco e documenta os stubs do que o Supabase fornece pronto:
+  roles `anon`/`authenticated`/`service_role`, `auth.users` e `auth.uid()`, `storage.buckets`/
+  `storage.objects`, a publicação `supabase_realtime` e um `cron.schedule()` que não agenda nada
+  (o PGlite não tem `pg_cron`). Extensões que o PGlite oferece em `contrib` são carregadas
+  sozinhas quando uma migração pede.
+- `comoUsuario(id, fn)` e `comoAnonimo(fn)` trocam de role e de sessão dentro de uma transação
+  que é desfeita no fim; `criarUsuario({ perfil, permissoes })` monta o cenário.
+- Migração nova não precisa de nada: entra no próximo `pnpm test`. Se ela quebrar ao subir, o
+  erro diz qual arquivo.
+- Testes marcados `it.fails` documentam defeitos conhecidos das migrações; quando alguém
+  corrigir, eles passam a falhar e é só trocar para `it`.
