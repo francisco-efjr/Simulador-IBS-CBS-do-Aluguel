@@ -16,6 +16,7 @@
 | 5 | [05-adr/](05-adr/) | 8 Registros de Decisão Arquitetural |
 | — | [06-seguranca.md](06-seguranca.md) | Auditoria de segurança: 13 achados com evidência, severidade e correção |
 | — | [07-auditor.md](07-auditor.md) | Auditor: funções de aptidão que rodam no CI e em todo build, e a regra do feed de atualizações |
+| — | [08-produto/](08-produto/README.md) | Produto: papel do PO, visão e Product Goal, personas, inventário funcional, catálogo de regras de negócio, histórias com cenários Gherkin e backlog priorizado |
 | — | [simulador.md](simulador.md) | Documentação funcional e legal do Simulador IBS/CBS |
 
 ## Sumário executivo
