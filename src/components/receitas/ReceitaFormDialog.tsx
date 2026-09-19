@@ -24,6 +24,7 @@ import { getContratos } from '@/services/contratos'
 import { getCategoriasReceita } from '@/services/categorias-financeiras'
 import { STATUS_RECEITA_LABELS, FORMA_RECEBIMENTO_LABELS } from '@/lib/format'
 import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
+import { receitaSchema, validarFormulario } from '@/lib/validacao/esquemas'
 import { toast } from 'sonner'
 
 const EMPTY = {
@@ -102,11 +103,7 @@ export function ReceitaFormDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
-    const fe: FieldErrors = {}
-    if (!form.imovel) fe.imovel = 'Imóvel é obrigatório'
-    if (!form.categoria) fe.categoria = 'Categoria é obrigatória'
-    if (!form.data_vencimento) fe.data_vencimento = 'Data de vencimento é obrigatória'
-    if (!form.valor_previsto) fe.valor_previsto = 'Valor previsto é obrigatório'
+    const fe = validarFormulario(receitaSchema, form)
     if (Object.keys(fe).length) {
       setErrors(fe)
       return
@@ -142,7 +139,7 @@ export function ReceitaFormDialog({
         <DialogHeader>
           <DialogTitle>{editing ? 'Editar Receita' : 'Nova Receita'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Imóvel" error={errors.imovel}>
               <Select value={form.imovel} onValueChange={(v) => upd('imovel', v)}>
@@ -248,7 +245,7 @@ export function ReceitaFormDialog({
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
-            <Field label="Valor recebido (R$)">
+            <Field label="Valor recebido (R$)" error={errors.valor_recebido}>
               <Input
                 type="number"
                 step="0.01"
