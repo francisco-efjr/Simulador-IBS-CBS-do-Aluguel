@@ -21,6 +21,7 @@ import { createIptuTaxa, updateIptuTaxa } from '@/services/iptu-taxas'
 import { getImoveis } from '@/services/imoveis'
 import { TIPO_IPTU_LABELS, STATUS_IPTU_LABELS } from '@/lib/format'
 import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
+import { iptuTaxaSchema, validarFormulario } from '@/lib/validacao/esquemas'
 import { toast } from 'sonner'
 
 const EMPTY = {
@@ -75,11 +76,7 @@ export function IptuTaxaFormDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
-    const fe: FieldErrors = {}
-    if (!form.imovel) fe.imovel = 'Imóvel é obrigatório'
-    if (!form.descricao) fe.descricao = 'Descrição é obrigatória'
-    if (!form.vencimento) fe.vencimento = 'Data de vencimento é obrigatória'
-    if (!form.valor) fe.valor = 'Valor é obrigatório'
+    const fe = validarFormulario(iptuTaxaSchema, form)
     if (Object.keys(fe).length) {
       setErrors(fe)
       return
@@ -134,7 +131,7 @@ export function IptuTaxaFormDialog({
         <DialogHeader>
           <DialogTitle>{editing ? 'Editar Obrigação' : 'Nova Obrigação'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Imóvel" error={errors.imovel}>
               <Select value={form.imovel} onValueChange={(v) => upd('imovel', v)}>
@@ -173,7 +170,7 @@ export function IptuTaxaFormDialog({
             />
           </Field>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Field label="Ano de referência">
+            <Field label="Ano de referência" error={errors.ano_referencia}>
               <Input
                 type="number"
                 min={2000}

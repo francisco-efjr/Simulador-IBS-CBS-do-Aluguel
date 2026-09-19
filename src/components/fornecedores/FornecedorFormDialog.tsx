@@ -20,6 +20,7 @@ import { Field } from '@/components/shared/Field'
 import { createFornecedor, updateFornecedor } from '@/services/fornecedores'
 import { TIPO_FORNECEDOR_LABELS } from '@/lib/format'
 import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
+import { fornecedorSchema, validarFormulario } from '@/lib/validacao/esquemas'
 import { toast } from 'sonner'
 
 const EMPTY = {
@@ -70,8 +71,7 @@ export function FornecedorFormDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
-    const fe: FieldErrors = {}
-    if (!form.nome.trim()) fe.nome = 'Nome/razão social é obrigatório'
+    const fe = validarFormulario(fornecedorSchema, form)
     if (Object.keys(fe).length) {
       setErrors(fe)
       return
@@ -111,7 +111,7 @@ export function FornecedorFormDialog({
         <DialogHeader>
           <DialogTitle>{editing ? 'Editar Fornecedor' : 'Novo Fornecedor'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <Field label="Nome/Razão social" error={errors.nome}>
             <Input
               value={form.nome}
@@ -166,7 +166,7 @@ export function FornecedorFormDialog({
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
-            <Field label="E-mail">
+            <Field label="E-mail" error={errors.email}>
               <Input
                 type="email"
                 value={form.email}
