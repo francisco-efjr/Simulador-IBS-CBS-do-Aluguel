@@ -1,4 +1,5 @@
 import { colecao, type Filtro } from '@/lib/dados/cliente'
+import { supabase } from '@/lib/dados/supabase'
 import type { ContaBancaria } from './contas-bancarias'
 
 export interface Importacao {
@@ -61,6 +62,56 @@ export const getImportacao = (id: string) =>
 
 export const createImportacao = (data: Partial<Importacao>) =>
   colecao('importacoes').create<Importacao>(data)
+
+/** Teto de linhas por chamada; o mesmo número está em importar_extrato, no banco. */
+export const LIMITE_TRANSACOES_POR_IMPORTACAO = 5000
+
+/** Cabeçalho do lote: data, contadores e status são decididos pelo banco. */
+export type NovaImportacao = Pick<Importacao, 'conta_bancaria' | 'arquivo_nome' | 'formato'>
+
+/** O que o motor do navegador sabe de cada linha: dado do extrato, duplicata e sugestão. */
+export type NovaTransacaoImportada = Pick<
+  TransacaoImportada,
+  | 'data'
+  | 'descricao'
+  | 'valor'
+  | 'tipo'
+  | 'saldo'
+  | 'duplicata_detectada'
+  | 'duplicata_ids'
+  | 'sugestao_tipo'
+  | 'sugestao_categoria'
+  | 'sugestao_categoria_id'
+  | 'sugestao_imovel'
+  | 'sugestao_imovel_id'
+  | 'sugestao_confianca'
+>
+
+/**
+ * Grava a importação e todas as suas transações de uma vez só.
+ *
+ * Antes eram 1 + N requisições, e uma queda de conexão no meio deixava uma
+ * importação pela metade. A função `importar_extrato` roda tudo numa única
+ * transação do Postgres, com a RLS de quem chama: ou o lote inteiro entra, ou
+ * nada entra. Devolve o id da importação criada.
+ *
+ * O erro sai como veio do banco; quem chama traduz com `getErrorMessage`.
+ */
+export async function importarExtrato(
+  importacao: NovaImportacao,
+  transacoes: NovaTransacaoImportada[],
+): Promise<string> {
+  const { data, error } = await supabase.rpc('importar_extrato', {
+    p_importacao: importacao,
+    p_transacoes: transacoes,
+  })
+
+  if (error) throw new Error(error.message)
+  if (typeof data !== 'string') {
+    throw new Error('A importação foi enviada, mas o banco não devolveu o número dela.')
+  }
+  return data
+}
 
 export const updateImportacao = (id: string, data: Partial<Importacao>) =>
   colecao('importacoes').update<Importacao>(id, data)

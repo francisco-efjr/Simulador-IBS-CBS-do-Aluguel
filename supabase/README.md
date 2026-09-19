@@ -28,7 +28,10 @@ Rode em ordem. Cada arquivo é independente e roda inteiro de uma vez no SQL Edi
 | `20260917120004_rls.sql` | permissão de módulo avaliada pelo banco |
 | `20260917120005_storage_e_rotinas.sql` | buckets privados e a varredura diária |
 | `20260917120006_dados_de_referencia.sql` | categorias financeiras |
+| `20260917120007_convite_e_tempo_real.sql` | validação de convite sem login e publicação do tempo real |
 | `20260919120001_regras_de_negocio.sql` | um contrato ativo por imóvel no mesmo período (`btree_gist`); imóvel ou inquilino com contrato ativo não é inativado nem excluído (erro `HA001`); CPF/CNPJ com dígito verificador — CNPJ alfanumérico incluso —, e-mail com formato mínimo e datas entre 1900 e 2200 (S-06). Pode ser rodada de novo sem erro |
+| `20260919120002_importacao_atomica.sql` | `importar_extrato()`: grava a importação e suas transações numa transação só (ADR-0006). **Aplicar à mão** — é posterior à carga de 17/09 |
+| `20260919120003_feed_de_atividades.sql` | põe `logs_atividade` no tempo real, para o feed de atividades da tela Início (só administrador recebe) |
 
 ## Quatro achados de segurança que esta modelagem fecha
 
