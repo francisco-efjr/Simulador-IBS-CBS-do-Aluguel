@@ -65,6 +65,8 @@ const ENTIDADES_OPCOES = [
   { value: 'importacoes', label: 'Importações de Extrato' },
   { value: 'contas_bancarias', label: 'Contas Bancárias' },
   { value: 'documentos_anexos', label: 'Documentos Anexos' },
+  { value: 'users', label: 'Usuários' },
+  { value: 'permissoes', label: 'Permissões' },
 ]
 
 export default function LogsAtividade() {
@@ -289,6 +291,8 @@ export default function LogsAtividade() {
         label: 'Fornecedor',
         color: 'bg-orange-100 text-orange-800 border-orange-200',
       },
+      users: { label: 'Usuário', color: 'bg-purple-100 text-purple-800 border-purple-200' },
+      permissoes: { label: 'Permissão', color: 'bg-pink-100 text-pink-800 border-pink-200' },
       documentos_anexos: {
         label: 'Documento',
         color: 'bg-violet-100 text-violet-800 border-violet-200',

@@ -52,6 +52,10 @@ const ENTIDADES: Record<string, DescricaoDaEntidade> = {
     verbos: { criou: 'anexou' },
   },
   users: { comArtigo: 'o usuário' },
+  permissoes: {
+    comArtigo: 'a permissão de',
+    verbos: { criou: 'concedeu', editou: 'alterou', excluiu: 'retirou' },
+  },
 }
 
 const SINONIMOS: Record<string, string> = {
@@ -67,6 +71,7 @@ const SINONIMOS: Record<string, string> = {
   convite: 'convites',
   documento_anexo: 'documentos_anexos',
   usuario: 'users',
+  permissao: 'permissoes',
 }
 
 /** Quem fez, quando a linha não traz usuário (rotina automática do banco). */
