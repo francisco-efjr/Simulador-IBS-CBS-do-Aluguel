@@ -28,6 +28,8 @@ Rode em ordem. Cada arquivo é independente e roda inteiro de uma vez no SQL Edi
 | `20260917120004_rls.sql` | permissão de módulo avaliada pelo banco |
 | `20260917120005_storage_e_rotinas.sql` | buckets privados e a varredura diária |
 | `20260917120006_dados_de_referencia.sql` | categorias financeiras |
+| `20260917120007_convite_e_tempo_real.sql` | validação de convite sem login e publicação do tempo real |
+| `20260919120002_importacao_atomica.sql` | `importar_extrato()`: grava a importação e suas transações numa transação só (ADR-0006). **Aplicar à mão** — é posterior à carga de 17/09 |
 
 ## Quatro achados de segurança que esta modelagem fecha
 
