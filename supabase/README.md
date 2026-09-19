@@ -32,6 +32,7 @@ Rode em ordem. Cada arquivo é independente e roda inteiro de uma vez no SQL Edi
 | `20260919120001_regras_de_negocio.sql` | um contrato ativo por imóvel no mesmo período (`btree_gist`); imóvel ou inquilino com contrato ativo não é inativado nem excluído (erro `HA001`); CPF/CNPJ com dígito verificador — CNPJ alfanumérico incluso —, e-mail com formato mínimo e datas entre 1900 e 2200 (S-06). Pode ser rodada de novo sem erro |
 | `20260919120002_importacao_atomica.sql` | `importar_extrato()`: grava a importação e suas transações numa transação só (ADR-0006). **Aplicar à mão** — é posterior à carga de 17/09 |
 | `20260919120003_feed_de_atividades.sql` | põe `logs_atividade` no tempo real, para o feed de atividades da tela Início (só administrador recebe) |
+| `20260919120004_correcoes_da_auditoria.sql` | corrige os defeitos que os testes do banco acharam: o primeiro administrador volta a ser promovível pelo SQL Editor; `created_by`/`updated_by` não se forjam no INSERT; trocar o imóvel de um contrato ativo ou apagá-lo libera o imóvel; mudança de perfil, situação e permissão entra em `logs_atividade`; EXECUTE revogado das funções `security definer` de quem não precisa (`marcar_lancamentos_em_atraso()` sai do `/rpc`). Pode ser rodada de novo sem erro. **Aplicar à mão**, junto das outras `20260919*` |
 
 ## Quatro achados de segurança que esta modelagem fecha
 
@@ -80,6 +81,12 @@ update public.users set perfil = 'administrador', ativo = true
 
 Administrador tem `edicao` em todo módulo por definição — não precisa de linha em `permissoes`.
 
+Isso só funciona depois da `20260919120004_correcoes_da_auditoria.sql`: antes dela, o gatilho
+`tg_proteger_privilegio` recusava a mudança, porque no SQL Editor não há sessão de usuário. A
+regra agora é: sem sessão (`auth.uid()` nulo) e fora das roles da API (`anon`/`authenticated`)
+— ou seja, SQL Editor ou chave `service_role` — a mudança passa; com sessão, só um
+administrador ativo muda perfil ou situação. A promoção fica em `logs_atividade`, sem autor.
+
 ## A aplicação já usa este banco
 
 O frontend foi migrado: `src/lib/dados/` substituiu o cliente do PocketBase, a autenticação
@@ -102,7 +109,9 @@ referência do que cada hook fazia.
 em WebAssembly, sem Docker nem conta no Supabase — aplica **todas** as migrações desta pasta em
 ordem alfabética e testa o que protege os dados: RLS por módulo (inclusive _fail-closed_ e
 anônimo), `tg_proteger_privilegio`, status derivado, imóvel ↔ contrato, autoria, trilha de
-auditoria e `marcar_lancamentos_em_atraso()`. Roda em poucos segundos, no CI também.
+auditoria (inclusive das mudanças de privilégio), `marcar_lancamentos_em_atraso()` e quem pode
+executar cada função `security definer` — função nova que nasça aberta a `anon` quebra a suíte.
+Roda em poucos segundos, no CI também.
 
 - `tests/harness.ts` cria o banco e documenta os stubs do que o Supabase fornece pronto:
   roles `anon`/`authenticated`/`service_role`, `auth.users` e `auth.uid()`, `storage.buckets`/

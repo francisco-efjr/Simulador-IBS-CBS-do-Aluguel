@@ -57,6 +57,12 @@ describe('migrações', () => {
     expect(rows.every((b) => b.public === false)).toBe(true)
   })
 
+  it('a migração de correções da auditoria pode ser rodada de novo inteira (SQL Editor)', async () => {
+    const correcoes = listarMigracoes().find((m) => m.arquivo === '20260919120004_correcoes_da_auditoria.sql')
+    expect(correcoes).toBeDefined()
+    await banco.desfazendo((q) => q.exec(correcoes!.sql))
+  })
+
   it('publica as tabelas no canal de tempo real', async () => {
     const { rows } = await banco.db.query<{ tablename: string }>(
       `select tablename from pg_publication_tables where pubname = 'supabase_realtime'`,

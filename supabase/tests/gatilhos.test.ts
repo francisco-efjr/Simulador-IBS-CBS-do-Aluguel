@@ -173,10 +173,18 @@ describe('imóvel segue o contrato', () => {
         q,
         `insert into public.inquilinos (nome) values ('Beatriz Rocha') returning id`,
       )
-      await q.query(`insert into public.contratos (imovel, inquilino) values ($1, $2)`, [imovel, inquilino])
+      // Períodos que não se sobrepõem: dois ativos sobrepostos no mesmo imóvel
+      // são recusados por contratos_um_ativo_por_imovel (migração 20260919120001).
+      // Um vigente e um futuro, já assinado, é o caso real.
+      await q.query(
+        `insert into public.contratos (imovel, inquilino, data_inicio, data_fim)
+         values ($1, $2, current_date - 180, current_date + 180)`,
+        [imovel, inquilino],
+      )
       const { id } = await umaLinha<{ id: string }>(
         q,
-        `insert into public.contratos (imovel, inquilino) values ($1, $2) returning id`,
+        `insert into public.contratos (imovel, inquilino, data_inicio, data_fim)
+         values ($1, $2, current_date + 181, current_date + 545) returning id`,
         [imovel, outro.id],
       )
       await q.query(`update public.contratos set status = 'cancelado' where id = $1`, [id])
@@ -206,10 +214,9 @@ describe('imóvel segue o contrato', () => {
     })
   })
 
-  // Achado: o gatilho só olha o imóvel NOVO. Trocar o imóvel de um contrato
-  // ativo aluga o destino, mas deixa o de origem 'alugado' e com
-  // inquilino_atual apontando para quem já não mora lá.
-  it.fails('trocar o imóvel de um contrato ativo libera o imóvel antigo', async () => {
+  // Corrigido na migração 20260919120004 (11.3): o gatilho olhava só o imóvel
+  // NOVO e deixava o de origem 'alugado', com o inquilino antigo.
+  it('trocar o imóvel de um contrato ativo libera o imóvel antigo', async () => {
     await banco.comoUsuario(editor, async (q) => {
       const destino = await umaLinha<{ id: string }>(
         q,
@@ -226,9 +233,9 @@ describe('imóvel segue o contrato', () => {
     })
   })
 
-  // Achado: não há gatilho de DELETE em contratos. Apagar um contrato ativo
-  // (a RLS permite a quem tem edição) deixa o imóvel 'alugado' para sempre.
-  it.fails('apagar um contrato ativo libera o imóvel', async () => {
+  // Corrigido na migração 20260919120004 (11.4): não havia gatilho de DELETE, e
+  // apagar um contrato ativo deixava o imóvel 'alugado' para sempre.
+  it('apagar um contrato ativo libera o imóvel', async () => {
     await banco.comoUsuario(editor, async (q) => {
       const { id } = await umaLinha<{ id: string }>(
         q,
@@ -284,11 +291,10 @@ describe('autoria e carimbo', () => {
     })
   })
 
-  // Achado: no INSERT o gatilho faz coalesce(new.created_by, auth.uid()) — o
-  // valor mandado pelo cliente vence. Qualquer um com edição cria registro em
-  // nome de outra pessoa, e a trilha de autoria deixa de ser confiável. No
-  // UPDATE a regra já é a certa (auth.uid() primeiro).
-  it.fails('não deixa criar registro em nome de outra pessoa', async () => {
+  // Corrigido na migração 20260919120004 (11.2): no INSERT o valor mandado pelo
+  // cliente vencia o auth.uid(), e qualquer um com edição criava registro em
+  // nome de outra pessoa.
+  it('não deixa criar registro em nome de outra pessoa', async () => {
     await banco.comoUsuario(editor, async (q) => {
       const linha = await umaLinha<{ created_by: string; updated_by: string }>(
         q,

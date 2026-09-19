@@ -309,14 +309,89 @@ describe('RLS — anônimo', () => {
     })
   })
 
-  // Achado: as funções de public herdam EXECUTE para anon (privilégio padrão do
-  // Supabase + PUBLIC), e a migração só revoga o de validar_convite. Como
-  // marcar_lancamentos_em_atraso() é security definer, qualquer visitante sem
-  // login consegue dispará-la por /rest/v1/rpc — ela só faz o que a rotina
-  // diária faria, mas é escrita no banco aberta a quem não se identificou.
-  it.fails('anônimo não consegue executar marcar_lancamentos_em_atraso()', async () => {
+  // Corrigido na migração 20260919120004 (11.6): a função é security definer e
+  // herdava EXECUTE de anon; qualquer visitante a disparava por /rest/v1/rpc.
+  it('anônimo não consegue executar marcar_lancamentos_em_atraso()', async () => {
     const erro = await banco.comoAnonimo((q) => capturarErro(q.query(`select public.marcar_lancamentos_em_atraso()`)))
     expect(erro.code).toBe('42501')
+  })
+})
+
+describe('EXECUTE das funções security definer', () => {
+  type Funcao = { nome: string; gatilho: boolean; anon: boolean; authenticated: boolean; publico: boolean }
+
+  /**
+   * Toda função security definer de public, com quem pode executá-la. Função
+   * nova entra aqui sozinha: se nascer aberta a anon, estes testes pegam.
+   */
+  async function funcoesSecurityDefiner(): Promise<Funcao[]> {
+    const { rows } = await banco.db.query<Funcao>(
+      `select p.oid::regprocedure::text as nome,
+              p.prorettype = 'trigger'::regtype as gatilho,
+              has_function_privilege('anon', p.oid, 'execute') as anon,
+              has_function_privilege('authenticated', p.oid, 'execute') as authenticated,
+              exists (
+                select 1 from aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a
+                 where a.grantee = 0 and a.privilege_type = 'EXECUTE'
+              ) as publico
+         from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+        where n.nspname = 'public' and p.prosecdef
+        order by 1`,
+    )
+    return rows
+  }
+
+  const ABERTA_AO_VISITANTE = 'validar_convite(text)'
+  const USADAS_NA_RLS = [
+    'eh_administrador()',
+    'nivel_no_modulo(modulo_permissao)',
+    'pode_editar(modulo_permissao)',
+    'pode_ver(modulo_permissao)',
+    'usuario_ativo()',
+  ]
+
+  it('a consulta enxerga as funções (não passa por estar vazia)', async () => {
+    const nomes = (await funcoesSecurityDefiner()).map((f) => f.nome)
+    expect(nomes).toEqual(
+      expect.arrayContaining([ABERTA_AO_VISITANTE, 'marcar_lancamentos_em_atraso()', ...USADAS_NA_RLS]),
+    )
+  })
+
+  it('nenhuma é executável por anon, exceto validar_convite', async () => {
+    const abertas = (await funcoesSecurityDefiner()).filter((f) => f.anon).map((f) => f.nome)
+    expect(abertas).toEqual([ABERTA_AO_VISITANTE])
+  })
+
+  it('nenhuma herda EXECUTE de PUBLIC', async () => {
+    const herdadas = (await funcoesSecurityDefiner()).filter((f) => f.publico).map((f) => f.nome)
+    expect(herdadas).toEqual([])
+  })
+
+  it('funções de gatilho não são executáveis pelas roles da API', async () => {
+    const gatilhos = (await funcoesSecurityDefiner()).filter((f) => f.gatilho)
+    expect(gatilhos.length).toBeGreaterThan(0)
+    expect(gatilhos.filter((f) => f.anon || f.authenticated).map((f) => f.nome)).toEqual([])
+  })
+
+  it('authenticated executa só as funções da RLS e validar_convite', async () => {
+    const liberadas = (await funcoesSecurityDefiner()).filter((f) => f.authenticated).map((f) => f.nome)
+    expect([...liberadas].sort()).toEqual([...USADAS_NA_RLS, ABERTA_AO_VISITANTE].sort())
+  })
+
+  it('nem o administrador logado dispara marcar_lancamentos_em_atraso() por /rpc', async () => {
+    const erro = await banco.comoUsuario(admin, (q) =>
+      capturarErro(q.query(`select public.marcar_lancamentos_em_atraso()`)),
+    )
+    expect(erro.code).toBe('42501')
+  })
+
+  it('a RLS continua decidindo para authenticated depois do revoke', async () => {
+    await banco.comoUsuario(leitor, async (q) => {
+      const { rows } = await q.query<{ ver: boolean; editar: boolean }>(
+        `select public.pode_ver('imoveis') as ver, public.pode_editar('imoveis') as editar`,
+      )
+      expect(rows[0]).toEqual({ ver: true, editar: false })
+    })
   })
 })
 
