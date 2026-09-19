@@ -65,7 +65,9 @@ export const BRLInput: React.FC<BRLInputProps> = ({
       const len = textValue.length
       try {
         inputRef.current.setSelectionRange(len, len)
-      } catch (e) {}
+      } catch {
+        // Alguns tipos de campo não aceitam seleção; o cursor fica onde estiver.
+      }
     }
   }, [textValue, isFocused])
 
