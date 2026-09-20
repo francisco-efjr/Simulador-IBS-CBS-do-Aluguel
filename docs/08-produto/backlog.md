@@ -168,7 +168,7 @@ Um item só está pronto quando **tudo** abaixo vale:
    pelo menos um caso aceito e um recusado — inclusive por usuário sem permissão. Regra de tela tem teste
    Vitest.
 3. `pnpm test`, `pnpm typecheck` e `pnpm lint` passam (lint sem subir o teto de avisos).
-4. **Auditor 9/9 em ordem**: `pnpm auditor` sem `falha` nem `atencao`, e `pnpm auditor --estrito` verde
+4. **Auditor 10/10 em ordem**: `pnpm auditor` sem `falha` nem `atencao`, e `pnpm auditor --estrito` verde
    no CI ([07-auditor.md](../07-auditor.md)).
 5. **Nenhuma recusa silenciosa**: toda recusa do banco aparece para a pessoa, no campo certo quando há
    campo, com a mensagem do item.
@@ -179,7 +179,9 @@ Um item só está pronto quando **tudo** abaixo vale:
    EXECUTE para `anon`; mutação nova coberta pela trilha de auditoria.
 8. **Migração idempotente** e registrada em [`supabase/README.md`](../../supabase/README.md).
 9. **Documentação** atualizada: situação da regra no [catálogo](regras-de-negocio.md), linha do
-   [inventário](inventario-funcional.md) e, se mudar o quadro, `src/data/andamento.json`.
+   [inventário](inventario-funcional.md) e, se mudar o quadro, `src/data/andamento.json`. Mexeu numa
+   história daqui, acerte `src/data/historias.json` no mesmo PR — o auditor reprova a divergência
+   (`historias-conferem`).
 10. **Entrada no topo de [`src/data/feed.json`](../../src/data/feed.json)**, no mesmo PR, em linguagem
     para leigo (regra do [auditor](../07-auditor.md#regra-de-processo-toda-entrega-anuncia-a-si-mesma)).
 11. **Demonstrado à administradora** com dado real ou cópia fiel, e aceito por ela (Stare, 2014).

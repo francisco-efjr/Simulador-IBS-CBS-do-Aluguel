@@ -90,7 +90,7 @@ recomendação do PO e quem precisa confirmar — advogado, contadora ou famíli
 
 Além do que o `backlog.md` detalha, nenhum item fecha sem:
 
-- auditor em **9 de 9** (`pnpm auditor`);
+- auditor em **10 de 10** (`pnpm auditor`);
 - **teste de banco** para toda regra nova que viva no Postgres (`supabase/tests/`);
 - **acessibilidade WCAG 2.2 AA** na parte visível;
 - **entrada em [`src/data/feed.json`](../../../src/data/feed.json)**, escrita para leigo,

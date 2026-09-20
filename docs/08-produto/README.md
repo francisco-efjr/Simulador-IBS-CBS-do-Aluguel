@@ -105,7 +105,7 @@ e não só o que teme.
 | Fornecedores e síndicos | Não usam; aparecem como cadastro | Pagamento em dia | — | Baixa × baixa — **monitorar** | Indireto |
 | Prefeitura, Receita, Comitê Gestor do IBS | Não usam; definem regras | Tributo pago em dia | — | Alta × baixa — **acompanhar a norma** | Mudança de lei entra como item de backlog |
 | Bancos (extrato OFX/CSV) | Fonte de dado | — | — | Média × baixa — **monitorar formato** | Novo dialeto de extrato vira item |
-| Equipe de desenvolvimento | Constrói e mantém | Backlog claro, DoD objetiva | Mudança sem critério | Alta × alta — **parceria diária** | Refinamento; auditor 9/9 |
+| Equipe de desenvolvimento | Constrói e mantém | Backlog claro, DoD objetiva | Mudança sem critério | Alta × alta — **parceria diária** | Refinamento; auditor 10/10 |
 
 Regra de engajamento (Rocha, 2014): **alinhar a família antes** de mudar algo que o inquilino sente
 (reajuste, recibo, cobrança).
@@ -119,7 +119,7 @@ Regra de engajamento (Rocha, 2014): **alinhar a família antes** de mudar algo q
 | Horizonte | Detalhado para os próximos 3 a 6 meses; o resto fica grosso (Johansen *et al.*, 2014, "nove passos") | PO |
 | Revisão | A cada entrega (reordenação) e uma vez por mês (riscos e oportunidades); revisão geral no fechamento do semestre | PO |
 | Entrada de item | Precisa cumprir a [Definition of Ready](backlog.md#definition-of-ready-dor) | PO + equipe |
-| Saída de item | Só com a [Definition of Done](backlog.md#definition-of-done-dod) inteira, inclusive o auditor 9/9 e a entrada no feed | Equipe, conferido pelo PO |
+| Saída de item | Só com a [Definition of Done](backlog.md#definition-of-done-dod) inteira, inclusive o auditor 10/10 e a entrada no feed | Equipe, conferido pelo PO |
 | Regra com base legal | Conferida pela contadora ou pelo advogado antes de "pronto para desenvolver" | Dono do produto, com parecer |
 | Corte | Item de valor baixo que ficou três ciclos sem subir sai do backlog e vai para "descartados", com o motivo (Stare, 2014) | PO |
 
