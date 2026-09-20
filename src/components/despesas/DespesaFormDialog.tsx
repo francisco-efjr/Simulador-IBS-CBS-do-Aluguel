@@ -23,6 +23,7 @@ import { getFornecedores } from '@/services/fornecedores'
 import { getCategoriasDespesa } from '@/services/categorias-financeiras'
 import { STATUS_DESPESA_LABELS, FORMA_PAGAMENTO_LABELS } from '@/lib/format'
 import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
+import { despesaSchema, validarFormulario } from '@/lib/validacao/esquemas'
 import { toast } from 'sonner'
 
 const EMPTY = {
@@ -87,8 +88,7 @@ export function DespesaFormDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
-    const fe: FieldErrors = {}
-    if (!form.imovel) fe.imovel = 'Imóvel é obrigatório'
+    const fe = validarFormulario(despesaSchema, form)
     if (Object.keys(fe).length) {
       setErrors(fe)
       return
@@ -124,7 +124,7 @@ export function DespesaFormDialog({
         <DialogHeader>
           <DialogTitle>{editing ? 'Editar Despesa' : 'Nova Despesa'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Imóvel" error={errors.imovel}>
               <Select value={form.imovel} onValueChange={(v) => upd('imovel', v)}>
@@ -194,7 +194,7 @@ export function DespesaFormDialog({
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
-            <Field label="Competência">
+            <Field label="Competência" error={errors.competencia}>
               <Input
                 value={form.competencia}
                 onChange={(e) => upd('competencia', e.target.value)}
@@ -212,7 +212,7 @@ export function DespesaFormDialog({
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
-            <Field label="Valor previsto (R$)">
+            <Field label="Valor previsto (R$)" error={errors.valor_previsto}>
               <Input
                 type="number"
                 step="0.01"
@@ -240,7 +240,7 @@ export function DespesaFormDialog({
             </Field>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Field label="Valor pago (R$)">
+            <Field label="Valor pago (R$)" error={errors.valor_pago}>
               <Input
                 type="number"
                 step="0.01"

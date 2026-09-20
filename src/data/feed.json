@@ -1,0 +1,115 @@
+[
+  {
+    "data": "2026-09-19",
+    "titulo": "Atividades da equipe ao vivo na tela Início",
+    "texto": "O administrador vê, na tela Início, quem cadastrou, alterou ou excluiu o quê, no momento em que acontece. Os números do topo também se atualizam sozinhos.",
+    "tipo": "entrega",
+    "referencia": "PR #3"
+  },
+  {
+    "data": "2026-09-19",
+    "titulo": "Cadastros conferidos antes de salvar",
+    "texto": "CPF e CNPJ com dígito errado, valores negativos e datas fora de ordem são recusados com uma mensagem clara embaixo do campo. O banco confere as mesmas regras, e passa a impedir dois contratos ativos no mesmo imóvel e a inativação de quem tem contrato em vigor.",
+    "tipo": "entrega",
+    "referencia": "PR #3"
+  },
+  {
+    "data": "2026-09-19",
+    "titulo": "Importação de extrato sem risco de ficar pela metade",
+    "texto": "O extrato é gravado de uma vez só: se a conexão cair no meio, nada fica salvo e basta importar de novo.",
+    "tipo": "correcao",
+    "referencia": "PR #3"
+  },
+  {
+    "data": "2026-09-19",
+    "titulo": "Banco de dados testado a cada publicação",
+    "texto": "Mais de cem testes automáticos conferem quem pode ver e editar cada informação. Eles encontraram e já corrigiram cinco falhas, entre elas a que impedia criar o primeiro administrador e a que deixava um imóvel marcado como alugado depois de o contrato ser apagado.",
+    "tipo": "seguranca",
+    "referencia": "PR #3"
+  },
+  {
+    "data": "2026-09-19",
+    "titulo": "Esta página passa a se atualizar sozinha",
+    "texto": "A cada nova versão publicada, o sistema confere a própria saúde — testes, regras de segurança e organização do código — e mostra o resultado aqui, junto com a lista de novidades.",
+    "tipo": "entrega"
+  },
+  {
+    "data": "2026-09-18",
+    "titulo": "Qualquer tela abre direto pelo endereço",
+    "texto": "O link do convite, o de recuperação de senha e o botão de atualizar do navegador mostravam “página não encontrada” fora da tela inicial. Agora abrem a tela certa.",
+    "tipo": "correcao",
+    "referencia": "PR #2"
+  },
+  {
+    "data": "2026-09-18",
+    "titulo": "Avisos do sistema mais claros e cordiais",
+    "texto": "As mensagens de erro, confirmação e orientação foram reescritas em linguagem simples, dizendo o que aconteceu e o que fazer em seguida.",
+    "tipo": "entrega"
+  },
+  {
+    "data": "2026-09-17",
+    "titulo": "Publicação sem configuração explica o que falta",
+    "texto": "Se o sistema for publicado sem os dados de conexão com o banco, ele mostra uma tela explicando o que ajustar, em vez de ficar em branco.",
+    "tipo": "infra"
+  },
+  {
+    "data": "2026-09-17",
+    "titulo": "Permissões conferidas pelo próprio banco de dados",
+    "texto": "Quem pode ver ou editar cada módulo passou a ser checado no servidor, em toda consulta. Contratos e comprovantes anexados só abrem com login, por um link que expira.",
+    "tipo": "seguranca"
+  },
+  {
+    "data": "2026-09-17",
+    "titulo": "Novo banco de dados e quadro de andamento",
+    "texto": "O sistema passou a guardar as informações no Supabase, um serviço de banco de dados profissional. Nasceu também esta página, para acompanhar a construção sem precisar de senha.",
+    "tipo": "infra"
+  },
+  {
+    "data": "2026-09-16",
+    "titulo": "Leitura confortável para todas as idades",
+    "texto": "Letras maiores, bom contraste, botão para ajustar o tamanho do texto e uso completo pelo teclado e por leitores de tela, seguindo a norma internacional de acessibilidade (WCAG 2.2).",
+    "tipo": "entrega"
+  },
+  {
+    "data": "2026-09-16",
+    "titulo": "Telas aproveitam monitores largos",
+    "texto": "O conteúdo se ajusta melhor a telas grandes, sem perder a leitura no celular.",
+    "tipo": "infra"
+  },
+  {
+    "data": "2026-09-15",
+    "titulo": "Controle de Imóveis vira o sistema principal",
+    "texto": "Imóveis, inquilinos, contratos, receitas, despesas, IPTU e extratos bancários reunidos num só lugar. O simulador do IBS/CBS continua disponível em seu próprio endereço.",
+    "tipo": "entrega"
+  },
+  {
+    "data": "2026-09-04",
+    "titulo": "Simulador mais simples de usar",
+    "texto": "Menos informação repetida na tela e cálculo mais direto, conforme as sugestões recebidas.",
+    "tipo": "correcao"
+  },
+  {
+    "data": "2026-09-04",
+    "titulo": "Sistema publicado na internet",
+    "texto": "O endereço passou a ser publicado automaticamente a cada nova versão aprovada.",
+    "tipo": "infra"
+  },
+  {
+    "data": "2026-09-03",
+    "titulo": "Visual novo, no celular e no computador",
+    "texto": "Aparência mais limpa, modo claro e escuro, e telas que se reorganizam no celular.",
+    "tipo": "entrega"
+  },
+  {
+    "data": "2026-09-03",
+    "titulo": "Valores em reais digitados com mais facilidade",
+    "texto": "Os campos de dinheiro preenchem a partir dos centavos, como numa máquina de cartão: digitar 1 vira R$ 0,01.",
+    "tipo": "correcao"
+  },
+  {
+    "data": "2026-09-02",
+    "titulo": "Nasce o simulador do IBS/CBS",
+    "texto": "Primeira versão da calculadora dos novos impostos da Reforma Tributária sobre o aluguel de imóveis (Lei Complementar 214/2025).",
+    "tipo": "entrega"
+  }
+]

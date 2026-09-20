@@ -21,10 +21,11 @@ import {
 import { toast } from 'sonner'
 import { getContasBancarias, type ContaBancaria } from '@/services/contas-bancarias'
 import {
-  createImportacao,
-  createTransacaoImportada,
   getAllTransacoesImportadas,
+  importarExtrato,
+  LIMITE_TRANSACOES_POR_IMPORTACAO,
 } from '@/services/importacoes'
+import { getErrorMessage } from '@/lib/dados/erros'
 import { getImoveis } from '@/services/imoveis'
 import { getCategoriasFinanceiras } from '@/services/categorias-financeiras'
 import {
@@ -283,7 +284,8 @@ export default function ImportarExtrato() {
     toast.warning(`${duplicateCount === 1 ? '1 transação duplicada será importada' : `${duplicateCount} transações duplicadas serão importadas`} mesmo assim.`)
   }
 
-  // Confirm import and save into PocketBase
+  // Confirma a importação: o lote inteiro vai numa chamada só e o banco grava
+  // tudo ou nada (ver importar_extrato em supabase/migrations).
   const handleConfirmImport = async () => {
     if (!selectedContaId) {
       toast.error('Selecione uma conta bancária de origem.')
@@ -296,38 +298,36 @@ export default function ImportarExtrato() {
       return
     }
 
+    // O banco também recusa, mas aqui a pessoa fica sabendo antes de esperar o envio.
+    if (selectedTxs.length > LIMITE_TRANSACOES_POR_IMPORTACAO) {
+      toast.error(
+        `Foram selecionadas ${selectedTxs.length} transações, e o limite por importação é de ${LIMITE_TRANSACOES_POR_IMPORTACAO}. Divida o arquivo por período e importe cada parte.`,
+      )
+      return
+    }
+
     setImporting(true)
     setImportProgress(10)
 
+    // Uma requisição só não tem progresso real para mostrar; a barra avança
+    // devagar até 90% enquanto o banco trabalha, e fecha em 100% na resposta.
+    const avanco = setInterval(() => {
+      setImportProgress((atual) => (atual < 90 ? atual + 5 : atual))
+    }, 300)
+
     try {
-      // 1. Create import batch record
-      const importacao = await createImportacao({
-        conta_bancaria: selectedContaId,
-        arquivo_nome: file ? file.name : `Extrato_${new Date().toISOString().substring(0, 10)}`,
-        formato: fileFormat,
-        data_importacao: new Date().toISOString(),
-        total_transacoes: selectedTxs.length,
-        transacoes_classificadas: 0,
-        transacoes_ignoradas: 0,
-        status: 'pendente',
-      })
-
-      setImportProgress(30)
-
-      // 2. Batch insert imported transactions
-      const totalToInsert = selectedTxs.length
-      let insertedCount = 0
-
-      for (const tx of selectedTxs) {
-        await createTransacaoImportada({
-          importacao: importacao.id,
+      const importacaoId = await importarExtrato(
+        {
+          conta_bancaria: selectedContaId,
+          arquivo_nome: file ? file.name : `Extrato_${new Date().toISOString().substring(0, 10)}`,
+          formato: fileFormat,
+        },
+        selectedTxs.map((tx) => ({
           data: tx.data,
           descricao: tx.descricao,
           valor: tx.valor,
           tipo: tx.tipo,
           saldo: tx.saldo,
-          classificada: false,
-          ignorada: false,
           duplicata_detectada: tx.duplicata_detectada || false,
           duplicata_ids: tx.duplicata_ids || [],
           sugestao_categoria: tx.sugestao_categoria,
@@ -336,23 +336,25 @@ export default function ImportarExtrato() {
           sugestao_imovel_id: tx.sugestao_imovel_id,
           sugestao_tipo: tx.sugestao_tipo,
           sugestao_confianca: tx.sugestao_confianca,
-        })
-        insertedCount++
-        setImportProgress(30 + Math.floor((insertedCount / totalToInsert) * 65))
-      }
+        })),
+      )
 
+      clearInterval(avanco)
       setImportProgress(100)
       toast.success(
         `Importação de ${selectedTxs.length} transações concluída. Levando você para a tela de classificação.`,
       )
 
       setTimeout(() => {
-        navigate(`/classificar-transacoes?importacao=${importacao.id}`)
+        navigate(`/classificar-transacoes?importacao=${importacaoId}`)
       }, 700)
     } catch (err) {
+      clearInterval(avanco)
       console.error(err)
-      toast.error('Não foi possível salvar as transações. Tente novamente.')
+      // Como a gravação é atômica, nada ficou pela metade: dá para tentar de novo.
+      toast.error(`Nenhuma transação foi salva. ${getErrorMessage(err)}`)
       setImporting(false)
+      setImportProgress(0)
     }
   }
 

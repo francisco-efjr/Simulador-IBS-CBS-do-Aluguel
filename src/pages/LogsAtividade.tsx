@@ -43,36 +43,30 @@ import {
 } from '@/components/ui/table'
 import { formatDateTime, formatDate } from '@/lib/format'
 
-// Ações comuns para o filtro
+// Os valores são os do enum `acao_auditoria` e os nomes das tabelas auditadas
+// pelo gatilho `tg_registrar_log` — é isso que o banco grava em cada linha.
 const ACOES_OPCOES = [
   { value: 'todas', label: 'Todas as ações' },
-  { value: 'criou', label: 'Criação (criou)' },
-  { value: 'editou', label: 'Edição (editou)' },
-  { value: 'excluiu', label: 'Exclusão (excluiu)' },
-  { value: 'ativou', label: 'Ativação (ativou)' },
-  { value: 'desativou', label: 'Desativação (desativou)' },
-  { value: 'importou', label: 'Importação (importou)' },
-  { value: 'convidou', label: 'Convite (convidou)' },
-  { value: 'cancelou', label: 'Cancelamento (cancelou)' },
-  { value: 'encerrou', label: 'Encerramento (encerrou)' },
-  { value: 'solicitou', label: 'Solicitação (solicitou)' },
-  { value: 'redefiniu', label: 'Redefinição (redefiniu)' },
+  { value: 'criou', label: 'Criação' },
+  { value: 'editou', label: 'Edição' },
+  { value: 'excluiu', label: 'Exclusão' },
 ]
 
-// Entidades para o filtro
 const ENTIDADES_OPCOES = [
   { value: 'todas', label: 'Todas as entidades' },
-  { value: 'imovel', label: 'Imóveis' },
-  { value: 'inquilino', label: 'Inquilinos' },
-  { value: 'contrato', label: 'Contratos' },
-  { value: 'receita', label: 'Receitas' },
-  { value: 'despesa', label: 'Despesas' },
-  { value: 'iptu_taxa', label: 'IPTU e Taxas' },
-  { value: 'fornecedor', label: 'Fornecedores' },
-  { value: 'usuario', label: 'Usuários e Acessos' },
-  { value: 'convite', label: 'Convites' },
-  { value: 'importacao', label: 'Importações de Extrato' },
-  { value: 'conta_bancaria', label: 'Contas Bancárias' },
+  { value: 'imoveis', label: 'Imóveis' },
+  { value: 'inquilinos', label: 'Inquilinos' },
+  { value: 'contratos', label: 'Contratos' },
+  { value: 'receitas', label: 'Receitas' },
+  { value: 'despesas', label: 'Despesas' },
+  { value: 'iptu_taxas', label: 'IPTU e Taxas' },
+  { value: 'fornecedores', label: 'Fornecedores' },
+  { value: 'convites', label: 'Convites' },
+  { value: 'importacoes', label: 'Importações de Extrato' },
+  { value: 'contas_bancarias', label: 'Contas Bancárias' },
+  { value: 'documentos_anexos', label: 'Documentos Anexos' },
+  { value: 'users', label: 'Usuários' },
+  { value: 'permissoes', label: 'Permissões' },
 ]
 
 export default function LogsAtividade() {
@@ -135,7 +129,9 @@ export default function LogsAtividade() {
       setTotalItems(res.totalItems)
       setTotalPages(res.totalPages)
     } catch {
-      toast.error('Não foi possível carregar o histórico de atividades. Atualize a página e tente novamente.')
+      toast.error(
+        'Não foi possível carregar o histórico de atividades. Atualize a página e tente novamente.',
+      )
     } finally {
       setLoading(false)
     }
@@ -285,17 +281,25 @@ export default function LogsAtividade() {
   // Estilização de badges para Entidades
   const renderEntidadeBadge = (entidade: string) => {
     const labels: Record<string, { label: string; color: string }> = {
-      imovel: { label: 'Imóvel', color: 'bg-navy-100 text-navy-800 border-navy-200' },
-      inquilino: { label: 'Inquilino', color: 'bg-sky-100 text-sky-800 border-sky-200' },
-      contrato: { label: 'Contrato', color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
-      receita: { label: 'Receita', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
-      despesa: { label: 'Despesa', color: 'bg-rose-100 text-rose-800 border-rose-200' },
-      iptu_taxa: { label: 'IPTU/Taxa', color: 'bg-amber-100 text-amber-800 border-amber-200' },
-      fornecedor: { label: 'Fornecedor', color: 'bg-orange-100 text-orange-800 border-orange-200' },
-      usuario: { label: 'Usuário', color: 'bg-violet-100 text-violet-800 border-violet-200' },
-      convite: { label: 'Convite', color: 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200' },
-      importacao: { label: 'Extrato', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' },
-      conta_bancaria: {
+      imoveis: { label: 'Imóvel', color: 'bg-navy-100 text-navy-800 border-navy-200' },
+      inquilinos: { label: 'Inquilino', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+      contratos: { label: 'Contrato', color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
+      receitas: { label: 'Receita', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+      despesas: { label: 'Despesa', color: 'bg-rose-100 text-rose-800 border-rose-200' },
+      iptu_taxas: { label: 'IPTU/Taxa', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+      fornecedores: {
+        label: 'Fornecedor',
+        color: 'bg-orange-100 text-orange-800 border-orange-200',
+      },
+      users: { label: 'Usuário', color: 'bg-purple-100 text-purple-800 border-purple-200' },
+      permissoes: { label: 'Permissão', color: 'bg-pink-100 text-pink-800 border-pink-200' },
+      documentos_anexos: {
+        label: 'Documento',
+        color: 'bg-violet-100 text-violet-800 border-violet-200',
+      },
+      convites: { label: 'Convite', color: 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200' },
+      importacoes: { label: 'Extrato', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' },
+      contas_bancarias: {
         label: 'Conta Bancária',
         color: 'bg-slate-100 text-slate-800 border-slate-200',
       },

@@ -20,6 +20,7 @@ import { Field } from '@/components/shared/Field'
 import { createInquilino, updateInquilino } from '@/services/inquilinos'
 import { TIPO_PESSOA_LABELS } from '@/lib/format'
 import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
+import { inquilinoSchema, validarFormulario } from '@/lib/validacao/esquemas'
 import { toast } from 'sonner'
 
 const EMPTY = {
@@ -73,10 +74,7 @@ export function InquilinoFormDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
-    const fe: FieldErrors = {}
-    if (!form.nome.trim()) fe.nome = isPF ? 'Nome é obrigatório' : 'Razão social é obrigatória'
-    if (isPF && !form.cpf.trim()) fe.cpf = 'CPF é obrigatório'
-    if (!isPF && !form.cnpj.trim()) fe.cnpj = 'CNPJ é obrigatório'
+    const fe = validarFormulario(inquilinoSchema, form)
     if (Object.keys(fe).length) {
       setErrors(fe)
       return
@@ -116,7 +114,7 @@ export function InquilinoFormDialog({
         <DialogHeader>
           <DialogTitle>{editing ? 'Editar Inquilino' : 'Novo Inquilino'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <Field label="Tipo de pessoa">
             <Select value={form.tipo_pessoa} onValueChange={(v) => upd('tipo_pessoa', v)}>
               <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
@@ -207,7 +205,7 @@ export function InquilinoFormDialog({
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
-            <Field label="E-mail">
+            <Field label="E-mail" error={errors.email}>
               <Input
                 type="email"
                 value={form.email}

@@ -8,8 +8,20 @@ import {
   Clock,
   LogIn,
   ShieldAlert,
+  XCircle,
   type LucideIcon,
 } from 'lucide-react'
+import {
+  ANDAMENTO,
+  AUDITORIA,
+  FEED,
+  dataDaUltimaAtualizacao,
+  formatarDataPorExtenso,
+  formatarMomentoBrasilia,
+  type Situacao,
+  type SituacaoVerificacao,
+  type TipoAtualizacao,
+} from '@/data/andamento'
 import { useAuth } from '@/hooks/use-auth'
 import { useTituloDaPagina } from '@/hooks/use-titulo-da-pagina'
 
@@ -25,266 +37,16 @@ import { useTituloDaPagina } from '@/hooks/use-titulo-da-pagina'
  *      `<ProtectedRoute>` (hoje ela aponta para cá e o painel vive em `/inicio`);
  *   3. em `src/lib/constants.ts`, devolva o item "Início" para o caminho `/`.
  *
- * Todo o conteúdo mora nas listas abaixo: para atualizar o quadro, mexa só nelas.
+ * O conteúdo não mora aqui: o quadro está em `src/data/andamento.json`, as
+ * novidades em `src/data/feed.json` e a saúde do sistema em
+ * `src/data/auditoria.json`, este último gerado pelo auditor a cada build
+ * (ver docs/07-auditor.md). Para atualizar a página, mexa nos dados.
  */
 
-const ATUALIZADO_EM = '18 de setembro de 2026'
+const { frentes: FRENTES, pendencias: PENDENCIAS } = ANDAMENTO
 
-type Situacao = 'pronto' | 'andamento' | 'pendente'
-
-interface Entrega {
-  titulo: string
-  detalhe: string
-  situacao: Situacao
-}
-
-interface Frente {
-  nome: string
-  entregas: Entrega[]
-}
-
-const FRENTES: Frente[] = [
-  {
-    nome: 'Cadastros',
-    entregas: [
-      {
-        titulo: 'Imóveis',
-        detalhe: 'Cadastro, edição, busca e situação de cada propriedade.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Inquilinos',
-        detalhe: 'Dados de contato, documentos e vínculo com o contrato.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Contratos',
-        detalhe: 'Prazos, valores, reajuste e anexo do contrato assinado.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Um contrato ativo por imóvel',
-        detalhe:
-          'Hoje dá para registrar dois contratos ativos no mesmo imóvel no mesmo período; falta o banco recusar a sobreposição.',
-        situacao: 'pendente',
-      },
-      {
-        titulo: 'Inativar só sem contrato ativo',
-        detalhe:
-          'Imóvel ou inquilino com contrato em vigor ainda pode ser inativado; falta o aviso e o bloqueio.',
-        situacao: 'pendente',
-      },
-      {
-        titulo: 'Fornecedores',
-        detalhe: 'Prestadores de serviço e parceiros ligados às despesas.',
-        situacao: 'pronto',
-      },
-    ],
-  },
-  {
-    nome: 'Financeiro',
-    entregas: [
-      {
-        titulo: 'Receitas',
-        detalhe: 'Aluguéis e entradas, com baixa por recebimento.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Despesas',
-        detalhe: 'Custos, obras e manutenção por imóvel e por fornecedor.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'IPTU e taxas',
-        detalhe: 'Parcelas, vencimentos e comprovante de pagamento.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Importação de extrato bancário',
-        detalhe:
-          'Leitura de OFX e CSV de Itaú, Bradesco, Nubank, Inter, Santander e Banco do Brasil.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Classificação de transações',
-        detalhe: 'Fila de conciliação que transforma a linha do extrato em receita ou despesa.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Cobrança por boleto e PIX',
-        detalhe: 'Hoje o sistema registra o recebimento; ainda não emite a cobrança.',
-        situacao: 'pendente',
-      },
-      {
-        titulo: 'Reajuste automático por IGP-M e IPCA',
-        detalhe:
-          'Os campos já existem no contrato; falta a coleta do índice e a aplicação na data.',
-        situacao: 'pendente',
-      },
-    ],
-  },
-  {
-    nome: 'Acompanhamento',
-    entregas: [
-      {
-        titulo: 'Dashboard financeiro',
-        detalhe: 'Fluxo de caixa, comparativos e indicadores do período.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Dashboard de imóveis',
-        detalhe: 'Ocupação, rendimento e distribuição da carteira.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Alertas',
-        detalhe: 'Central de vencimentos de contratos, receitas, despesas e IPTU.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Relatórios em PDF e Excel',
-        detalhe: 'Geração e exportação dos relatórios de cada módulo.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Envio automático de relatório por e-mail',
-        detalhe: 'Fechamento mensal chegando na caixa de entrada, sem abrir o sistema.',
-        situacao: 'pendente',
-      },
-    ],
-  },
-  {
-    nome: 'Simulador IBS/CBS',
-    entregas: [
-      {
-        titulo: 'Motor de cálculo da Reforma Tributária',
-        detalhe: 'IBS e CBS sobre a locação pela LC 214/2025, com regime de transição ano a ano.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Comparativo e simulação de carteira',
-        detalhe: 'Pessoa física x pessoa jurídica e projeção do conjunto dos imóveis.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Laudo de auditoria',
-        detalhe: 'Memória de cálculo passo a passo, com a base legal de cada número.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Atualização para a LC 227/2026',
-        detalhe: 'O cálculo já está correto; falta citar a lei nova nas referências e no laudo.',
-        situacao: 'andamento',
-      },
-      {
-        titulo: 'Página pública e otimização de busca',
-        detalhe:
-          'O simulador é aberto a qualquer pessoa, mas ainda não tem apresentação própria nem título de busca.',
-        situacao: 'pendente',
-      },
-    ],
-  },
-  {
-    nome: 'Acesso e administração',
-    entregas: [
-      {
-        titulo: 'Entrada no sistema',
-        detalhe: 'Login, cadastro por convite, recuperação e redefinição de senha.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Usuários e permissões por módulo',
-        detalhe: 'Sem acesso, somente ver ou editar, módulo a módulo.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Abrir qualquer tela pelo endereço',
-        detalhe:
-          'Link de convite, de recuperação de senha e o botão de atualizar do navegador devolviam página não encontrada fora da tela inicial. Corrigido.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Testes automáticos no banco novo',
-        detalhe:
-          'A bateria de 561 testes foi escrita sobre a versão de demonstração; falta uma conta de teste e dados de ensaio no Supabase para ela voltar a rodar inteira.',
-        situacao: 'pendente',
-      },
-      {
-        titulo: 'Registro de atividade',
-        detalhe: 'Auditoria de acessos, criações, edições e exclusões.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Acessibilidade WCAG 2.2 AA',
-        detalhe: 'Contraste, navegação por teclado, leitor de tela e ajuste do tamanho da letra.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Permissões verificadas no servidor',
-        detalhe:
-          'O banco confere o nível de acesso em toda consulta, por qualquer caminho — não só na tela.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Arquivos protegidos por login',
-        detalhe:
-          'Contrato assinado e comprovante deixaram de ser servidos por endereço aberto: o link é assinado e expira.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Banco de dados de produção',
-        detalhe:
-          'Base no Supabase com as 16 tabelas, as regras de acesso e a varredura diária de vencidos.',
-        situacao: 'pronto',
-      },
-      {
-        titulo: 'Separação por organização',
-        detalhe: 'Necessária para mais de uma holding usar o mesmo sistema sem se enxergarem.',
-        situacao: 'pendente',
-      },
-      {
-        titulo: 'Aplicativo para celular',
-        detalhe:
-          'As telas funcionam no navegador do celular; um aplicativo próprio é etapa futura.',
-        situacao: 'pendente',
-      },
-    ],
-  },
-]
-
-/** O que ainda separa o sistema do primeiro dado real da holding. */
-const PENDENCIAS = [
-  {
-    codigo: '1',
-    titulo: 'Criar as contas de administrador',
-    detalhe:
-      'O banco está pronto e vazio. A conta nasce em Authentication → Users no painel do Supabase, com senha de pelo menos 6 caracteres — a mínima que o Supabase aceita — e depois é promovida a administrador por um comando no editor SQL.',
-  },
-  {
-    codigo: '2',
-    titulo: 'Fechar o cadastro aberto',
-    detalhe:
-      'O Supabase aceita cadastro de qualquer pessoa pela API. A conta nasce sem permissão e não vê nada, mas existe. Para um sistema interno, o certo é desligar o cadastro público e entrar só por convite.',
-  },
-  {
-    codigo: '3',
-    titulo: 'Remetente próprio para os e-mails',
-    detalhe:
-      'Convite e recuperação de senha saem hoje pelo remetente padrão do Supabase, que limita o volume. Para uso diário, ligar um serviço de e-mail com o domínio da holding.',
-  },
-  {
-    codigo: '4',
-    titulo: 'Validação de formato na borda',
-    detalhe:
-      'O banco já recusa valor fora da lista, campo obrigatório vazio e CPF duplicado. Falta a checagem de CPF, CNPJ e CEP antes do envio, para o erro aparecer no campo certo.',
-  },
-  {
-    codigo: '5',
-    titulo: 'Separação por organização',
-    detalhe:
-      'Hoje o sistema atende uma holding. Para atender mais de uma sem que uma enxergue a outra, falta o campo de organização em cada tabela.',
-  },
-]
+/** Quantas novidades aparecem abertas; as mais antigas ficam num "ver mais". */
+const NOVIDADES_VISIVEIS = 6
 
 const APARENCIA: Record<
   Situacao,
@@ -313,6 +75,194 @@ const APARENCIA: Record<
   },
 }
 
+const APARENCIA_VERIFICACAO: Record<
+  SituacaoVerificacao,
+  { rotulo: string; icone: LucideIcon; texto: string; caixa: string }
+> = {
+  ok: {
+    rotulo: 'Em ordem',
+    icone: CheckCircle2,
+    texto: 'text-emerald-800',
+    caixa: 'border-emerald-200 bg-emerald-50',
+  },
+  atencao: {
+    rotulo: 'Atenção',
+    icone: AlertTriangle,
+    texto: 'text-amber-900',
+    caixa: 'border-amber-200 bg-amber-50',
+  },
+  falha: {
+    rotulo: 'Precisa de correção',
+    icone: XCircle,
+    texto: 'text-red-800',
+    caixa: 'border-red-200 bg-red-50',
+  },
+}
+
+/** Rótulo para leigo de cada tipo de novidade. */
+const APARENCIA_TIPO: Record<TipoAtualizacao, { rotulo: string; estilo: string; ponto: string }> = {
+  entrega: {
+    rotulo: 'Novidade',
+    estilo: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+    ponto: 'bg-emerald-600',
+  },
+  correcao: {
+    rotulo: 'Correção',
+    estilo: 'border-sky-200 bg-sky-50 text-sky-900',
+    ponto: 'bg-sky-600',
+  },
+  seguranca: {
+    rotulo: 'Segurança',
+    estilo: 'border-indigo-200 bg-indigo-50 text-indigo-900',
+    ponto: 'bg-indigo-600',
+  },
+  infra: {
+    rotulo: 'Bastidores',
+    estilo: 'border-slate-200 bg-slate-50 text-slate-700',
+    ponto: 'bg-slate-500',
+  },
+}
+
+/** Frase-resumo da saúde do sistema, para o cabeçalho e o topo da seção. */
+function resumoDaSaude(): { situacao: SituacaoVerificacao; frase: string } | null {
+  const verificacoes = AUDITORIA.verificacoes
+  if (!verificacoes.length) return null
+  const total = verificacoes.length
+  const falhas = verificacoes.filter((v) => v.situacao === 'falha').length
+  const atencoes = verificacoes.filter((v) => v.situacao === 'atencao').length
+  if (!falhas && !atencoes) {
+    return {
+      situacao: 'ok',
+      frase: `Tudo em ordem: as ${total} conferências automáticas passaram.`,
+    }
+  }
+  const partes = [`${total - falhas - atencoes} de ${total} conferências em ordem`]
+  if (atencoes) partes.push(`${atencoes} ${atencoes === 1 ? 'pede' : 'pedem'} atenção`)
+  if (falhas) partes.push(`${falhas} ${falhas === 1 ? 'precisa' : 'precisam'} de correção`)
+  return {
+    situacao: falhas ? 'falha' : 'atencao',
+    frase: partes.join(', ').replace(/, ([^,]*)$/, ' e $1') + '.',
+  }
+}
+
+function LinhaDoTempo() {
+  // Mais recente primeiro, mesmo que alguém acrescente fora de ordem no JSON.
+  const novidades = [...FEED].sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : 0))
+  const visiveis = novidades.slice(0, NOVIDADES_VISIVEIS)
+  const anteriores = novidades.slice(NOVIDADES_VISIVEIS)
+
+  const lista = (itens: typeof novidades) => (
+    <ol className="relative ml-2 space-y-6 border-l-2 border-slate-200 pl-6 sm:ml-3 sm:pl-8">
+      {itens.map((novidade) => {
+        const tipo = APARENCIA_TIPO[novidade.tipo] ?? APARENCIA_TIPO.entrega
+        return (
+          <li key={`${novidade.data}-${novidade.titulo}`} className="relative">
+            <span
+              className={`absolute -left-[33px] top-1.5 h-4 w-4 rounded-full border-2 border-white ${tipo.ponto} sm:-left-[41px]`}
+              aria-hidden="true"
+            />
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <time dateTime={novidade.data} className="text-sm font-semibold text-slate-600">
+                {formatarDataPorExtenso(novidade.data)}
+              </time>
+              <span
+                className={`inline-flex rounded-full border px-2.5 py-0.5 text-sm font-semibold ${tipo.estilo}`}
+              >
+                {tipo.rotulo}
+              </span>
+            </div>
+            <h3 className="mt-1 text-lg font-bold text-slate-900">{novidade.titulo}</h3>
+            <p className="mt-1 max-w-3xl text-base leading-relaxed text-slate-700">
+              {novidade.texto}
+            </p>
+          </li>
+        )
+      })}
+    </ol>
+  )
+
+  return (
+    <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4 shadow-xs sm:p-6">
+      {lista(visiveis)}
+      {anteriores.length > 0 && (
+        <details className="group mt-6 border-t border-slate-100 pt-5">
+          <summary className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-1 text-base font-bold text-indigo-800 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300">
+            <span className="group-open:hidden">
+              Ver as {anteriores.length} atualizações anteriores
+            </span>
+            <span className="hidden group-open:inline">Esconder as atualizações anteriores</span>
+          </summary>
+          <div className="mt-5">{lista(anteriores)}</div>
+        </details>
+      )}
+    </div>
+  )
+}
+
+function SaudeDoSistema() {
+  const resumo = resumoDaSaude()
+
+  if (!resumo) {
+    return (
+      <p className="mt-5 rounded-xl border border-slate-200 bg-white p-6 text-base text-slate-700 shadow-xs">
+        A primeira conferência automática ainda não foi feita. Ela acontece na próxima publicação.
+      </p>
+    )
+  }
+
+  const estiloResumo = APARENCIA_VERIFICACAO[resumo.situacao]
+  const IconeResumo = estiloResumo.icone
+
+  return (
+    <div className="mt-5 space-y-4">
+      <div className={`flex items-start gap-3 rounded-xl border px-5 py-4 ${estiloResumo.caixa}`}>
+        <IconeResumo
+          className={`mt-0.5 h-6 w-6 shrink-0 ${estiloResumo.texto}`}
+          aria-hidden="true"
+        />
+        <div>
+          <p className={`text-lg font-bold ${estiloResumo.texto}`}>{resumo.frase}</p>
+          <p className="mt-1 text-sm text-slate-700">
+            Verificado em {formatarMomentoBrasilia(AUDITORIA.geradoEm)} (horário de Brasília)
+            {AUDITORIA.commit ? `, na versão ${AUDITORIA.commit}` : ''}.
+          </p>
+        </div>
+      </div>
+
+      <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        {AUDITORIA.verificacoes.map((verificacao) => {
+          const estilo =
+            APARENCIA_VERIFICACAO[verificacao.situacao] ?? APARENCIA_VERIFICACAO.atencao
+          const Icone = estilo.icone
+          return (
+            <li
+              key={verificacao.id}
+              className="flex gap-3 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-xs"
+            >
+              <Icone className={`mt-0.5 h-6 w-6 shrink-0 ${estilo.texto}`} aria-hidden="true" />
+              <div className="min-w-0">
+                <p className="text-base font-bold text-slate-900">
+                  {verificacao.nome}
+                  <span className="sr-only">: {estilo.rotulo}.</span>
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-slate-700">{verificacao.detalhe}</p>
+                {verificacao.situacao !== 'ok' && (
+                  <p
+                    className={`mt-2 inline-flex rounded-full border px-2.5 py-0.5 text-sm font-semibold ${estilo.caixa} ${estilo.texto}`}
+                    aria-hidden="true"
+                  >
+                    {estilo.rotulo}
+                  </p>
+                )}
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+
 export default function StatusDesenvolvimento() {
   useTituloDaPagina('Fase de desenvolvimento')
   const { isAuthenticated } = useAuth()
@@ -325,6 +275,8 @@ export default function StatusDesenvolvimento() {
     pendente: entregas.filter((e) => e.situacao === 'pendente').length,
   }
   const percentualPronto = Math.round((contagem.pronto / total) * 100)
+  const atualizadoEm = dataDaUltimaAtualizacao()
+  const saude = resumoDaSaude()
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -388,7 +340,25 @@ export default function StatusDesenvolvimento() {
             </Link>
           </div>
 
-          <p className="mt-6 text-sm text-indigo-200">Quadro atualizado em {ATUALIZADO_EM}.</p>
+          <div className="mt-6 space-y-1 text-sm text-indigo-200">
+            {atualizadoEm && (
+              <p>
+                Quadro atualizado em{' '}
+                <time dateTime={atualizadoEm}>{formatarDataPorExtenso(atualizadoEm)}</time>.
+              </p>
+            )}
+            {saude && (
+              <p>
+                {saude.frase}{' '}
+                <a
+                  href="#saude"
+                  className="font-semibold text-white underline underline-offset-4 hover:text-indigo-100 focus:outline-none focus-visible:ring-4 focus-visible:ring-white/50"
+                >
+                  Ver a saúde do sistema
+                </a>
+              </p>
+            )}
+          </div>
         </div>
       </header>
 
@@ -436,6 +406,19 @@ export default function StatusDesenvolvimento() {
               })}
             </dl>
           </div>
+        </section>
+
+        <section
+          aria-labelledby="titulo-novidades"
+          className="mx-auto max-w-5xl px-4 pb-10 sm:px-6"
+        >
+          <h2 id="titulo-novidades" className="text-2xl font-bold text-slate-900">
+            Últimas atualizações
+          </h2>
+          <p className="mt-2 max-w-2xl text-base leading-relaxed text-slate-600">
+            O que mudou no sistema, da novidade mais recente para a mais antiga.
+          </p>
+          <LinhaDoTempo />
         </section>
 
         <section aria-labelledby="titulo-entregas" className="mx-auto max-w-5xl px-4 pb-10 sm:px-6">
@@ -491,18 +474,17 @@ export default function StatusDesenvolvimento() {
 
         <section
           aria-labelledby="titulo-bloqueios"
-          className="mx-auto max-w-5xl px-4 pb-14 sm:px-6"
+          className="mx-auto max-w-5xl px-4 pb-10 sm:px-6"
         >
           <h2 id="titulo-bloqueios" className="text-2xl font-bold text-slate-900">
             O que falta para o primeiro dado real
           </h2>
           <p className="mt-2 max-w-2xl text-base leading-relaxed text-slate-600">
-            As quatro correções críticas de segurança apontadas na auditoria foram fechadas com a
-            mudança de banco. O que resta é preparo de operação.
+            {PENDENCIAS.introducao}
           </p>
 
           <ul className="mt-5 space-y-3">
-            {PENDENCIAS.map((pendencia) => (
+            {PENDENCIAS.itens.map((pendencia) => (
               <li
                 key={pendencia.codigo}
                 className="flex gap-4 rounded-xl border border-indigo-200 bg-indigo-50 px-5 py-4"
@@ -525,6 +507,22 @@ export default function StatusDesenvolvimento() {
               </li>
             ))}
           </ul>
+        </section>
+
+        <section
+          id="saude"
+          tabIndex={-1}
+          aria-labelledby="titulo-saude"
+          className="mx-auto max-w-5xl scroll-mt-4 px-4 pb-14 focus:outline-none sm:px-6"
+        >
+          <h2 id="titulo-saude" className="text-2xl font-bold text-slate-900">
+            Saúde do sistema
+          </h2>
+          <p className="mt-2 max-w-2xl text-base leading-relaxed text-slate-600">
+            A cada nova versão, antes de ir ao ar, o próprio sistema passa por uma série de
+            conferências automáticas. Este é o resultado da versão que você está vendo agora.
+          </p>
+          <SaudeDoSistema />
         </section>
       </main>
 

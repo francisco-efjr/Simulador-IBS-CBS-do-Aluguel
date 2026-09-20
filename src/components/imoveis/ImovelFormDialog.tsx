@@ -20,6 +20,7 @@ import { Field } from '@/components/shared/Field'
 import { createImovel, updateImovel } from '@/services/imoveis'
 import { TIPO_IMOVEL_LABELS, STATUS_IMOVEL_LABELS } from '@/lib/format'
 import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
+import { imovelSchema, validarFormulario } from '@/lib/validacao/esquemas'
 import { toast } from 'sonner'
 
 const EMPTY = {
@@ -79,8 +80,7 @@ export function ImovelFormDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
-    const fe: FieldErrors = {}
-    if (!form.endereco.trim()) fe.endereco = 'Endereço é obrigatório'
+    const fe = validarFormulario(imovelSchema, form)
     if (Object.keys(fe).length) {
       setErrors(fe)
       return
@@ -119,7 +119,7 @@ export function ImovelFormDialog({
         <DialogHeader>
           <DialogTitle>{editing ? 'Editar Imóvel' : 'Novo Imóvel'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Field label="Código" error={errors.codigo}>
               <Input
@@ -216,7 +216,7 @@ export function ImovelFormDialog({
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
-            <Field label="Estado">
+            <Field label="Estado" error={errors.estado}>
               <Input
                 value={form.estado}
                 onChange={(e) => upd('estado', e.target.value)}
@@ -240,7 +240,7 @@ export function ImovelFormDialog({
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
-            <Field label="Área (m²)">
+            <Field label="Área (m²)" error={errors.area}>
               <Input
                 type="number"
                 step="0.01"
@@ -249,7 +249,7 @@ export function ImovelFormDialog({
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
-            <Field label="Quartos">
+            <Field label="Quartos" error={errors.quartos}>
               <Input
                 type="number"
                 value={form.quartos}
@@ -257,7 +257,7 @@ export function ImovelFormDialog({
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
-            <Field label="Banheiros">
+            <Field label="Banheiros" error={errors.banheiros}>
               <Input
                 type="number"
                 value={form.banheiros}
@@ -265,7 +265,7 @@ export function ImovelFormDialog({
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
-            <Field label="Vagas">
+            <Field label="Vagas" error={errors.vagas}>
               <Input
                 type="number"
                 value={form.vagas}
