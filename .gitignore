@@ -54,7 +54,10 @@ screenshot.png
 
 # Skills de agente e zips de deploy
 .agents/
-.claude/
+# Tudo do .claude fica de fora (cópias de trabalho dos agentes, preferências locais),
+# menos as skills: elas são do projeto e viajam com o repositório.
+.claude/*
+!.claude/skills/
 *.zip
 
 # Core dumps
