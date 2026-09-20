@@ -38,6 +38,7 @@ a falha ou o travamento de uma não impede as outras.
 | `rls` | Proteção de cada tabela | Toda `create table public.X` em `supabase/migrations/` tem `enable row level security` — literal ou no laço `foreach t in array[...]` de `…_rls.sql` | `falha` |
 | `segredos` | Nenhuma senha exposta | Nenhum `.env` rastreado pelo git (fora `.env.example`), nenhuma chave `sb_secret_…`, nenhum JWT com `role: service_role`, nenhuma atribuição `service_role_key = …` | `falha` (sem git: `.env` na pasta → `atencao`) |
 | `decisoes` | Decisões técnicas registradas | Todo ADR `docs/05-adr/NNNN-*.md` tem a linha `Status:` ou `Situação:` | `falha` |
+| `historias-conferem` | Quadro de histórias fiel à documentação | Toda história `### H-NN` de [`historias-e-cenarios.md`](08-produto/historias-e-cenarios.md) está em `src/data/historias.json` com o **mesmo título**, sem história a mais, e a contagem de cenários de cada uma (`total`, `implementados`, `propostos`, `lacunas`) bate com as etiquetas do documento — cada cenário conta uma vez, pela primeira etiqueta | `falha` |
 | `feed-em-dia` | Lista de novidades em dia | O commit `feat`/`fix` mais recente do histórico não é de data posterior à entrada mais recente de `src/data/feed.json` (comparação por dia, no calendário de Brasília) | `atencao` |
 
 **A catraca do lint.** O projeto herdou avisos de lint. Em vez de fingir que não existem ou de
@@ -77,6 +78,21 @@ Formato de cada entrada (a lista fica da **mais recente para a mais antiga**):
 O `feed-em-dia` é a função de aptidão desta regra: um `feat:` ou `fix:` sem novidade correspondente
 acende `atencao`. Os testes em `src/data/__tests__/andamento.test.ts` conferem o formato dos três JSONs
 (datas, tipos, ordem).
+
+## Regra de processo: a documentação de produto manda no quadro de histórias
+
+> **O "Quadro de histórias" da página pública é derivado de
+> [`docs/08-produto/historias-e-cenarios.md`](08-produto/historias-e-cenarios.md).** Quem mexer nas
+> histórias do documento acerta `src/data/historias.json` no mesmo PR.
+
+O `historias-conferem` é a função de aptidão desta regra. Ele lê o documento, monta a lista de
+histórias e a contagem de cenários por etiqueta, e compara com o JSON; qualquer diferença — história
+que ficou de fora, história a mais, título trocado ou conta de cenários que não bate — é `falha`, e o
+CI reprova o merge.
+
+O que o auditor **não** confere fica nos testes de `src/data/__tests__/historias.test.ts`: a forma do
+arquivo (todo campo preenchido, coluna válida, códigos únicos), a regra que põe cada história na sua
+coluna (`colunaDaSituacao`) e as contagens dos cabeçalhos do quadro.
 
 ## Como acrescentar uma função de aptidão
 

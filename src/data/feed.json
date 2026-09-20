@@ -1,6 +1,13 @@
 [
   {
     "data": "2026-09-20",
+    "titulo": "A página inicial mostra o quadro de histórias",
+    "texto": "No lugar da lista de entregas por frente, a página inicial passa a mostrar um quadro com as 24 histórias do sistema — cada uma escrita com as palavras de quem usa, do tipo \"quero inativar um imóvel vendido, para ele sair das listas sem perder o histórico\". Os cartões ficam em três colunas: o que ainda falta fazer, o que já funciona mas precisa de ajuste, e o que está concluído. Dá para ver só uma parte do sistema de cada vez, esconder o que já está pronto e tocar num cartão para ler a história inteira, com o que ela entrega, o que falta e as decisões que ainda esperam por você. O quadro é só para olhar: a situação vem da documentação e não muda por ali.",
+    "tipo": "entrega",
+    "referencia": "PR #6"
+  },
+  {
+    "data": "2026-09-20",
     "titulo": "Quem entra no sistema já vê o andamento e os objetivos",
     "texto": "A tela de início passa a mostrar, logo abaixo dos números, em que pé o sistema está e para onde ele vai: o objetivo da holding até o fim de 2026, quantas entregas já estão prontas, como cada resultado é medido — o que ainda ninguém mede aparece assim mesmo, sem número inventado — e os três próximos passos. Quem quiser o quadro inteiro continua a um clique, pelo link \"Ver o quadro completo\".",
     "tipo": "entrega",

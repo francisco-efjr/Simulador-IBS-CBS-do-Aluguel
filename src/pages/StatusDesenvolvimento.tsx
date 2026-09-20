@@ -11,10 +11,8 @@ import {
   resumoDaSaude,
   type TipoAtualizacao,
 } from '@/data/andamento'
-import {
-  APARENCIA_DA_ENTREGA,
-  APARENCIA_DA_VERIFICACAO,
-} from '@/components/produto/aparencia'
+import { APARENCIA_DA_VERIFICACAO } from '@/components/produto/aparencia'
+import { QuadroDeHistorias } from '@/components/produto/QuadroDeHistorias'
 import { ResumoDasEntregas } from '@/components/produto/ResumoDasEntregas'
 import { useAuth } from '@/hooks/use-auth'
 import { useTituloDaPagina } from '@/hooks/use-titulo-da-pagina'
@@ -31,13 +29,14 @@ import { useTituloDaPagina } from '@/hooks/use-titulo-da-pagina'
  *      `<ProtectedRoute>` (hoje ela aponta para cá e o painel vive em `/inicio`);
  *   3. em `src/lib/constants.ts`, devolva o item "Início" para o caminho `/`.
  *
- * O conteúdo não mora aqui: o quadro está em `src/data/andamento.json`, as
- * novidades em `src/data/feed.json` e a saúde do sistema em
- * `src/data/auditoria.json`, este último gerado pelo auditor a cada build
- * (ver docs/07-auditor.md). Para atualizar a página, mexa nos dados.
+ * O conteúdo não mora aqui: o resumo e o "o que falta" estão em
+ * `src/data/andamento.json`, o quadro de histórias em `src/data/historias.json`
+ * (derivado de docs/08-produto), as novidades em `src/data/feed.json` e a saúde
+ * do sistema em `src/data/auditoria.json`, este último gerado pelo auditor a
+ * cada build (ver docs/07-auditor.md). Para atualizar a página, mexa nos dados.
  */
 
-const { frentes: FRENTES, pendencias: PENDENCIAS } = ANDAMENTO
+const { pendencias: PENDENCIAS } = ANDAMENTO
 
 /** Quantas novidades aparecem abertas; as mais antigas ficam num "ver mais". */
 const NOVIDADES_VISIVEIS = 6
@@ -198,7 +197,7 @@ export default function StatusDesenvolvimento() {
         href="#quadro"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-navy-950 focus:px-5 focus:py-3 focus:text-base focus:font-bold focus:text-white"
       >
-        Ir para o quadro de entregas
+        Ir para o andamento
       </a>
 
       {/* Faixa de aviso: quem chega aqui precisa saber, na primeira linha, que
@@ -300,55 +299,18 @@ export default function StatusDesenvolvimento() {
           <LinhaDoTempo />
         </section>
 
-        <section aria-labelledby="titulo-entregas" className="mx-auto max-w-5xl px-4 pb-10 sm:px-6">
-          <h2 id="titulo-entregas" className="text-2xl font-bold text-slate-900">
-            Entregas por frente
+        <section
+          aria-labelledby="titulo-historias"
+          className="mx-auto max-w-5xl px-4 pb-10 sm:px-6"
+        >
+          <h2 id="titulo-historias" className="text-2xl font-bold text-slate-900">
+            Quadro de histórias
           </h2>
-
-          <div className="mt-5 space-y-6">
-            {FRENTES.map((frente) => (
-              <article
-                key={frente.nome}
-                className="rounded-xl border border-slate-200 bg-white shadow-xs"
-              >
-                <h3 className="border-b border-slate-200 px-6 py-4 text-lg font-bold text-slate-900">
-                  {frente.nome}
-                  <span className="ml-2 text-sm font-medium text-slate-600">
-                    {frente.entregas.filter((e) => e.situacao === 'pronto').length} de{' '}
-                    {frente.entregas.length} prontas
-                  </span>
-                </h3>
-
-                <ul className="divide-y divide-slate-100">
-                  {frente.entregas.map((entrega) => {
-                    const estilo = APARENCIA_DA_ENTREGA[entrega.situacao]
-                    return (
-                      <li
-                        key={entrega.titulo}
-                        className="flex flex-col gap-2 px-6 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6"
-                      >
-                        <div className="min-w-0">
-                          <p className="text-base font-bold text-slate-900">{entrega.titulo}</p>
-                          <p className="mt-1 text-sm leading-relaxed text-slate-600">
-                            {entrega.detalhe}
-                          </p>
-                        </div>
-                        <span
-                          className={`inline-flex shrink-0 items-center gap-2 self-start rounded-full border px-3 py-1 text-sm font-semibold ${estilo.caixa} ${estilo.texto}`}
-                        >
-                          <span
-                            className={`h-2.5 w-2.5 rounded-full ${estilo.ponto}`}
-                            aria-hidden="true"
-                          />
-                          {estilo.rotulo}
-                        </span>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </article>
-            ))}
-          </div>
+          <p className="mt-2 max-w-2xl text-base leading-relaxed text-slate-600">
+            Cada cartão é uma coisa que alguém precisa fazer no dia a dia da holding, escrita com as
+            palavras de quem faz. Toque num cartão para ler a história inteira.
+          </p>
+          <QuadroDeHistorias />
         </section>
 
         <section

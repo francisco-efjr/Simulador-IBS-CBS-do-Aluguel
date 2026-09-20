@@ -1,6 +1,6 @@
 {
-  "geradoEm": "2026-09-20T05:11:27.467Z",
-  "commit": "41e2418",
+  "geradoEm": "2026-09-20T16:46:14.546Z",
+  "commit": "a6e9a17",
   "verificacoes": [
     {
       "id": "tipos",
@@ -14,7 +14,7 @@
       "nome": "Testes automáticos",
       "descricao": "Roda a bateria de testes que confere os cálculos e o comportamento das telas.",
       "situacao": "ok",
-      "detalhe": "Todos os 387 testes automáticos passaram."
+      "detalhe": "Todos os 526 testes automáticos passaram."
     },
     {
       "id": "lint",
@@ -57,6 +57,13 @@
       "descricao": "Todo registro de decisão em docs/05-adr diz em que situação está (proposta, aceita, substituída).",
       "situacao": "ok",
       "detalhe": "Os 9 registros de decisão técnica dizem em que situação estão."
+    },
+    {
+      "id": "historias-conferem",
+      "nome": "Quadro de histórias fiel à documentação",
+      "descricao": "Toda história da documentação de produto (docs/08-produto/historias-e-cenarios.md) está no quadro da página pública com o mesmo título, e a contagem de cenários de cada uma bate com as etiquetas do documento.",
+      "situacao": "ok",
+      "detalhe": "As 24 histórias do quadro conferem com a documentação, uma a uma, inclusive a conta dos cenários de aceitação."
     },
     {
       "id": "feed-em-dia",

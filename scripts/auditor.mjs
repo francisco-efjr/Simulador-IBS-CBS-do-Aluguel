@@ -34,6 +34,8 @@ import { fileURLToPath } from 'node:url'
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const ARQUIVO_SAIDA = path.join(RAIZ, 'src/data/auditoria.json')
 const ARQUIVO_FEED = path.join(RAIZ, 'src/data/feed.json')
+const ARQUIVO_HISTORIAS = path.join(RAIZ, 'src/data/historias.json')
+const DOCUMENTO_HISTORIAS = 'docs/08-produto/historias-e-cenarios.md'
 
 const ARGUMENTOS = new Set(process.argv.slice(2))
 const ESTRITO = ARGUMENTOS.has('--estrito')
@@ -475,6 +477,102 @@ const VERIFICACOES = [
       return {
         situacao: 'ok',
         detalhe: `Os ${adrs.length} registros de decisão técnica dizem em que situação estão.`,
+      }
+    },
+  },
+  {
+    id: 'historias-conferem',
+    nome: 'Quadro de histórias fiel à documentação',
+    descricao:
+      'Toda história da documentação de produto (docs/08-produto/historias-e-cenarios.md) está no quadro da página pública com o mesmo título, e a contagem de cenários de cada uma bate com as etiquetas do documento.',
+    executar() {
+      const markdown = lerTexto(DOCUMENTO_HISTORIAS)
+      if (!markdown)
+        return {
+          situacao: 'falha',
+          detalhe: 'A documentação das histórias de usuário não pôde ser lida.',
+        }
+
+      let quadro
+      try {
+        quadro = JSON.parse(fs.readFileSync(ARQUIVO_HISTORIAS, 'utf8'))
+      } catch {
+        return { situacao: 'falha', detalhe: 'O quadro de histórias não pôde ser lido.' }
+      }
+      if (!Array.isArray(quadro) || !quadro.length)
+        return { situacao: 'falha', detalhe: 'O quadro de histórias está vazio.' }
+
+      // Lê o documento: cada "### H-NN — Título" abre uma história, e as linhas
+      // "@etiqueta" abaixo dela são os cenários. Cenário com mais de uma
+      // etiqueta conta uma vez, pela primeira — a regra da tabela "Totais".
+      const doDocumento = new Map()
+      let atual = null
+      for (const linha of markdown.split('\n')) {
+        const cabecalho = /^### (H-\d+) — (.+?)\s*$/.exec(linha)
+        if (cabecalho) {
+          atual = { titulo: cabecalho[2], total: 0, implementados: 0, propostos: 0, lacunas: 0 }
+          doDocumento.set(cabecalho[1], atual)
+          continue
+        }
+        if (/^## /.test(linha)) atual = null
+        if (!atual) continue
+        const etiquetas = /^\s+(@[\w-]+(?:\s+@[\w-]+)*)\s*$/.exec(linha)
+        if (!etiquetas) continue
+        atual.total += 1
+        const primeira = etiquetas[1].split(/\s+/)[0]
+        if (primeira === '@implementado') atual.implementados += 1
+        else if (primeira === '@proposto') atual.propostos += 1
+        else if (primeira === '@lacuna') atual.lacunas += 1
+      }
+
+      if (!doDocumento.size)
+        return {
+          situacao: 'falha',
+          detalhe: 'Nenhuma história foi encontrada na documentação de produto.',
+        }
+
+      const noQuadro = new Map(quadro.map((h) => [h?.id, h]))
+      const faltando = []
+      const divergentes = []
+      for (const [id, doDoc] of doDocumento) {
+        const historia = noQuadro.get(id)
+        if (!historia) {
+          faltando.push(id)
+          continue
+        }
+        if (historia.titulo !== doDoc.titulo) {
+          divergentes.push(`${id} (o título não é o mesmo da documentação)`)
+          continue
+        }
+        const c = historia.cenarios ?? {}
+        if (
+          c.total !== doDoc.total ||
+          c.implementados !== doDoc.implementados ||
+          c.propostos !== doDoc.propostos ||
+          c.lacunas !== doDoc.lacunas
+        ) {
+          divergentes.push(`${id} (a conta dos cenários não bate)`)
+        }
+      }
+      const sobrando = [...noQuadro.keys()].filter((id) => !doDocumento.has(id))
+
+      const problemas = [
+        faltando.length &&
+          `${plural(faltando.length, 'história da documentação não está', 'histórias da documentação não estão')} no quadro: ${faltando.join(', ')}`,
+        sobrando.length &&
+          `${plural(sobrando.length, 'história do quadro não existe', 'histórias do quadro não existem')} na documentação: ${sobrando.join(', ')}`,
+        divergentes.length && `não conferem com a documentação: ${divergentes.join(', ')}`,
+      ].filter(Boolean)
+
+      if (problemas.length) {
+        return {
+          situacao: 'falha',
+          detalhe: `O quadro de histórias saiu da documentação — ${problemas.join('; ')}.`,
+        }
+      }
+      return {
+        situacao: 'ok',
+        detalhe: `As ${doDocumento.size} histórias do quadro conferem com a documentação, uma a uma, inclusive a conta dos cenários de aceitação.`,
       }
     },
   },
