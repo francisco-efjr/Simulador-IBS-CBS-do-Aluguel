@@ -5,6 +5,7 @@ import { MODULES_LIST } from '@/lib/constants'
 import { useAuth } from '@/hooks/use-auth'
 import { useRealtime } from '@/hooks/use-realtime'
 import { FeedDeAtividades } from '@/components/inicio/FeedDeAtividades'
+import { OndeOSistemaEsta } from '@/components/produto/OndeOSistemaEsta'
 import { Card, CardContent } from '@/components/ui/card'
 import { getImoveis } from '@/services/imoveis'
 import { getInquilinos } from '@/services/inquilinos'
@@ -163,6 +164,8 @@ export default function Index() {
           })}
         </div>
       </div>
+
+      <OndeOSistemaEsta isAdministrador={isAdministrador} />
 
       {isAdministrador && <FeedDeAtividades />}
 

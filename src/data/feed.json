@@ -1,5 +1,19 @@
 [
   {
+    "data": "2026-09-20",
+    "titulo": "Quem entra no sistema já vê o andamento e os objetivos",
+    "texto": "A tela de início passa a mostrar, logo abaixo dos números, em que pé o sistema está e para onde ele vai: o objetivo da holding até o fim de 2026, quantas entregas já estão prontas, como cada resultado é medido — o que ainda ninguém mede aparece assim mesmo, sem número inventado — e os três próximos passos. Quem quiser o quadro inteiro continua a um clique, pelo link \"Ver o quadro completo\".",
+    "tipo": "entrega",
+    "referencia": "PR #5"
+  },
+  {
+    "data": "2026-09-20",
+    "titulo": "Regras do sistema reunidas e próximos passos definidos",
+    "texto": "Tudo o que o sistema já faz está descrito num só lugar, com as regras que ele segue e as que ainda vão entrar — como o limite de três aluguéis para a caução e o reajuste uma vez por ano, da Lei do Inquilinato —, sempre com exemplos do dia a dia da holding. A lista do que vem a seguir foi ordenada: primeiro, o extrato do banco dar baixa sozinho no aluguel previsto e o reajuste não passar da data.",
+    "tipo": "entrega",
+    "referencia": "PR #4"
+  },
+  {
     "data": "2026-09-19",
     "titulo": "Atividades da equipe ao vivo na tela Início",
     "texto": "O administrador vê, na tela Início, quem cadastrou, alterou ou excluiu o quê, no momento em que acontece. Os números do topo também se atualizam sozinhos.",

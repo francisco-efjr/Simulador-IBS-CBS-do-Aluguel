@@ -1,0 +1,78 @@
+{
+  "objetivo": {
+    "frase": "Até 31 de dezembro de 2026, a holding fecha cada mês dentro do sistema: todo aluguel previsto é conferido com o extrato, nenhum reajuste ou IPTU passa da data por esquecimento, e o sócio recebe o resultado do mês sem precisar pedir.",
+    "prazo": "2026-12-31",
+    "prazoPorExtenso": "31 de dezembro de 2026"
+  },
+  "indicadores": [
+    {
+      "nome": "Aluguéis do mês já previstos pelo contrato",
+      "comoSeMede": "Quantos aluguéis do mês nascem sozinhos do contrato, sem ninguém digitar.",
+      "hoje": "Nenhum: a previsão ainda não é gerada pelo contrato",
+      "meta": "Todos os contratos em vigor",
+      "situacao": "parado"
+    },
+    {
+      "nome": "Dinheiro que entrou no banco casado com o aluguel previsto",
+      "comoSeMede": "De cada crédito do extrato importado, quantos o sistema liga sozinho ao aluguel que já estava previsto.",
+      "hoje": "Nenhum: classificar o extrato cria um lançamento novo em vez de dar baixa no previsto",
+      "meta": "Pelo menos 9 em cada 10, sem digitação",
+      "situacao": "parado"
+    },
+    {
+      "nome": "Reajustes aplicados até o aniversário do contrato",
+      "comoSeMede": "Reajustes registrados até a data de aniversário do contrato, sem passar do prazo.",
+      "hoje": null,
+      "meta": "Todos",
+      "situacao": "nao-medido"
+    },
+    {
+      "nome": "Parcelas de IPTU pagas depois do vencimento",
+      "comoSeMede": "Parcelas de IPTU e taxas com pagamento registrado depois da data de vencimento.",
+      "hoje": null,
+      "meta": "Nenhuma",
+      "situacao": "nao-medido"
+    },
+    {
+      "nome": "Tempo para fechar o mês",
+      "comoSeMede": "Dias entre o último extrato do mês e o mês dado por fechado.",
+      "hoje": null,
+      "meta": "Até 1 dia útil depois do último extrato",
+      "situacao": "nao-medido"
+    },
+    {
+      "nome": "Resultado do mês na mão do sócio",
+      "comoSeMede": "Como o sócio recebe o resultado do mês: alguém monta e envia, ou o sistema envia sozinho.",
+      "hoje": "Feito à mão, quando alguém pede",
+      "meta": "Enviado pelo sistema até o dia 5",
+      "situacao": "atencao"
+    }
+  ],
+  "proximosPassos": [
+    {
+      "codigo": "B-03",
+      "titulo": "Entrada só por convite",
+      "detalhe": "Fechar o cadastro aberto: ninguém mais cria conta sozinho, só entra quem receber um convite."
+    },
+    {
+      "codigo": "B-02",
+      "titulo": "Laudo do simulador com a lei nova",
+      "detalhe": "Citar a Lei Complementar 227/2026 nas referências do laudo. O cálculo já está correto."
+    },
+    {
+      "codigo": "B-14",
+      "titulo": "Toda recusa explicada na tela",
+      "detalhe": "Quando o sistema não deixa inativar um imóvel ou marcar um reajuste, ele passa a dizer o motivo e o que fazer."
+    },
+    {
+      "codigo": "B-10",
+      "titulo": "Garantia do contrato conferida",
+      "detalhe": "Uma garantia por contrato e caução limitada a três aluguéis, como manda a Lei do Inquilinato."
+    },
+    {
+      "codigo": "B-01",
+      "titulo": "Extrato classificado sem duplicar lançamento",
+      "detalhe": "Confirmar e corrigir a falha que pode registrar o mesmo aluguel duas vezes ao classificar uma linha do extrato."
+    }
+  ]
+}
