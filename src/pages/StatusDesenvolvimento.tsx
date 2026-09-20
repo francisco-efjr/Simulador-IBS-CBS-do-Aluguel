@@ -1,16 +1,5 @@
 import { Link } from 'react-router-dom'
-import {
-  AlertTriangle,
-  ArrowRight,
-  Calculator,
-  CheckCircle2,
-  CircleDashed,
-  Clock,
-  LogIn,
-  ShieldAlert,
-  XCircle,
-  type LucideIcon,
-} from 'lucide-react'
+import { AlertTriangle, ArrowRight, Calculator, LogIn, ShieldAlert } from 'lucide-react'
 import {
   ANDAMENTO,
   AUDITORIA,
@@ -18,10 +7,15 @@ import {
   dataDaUltimaAtualizacao,
   formatarDataPorExtenso,
   formatarMomentoBrasilia,
-  type Situacao,
-  type SituacaoVerificacao,
+  progressoDasEntregas,
+  resumoDaSaude,
   type TipoAtualizacao,
 } from '@/data/andamento'
+import {
+  APARENCIA_DA_ENTREGA,
+  APARENCIA_DA_VERIFICACAO,
+} from '@/components/produto/aparencia'
+import { ResumoDasEntregas } from '@/components/produto/ResumoDasEntregas'
 import { useAuth } from '@/hooks/use-auth'
 import { useTituloDaPagina } from '@/hooks/use-titulo-da-pagina'
 
@@ -48,57 +42,6 @@ const { frentes: FRENTES, pendencias: PENDENCIAS } = ANDAMENTO
 /** Quantas novidades aparecem abertas; as mais antigas ficam num "ver mais". */
 const NOVIDADES_VISIVEIS = 6
 
-const APARENCIA: Record<
-  Situacao,
-  { rotulo: string; icone: LucideIcon; ponto: string; texto: string; caixa: string }
-> = {
-  pronto: {
-    rotulo: 'Pronto',
-    icone: CheckCircle2,
-    ponto: 'bg-emerald-600',
-    texto: 'text-emerald-800',
-    caixa: 'border-emerald-200 bg-emerald-50',
-  },
-  andamento: {
-    rotulo: 'Em andamento',
-    icone: Clock,
-    ponto: 'bg-amber-500',
-    texto: 'text-amber-900',
-    caixa: 'border-amber-200 bg-amber-50',
-  },
-  pendente: {
-    rotulo: 'Pendente',
-    icone: CircleDashed,
-    ponto: 'bg-slate-400',
-    texto: 'text-slate-700',
-    caixa: 'border-slate-200 bg-slate-50',
-  },
-}
-
-const APARENCIA_VERIFICACAO: Record<
-  SituacaoVerificacao,
-  { rotulo: string; icone: LucideIcon; texto: string; caixa: string }
-> = {
-  ok: {
-    rotulo: 'Em ordem',
-    icone: CheckCircle2,
-    texto: 'text-emerald-800',
-    caixa: 'border-emerald-200 bg-emerald-50',
-  },
-  atencao: {
-    rotulo: 'Atenção',
-    icone: AlertTriangle,
-    texto: 'text-amber-900',
-    caixa: 'border-amber-200 bg-amber-50',
-  },
-  falha: {
-    rotulo: 'Precisa de correção',
-    icone: XCircle,
-    texto: 'text-red-800',
-    caixa: 'border-red-200 bg-red-50',
-  },
-}
-
 /** Rótulo para leigo de cada tipo de novidade. */
 const APARENCIA_TIPO: Record<TipoAtualizacao, { rotulo: string; estilo: string; ponto: string }> = {
   entrega: {
@@ -121,28 +64,6 @@ const APARENCIA_TIPO: Record<TipoAtualizacao, { rotulo: string; estilo: string; 
     estilo: 'border-slate-200 bg-slate-50 text-slate-700',
     ponto: 'bg-slate-500',
   },
-}
-
-/** Frase-resumo da saúde do sistema, para o cabeçalho e o topo da seção. */
-function resumoDaSaude(): { situacao: SituacaoVerificacao; frase: string } | null {
-  const verificacoes = AUDITORIA.verificacoes
-  if (!verificacoes.length) return null
-  const total = verificacoes.length
-  const falhas = verificacoes.filter((v) => v.situacao === 'falha').length
-  const atencoes = verificacoes.filter((v) => v.situacao === 'atencao').length
-  if (!falhas && !atencoes) {
-    return {
-      situacao: 'ok',
-      frase: `Tudo em ordem: as ${total} conferências automáticas passaram.`,
-    }
-  }
-  const partes = [`${total - falhas - atencoes} de ${total} conferências em ordem`]
-  if (atencoes) partes.push(`${atencoes} ${atencoes === 1 ? 'pede' : 'pedem'} atenção`)
-  if (falhas) partes.push(`${falhas} ${falhas === 1 ? 'precisa' : 'precisam'} de correção`)
-  return {
-    situacao: falhas ? 'falha' : 'atencao',
-    frase: partes.join(', ').replace(/, ([^,]*)$/, ' e $1') + '.',
-  }
 }
 
 function LinhaDoTempo() {
@@ -210,7 +131,7 @@ function SaudeDoSistema() {
     )
   }
 
-  const estiloResumo = APARENCIA_VERIFICACAO[resumo.situacao]
+  const estiloResumo = APARENCIA_DA_VERIFICACAO[resumo.situacao]
   const IconeResumo = estiloResumo.icone
 
   return (
@@ -232,7 +153,7 @@ function SaudeDoSistema() {
       <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {AUDITORIA.verificacoes.map((verificacao) => {
           const estilo =
-            APARENCIA_VERIFICACAO[verificacao.situacao] ?? APARENCIA_VERIFICACAO.atencao
+            APARENCIA_DA_VERIFICACAO[verificacao.situacao] ?? APARENCIA_DA_VERIFICACAO.atencao
           const Icone = estilo.icone
           return (
             <li
@@ -267,14 +188,7 @@ export default function StatusDesenvolvimento() {
   useTituloDaPagina('Fase de desenvolvimento')
   const { isAuthenticated } = useAuth()
 
-  const entregas = FRENTES.flatMap((frente) => frente.entregas)
-  const total = entregas.length
-  const contagem: Record<Situacao, number> = {
-    pronto: entregas.filter((e) => e.situacao === 'pronto').length,
-    andamento: entregas.filter((e) => e.situacao === 'andamento').length,
-    pendente: entregas.filter((e) => e.situacao === 'pendente').length,
-  }
-  const percentualPronto = Math.round((contagem.pronto / total) * 100)
+  const progresso = progressoDasEntregas()
   const atualizadoEm = dataDaUltimaAtualizacao()
   const saude = resumoDaSaude()
 
@@ -369,42 +283,7 @@ export default function StatusDesenvolvimento() {
           </h2>
 
           <div className="mt-5 rounded-xl border border-slate-200 bg-white p-6 shadow-xs">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <p className="text-lg font-bold text-slate-900">
-                {contagem.pronto} de {total} entregas concluídas
-              </p>
-              <p className="text-lg font-bold text-emerald-700">{percentualPronto}%</p>
-            </div>
-
-            <div
-              className="mt-3 h-4 w-full overflow-hidden rounded-full bg-slate-200"
-              role="img"
-              aria-label={`${percentualPronto} por cento das entregas concluídas`}
-            >
-              <div
-                className="h-full rounded-full bg-emerald-600"
-                style={{ width: `${percentualPronto}%` }}
-              />
-            </div>
-
-            <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {(['pronto', 'andamento', 'pendente'] as const).map((situacao) => {
-                const estilo = APARENCIA[situacao]
-                const Icone = estilo.icone
-                return (
-                  <div
-                    key={situacao}
-                    className={`flex items-center gap-3 rounded-lg border px-4 py-3 ${estilo.caixa}`}
-                  >
-                    <Icone className={`h-6 w-6 shrink-0 ${estilo.texto}`} aria-hidden="true" />
-                    <div>
-                      <dt className={`text-sm font-semibold ${estilo.texto}`}>{estilo.rotulo}</dt>
-                      <dd className="text-2xl font-bold text-slate-900">{contagem[situacao]}</dd>
-                    </div>
-                  </div>
-                )
-              })}
-            </dl>
+            <ResumoDasEntregas progresso={progresso} />
           </div>
         </section>
 
@@ -442,7 +321,7 @@ export default function StatusDesenvolvimento() {
 
                 <ul className="divide-y divide-slate-100">
                   {frente.entregas.map((entrega) => {
-                    const estilo = APARENCIA[entrega.situacao]
+                    const estilo = APARENCIA_DA_ENTREGA[entrega.situacao]
                     return (
                       <li
                         key={entrega.titulo}

@@ -1,6 +1,6 @@
 {
-  "geradoEm": "2026-09-20T04:16:44.807Z",
-  "commit": "54a7cb1",
+  "geradoEm": "2026-09-20T05:10:25.572Z",
+  "commit": "da19137",
   "verificacoes": [
     {
       "id": "tipos",
@@ -14,7 +14,7 @@
       "nome": "Testes automáticos",
       "descricao": "Roda a bateria de testes que confere os cálculos e o comportamento das telas.",
       "situacao": "ok",
-      "detalhe": "Todos os 360 testes automáticos passaram."
+      "detalhe": "Todos os 387 testes automáticos passaram."
     },
     {
       "id": "lint",
