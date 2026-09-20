@@ -6,9 +6,21 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero inativar um imóvel que a holding vendeu, para que ele saia das listas e dos relatórios sem perder o histórico.",
     "coluna": "em-ajuste",
-    "regras": ["RN-IMV-02", "RN-AUD-01"],
-    "backlog": ["B-14", "B-04"],
-    "cenarios": { "total": 7, "implementados": 4, "propostos": 1, "lacunas": 2, "defeitos": 0 },
+    "regras": [
+      "RN-IMV-02",
+      "RN-AUD-01"
+    ],
+    "backlog": [
+      "B-14",
+      "B-04"
+    ],
+    "cenarios": {
+      "total": 7,
+      "implementados": 4,
+      "propostos": 1,
+      "lacunas": 2,
+      "defeitos": 0
+    },
     "resumo": "O imóvel vendido sai das listas e dos relatórios sem apagar nada do que já aconteceu com ele. O sistema não deixa inativar um imóvel que ainda tem contrato em vigor. Falta explicar o motivo da recusa: hoje aparece só \"não foi possível\", sem dizer que existe contrato ativo nem o que fazer."
   },
   {
@@ -18,9 +30,21 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero marcar a casa vazia como \"em manutenção\" e lançar os gastos da reforma, para saber quanto a vacância custou e não alugá-la antes de ficar pronta.",
     "coluna": "em-ajuste",
-    "regras": ["RN-IMV-01", "RN-FIN-03", "RN-IMV-05"],
-    "backlog": ["B-26"],
-    "cenarios": { "total": 4, "implementados": 3, "propostos": 1, "lacunas": 0, "defeitos": 0 },
+    "regras": [
+      "RN-IMV-01",
+      "RN-FIN-03",
+      "RN-IMV-05"
+    ],
+    "backlog": [
+      "B-26"
+    ],
+    "cenarios": {
+      "total": 4,
+      "implementados": 3,
+      "propostos": 1,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "resumo": "A casa vazia pode ficar marcada como \"em manutenção\" e as despesas da reforma entram ligadas a ela, de modo que no fim se sabe quanto a vacância custou. Quando o contrato termina, o imóvel volta a \"vago\". Falta o sistema pedir confirmação antes de alugar um imóvel que ainda está em obra."
   },
   {
@@ -30,9 +54,19 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero cadastrar a inquilina com CPF conferido, para não emitir contrato nem recibo com documento errado.",
     "coluna": "concluida",
-    "regras": ["RN-INQ-02", "RN-INQ-04", "RN-INQ-05"],
+    "regras": [
+      "RN-INQ-02",
+      "RN-INQ-04",
+      "RN-INQ-05"
+    ],
     "backlog": [],
-    "cenarios": { "total": 4, "implementados": 4, "propostos": 0, "lacunas": 0, "defeitos": 0 },
+    "cenarios": {
+      "total": 4,
+      "implementados": 4,
+      "propostos": 0,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "resumo": "O sistema confere o CPF na hora de salvar e recusa documento inválido, repetido ou nome em branco. Assim nenhum contrato e nenhum recibo sai com o documento errado. Está pronto e funcionando."
   },
   {
@@ -42,9 +76,18 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero cadastrar a padaria que tem CNPJ com letras, para alugar a loja a uma empresa aberta depois de julho de 2026.",
     "coluna": "concluida",
-    "regras": ["RN-INQ-03", "RN-INQ-04"],
+    "regras": [
+      "RN-INQ-03",
+      "RN-INQ-04"
+    ],
     "backlog": [],
-    "cenarios": { "total": 3, "implementados": 3, "propostos": 0, "lacunas": 0, "defeitos": 0 },
+    "cenarios": {
+      "total": 3,
+      "implementados": 3,
+      "propostos": 0,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "resumo": "Empresa com o CNPJ novo, que tem letras além de números, já pode ser cadastrada como inquilina. A conferência vale tanto na tela quanto direto no banco de dados. Está pronto e funcionando."
   },
   {
@@ -54,9 +97,19 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero inativar o inquilino que devolveu o imóvel, para que a lista mostre só quem está com a holding.",
     "coluna": "em-ajuste",
-    "regras": ["RN-INQ-01"],
-    "backlog": ["B-14"],
-    "cenarios": { "total": 3, "implementados": 1, "propostos": 1, "lacunas": 1, "defeitos": 0 },
+    "regras": [
+      "RN-INQ-01"
+    ],
+    "backlog": [
+      "B-14"
+    ],
+    "cenarios": {
+      "total": 3,
+      "implementados": 1,
+      "propostos": 1,
+      "lacunas": 1,
+      "defeitos": 0
+    },
     "resumo": "Quem devolveu o imóvel sai da lista de inquilinos ativos assim que o contrato é encerrado, sem perder o histórico. Enquanto o contrato estiver em vigor, o sistema não deixa inativar. Falta a mensagem dizer o motivo: hoje ela é genérica e não ajuda a resolver."
   },
   {
@@ -66,9 +119,24 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero cadastrar o contrato do novo inquilino no dia seguinte ao fim do anterior, para não haver dois inquilinos no mesmo imóvel ao mesmo tempo.",
     "coluna": "em-ajuste",
-    "regras": ["RN-CTR-03", "RN-CTR-04", "RN-CTR-05", "RN-CTR-06", "RN-FIN-06"],
-    "backlog": ["B-04", "B-14"],
-    "cenarios": { "total": 9, "implementados": 7, "propostos": 1, "lacunas": 1, "defeitos": 0 },
+    "regras": [
+      "RN-CTR-03",
+      "RN-CTR-04",
+      "RN-CTR-05",
+      "RN-CTR-06",
+      "RN-FIN-06"
+    ],
+    "backlog": [
+      "B-04",
+      "B-14"
+    ],
+    "cenarios": {
+      "total": 9,
+      "implementados": 7,
+      "propostos": 1,
+      "lacunas": 1,
+      "defeitos": 0
+    },
     "resumo": "Dois contratos nunca se sobrepõem no mesmo imóvel: o novo só entra a partir do dia seguinte ao fim do anterior. O sistema também recusa data de término antes do início, ano digitado errado e dia de vencimento que não existe no mês. Falta mostrar o motivo quando a data do reajuste é anterior ao início do contrato — hoje a recusa acontece em silêncio."
   },
   {
@@ -78,9 +146,17 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero que o imóvel mude de \"vago\" para \"alugado\" sozinho quando o contrato começa e volte quando ele termina, para o painel de ocupação estar sempre certo.",
     "coluna": "concluida",
-    "regras": ["RN-IMV-01"],
+    "regras": [
+      "RN-IMV-01"
+    ],
     "backlog": [],
-    "cenarios": { "total": 3, "implementados": 3, "propostos": 0, "lacunas": 0, "defeitos": 0 },
+    "cenarios": {
+      "total": 3,
+      "implementados": 3,
+      "propostos": 0,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "resumo": "Ativar um contrato marca o imóvel como alugado; encerrar devolve o imóvel a vago. Se o contrato trocar de imóvel, o antigo é liberado no mesmo momento. Ninguém precisa lembrar de mexer na ficha do imóvel, e o painel de ocupação nunca fica desatualizado."
   },
   {
@@ -90,9 +166,20 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero que ao ativar o contrato o sistema já crie os aluguéis previstos de cada mês, para não lançar à mão e ser avisada quando um não entrar.",
     "coluna": "a-fazer",
-    "regras": ["RN-CTR-01", "RN-CTR-13"],
-    "backlog": ["B-06"],
-    "cenarios": { "total": 4, "implementados": 0, "propostos": 4, "lacunas": 0, "defeitos": 0 },
+    "regras": [
+      "RN-CTR-01",
+      "RN-CTR-13"
+    ],
+    "backlog": [
+      "B-06"
+    ],
+    "cenarios": {
+      "total": 4,
+      "implementados": 0,
+      "propostos": 4,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "decisaoPendente": "D-01",
     "resumo": "Ao ativar o contrato, o sistema criaria sozinho um aluguel previsto para cada mês de vigência, com o vencimento certo — inclusive nos meses em que o dia escolhido não existe. Encerrar o contrato antes do fim cancelaria o que ainda não venceu. Ainda não existe: hoje cada aluguel é lançado à mão. Depende de uma decisão sua sobre como cobrar o primeiro mês."
   },
@@ -103,9 +190,21 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero que o sistema calcule o reajuste no aniversário do contrato e me peça para confirmar, para não perder reajuste nem cobrar errado.",
     "coluna": "a-fazer",
-    "regras": ["RN-CTR-02", "RN-CTR-09"],
-    "backlog": ["B-08a", "B-08b"],
-    "cenarios": { "total": 5, "implementados": 0, "propostos": 5, "lacunas": 0, "defeitos": 0 },
+    "regras": [
+      "RN-CTR-02",
+      "RN-CTR-09"
+    ],
+    "backlog": [
+      "B-08a",
+      "B-08b"
+    ],
+    "cenarios": {
+      "total": 5,
+      "implementados": 0,
+      "propostos": 5,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "decisaoPendente": "D-02",
     "resumo": "No aniversário do contrato, o sistema calcularia o novo valor pelo índice combinado e pediria a sua confirmação antes de aplicar. Enquanto o índice do mês não sai, o contrato ficaria em Alertas aguardando, sem valor chutado. Ainda não existe. Depende de uma decisão sua sobre o que fazer quando o índice vem negativo."
   },
@@ -116,9 +215,20 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero que o sistema confira o valor da garantia, para não aceitar caução acima do que a lei permite nem guardar valor em contrato \"sem garantia\".",
     "coluna": "em-ajuste",
-    "regras": ["RN-CTR-10", "RN-CTR-11"],
-    "backlog": ["B-10"],
-    "cenarios": { "total": 3, "implementados": 1, "propostos": 2, "lacunas": 0, "defeitos": 0 },
+    "regras": [
+      "RN-CTR-10",
+      "RN-CTR-11"
+    ],
+    "backlog": [
+      "B-10"
+    ],
+    "cenarios": {
+      "total": 3,
+      "implementados": 1,
+      "propostos": 2,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "decisaoPendente": "D-03",
     "resumo": "Hoje o sistema só confere que o valor da garantia não é negativo. Falta recusar caução em dinheiro acima de três aluguéis, que é o limite da lei, e impedir que um contrato marcado como \"sem garantia\" guarde valor. Depende de uma decisão sua sobre quais modalidades de garantia ficam na lista."
   },
@@ -129,9 +239,17 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero registrar uma única modalidade de garantia por contrato, para o contrato não ter cláusula nula.",
     "coluna": "concluida",
-    "regras": ["RN-CTR-07"],
+    "regras": [
+      "RN-CTR-07"
+    ],
     "backlog": [],
-    "cenarios": { "total": 2, "implementados": 2, "propostos": 0, "lacunas": 0, "defeitos": 0 },
+    "cenarios": {
+      "total": 2,
+      "implementados": 2,
+      "propostos": 0,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "resumo": "Cada contrato tem uma única modalidade de garantia, e escolher outra substitui a anterior. É o que a lei exige, e evita contrato com cláusula que não vale. Está pronto e funcionando."
   },
   {
@@ -141,9 +259,19 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero que o sistema calcule a multa quando o inquilino sai antes do prazo, para cobrar o valor que a lei permite, sem conta de cabeça.",
     "coluna": "a-fazer",
-    "regras": ["RN-CTR-12"],
-    "backlog": ["B-17"],
-    "cenarios": { "total": 2, "implementados": 0, "propostos": 2, "lacunas": 0, "defeitos": 0 },
+    "regras": [
+      "RN-CTR-12"
+    ],
+    "backlog": [
+      "B-17"
+    ],
+    "cenarios": {
+      "total": 2,
+      "implementados": 0,
+      "propostos": 2,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "decisaoPendente": "D-04",
     "resumo": "Quando o inquilino devolve o imóvel antes do prazo, o sistema calcularia a multa proporcional ao que falta cumprir e a lançaria como receita ligada ao contrato. Também reconheceria o caso em que a lei dispensa a multa, por transferência do empregador. Ainda não existe. Depende de uma decisão sua sobre como contar a proporção."
   },
@@ -154,9 +282,19 @@
     "persona": "Marcos, assistente administrativo",
     "comoQueroPara": "Como Marcos, quero que a situação do lançamento se ajuste sozinha pelo valor recebido e pela data, para não marcar \"recebido\" por engano.",
     "coluna": "concluida",
-    "regras": ["RN-FIN-01", "RN-FIN-02", "RN-FIN-03"],
+    "regras": [
+      "RN-FIN-01",
+      "RN-FIN-02",
+      "RN-FIN-03"
+    ],
     "backlog": [],
-    "cenarios": { "total": 3, "implementados": 3, "propostos": 0, "lacunas": 0, "defeitos": 0 },
+    "cenarios": {
+      "total": 3,
+      "implementados": 3,
+      "propostos": 0,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "resumo": "Pendente, recebido ou atrasado: a situação de cada lançamento é calculada pelo valor e pela data, não digitada. O que a tela mandar é ignorado, e uma varredura de madrugada marca o que venceu sem pagamento. Ninguém marca \"recebido\" por engano."
   },
   {
@@ -166,9 +304,21 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero lançar o IPTU do ano em 10 parcelas de uma vez, para não digitar dez registros por imóvel e ser avisada de cada vencimento.",
     "coluna": "em-ajuste",
-    "regras": ["RN-IPTU-01", "RN-IPTU-02", "RN-IPTU-04"],
-    "backlog": ["B-09"],
-    "cenarios": { "total": 5, "implementados": 3, "propostos": 2, "lacunas": 0, "defeitos": 0 },
+    "regras": [
+      "RN-IPTU-01",
+      "RN-IPTU-02",
+      "RN-IPTU-04"
+    ],
+    "backlog": [
+      "B-09"
+    ],
+    "cenarios": {
+      "total": 5,
+      "implementados": 3,
+      "propostos": 2,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "resumo": "As parcelas de IPTU já registram pagamento, acusam vencimento sem pagamento e exigem descrição. Falta o atalho que gera as dez parcelas do ano de uma vez, acertando os centavos na última, e a opção de cota única. Hoje é preciso digitar registro por registro."
   },
   {
@@ -187,8 +337,17 @@
       "RN-IMP-08",
       "RN-IMP-10"
     ],
-    "backlog": ["B-04", "B-12"],
-    "cenarios": { "total": 9, "implementados": 7, "propostos": 1, "lacunas": 1, "defeitos": 0 },
+    "backlog": [
+      "B-04",
+      "B-12"
+    ],
+    "cenarios": {
+      "total": 9,
+      "implementados": 7,
+      "propostos": 1,
+      "lacunas": 1,
+      "defeitos": 0
+    },
     "resumo": "O extrato do banco entra de uma vez, sem digitação: o sistema recusa arquivo fora do formato ou grande demais, avisa quais transações já tinham sido importadas antes e, se a conexão cair no meio, não deixa nada pela metade. Falta proteger a importação já usada: hoje, excluí-la apaga junto os lançamentos que já tinham sido classificados."
   },
   {
@@ -198,9 +357,20 @@
     "persona": "Marcos, assistente administrativo",
     "comoQueroPara": "Como Marcos, quero aceitar a sugestão do sistema para o PIX da inquilina, para lançar o aluguel recebido com um clique.",
     "coluna": "em-ajuste",
-    "regras": ["RN-IMP-02", "RN-IMP-09"],
-    "backlog": ["B-01"],
-    "cenarios": { "total": 5, "implementados": 3, "propostos": 2, "lacunas": 0, "defeitos": 1 },
+    "regras": [
+      "RN-IMP-02",
+      "RN-IMP-09"
+    ],
+    "backlog": [
+      "B-01"
+    ],
+    "cenarios": {
+      "total": 5,
+      "implementados": 3,
+      "propostos": 2,
+      "lacunas": 0,
+      "defeitos": 1
+    },
     "resumo": "O sistema sugere a que se refere cada PIX recebido e, aceita a sugestão, lança o aluguel com um clique; a transação ignorada volta para a fila. Há um defeito provável a confirmar: a classificação pode gravar pela metade e deixar o lançamento sem o vínculo com o contrato. Falta garantir que classificar seja tudo ou nada."
   },
   {
@@ -210,9 +380,23 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero que o PIX da inquilina dê baixa no aluguel previsto do mês, para não contar o aluguel duas vezes e ver na hora quem pagou a menos.",
     "coluna": "a-fazer",
-    "regras": ["RN-FIN-08", "RN-FIN-09", "RN-FIN-11"],
-    "backlog": ["B-07", "B-13", "B-19"],
-    "cenarios": { "total": 6, "implementados": 0, "propostos": 6, "lacunas": 0, "defeitos": 0 },
+    "regras": [
+      "RN-FIN-08",
+      "RN-FIN-09",
+      "RN-FIN-11"
+    ],
+    "backlog": [
+      "B-07",
+      "B-13",
+      "B-19"
+    ],
+    "cenarios": {
+      "total": 6,
+      "implementados": 0,
+      "propostos": 6,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "resumo": "O dinheiro que entra daria baixa no aluguel já previsto, em vez de virar um segundo lançamento — fim do aluguel contado duas vezes. Pagamento a menor deixaria saldo em aberto, com o combinado registrado, e havendo mais de um mês em aberto a escolha seria sua. Ainda não existe e depende dos aluguéis previstos (H-08)."
   },
   {
@@ -222,9 +406,19 @@
     "persona": "Marcos, assistente administrativo",
     "comoQueroPara": "Como Marcos, quero desfazer uma classificação que fiz no imóvel errado, para corrigir sem deixar lançamento em dobro.",
     "coluna": "a-fazer",
-    "regras": ["RN-IMP-01"],
-    "backlog": ["B-11"],
-    "cenarios": { "total": 3, "implementados": 0, "propostos": 2, "lacunas": 1, "defeitos": 0 },
+    "regras": [
+      "RN-IMP-01"
+    ],
+    "backlog": [
+      "B-11"
+    ],
+    "cenarios": {
+      "total": 3,
+      "implementados": 0,
+      "propostos": 2,
+      "lacunas": 1,
+      "defeitos": 0
+    },
     "resumo": "Errou o imóvel na classificação? Um botão desfaria o lançamento e devolveria a transação à fila, para classificar de novo. Hoje não há como desfazer: o \"Editar\" cria um segundo lançamento e o valor aparece em dobro. É a correção que falta para o extrato ser confiável."
   },
   {
@@ -234,9 +428,21 @@
     "persona": "Dra. Rita, contadora externa",
     "comoQueroPara": "Como Dra. Rita, quero ver receitas, despesas e relatórios sem poder alterar, para escriturar com segurança de que não mudei nada por engano.",
     "coluna": "em-ajuste",
-    "regras": ["RN-SEC-01", "RN-SEC-02", "RN-SEC-09"],
-    "backlog": ["B-22"],
-    "cenarios": { "total": 6, "implementados": 4, "propostos": 2, "lacunas": 0, "defeitos": 0 },
+    "regras": [
+      "RN-SEC-01",
+      "RN-SEC-02",
+      "RN-SEC-09"
+    ],
+    "backlog": [
+      "B-22"
+    ],
+    "cenarios": {
+      "total": 6,
+      "implementados": 4,
+      "propostos": 2,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "decisaoPendente": "D-05",
     "resumo": "Quem tem acesso só de leitura vê os números e os relatórios, mas não consegue alterar nada — e a recusa vale também fora da tela, direto no banco. Usuário desativado não vê coisa alguma. Falta um perfil pronto de \"Contador(a)\", para não marcar permissão por permissão. Depende de uma decisão sua sobre o que cada perfil enxerga."
   },
@@ -246,10 +452,22 @@
     "epico": "Acesso e governança",
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero convidar a contadora por e-mail, para que ela crie a própria senha sem eu conhecê-la.",
-    "coluna": "concluida",
-    "regras": ["RN-SEC-04", "RN-SEC-07"],
-    "backlog": ["B-03", "B-05"],
-    "cenarios": { "total": 4, "implementados": 3, "propostos": 1, "lacunas": 0, "defeitos": 0 },
+    "coluna": "em-ajuste",
+    "regras": [
+      "RN-SEC-04",
+      "RN-SEC-07"
+    ],
+    "backlog": [
+      "B-03",
+      "B-05"
+    ],
+    "cenarios": {
+      "total": 4,
+      "implementados": 3,
+      "propostos": 1,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "resumo": "O convite vai por e-mail e a pessoa cria a própria senha, que ninguém mais conhece. Convite vencido não serve, e reenviar renova o prazo. Falta fechar a porta dos fundos: desligar o cadastro público, para que ninguém entre sem convite."
   },
   {
@@ -259,9 +477,20 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero ver quem alterou um contrato e o que mudou, para esclarecer divergência com a inquilina sem depender de memória.",
     "coluna": "concluida",
-    "regras": ["RN-AUD-01", "RN-AUD-02", "RN-AUD-03", "RN-AUD-04"],
+    "regras": [
+      "RN-AUD-01",
+      "RN-AUD-02",
+      "RN-AUD-03",
+      "RN-AUD-04"
+    ],
     "backlog": [],
-    "cenarios": { "total": 4, "implementados": 4, "propostos": 0, "lacunas": 0, "defeitos": 0 },
+    "cenarios": {
+      "total": 4,
+      "implementados": 4,
+      "propostos": 0,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "resumo": "Toda alteração fica registrada com quem fez, quando, o valor de antes e o de depois — inclusive as mudanças de acesso. O registro não pode ser apagado e só o administrador o vê. Discussão sobre valor de aluguel se resolve olhando a trilha, não a memória."
   },
   {
@@ -271,9 +500,22 @@
     "persona": "Seu Antônio, sócio-fundador",
     "comoQueroPara": "Como Seu Antônio, quero receber o resultado do mês sem pedir, para acompanhar a holding sem precisar usar o sistema.",
     "coluna": "em-ajuste",
-    "regras": ["RN-REL-01", "RN-FIN-12", "RN-REL-02"],
-    "backlog": ["B-15", "B-16"],
-    "cenarios": { "total": 4, "implementados": 2, "propostos": 2, "lacunas": 0, "defeitos": 0 },
+    "regras": [
+      "RN-REL-01",
+      "RN-FIN-12",
+      "RN-REL-02"
+    ],
+    "backlog": [
+      "B-15",
+      "B-16"
+    ],
+    "cenarios": {
+      "total": 4,
+      "implementados": 2,
+      "propostos": 2,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "resumo": "O painel do mês e o relatório em PDF já existem para quem abre o sistema. Falta o principal para o sócio: fechar a competência, para que o número não mude depois de informado, e o resultado chegar por e-mail sem ele precisar pedir nem entrar na tela."
   },
   {
@@ -283,9 +525,20 @@
     "persona": "Helena, sócia-administradora",
     "comoQueroPara": "Como Helena, quero ver o que vai vencer e o que venceu, para agir antes de virar problema.",
     "coluna": "em-ajuste",
-    "regras": ["RN-ALR-01", "RN-ALR-02"],
-    "backlog": ["B-20"],
-    "cenarios": { "total": 3, "implementados": 2, "propostos": 1, "lacunas": 0, "defeitos": 0 },
+    "regras": [
+      "RN-ALR-01",
+      "RN-ALR-02"
+    ],
+    "backlog": [
+      "B-20"
+    ],
+    "cenarios": {
+      "total": 3,
+      "implementados": 2,
+      "propostos": 1,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "resumo": "A tela de alertas já mostra o que vai vencer e o que venceu, filtrando por período e pondo o mais urgente na frente. Falta fixar as janelas de aviso — 90, 60 e 30 dias antes do término do contrato — para nenhum prazo chegar de surpresa."
   },
   {
@@ -294,7 +547,7 @@
     "epico": "Simulador",
     "persona": "Dra. Rita, contadora externa",
     "comoQueroPara": "Como Dra. Rita, quero simular o enquadramento de um locador pessoa física, para orientar a família sobre ter imóveis na pessoa física ou na holding.",
-    "coluna": "concluida",
+    "coluna": "em-ajuste",
     "regras": [
       "RT-01",
       "RT-02",
@@ -306,8 +559,16 @@
       "RT-08",
       "RT-09"
     ],
-    "backlog": ["B-02"],
-    "cenarios": { "total": 3, "implementados": 2, "propostos": 1, "lacunas": 0, "defeitos": 0 },
+    "backlog": [
+      "B-02"
+    ],
+    "cenarios": {
+      "total": 3,
+      "implementados": 2,
+      "propostos": 1,
+      "lacunas": 0,
+      "defeitos": 0
+    },
     "resumo": "O simulador diz se um locador pessoa física vira contribuinte do IBS/CBS, aplicando os dois critérios da Reforma Tributária — mais de três imóveis e mais de R$ 240.000,00 de aluguel por ano —, e lembra que empresa é sempre contribuinte. Falta o laudo citar a Lei Complementar 227/2026, para servir de documento em escritório de contabilidade."
   }
 ]

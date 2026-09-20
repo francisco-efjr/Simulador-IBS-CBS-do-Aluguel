@@ -45,11 +45,11 @@
 | H-17 | Conciliar o PIX com o aluguel previsto | proposta | ⚠ | ✓ | ✓ | ⚠ | ⚠ | ✓ | I: depende de H-08 e de B-01; E/S: fatiar em "casamento exato" e "parcial com saldo" |
 | H-18 | Desfazer uma classificação errada | proposta | ⚠ | ✓ | ✓ | ✓ | ✓ | ✓ | I: depende de B-01 (classificação atômica) |
 | H-19 | Contadora com acesso só de leitura | implementada + proposta | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — |
-| H-20 | Convidar quem vai usar | implementada | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — |
+| H-20 | Convidar quem vai usar | implementada + proposta | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — |
 | H-21 | Saber quem mudou o valor do aluguel | implementada | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — |
 | H-22 | Resultado do mês para o sócio | implementada + proposta | ✓ | ✓ | ✓ | ⚠ | ⚠ | ✓ | E/S: e-mail depende do SMTP próprio (B-05); fatiar fechamento (RN-FIN-12) e envio (RN-REL-02) |
 | H-23 | Ser avisada antes do vencimento | implementada + proposta | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — |
-| H-24 | Saber se a holding paga IBS/CBS | implementada | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — |
+| H-24 | Saber se a holding paga IBS/CBS | implementada + proposta | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — |
 
 ---
 
