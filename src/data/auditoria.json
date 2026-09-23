@@ -1,6 +1,6 @@
 {
-  "geradoEm": "2026-09-23T21:51:45.774Z",
-  "commit": "fdb05c5",
+  "geradoEm": "2026-09-23T22:47:53.267Z",
+  "commit": "dcd75e0",
   "verificacoes": [
     {
       "id": "tipos",
@@ -14,7 +14,7 @@
       "nome": "Testes automáticos",
       "descricao": "Roda a bateria de testes que confere os cálculos e o comportamento das telas.",
       "situacao": "ok",
-      "detalhe": "Todos os 527 testes automáticos passaram."
+      "detalhe": "Todos os 442 testes automáticos passaram."
     },
     {
       "id": "lint",
@@ -42,7 +42,7 @@
       "nome": "Proteção de cada tabela",
       "descricao": "Toda tabela criada em supabase/migrations tem a segurança por linha (RLS) ligada, para que cada pessoa só veja o que pode.",
       "situacao": "ok",
-      "detalhe": "As 16 tabelas do banco têm a proteção que limita cada pessoa ao que ela pode ver."
+      "detalhe": "As 18 tabelas do banco têm a proteção que limita cada pessoa ao que ela pode ver."
     },
     {
       "id": "segredos",
@@ -61,9 +61,9 @@
     {
       "id": "historias-conferem",
       "nome": "Quadro de histórias fiel à documentação",
-      "descricao": "Toda história da documentação de produto (docs/08-produto/historias-e-cenarios.md) está no quadro da página pública com o mesmo título, e a contagem de cenários de cada uma bate com as etiquetas do documento.",
+      "descricao": "Toda história da documentação de produto (docs/08-produto/historias-e-cenarios.md) está na carga do quadro de histórias com o mesmo número e o mesmo título, e a carga não põe nenhuma história em Homologação ou Concluído — isso é decisão de uma pessoa.",
       "situacao": "ok",
-      "detalhe": "As 24 histórias do quadro conferem com a documentação, uma a uma, inclusive a conta dos cenários de aceitação."
+      "detalhe": "As 24 histórias da documentação estão no quadro com o mesmo número e título, entre as 59 da carga; nenhuma entra homologada sem uma pessoa."
     },
     {
       "id": "feed-em-dia",

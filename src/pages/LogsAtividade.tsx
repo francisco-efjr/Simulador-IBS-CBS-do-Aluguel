@@ -67,6 +67,7 @@ const ENTIDADES_OPCOES = [
   { value: 'documentos_anexos', label: 'Documentos Anexos' },
   { value: 'users', label: 'Usuários' },
   { value: 'permissoes', label: 'Permissões' },
+  { value: 'historias', label: 'Quadro de histórias' },
 ]
 
 export default function LogsAtividade() {
@@ -303,6 +304,7 @@ export default function LogsAtividade() {
         label: 'Conta Bancária',
         color: 'bg-slate-100 text-slate-800 border-slate-200',
       },
+      historias: { label: 'História', color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
     }
 
     const item = labels[entidade] || { label: entidade, color: 'bg-slate-100 text-slate-700' }

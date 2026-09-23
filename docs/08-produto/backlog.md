@@ -179,9 +179,9 @@ Um item só está pronto quando **tudo** abaixo vale:
    EXECUTE para `anon`; mutação nova coberta pela trilha de auditoria.
 8. **Migração idempotente** e registrada em [`supabase/README.md`](../../supabase/README.md).
 9. **Documentação** atualizada: situação da regra no [catálogo](regras-de-negocio.md), linha do
-   [inventário](inventario-funcional.md) e, se mudar o quadro, `src/data/andamento.json`. Mexeu numa
-   história daqui, acerte `src/data/historias.json` no mesmo PR — o auditor reprova a divergência
-   (`historias-conferem`).
+   [inventário](inventario-funcional.md) e, se mudar o quadro, `src/data/andamento.json`. A história
+   do item fica em dia no **Quadro de histórias** (página inicial): atividades marcadas e a coluna até
+   **Teste** — Homologação e Concluído são de uma pessoa (RN-QDR-01).
 10. **Entrada no topo de [`src/data/feed.json`](../../src/data/feed.json)**, no mesmo PR, em linguagem
     para leigo (regra do [auditor](../07-auditor.md#regra-de-processo-toda-entrega-anuncia-a-si-mesma)).
 11. **Demonstrado à administradora** com dado real ou cópia fiel, e aceito por ela (Stare, 2014).

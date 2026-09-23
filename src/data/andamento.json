@@ -104,6 +104,11 @@
           "situacao": "pronto"
         },
         {
+          "titulo": "Quadro de histórias",
+          "detalhe": "As histórias do sistema num quadro de cinco colunas, com os critérios para conferir cada uma e a lista do que falta. Quem tem acesso cria, edita e move; homologar é sempre decisão de uma pessoa.",
+          "situacao": "pronto"
+        },
+        {
           "titulo": "Envio automático de relatório por e-mail",
           "detalhe": "Fechamento mensal chegando na caixa de entrada, sem abrir o sistema.",
           "situacao": "pendente"
@@ -190,7 +195,7 @@
         },
         {
           "titulo": "Banco de dados de produção",
-          "detalhe": "Base no Supabase com as 16 tabelas, as regras de acesso e a varredura diária de vencidos.",
+          "detalhe": "Base no Supabase com as 18 tabelas, as regras de acesso e a varredura diária de vencidos.",
           "situacao": "pronto"
         },
         {

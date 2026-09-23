@@ -62,6 +62,7 @@ export type Modulo =
   | 'relatorios'
   | 'importar_extrato'
   | 'classificar_transacoes'
+  | 'quadro'
 
 export type Nivel = 'sem_acesso' | 'visualizacao' | 'edicao'
 

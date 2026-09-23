@@ -1,6 +1,12 @@
 [
   {
     "data": "2026-09-23",
+    "titulo": "Quadro de histórias editável, com homologação por você",
+    "texto": "O quadro de histórias da página inicial passou a ser de trabalho: cinco colunas — Backlog, Desenvolvimento, Teste, Homologação e Concluído — e cada cartão mostra o número, o título, a parte do sistema e quantas atividades já estão feitas. Por dentro, a história traz quem quer, o que quer e para quê, os critérios para conferir se está pronta, observações e a lista de atividades com caixa de marcar. Tudo o que o sistema faz hoje virou história: são 59, e as que já funcionam estão em Teste, esperando a sua conferência. Levar para Homologação e para Concluído é sempre decisão de uma pessoa que entrou no sistema — o próprio banco de dados recusa se não for. O quadro agora pede entrada no sistema para ser visto.",
+    "tipo": "entrega"
+  },
+  {
+    "data": "2026-09-23",
     "titulo": "Cadastro e login voltam a funcionar",
     "texto": "Uma regra de segurança do site ficou desatualizada desde a mudança para o novo banco de dados: ela bloqueava toda tentativa de criar conta, validar convite ou entrar no sistema, sempre com o mesmo erro (\"Failed to fetch\"). A regra foi corrigida e passa a se ajustar sozinha a partir do endereço do banco, para não desalinhar de novo.",
     "tipo": "correcao"

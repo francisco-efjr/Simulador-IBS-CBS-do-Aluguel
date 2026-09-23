@@ -33,6 +33,9 @@ Rode em ordem. Cada arquivo é independente e roda inteiro de uma vez no SQL Edi
 | `20260919120002_importacao_atomica.sql` | `importar_extrato()`: grava a importação e suas transações numa transação só (ADR-0006). **Aplicar à mão** — é posterior à carga de 17/09 |
 | `20260919120003_feed_de_atividades.sql` | põe `logs_atividade` no tempo real, para o feed de atividades da tela Início (só administrador recebe) |
 | `20260919120004_correcoes_da_auditoria.sql` | corrige os defeitos que os testes do banco acharam: o primeiro administrador volta a ser promovível pelo SQL Editor; `created_by`/`updated_by` não se forjam no INSERT; trocar o imóvel de um contrato ativo ou apagá-lo libera o imóvel; mudança de perfil, situação e permissão entra em `logs_atividade`; EXECUTE revogado das funções `security definer` de quem não precisa (`marcar_lancamentos_em_atraso()` sai do `/rpc`). Pode ser rodada de novo sem erro. **Aplicar à mão**, junto das outras `20260919*` |
+| `20260923120001_modulo_quadro.sql` | acrescenta o módulo de permissão `quadro`. Arquivo à parte porque o valor novo de enum não pode ser usado na mesma transação em que nasce: **rode antes da 02** |
+| `20260923120002_quadro_de_historias.sql` | tabelas `historias` e `historias_atividades`, RLS pelo módulo `quadro` (ninguém exclui história), trilha e tempo real, e a regra de que só uma pessoa logada leva para Homologação ou Concluído (`tg_proteger_homologacao`, erro `HA002`). Pode ser rodada de novo sem erro |
+| `20260923120003_carga_do_quadro.sql` | carga inicial das 59 histórias do quadro, com atividades. Só carrega com o quadro vazio; nenhuma entra em Homologação ou Concluído |
 
 ## Quatro achados de segurança que esta modelagem fecha
 

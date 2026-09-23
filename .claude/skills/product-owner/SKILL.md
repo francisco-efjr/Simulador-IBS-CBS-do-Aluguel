@@ -20,7 +20,7 @@ mora em [`docs/08-produto/`](../../../docs/08-produto/):
 | `README.md` | Papel do PO, visão, **Product Goal** e seus 6 indicadores, partes interessadas |
 | `inventario-funcional.md` | "O que o sistema já faz?" — módulo a módulo, com o arquivo que prova cada afirmação |
 | `regras-de-negocio.md` | Catálogo `RN-<MÓDULO>-NN` e `RT-NN`: implementadas (Parte A) × propostas (Parte B) |
-| `historias-e-cenarios.md` | Histórias INVEST com critérios de aceitação em Gherkin |
+| `historias-e-cenarios.md` | Registro de origem de H-01 a H-24 (INVEST + Gherkin). As histórias **vivas** estão no Quadro de histórias do sistema — ver abaixo |
 | `backlog.md` | Ordem por WSJF, DoR, DoD e **as decisões que dependem do dono** (D-01 a D-06) |
 | `referencias.md` | Base do método (artigos do IPMA 2014), em ABNT |
 
@@ -52,6 +52,21 @@ Uma linha, um número estável, e sempre a mesma anatomia:
   *tela* (só no navegador) ou *ambos*. Regra que protege dinheiro ou acesso **tem que
   estar no banco**; a tela existe para avisar antes, não para ser a única barreira.
 - **Testes** — o arquivo que confere. Regra sem teste é dívida, e entra no backlog.
+
+## Quadro de histórias
+
+As histórias moram no banco (tabelas `historias` e `historias_atividades`) e aparecem na página
+inicial para quem entrou com o módulo `quadro`. Cartão: número (`H-NN`), título, etiqueta, "Eu,
+quero, para", critérios em BDD, observações e atividades (título + caixa de seleção). Colunas:
+**Backlog → Desenvolvimento → Teste → Homologação → Concluído**.
+
+- **O agente só move entre Backlog, Desenvolvimento e Teste.** Homologação e Concluído são sempre de
+  uma pessoa logada (RN-QDR-01, RN-QDR-02) — o banco recusa sem sessão, e não se contorna.
+- Não desenvolvido → Backlog. Em construção → Desenvolvimento, com o que falta como atividade
+  desmarcada. Pronto no código → Teste, com o que foi entregue marcado, esperando homologação.
+- História nova ou mudança de coluna feita por código vai por migração (SQL Editor), nunca levando a
+  Homologação ou Concluído. Carga inicial e critérios de origem:
+  [`…_carga_do_quadro.sql`](../../../supabase/migrations/20260923120003_carga_do_quadro.sql).
 
 ## História de usuário
 

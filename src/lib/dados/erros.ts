@@ -19,6 +19,12 @@ const COLUNA_POR_INDICE: Record<string, string> = {
   inquilinos_email_valido: 'email',
   fornecedores_cnpj_cpf_valido: 'cnpj_cpf',
   fornecedores_email_valido: 'email',
+  // Quadro de histórias (migração 20260923120002).
+  historias_atividades_titulo_preenchido: 'atividade',
+  historias_atividades_titulo_tamanho: 'atividade',
+  historias_titulo_preenchido: 'titulo',
+  historias_titulo_tamanho: 'titulo',
+  historias_tag_tamanho: 'tag',
 }
 
 const MENSAGEM_POR_INDICE: Record<string, string> = {
@@ -37,6 +43,11 @@ const MENSAGEM_POR_INDICE: Record<string, string> = {
   inquilinos_email_valido: 'E-mail inválido. Use o formato nome@dominio.com.br.',
   fornecedores_cnpj_cpf_valido: 'CNPJ ou CPF inválido. Confira os caracteres digitados.',
   fornecedores_email_valido: 'E-mail inválido. Use o formato nome@dominio.com.br.',
+  historias_atividades_titulo_preenchido: 'Escreva o que a atividade entrega.',
+  historias_atividades_titulo_tamanho: 'A atividade pode ter até 200 caracteres.',
+  historias_titulo_preenchido: 'Dê um título à história.',
+  historias_titulo_tamanho: 'O título pode ter até 160 caracteres.',
+  historias_tag_tamanho: 'A etiqueta pode ter até 40 caracteres.',
 }
 
 /**
@@ -51,7 +62,8 @@ const DATA_IMPLAUSIVEL =
  * pronta para o usuário; aqui só se tira o prefixo técnico que o cliente põe
  * na frente ("Falha ao salvar em imoveis: …") e se escolhe o campo.
  */
-const RECUSA_DO_GATILHO = /(Est[ea] (?:imóvel|inquilino) tem contrato ativo e não pode ser [^.]+\.[^\n]*)/
+const RECUSA_DO_GATILHO =
+  /(Est[ea] (?:imóvel|inquilino) tem contrato ativo e não pode ser [^.]+\.[^\n]*|Só uma pessoa que entrou no sistema leva a história[^\n]*|A história só vai para Concluído[^\n]*)/
 
 function textoDoErro(error: unknown): string {
   if (!error) return ''

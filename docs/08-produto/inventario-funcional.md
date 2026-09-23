@@ -30,6 +30,7 @@
 | Simulador IBS/CBS (público) | `/simulador` | ✅ | Falta citar a LC 227/2026 no laudo (em andamento) |
 | Entrada e senha (público) | `/login`, `/signup`, `/recuperar-senha`, `/redefinir-senha` | ✅ | Cadastro público ainda aberto no Supabase (pendência 2 do quadro) |
 | Quadro de andamento (público) | `/` | ✅ | Temporário (README do repositório) |
+| Quadro de histórias (`quadro`) | `/`, para quem entrou | ✅ | Editável, no banco; homologar é só de pessoa (RN-QDR-01) |
 
 ---
 
@@ -208,6 +209,23 @@ financeiro vazio.
 | Mudança de privilégio auditada | Promover, desativar, conceder e retirar permissão entra na trilha (RN-AUD-04) | banco | ✅ |
 | Feed ao vivo na tela Início | Só o administrador recebe | banco (tempo real + RLS) | ✅ |
 | Cadastro público | O Supabase aceita cadastro pela API; a conta nasce sem permissão | configuração | ○ (pendência 2 do quadro; proposta RN-SEC-07) |
+
+## Quadro de histórias
+
+**Quem pode:** `visualizacao`/`edicao` no módulo `quadro`; administrador tem edição. Tela: página
+inicial ([`StatusDesenvolvimento.tsx`](../../src/pages/StatusDesenvolvimento.tsx),
+[`QuadroDeHistorias.tsx`](../../src/components/produto/QuadroDeHistorias.tsx)). Serviço:
+[`quadro.ts`](../../src/services/quadro.ts). Banco:
+[`…_quadro_de_historias.sql`](../../supabase/migrations/20260923120002_quadro_de_historias.sql).
+
+| Funcionalidade | Regras aplicadas | Onde | Situação |
+| :-- | :-- | :-- | :-- |
+| Cinco colunas: Backlog, Desenvolvimento, Teste, Homologação, Concluído | Cartão por fora: número, título, etiqueta e atividades feitas | tela | ✅ |
+| História | Título, etiqueta, "Eu, quero, para", critérios em BDD e observações, todos editáveis; número sequencial que não se reaproveita; ninguém exclui (RN-QDR-03, RN-QDR-04) | ambos | ✅ |
+| Atividades | Título + caixa de seleção; incluir, renomear, marcar e excluir | ambos | ✅ |
+| Mover | Pelo diálogo ou arrastando o cartão no computador; **só pessoa logada leva para Homologação ou Concluído**, e Concluído só depois da Homologação (RN-QDR-01, RN-QDR-02) | banco (`tg_proteger_homologacao`) + tela | ✅ |
+| Trilha e tempo real | Mudança de história entra na trilha (com quem homologou); o quadro se atualiza quando outra pessoa grava | banco | ✅ |
+| Carga inicial | 59 histórias: H-01 a H-24 da documentação, H-25 a H-45 do que já funcionava, H-46 a H-59 do backlog | banco ([`…_carga_do_quadro.sql`](../../supabase/migrations/20260923120003_carga_do_quadro.sql)) | ✅ |
 
 ## Simulador IBS/CBS
 
