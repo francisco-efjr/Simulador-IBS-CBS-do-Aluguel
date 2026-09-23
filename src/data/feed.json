@@ -1,5 +1,11 @@
 [
   {
+    "data": "2026-09-23",
+    "titulo": "Cadastro e login voltam a funcionar",
+    "texto": "Uma regra de segurança do site ficou desatualizada desde a mudança para o novo banco de dados: ela bloqueava toda tentativa de criar conta, validar convite ou entrar no sistema, sempre com o mesmo erro (\"Failed to fetch\"). A regra foi corrigida e passa a se ajustar sozinha a partir do endereço do banco, para não desalinhar de novo.",
+    "tipo": "correcao"
+  },
+  {
     "data": "2026-09-20",
     "titulo": "A página inicial mostra o quadro de histórias",
     "texto": "No lugar da lista de entregas por frente, a página inicial passa a mostrar um quadro com as 24 histórias do sistema — cada uma escrita com as palavras de quem usa, do tipo \"quero inativar um imóvel vendido, para ele sair das listas sem perder o histórico\". Os cartões ficam em três colunas: o que ainda falta fazer, o que já funciona mas precisa de ajuste, e o que está concluído. Dá para ver só uma parte do sistema de cada vez, esconder o que já está pronto e tocar num cartão para ler a história inteira, com o que ela entrega, o que falta e as decisões que ainda esperam por você. O quadro é só para olhar: a situação vem da documentação e não muda por ali.",
