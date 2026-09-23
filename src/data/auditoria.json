@@ -1,6 +1,6 @@
 {
-  "geradoEm": "2026-09-20T16:47:45.424Z",
-  "commit": "944a2d3",
+  "geradoEm": "2026-09-23T21:51:45.774Z",
+  "commit": "fdb05c5",
   "verificacoes": [
     {
       "id": "tipos",
@@ -14,7 +14,7 @@
       "nome": "Testes automáticos",
       "descricao": "Roda a bateria de testes que confere os cálculos e o comportamento das telas.",
       "situacao": "ok",
-      "detalhe": "Todos os 526 testes automáticos passaram."
+      "detalhe": "Todos os 527 testes automáticos passaram."
     },
     {
       "id": "lint",
@@ -70,7 +70,7 @@
       "nome": "Lista de novidades em dia",
       "descricao": "A seção \"Últimas atualizações\" não ficou para trás: a entrega (feat) ou correção (fix) mais recente do histórico não é mais nova que a última entrada de src/data/feed.json.",
       "situacao": "ok",
-      "detalhe": "A lista de novidades acompanha o código. Última novidade: 20/09/2026."
+      "detalhe": "A lista de novidades acompanha o código. Última novidade: 23/09/2026."
     }
   ]
 }
