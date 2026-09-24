@@ -134,7 +134,7 @@ export const MODULOS_SISTEMA: ModuloInfo[] = [
   {
     id: 'quadro',
     nome: 'Quadro de histórias',
-    descricao: 'Histórias do sistema, atividades e homologação',
+    descricao: 'Quem cria, edita e move histórias do quadro (ler é aberto a todos)',
     rotas: ['/quadro', '/'],
   },
 ]
@@ -164,8 +164,8 @@ export const MODULES_LIST: MenuItem[] = [
     title: 'Quadro de Histórias',
     path: '/quadro',
     icon: SquareKanban,
+    // Ler o quadro é aberto a todos; o módulo 'quadro' decide só quem edita.
     description: 'Histórias do sistema, critérios de aceitação e homologação',
-    modulo: 'quadro',
   },
   {
     title: 'Importar Extrato',

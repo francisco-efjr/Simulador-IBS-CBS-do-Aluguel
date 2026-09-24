@@ -1,8 +1,8 @@
 [
   {
     "data": "2026-09-23",
-    "titulo": "Quadro de histórias no menu, mais largo e editável direto",
-    "texto": "O quadro ganhou um lugar no menu lateral, \"Quadro de Histórias\", para quem tem acesso. Ao abrir uma história, o cartão ficou mais largo — no computador, o texto de um lado e a etiqueta, a coluna e as atividades do outro — e tudo se edita ali mesmo: título, quem quer, o que quer e para quê, critérios e observações, com um botão \"Salvar alterações\" sempre à vista. Se fechar sem salvar, o sistema pergunta antes. A coluna Concluído mostra as 15 histórias aceitas mais recentes e abre as outras em \"Mostrar mais\". Em tela estreita, as colunas rolam de lado em vez de ficarem espremidas.",
+    "titulo": "Quadro de histórias aberto a todos, no menu e editável direto",
+    "texto": "Qualquer pessoa volta a ver o quadro, sem precisar entrar no sistema — criar, editar e mover continuam exigindo acesso. Ele também ganhou um lugar no menu lateral, \"Quadro de Histórias\". Ao abrir uma história, o cartão ficou mais largo — no computador, o texto de um lado e a etiqueta, a coluna e as atividades do outro — e tudo se edita ali mesmo: título, quem quer, o que quer e para quê, critérios e observações, com um botão \"Salvar alterações\" sempre à vista. Se fechar sem salvar, o sistema pergunta antes. A coluna Concluído mostra as 15 histórias aceitas mais recentes e abre as outras em \"Mostrar mais\". Em tela estreita, as colunas rolam de lado em vez de ficarem espremidas.",
     "tipo": "entrega"
   },
   {

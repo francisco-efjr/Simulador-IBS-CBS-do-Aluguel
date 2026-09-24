@@ -55,8 +55,9 @@ Uma linha, um número estável, e sempre a mesma anatomia:
 
 ## Quadro de histórias
 
-As histórias moram no banco (tabelas `historias` e `historias_atividades`) e aparecem na página
-inicial para quem entrou com o módulo `quadro`. Cartão: número (`H-NN`), título, etiqueta, "Eu,
+As histórias moram no banco (tabelas `historias` e `historias_atividades`) e aparecem no menu
+lateral ("Quadro de Histórias", `/quadro`) e na página inicial. Qualquer pessoa lê, até sem login
+(ambiente de teste); criar, editar e mover exigem edição no módulo `quadro`. Cartão: número (`H-NN`), título, etiqueta, "Eu,
 quero, para", critérios em BDD, observações e atividades (título + caixa de seleção). Colunas:
 **Backlog → Desenvolvimento → Teste → Homologação → Concluído**.
 

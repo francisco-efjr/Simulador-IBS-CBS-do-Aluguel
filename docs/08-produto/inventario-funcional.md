@@ -30,7 +30,7 @@
 | Simulador IBS/CBS (público) | `/simulador` | ✅ | Falta citar a LC 227/2026 no laudo (em andamento) |
 | Entrada e senha (público) | `/login`, `/signup`, `/recuperar-senha`, `/redefinir-senha` | ✅ | Cadastro público ainda aberto no Supabase (pendência 2 do quadro) |
 | Quadro de andamento (público) | `/` | ✅ | Temporário (README do repositório) |
-| Quadro de histórias (`quadro`) | `/quadro` (menu lateral) e `/`, para quem entrou | ✅ | Editável, no banco; homologar é só de pessoa (RN-QDR-01) |
+| Quadro de histórias (`quadro`) | `/quadro` (menu lateral) e `/` | ✅ | Leitura aberta, até sem login (ambiente de teste); editar pelo módulo; homologar é só de pessoa (RN-QDR-01) |
 
 ---
 
@@ -212,7 +212,7 @@ financeiro vazio.
 
 ## Quadro de histórias
 
-**Quem pode:** `visualizacao`/`edicao` no módulo `quadro`; administrador tem edição. Telas: item
+**Quem pode:** ler, qualquer pessoa, até sem login ([`…_quadro_aberto_para_leitura.sql`](../../supabase/migrations/20260923120005_quadro_aberto_para_leitura.sql)); criar, editar e mover, `edicao` no módulo `quadro` — administrador tem edição. Telas: item
 "Quadro de Histórias" do menu lateral ([`Quadro.tsx`](../../src/pages/Quadro.tsx), em `/quadro`) e
 página inicial ([`StatusDesenvolvimento.tsx`](../../src/pages/StatusDesenvolvimento.tsx)), as duas com
 [`QuadroDeHistorias.tsx`](../../src/components/produto/QuadroDeHistorias.tsx). Serviço:

@@ -3,9 +3,10 @@
 --
 -- A H-44 ("Organizar as histórias no quadro") é a história do próprio quadro.
 -- Estas atividades registram o que entrou depois da primeira versão: o acesso
--- pelo menu lateral, o "Mostrar mais" do Concluído, o cartão mais largo e a
--- edição direta de todos os campos. Entram marcadas, porque estão prontas no
--- código; a coluna da história não muda — homologar é de uma pessoa (RN-QDR-01).
+-- pelo menu lateral, o "Mostrar mais" do Concluído, o cartão mais largo, a
+-- edição direta de todos os campos e a leitura aberta sem login. Entram
+-- marcadas, porque estão prontas no código; a coluna da história não muda —
+-- homologar é de uma pessoa (RN-QDR-01).
 --
 -- Só acrescenta a atividade que ainda não existe: pode ser rodada de novo.
 -- =============================================================================
@@ -19,7 +20,8 @@ select h.id, a.titulo, true,
     ('Acesso pelo menu lateral (Quadro de Histórias, em /quadro)', 1),
     ('Concluído mostra as 15 mais recentes, com "Mostrar mais"', 2),
     ('Cartão aberto mais largo, em duas colunas no computador', 3),
-    ('Título, descrição, critérios, observações e etiqueta editáveis direto no cartão', 4)
+    ('Título, descrição, critérios, observações e etiqueta editáveis direto no cartão', 4),
+    ('Quadro visível para todos, sem login; editar continua pelo módulo', 5)
   ) as a(titulo, posicao)
  where h.numero = 44
    and not exists (

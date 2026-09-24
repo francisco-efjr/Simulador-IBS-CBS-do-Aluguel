@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState, type DragEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type DragEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronDown, ChevronUp, ListChecks, Lock, LogIn, Plus, RefreshCw } from 'lucide-react'
+import { ChevronDown, ChevronUp, ListChecks, LogIn, Plus, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/use-auth'
@@ -32,7 +32,8 @@ import { DialogoDaHistoria } from './DialogoDaHistoria'
  * computador, arrastando o cartão. O banco é quem decide se o movimento vale
  * (RN-QDR-01 e RN-QDR-02); a tela só evita oferecer o que ele vai recusar.
  *
- * O quadro é interno: sem login, a página mostra só o convite para entrar.
+ * Ler é aberto a todos, até sem login (ambiente de teste, decisão do dono);
+ * sem login, o lugar do "Nova história" vira "Entrar para editar".
  */
 
 const TIPO_ARRASTADO = 'application/x-historia'
@@ -198,18 +199,8 @@ function Coluna({
   )
 }
 
-function Aviso({ children }: { children: ReactNode }) {
-  return (
-    <div className="mt-5 flex flex-col gap-4 rounded-xl border border-slate-200 bg-white px-5 py-5 text-base leading-relaxed text-slate-700 shadow-xs sm:flex-row sm:items-center">
-      <Lock className="h-6 w-6 shrink-0 text-slate-500" aria-hidden="true" />
-      <div className="flex-1">{children}</div>
-    </div>
-  )
-}
-
 export function QuadroDeHistorias() {
-  const { isAuthenticated, loading, canViewModule, canEditModule } = useAuth()
-  const podeVer = isAuthenticated && canViewModule('quadro')
+  const { isAuthenticated, loading, canEditModule } = useAuth()
   const podeEditar = isAuthenticated && canEditModule('quadro')
 
   const [historias, setHistorias] = useState<HistoriaDoQuadro[]>([])
@@ -231,49 +222,14 @@ export function QuadroDeHistorias() {
     }
   }, [])
 
+  // Ler é aberto a todos, até sem login (migração 20260923120005); editar
+  // depende do módulo "quadro".
   useEffect(() => {
-    if (podeVer) carregar()
-  }, [podeVer, carregar])
+    carregar()
+  }, [carregar])
 
-  useRealtime('historias', carregar, podeVer)
-  useRealtime('historias_atividades', carregar, podeVer)
-
-  if (loading) {
-    return (
-      <p aria-live="polite" className="mt-5 text-base text-slate-600">
-        Carregando o quadro…
-      </p>
-    )
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <Aviso>
-        <p>
-          O quadro de histórias é interno. Entre no sistema para ver cada história, os critérios de
-          aceitação e o que falta — e, se o seu acesso permitir, editar e homologar.
-        </p>
-        <Link
-          to="/login"
-          className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-lg bg-navy-950 px-5 py-2.5 text-base font-bold text-white hover:bg-navy-900 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300"
-        >
-          <LogIn className="h-5 w-5" aria-hidden="true" />
-          Entrar para ver o quadro
-        </Link>
-      </Aviso>
-    )
-  }
-
-  if (!podeVer) {
-    return (
-      <Aviso>
-        <p>
-          Seu acesso não inclui o quadro de histórias. Peça a quem administra o sistema para liberar o
-          módulo "Quadro de histórias".
-        </p>
-      </Aviso>
-    )
-  }
+  useRealtime('historias', carregar)
+  useRealtime('historias_atividades', carregar)
 
   const etiquetas = etiquetasDoQuadro(historias)
   const visiveis = historias.filter((h) => etiqueta === null || h.tag === etiqueta)
@@ -361,6 +317,15 @@ export function QuadroDeHistorias() {
               <Plus className="mr-2 h-5 w-5" aria-hidden="true" />
               Nova história
             </Button>
+          )}
+          {!loading && !isAuthenticated && (
+            <Link
+              to="/login"
+              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-base font-semibold text-slate-800 hover:border-indigo-300 hover:bg-indigo-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300"
+            >
+              <LogIn className="h-5 w-5" aria-hidden="true" />
+              Entrar para editar
+            </Link>
           )}
         </div>
 

@@ -1,6 +1,6 @@
 // @vitest-environment node
 /**
- * Quadro de histórias (migrações 20260923120001 a 20260923120004): a carga
+ * Quadro de histórias (migrações 20260923120001 a 20260923120005): a carga
  * inicial, a regra de que homologar é coisa de gente (RN-QDR-01 e RN-QDR-02) e
  * quem vê e quem edita (RN-QDR-03).
  *
@@ -102,11 +102,12 @@ describe('carga inicial', () => {
     }
   })
 
-  it('a carga não enche a trilha de auditoria', async () => {
-    const { rows } = await banco.db.query<{ total: number }>(
-      `select count(*)::int as total from public.logs_atividade where entidade = 'historias'`,
+  it('a carga não enche a trilha de auditoria; correção de texto por migração, sim', async () => {
+    const { rows } = await banco.db.query<{ acao: string; total: number }>(
+      `select acao::text, count(*)::int as total from public.logs_atividade
+        where entidade = 'historias' group by acao order by acao`,
     )
-    expect(rows[0].total).toBe(0)
+    expect(rows).toEqual([{ acao: 'editou', total: 2 }])
   })
 
   it('a história criada depois da carga continua a numeração', async () => {
@@ -125,6 +126,7 @@ describe('carga inicial', () => {
       '20260923120002_quadro_de_historias.sql',
       '20260923120003_carga_do_quadro.sql',
       '20260923120004_quadro_no_menu.sql',
+      '20260923120005_quadro_aberto_para_leitura.sql',
     ])
     const contar = async (q: Consulta) =>
       (
@@ -149,7 +151,17 @@ describe('carga inicial', () => {
          from public.historias h join public.historias_atividades a on a.historia = h.id
         where h.numero = 44 group by h.coluna`,
     )
-    expect(rows[0]).toEqual({ coluna: 'teste', feitas: 10, total: 10 })
+    expect(rows[0]).toEqual({ coluna: 'teste', feitas: 11, total: 11 })
+  })
+
+  it('os cenários da H-42 e da H-44 descrevem o quadro aberto para ler', async () => {
+    const { rows } = await banco.db.query<{ numero: number; criterios: string }>(
+      `select numero, criterios from public.historias where numero in (42, 44) order by numero`,
+    )
+    expect(rows[0].criterios).toContain('Cenário: O quadro de histórias aberto para ler')
+    expect(rows[0].criterios).not.toContain('pede entrada')
+    expect(rows[1].criterios).toContain('Cenário: Quem não tem edição só lê')
+    expect(rows[1].criterios).not.toContain('Quem não tem acesso não vê')
   })
 })
 
@@ -249,17 +261,40 @@ describe('homologação é coisa de gente (RN-QDR-01, RN-QDR-02)', () => {
 })
 
 describe('quem vê e quem edita (RN-QDR-03)', () => {
-  it('quem não tem o módulo não vê nenhuma história nem atividade', async () => {
+  it('quem não tem o módulo lê o quadro inteiro, mas não altera nada', async () => {
     await banco.comoUsuario(semAcesso, async (q) => {
-      const historias = await q.query(`select 1 from public.historias`)
+      const { rows } = await q.query<{ total: number }>(`select count(*)::int as total from public.historias`)
       const atividades = await q.query(`select 1 from public.historias_atividades`)
-      expect(historias.rows).toHaveLength(0)
-      expect(atividades.rows).toHaveLength(0)
+      const alterada = await q.query(`update public.historias set titulo = 'Mudou' where numero = 1`)
+      const marcada = await q.query(`update public.historias_atividades set concluida = true`)
+      expect(rows[0].total).toBe(TOTAL_DA_CARGA)
+      expect(atividades.rows.length).toBeGreaterThan(0)
+      expect(alterada.affectedRows).toBe(0)
+      expect(marcada.affectedRows).toBe(0)
     })
   })
 
-  it('visitante sem login não lê o quadro', async () => {
-    const erro = await banco.comoAnonimo((q) => capturarErro(q.query(`select 1 from public.historias`)))
+  it('visitante sem login lê o quadro (ambiente de teste)', async () => {
+    await banco.comoAnonimo(async (q) => {
+      const { rows } = await q.query<{ total: number }>(`select count(*)::int as total from public.historias`)
+      const atividades = await q.query(`select 1 from public.historias_atividades`)
+      expect(rows[0].total).toBe(TOTAL_DA_CARGA)
+      expect(atividades.rows.length).toBeGreaterThan(0)
+    })
+  })
+
+  it.each([
+    ['cria história', `insert into public.historias (titulo) values ('Invasão')`],
+    ['altera história', `update public.historias set titulo = 'Invasão' where numero = 1`],
+    ['marca atividade', `update public.historias_atividades set concluida = true`],
+    ['exclui atividade', `delete from public.historias_atividades`],
+  ])('visitante sem login não %s', async (_acao, sql) => {
+    const erro = await banco.comoAnonimo((q) => capturarErro(q.query(sql)))
+    expect(erro.code).toBe('42501')
+  })
+
+  it('visitante sem login não lê nada além do quadro', async () => {
+    const erro = await banco.comoAnonimo((q) => capturarErro(q.query(`select 1 from public.imoveis`)))
     expect(erro.code).toBe('42501')
   })
 

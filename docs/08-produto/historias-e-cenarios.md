@@ -1,7 +1,7 @@
 # Histórias de usuário e cenários
 
-> **Desde 23/09/2026 as histórias vivem no Quadro de histórias do sistema** (página inicial, para quem
-> entrou com acesso ao módulo "Quadro de histórias"). Lá cada história tem o "Eu, quero, para", os
+> **Desde 23/09/2026 as histórias vivem no Quadro de histórias do sistema** (menu lateral e página inicial;
+> qualquer pessoa lê, e edita quem tem o módulo "Quadro de histórias"). Lá cada história tem o "Eu, quero, para", os
 > critérios em BDD, observações e atividades, em cinco colunas: Backlog, Desenvolvimento, Teste,
 > Homologação e Concluído. Este documento é o **registro de origem** de H-01 a H-24: a carga inicial
 > ([`…_carga_do_quadro.sql`](../../supabase/migrations/20260923120003_carga_do_quadro.sql)) as levou
