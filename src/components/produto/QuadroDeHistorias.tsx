@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState, type DragEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type DragEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { ListChecks, Lock, LogIn, Plus, RefreshCw } from 'lucide-react'
+import { ChevronDown, ChevronUp, ListChecks, LogIn, Plus, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/use-auth'
@@ -8,10 +8,12 @@ import { useRealtime } from '@/hooks/use-realtime'
 import { getErrorMessage } from '@/lib/dados/erros'
 import {
   COLUNAS_DO_QUADRO,
+  LIMITE_DE_CONCLUIDAS,
   codigoDaHistoria,
   contagemDeAtividades,
   destinosPermitidos,
   etiquetasDoQuadro,
+  historiasDaColuna,
   listarHistorias,
   moverHistoria,
   type ColunaDoQuadro,
@@ -30,7 +32,8 @@ import { DialogoDaHistoria } from './DialogoDaHistoria'
  * computador, arrastando o cartão. O banco é quem decide se o movimento vale
  * (RN-QDR-01 e RN-QDR-02); a tela só evita oferecer o que ele vai recusar.
  *
- * O quadro é interno: sem login, a página mostra só o convite para entrar.
+ * Ler é aberto a todos, até sem login (ambiente de teste, decisão do dono);
+ * sem login, o lugar do "Nova história" vira "Entrar para editar".
  */
 
 const TIPO_ARRASTADO = 'application/x-historia'
@@ -108,9 +111,15 @@ function Coluna({
   onSoltar: (historiaId: string, coluna: ColunaDoQuadro) => void
 }) {
   const [recebendo, setRecebendo] = useState(false)
+  const [limite, setLimite] = useState(LIMITE_DE_CONCLUIDAS)
   const estilo = APARENCIA_DA_COLUNA[coluna]
   const Icone = estilo.icone
   const tituloId = `coluna-${coluna}`
+
+  // Concluído só cresce: mostra as 15 mais recentes e abre o resto aos poucos.
+  const limitada = coluna === 'concluido' && historias.length > LIMITE_DE_CONCLUIDAS
+  const exibidas = limitada ? historias.slice(0, limite) : historias
+  const restantes = historias.length - exibidas.length
 
   const aoPassarPorCima = (evento: DragEvent<HTMLElement>) => {
     if (!podeEditar || !evento.dataTransfer.types.includes(TIPO_ARRASTADO)) return
@@ -133,7 +142,7 @@ function Coluna({
       onDragOver={aoPassarPorCima}
       onDragLeave={() => setRecebendo(false)}
       onDrop={aoSoltar}
-      className={`${visivelNoCelular ? 'flex' : 'hidden'} min-w-0 flex-col rounded-xl border lg:flex ${estilo.coluna} ${
+      className={`${visivelNoCelular ? 'flex' : 'hidden'} min-w-0 flex-col rounded-xl border md:flex md:min-w-[15rem] md:flex-1 md:basis-0 ${estilo.coluna} ${
         recebendo ? 'ring-4 ring-indigo-300' : ''
       }`}
     >
@@ -154,29 +163,44 @@ function Coluna({
             Nenhuma história aqui.
           </li>
         ) : (
-          historias.map((historia) => (
+          exibidas.map((historia) => (
             <li key={historia.id}>
               <Cartao historia={historia} podeArrastar={podeEditar} onAbrir={onAbrir} />
             </li>
           ))
         )}
       </ul>
+
+      {limitada && (
+        <div className="px-2 pb-3">
+          {restantes > 0 ? (
+            <button
+              type="button"
+              onClick={() => setLimite((atual) => atual + LIMITE_DE_CONCLUIDAS)}
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-semibold text-slate-800 hover:border-indigo-300 hover:bg-indigo-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300"
+            >
+              <ChevronDown className="h-5 w-5 shrink-0" aria-hidden="true" />
+              Mostrar mais {Math.min(restantes, LIMITE_DE_CONCLUIDAS)}
+              <span className="sr-only"> das {restantes} que faltam em {estilo.rotulo}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setLimite(LIMITE_DE_CONCLUIDAS)}
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-semibold text-slate-800 hover:border-indigo-300 hover:bg-indigo-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300"
+            >
+              <ChevronUp className="h-5 w-5 shrink-0" aria-hidden="true" />
+              Mostrar só as {LIMITE_DE_CONCLUIDAS} mais recentes
+            </button>
+          )}
+        </div>
+      )}
     </section>
   )
 }
 
-function Aviso({ children }: { children: ReactNode }) {
-  return (
-    <div className="mt-5 flex flex-col gap-4 rounded-xl border border-slate-200 bg-white px-5 py-5 text-base leading-relaxed text-slate-700 shadow-xs sm:flex-row sm:items-center">
-      <Lock className="h-6 w-6 shrink-0 text-slate-500" aria-hidden="true" />
-      <div className="flex-1">{children}</div>
-    </div>
-  )
-}
-
 export function QuadroDeHistorias() {
-  const { isAuthenticated, loading, canViewModule, canEditModule } = useAuth()
-  const podeVer = isAuthenticated && canViewModule('quadro')
+  const { isAuthenticated, loading, canEditModule } = useAuth()
   const podeEditar = isAuthenticated && canEditModule('quadro')
 
   const [historias, setHistorias] = useState<HistoriaDoQuadro[]>([])
@@ -198,53 +222,18 @@ export function QuadroDeHistorias() {
     }
   }, [])
 
+  // Ler é aberto a todos, até sem login (migração 20260923120005); editar
+  // depende do módulo "quadro".
   useEffect(() => {
-    if (podeVer) carregar()
-  }, [podeVer, carregar])
+    carregar()
+  }, [carregar])
 
-  useRealtime('historias', carregar, podeVer)
-  useRealtime('historias_atividades', carregar, podeVer)
-
-  if (loading) {
-    return (
-      <p aria-live="polite" className="mt-5 text-base text-slate-600">
-        Carregando o quadro…
-      </p>
-    )
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <Aviso>
-        <p>
-          O quadro de histórias é interno. Entre no sistema para ver cada história, os critérios de
-          aceitação e o que falta — e, se o seu acesso permitir, editar e homologar.
-        </p>
-        <Link
-          to="/login"
-          className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-lg bg-navy-950 px-5 py-2.5 text-base font-bold text-white hover:bg-navy-900 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300"
-        >
-          <LogIn className="h-5 w-5" aria-hidden="true" />
-          Entrar para ver o quadro
-        </Link>
-      </Aviso>
-    )
-  }
-
-  if (!podeVer) {
-    return (
-      <Aviso>
-        <p>
-          Seu acesso não inclui o quadro de histórias. Peça a quem administra o sistema para liberar o
-          módulo "Quadro de histórias".
-        </p>
-      </Aviso>
-    )
-  }
+  useRealtime('historias', carregar)
+  useRealtime('historias_atividades', carregar)
 
   const etiquetas = etiquetasDoQuadro(historias)
   const visiveis = historias.filter((h) => etiqueta === null || h.tag === etiqueta)
-  const porColuna = (coluna: ColunaDoQuadro) => visiveis.filter((h) => h.coluna === coluna)
+  const porColuna = (coluna: ColunaDoQuadro) => historiasDaColuna(visiveis, coluna)
   const emTeste = historias.filter((h) => h.coluna === 'teste').length
   const historiaAberta = aberta?.id ? (historias.find((h) => h.id === aberta.id) ?? null) : null
 
@@ -329,6 +318,15 @@ export function QuadroDeHistorias() {
               Nova história
             </Button>
           )}
+          {!loading && !isAuthenticated && (
+            <Link
+              to="/login"
+              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-base font-semibold text-slate-800 hover:border-indigo-300 hover:bg-indigo-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300"
+            >
+              <LogIn className="h-5 w-5" aria-hidden="true" />
+              Entrar para editar
+            </Link>
+          )}
         </div>
 
         {etiquetas.length > 0 && (
@@ -345,7 +343,7 @@ export function QuadroDeHistorias() {
           </div>
         )}
 
-        <div className="mt-4 border-t border-slate-100 pt-4 lg:hidden">
+        <div className="mt-4 border-t border-slate-100 pt-4 md:hidden">
           <p id="filtro-coluna" className="text-base font-bold text-slate-900">
             Coluna
           </p>
@@ -392,7 +390,9 @@ export function QuadroDeHistorias() {
         </div>
       )}
 
-      <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-5">
+      {/* relative: o texto só para leitor de tela (sr-only, absoluto) dos cartões
+          fora da vista fica preso aqui; sem isso ele escapa e alarga a página. */}
+      <div className="relative mt-4 flex flex-col gap-3 md:flex-row md:overflow-x-auto md:pb-2">
         {COLUNAS_DO_QUADRO.map((coluna) => (
           <Coluna
             key={coluna}

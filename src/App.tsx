@@ -11,6 +11,7 @@ import Signup from '@/pages/Signup'
 import RecuperarSenha from '@/pages/RecuperarSenha'
 import ResetarSenha from '@/pages/ResetarSenha'
 import LogsAtividade from '@/pages/LogsAtividade'
+import Quadro from '@/pages/Quadro'
 import Index from '@/pages/Index'
 import Imoveis from '@/pages/Imoveis'
 import Inquilinos from '@/pages/Inquilinos'
@@ -107,6 +108,8 @@ const App = () => (
               <Route element={<ProtectedRoute modulo="relatorios" />}>
                 <Route path="/relatorios" element={<Relatorios />} />
               </Route>
+
+              <Route path="/quadro" element={<Quadro />} />
 
               {/* Rotas administrativas protegidas com verificação de papel Admin */}
               <Route element={<ProtectedRoute requireAdmin />}>

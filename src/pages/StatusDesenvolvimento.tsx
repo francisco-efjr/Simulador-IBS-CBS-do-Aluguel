@@ -33,8 +33,8 @@ import { useTituloDaPagina } from '@/hooks/use-titulo-da-pagina'
  * `src/data/andamento.json`, as novidades em `src/data/feed.json` e a saúde do
  * sistema em `src/data/auditoria.json`, este último gerado pelo auditor a cada
  * build (ver docs/07-auditor.md). O quadro de histórias vem do banco (tabela
- * `historias`) e só aparece para quem entrou no sistema com acesso ao módulo
- * "quadro".
+ * `historias`): qualquer pessoa lê, e só quem tem edição no módulo "quadro"
+ * mexe.
  */
 
 const { pendencias: PENDENCIAS } = ANDAMENTO
