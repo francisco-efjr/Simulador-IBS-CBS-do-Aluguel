@@ -1,5 +1,13 @@
 # Histórias de usuário e cenários
 
+> **Desde 23/09/2026 as histórias vivem no Quadro de histórias do sistema** (página inicial, para quem
+> entrou com acesso ao módulo "Quadro de histórias"). Lá cada história tem o "Eu, quero, para", os
+> critérios em BDD, observações e atividades, em cinco colunas: Backlog, Desenvolvimento, Teste,
+> Homologação e Concluído. Este documento é o **registro de origem** de H-01 a H-24: a carga inicial
+> ([`…_carga_do_quadro.sql`](../../supabase/migrations/20260923120003_carga_do_quadro.sql)) as levou
+> com o mesmo número e título, e acrescentou H-25 a H-59 — o que o sistema já fazia sem história e o
+> que o backlog tinha sem história. **Mudança de história se faz no quadro, não aqui.**
+
 > Histórias no formato **"Como ‹persona›, quero ‹ação›, para ‹valor›"**, cada uma checada por
 > **INVEST** e com critérios de aceitação em **Gherkin em português**. As personas estão em
 > [personas.md](personas.md); as regras citadas, em [regras-de-negocio.md](regras-de-negocio.md).

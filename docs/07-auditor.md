@@ -38,7 +38,7 @@ a falha ou o travamento de uma não impede as outras.
 | `rls` | Proteção de cada tabela | Toda `create table public.X` em `supabase/migrations/` tem `enable row level security` — literal ou no laço `foreach t in array[...]` de `…_rls.sql` | `falha` |
 | `segredos` | Nenhuma senha exposta | Nenhum `.env` rastreado pelo git (fora `.env.example`), nenhuma chave `sb_secret_…`, nenhum JWT com `role: service_role`, nenhuma atribuição `service_role_key = …` | `falha` (sem git: `.env` na pasta → `atencao`) |
 | `decisoes` | Decisões técnicas registradas | Todo ADR `docs/05-adr/NNNN-*.md` tem a linha `Status:` ou `Situação:` | `falha` |
-| `historias-conferem` | Quadro de histórias fiel à documentação | Toda história `### H-NN` de [`historias-e-cenarios.md`](08-produto/historias-e-cenarios.md) está em `src/data/historias.json` com o **mesmo título**, sem história a mais, e a contagem de cenários de cada uma (`total`, `implementados`, `propostos`, `lacunas`) bate com as etiquetas do documento — cada cenário conta uma vez, pela primeira etiqueta | `falha` |
+| `historias-conferem` | Quadro de histórias fiel à documentação | Toda história `### H-NN` de [`historias-e-cenarios.md`](08-produto/historias-e-cenarios.md) está na carga do quadro ([`…_carga_do_quadro.sql`](../supabase/migrations/20260923120003_carga_do_quadro.sql)) com o **mesmo número e o mesmo título**, e a carga não põe nenhuma história em Homologação ou Concluído | `falha` |
 | `feed-em-dia` | Lista de novidades em dia | O commit `feat`/`fix` mais recente do histórico não é de data posterior à entrada mais recente de `src/data/feed.json` (comparação por dia, no calendário de Brasília) | `atencao` |
 
 **A catraca do lint.** O projeto herdou avisos de lint. Em vez de fingir que não existem ou de
@@ -79,20 +79,22 @@ O `feed-em-dia` é a função de aptidão desta regra: um `feat:` ou `fix:` sem 
 acende `atencao`. Os testes em `src/data/__tests__/andamento.test.ts` conferem o formato dos três JSONs
 (datas, tipos, ordem).
 
-## Regra de processo: a documentação de produto manda no quadro de histórias
+## Regra de processo: o quadro de histórias mora no banco, e homologar é de gente
 
-> **O "Quadro de histórias" da página pública é derivado de
-> [`docs/08-produto/historias-e-cenarios.md`](08-produto/historias-e-cenarios.md).** Quem mexer nas
-> histórias do documento acerta `src/data/historias.json` no mesmo PR.
+> **O "Quadro de histórias" da página inicial é editável e mora no banco** (tabelas `historias` e
+> `historias_atividades`, [migração](../supabase/migrations/20260923120002_quadro_de_historias.sql)).
+> As histórias H-01 a H-24 nasceram de
+> [`docs/08-produto/historias-e-cenarios.md`](08-produto/historias-e-cenarios.md); a partir da carga
+> inicial, quem muda história muda no quadro.
 
-O `historias-conferem` é a função de aptidão desta regra. Ele lê o documento, monta a lista de
-histórias e a contagem de cenários por etiqueta, e compara com o JSON; qualquer diferença — história
-que ficou de fora, história a mais, título trocado ou conta de cenários que não bate — é `falha`, e o
-CI reprova o merge.
+O `historias-conferem` confere a carga, que é o que o código controla: nenhuma história documentada
+ficou de fora nem mudou de título, e nenhuma nasce em Homologação ou Concluído. Depois da carga, o
+conteúdo é das pessoas — o auditor não lê o banco de produção.
 
-O que o auditor **não** confere fica nos testes de `src/data/__tests__/historias.test.ts`: a forma do
-arquivo (todo campo preenchido, coluna válida, códigos únicos), a regra que põe cada história na sua
-coluna (`colunaDaSituacao`) e as contagens dos cabeçalhos do quadro.
+A regra de que só uma pessoa logada homologa (RN-QDR-01 e RN-QDR-02) é conferida pelos testes de banco
+em [`supabase/tests/quadro.test.ts`](../supabase/tests/quadro.test.ts); o espelho dela na tela
+(`destinosPermitidos`) e o destaque dos critérios em BDD, por
+[`src/services/__tests__/quadro.test.ts`](../src/services/__tests__/quadro.test.ts).
 
 ## Como acrescentar uma função de aptidão
 

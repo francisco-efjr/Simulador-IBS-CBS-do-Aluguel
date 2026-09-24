@@ -20,6 +20,7 @@ módulo. Número não se reaproveita: regra abandonada fica marcada como tal.
 | `RN-INQ` | Inquilinos | `RN-ALR` | Alertas |
 | `RN-FOR` | Fornecedores | `RN-REL` | Relatórios |
 | `RN-CTR` | Contratos | `RT` | Simulador IBS/CBS |
+| `RN-QDR` | Quadro de histórias | | |
 
 **Onde:** *banco* (restrição, gatilho, função ou RLS — vale para qualquer porta de entrada), *tela*
 (só no navegador) ou *ambos*. **Testes:** arquivo que confere a regra; "sem teste de banco" é dívida
@@ -29,9 +30,9 @@ registrada no [backlog](backlog.md) (item B-04).
 
 | | Implementadas (Parte A) | Propostas (Parte B) |
 | :-- | :-: | :-: |
-| Regras de negócio `RN-*` | 43 | 29 |
+| Regras de negócio `RN-*` | 47 | 29 |
 | Regras tributárias `RT-*` | 8 | 1 |
-| **Total** | **51** | **30** |
+| **Total** | **55** | **30** |
 
 Das 30 propostas, 4 reaproveitam IDs que já estavam em [01](../01-requisitos-e-restricoes.md) e nunca
 foram implementadas ou deixaram de valer: `RN-CTR-01`, `RN-CTR-02`, `RN-IMP-01` e `RN-IMP-03`.
@@ -143,6 +144,15 @@ foram implementadas ou deixaram de valer: `RN-CTR-01`, `RN-CTR-02`, `RN-IMP-01` 
 | :-- | :-- | :-- | :-- | :-- | :-- |
 | <a id="rn-alr-01"></a>RN-ALR-01 | Alertas de término e de reajuste de contrato ativo, de IPTU/taxas e de receitas e despesas a vencer e vencidas; filtro por 7, 15 ou 30 dias ou só vencidos; mais urgentes primeiro; cada pessoa só vê o que pode ler nos módulos de origem | Lembrar pela Helena | 01 F6 | tela ([`Alertas.tsx`](../../src/pages/Alertas.tsx)) + banco (RLS) | — |
 | <a id="rn-rel-01"></a>RN-REL-01 | Relatórios financeiro, de imóveis, de contratos e de inadimplência, em PDF e Excel, por período | Prestação de contas à família e à contadora | 01 F6 | tela ([`reports-generator.ts`](../../src/lib/reports-generator.ts)) | — |
+
+### Quadro de histórias
+
+| ID | Regra | Justificativa | Origem | Onde | Testes |
+| :-- | :-- | :-- | :-- | :-- | :-- |
+| <a id="rn-qdr-01"></a>RN-QDR-01 | Só uma pessoa que entrou no sistema leva a história para Homologação ou Concluído, ou a tira de lá. Sem sessão — migração, SQL Editor, automação, agente de código — a história só anda entre Backlog, Desenvolvimento e Teste | Homologar é aceitar com dado real; isso é decisão de gente, não de quem escreveu o código (decisão do dono, 23/09/2026) | Dono | banco (`tg_proteger_homologacao`, erro `HA002`) | [`quadro.test.ts`](../../supabase/tests/quadro.test.ts) |
+| <a id="rn-qdr-02"></a>RN-QDR-02 | Concluído só a partir de Homologação; ninguém cria história já concluída | "Tudo precisa ser homologado" | Dono | banco + tela (`destinosPermitidos`) | [`quadro.test.ts`](../../supabase/tests/quadro.test.ts), [`services/__tests__/quadro.test.ts`](../../src/services/__tests__/quadro.test.ts) |
+| <a id="rn-qdr-03"></a>RN-QDR-03 | Ver o quadro exige visualização no módulo `quadro`; criar e editar história e atividade, edição. Ninguém exclui história — a que não vale mais volta ao Backlog com a observação; atividade pode ser excluída. Visitante sem login não vê o quadro | A história é a documentação do sistema; o que foi combinado não some | PO | banco (RLS) + tela | [`quadro.test.ts`](../../supabase/tests/quadro.test.ts) |
+| <a id="rn-qdr-04"></a>RN-QDR-04 | História e atividade têm título preenchido (até 160 e 200 caracteres); a etiqueta tem até 40 | Cartão sem título não se acha no quadro | PO | ambos | [`quadro.test.ts`](../../supabase/tests/quadro.test.ts) |
 
 ### Simulador IBS/CBS
 

@@ -32,6 +32,7 @@ export type ModuloPermissao =
   | 'relatorios'
   | 'importar_extrato'
   | 'classificar_transacoes'
+  | 'quadro'
 
 export type NivelPermissao = 'sem_acesso' | 'visualizacao' | 'edicao'
 
@@ -128,6 +129,12 @@ export const MODULOS_SISTEMA: ModuloInfo[] = [
     nome: 'Classificar Transações',
     descricao: 'Fila de conciliação e classificação de extratos',
     rotas: ['/classificar-transacoes'],
+  },
+  {
+    id: 'quadro',
+    nome: 'Quadro de histórias',
+    descricao: 'Histórias do sistema, atividades e homologação, na página inicial',
+    rotas: ['/'],
   },
 ]
 

@@ -30,10 +30,11 @@ import { useTituloDaPagina } from '@/hooks/use-titulo-da-pagina'
  *   3. em `src/lib/constants.ts`, devolva o item "Início" para o caminho `/`.
  *
  * O conteúdo não mora aqui: o resumo e o "o que falta" estão em
- * `src/data/andamento.json`, o quadro de histórias em `src/data/historias.json`
- * (derivado de docs/08-produto), as novidades em `src/data/feed.json` e a saúde
- * do sistema em `src/data/auditoria.json`, este último gerado pelo auditor a
- * cada build (ver docs/07-auditor.md). Para atualizar a página, mexa nos dados.
+ * `src/data/andamento.json`, as novidades em `src/data/feed.json` e a saúde do
+ * sistema em `src/data/auditoria.json`, este último gerado pelo auditor a cada
+ * build (ver docs/07-auditor.md). O quadro de histórias vem do banco (tabela
+ * `historias`) e só aparece para quem entrou no sistema com acesso ao módulo
+ * "quadro".
  */
 
 const { pendencias: PENDENCIAS } = ANDAMENTO
@@ -301,14 +302,15 @@ export default function StatusDesenvolvimento() {
 
         <section
           aria-labelledby="titulo-historias"
-          className="mx-auto max-w-5xl px-4 pb-10 sm:px-6"
+          className="mx-auto max-w-7xl px-4 pb-10 sm:px-6"
         >
           <h2 id="titulo-historias" className="text-2xl font-bold text-slate-900">
             Quadro de histórias
           </h2>
-          <p className="mt-2 max-w-2xl text-base leading-relaxed text-slate-600">
+          <p className="mt-2 max-w-3xl text-base leading-relaxed text-slate-600">
             Cada cartão é uma coisa que alguém precisa fazer no dia a dia da holding, escrita com as
-            palavras de quem faz. Toque num cartão para ler a história inteira.
+            palavras de quem faz, com os critérios para conferir se está pronta. Homologação e
+            Concluído são sempre decisão de uma pessoa.
           </p>
           <QuadroDeHistorias />
         </section>

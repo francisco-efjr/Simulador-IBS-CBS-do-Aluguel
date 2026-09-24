@@ -3,14 +3,16 @@ import {
   CheckCircle2,
   CircleDashed,
   CircleHelp,
+  ClipboardCheck,
   Clock,
+  FlaskConical,
   TrendingUp,
   Wrench,
   XCircle,
   type LucideIcon,
 } from 'lucide-react'
 import type { Situacao, SituacaoIndicador, SituacaoVerificacao } from '@/data/andamento'
-import type { ColunaDoQuadro } from '@/data/historias'
+import type { ColunaDoQuadro } from '@/services/quadro'
 
 /**
  * Rótulo, ícone e cores de cada situação do andamento do produto.
@@ -48,12 +50,11 @@ export const APARENCIA_DA_ENTREGA: Record<
 }
 
 /**
- * Rótulo, ícone e cores de cada coluna do "Quadro de histórias" da página
- * pública (`/`).
+ * Rótulo, ícone e cores de cada coluna do "Quadro de histórias".
  *
  * As cores conversam com as do andamento — cinza para o que nem começou, âmbar
  * para o que está em curso, verde para o que está pronto —, mas a cor nunca é o
- * único sinal: o cartão traz sempre o texto e o ícone da coluna.
+ * único sinal: a coluna traz sempre o texto e o ícone.
  */
 export const APARENCIA_DA_COLUNA: Record<
   ColunaDoQuadro,
@@ -69,27 +70,45 @@ export const APARENCIA_DA_COLUNA: Record<
     coluna: string
   }
 > = {
-  'a-fazer': {
-    rotulo: 'A fazer',
-    explicacao: 'Ainda não funciona: está escrito e combinado, mas falta construir.',
+  backlog: {
+    rotulo: 'Backlog',
+    explicacao: 'Combinado, mas ainda não construído.',
     icone: CircleDashed,
     ponto: 'bg-slate-400',
     texto: 'text-slate-700',
     caixa: 'border-slate-200 bg-slate-50',
     coluna: 'border-slate-200 bg-slate-100/70',
   },
-  'em-ajuste': {
-    rotulo: 'Em ajuste',
-    explicacao: 'Já funciona, mas falta acertar alguma coisa antes de dar como pronta.',
+  desenvolvimento: {
+    rotulo: 'Desenvolvimento',
+    explicacao: 'Em construção: as atividades desmarcadas são o que falta.',
     icone: Wrench,
     ponto: 'bg-amber-500',
     texto: 'text-amber-900',
     caixa: 'border-amber-200 bg-amber-50',
     coluna: 'border-amber-200 bg-amber-50/60',
   },
-  concluida: {
-    rotulo: 'Concluída',
-    explicacao: 'Funciona como foi combinado, e os cenários de aceitação conferem.',
+  teste: {
+    rotulo: 'Teste',
+    explicacao: 'Pronto no código. Espera uma pessoa conferir e levar para a homologação.',
+    icone: FlaskConical,
+    ponto: 'bg-sky-600',
+    texto: 'text-sky-900',
+    caixa: 'border-sky-200 bg-sky-50',
+    coluna: 'border-sky-200 bg-sky-50/60',
+  },
+  homologacao: {
+    rotulo: 'Homologação',
+    explicacao: 'Uma pessoa está conferindo com dado real antes de dar como pronto.',
+    icone: ClipboardCheck,
+    ponto: 'bg-indigo-600',
+    texto: 'text-indigo-900',
+    caixa: 'border-indigo-200 bg-indigo-50',
+    coluna: 'border-indigo-200 bg-indigo-50/60',
+  },
+  concluido: {
+    rotulo: 'Concluído',
+    explicacao: 'Conferido e aceito por uma pessoa.',
     icone: CheckCircle2,
     ponto: 'bg-emerald-600',
     texto: 'text-emerald-800',
