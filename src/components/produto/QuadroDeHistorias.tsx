@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type DragEvent, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { ListChecks, Lock, LogIn, Plus, RefreshCw } from 'lucide-react'
+import { ChevronDown, ChevronUp, ListChecks, Lock, LogIn, Plus, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/use-auth'
@@ -8,10 +8,12 @@ import { useRealtime } from '@/hooks/use-realtime'
 import { getErrorMessage } from '@/lib/dados/erros'
 import {
   COLUNAS_DO_QUADRO,
+  LIMITE_DE_CONCLUIDAS,
   codigoDaHistoria,
   contagemDeAtividades,
   destinosPermitidos,
   etiquetasDoQuadro,
+  historiasDaColuna,
   listarHistorias,
   moverHistoria,
   type ColunaDoQuadro,
@@ -108,9 +110,15 @@ function Coluna({
   onSoltar: (historiaId: string, coluna: ColunaDoQuadro) => void
 }) {
   const [recebendo, setRecebendo] = useState(false)
+  const [limite, setLimite] = useState(LIMITE_DE_CONCLUIDAS)
   const estilo = APARENCIA_DA_COLUNA[coluna]
   const Icone = estilo.icone
   const tituloId = `coluna-${coluna}`
+
+  // Concluído só cresce: mostra as 15 mais recentes e abre o resto aos poucos.
+  const limitada = coluna === 'concluido' && historias.length > LIMITE_DE_CONCLUIDAS
+  const exibidas = limitada ? historias.slice(0, limite) : historias
+  const restantes = historias.length - exibidas.length
 
   const aoPassarPorCima = (evento: DragEvent<HTMLElement>) => {
     if (!podeEditar || !evento.dataTransfer.types.includes(TIPO_ARRASTADO)) return
@@ -133,7 +141,7 @@ function Coluna({
       onDragOver={aoPassarPorCima}
       onDragLeave={() => setRecebendo(false)}
       onDrop={aoSoltar}
-      className={`${visivelNoCelular ? 'flex' : 'hidden'} min-w-0 flex-col rounded-xl border lg:flex ${estilo.coluna} ${
+      className={`${visivelNoCelular ? 'flex' : 'hidden'} min-w-0 flex-col rounded-xl border md:flex md:min-w-[15rem] md:flex-1 md:basis-0 ${estilo.coluna} ${
         recebendo ? 'ring-4 ring-indigo-300' : ''
       }`}
     >
@@ -154,13 +162,38 @@ function Coluna({
             Nenhuma história aqui.
           </li>
         ) : (
-          historias.map((historia) => (
+          exibidas.map((historia) => (
             <li key={historia.id}>
               <Cartao historia={historia} podeArrastar={podeEditar} onAbrir={onAbrir} />
             </li>
           ))
         )}
       </ul>
+
+      {limitada && (
+        <div className="px-2 pb-3">
+          {restantes > 0 ? (
+            <button
+              type="button"
+              onClick={() => setLimite((atual) => atual + LIMITE_DE_CONCLUIDAS)}
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-semibold text-slate-800 hover:border-indigo-300 hover:bg-indigo-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300"
+            >
+              <ChevronDown className="h-5 w-5 shrink-0" aria-hidden="true" />
+              Mostrar mais {Math.min(restantes, LIMITE_DE_CONCLUIDAS)}
+              <span className="sr-only"> das {restantes} que faltam em {estilo.rotulo}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setLimite(LIMITE_DE_CONCLUIDAS)}
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-semibold text-slate-800 hover:border-indigo-300 hover:bg-indigo-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300"
+            >
+              <ChevronUp className="h-5 w-5 shrink-0" aria-hidden="true" />
+              Mostrar só as {LIMITE_DE_CONCLUIDAS} mais recentes
+            </button>
+          )}
+        </div>
+      )}
     </section>
   )
 }
@@ -244,7 +277,7 @@ export function QuadroDeHistorias() {
 
   const etiquetas = etiquetasDoQuadro(historias)
   const visiveis = historias.filter((h) => etiqueta === null || h.tag === etiqueta)
-  const porColuna = (coluna: ColunaDoQuadro) => visiveis.filter((h) => h.coluna === coluna)
+  const porColuna = (coluna: ColunaDoQuadro) => historiasDaColuna(visiveis, coluna)
   const emTeste = historias.filter((h) => h.coluna === 'teste').length
   const historiaAberta = aberta?.id ? (historias.find((h) => h.id === aberta.id) ?? null) : null
 
@@ -345,7 +378,7 @@ export function QuadroDeHistorias() {
           </div>
         )}
 
-        <div className="mt-4 border-t border-slate-100 pt-4 lg:hidden">
+        <div className="mt-4 border-t border-slate-100 pt-4 md:hidden">
           <p id="filtro-coluna" className="text-base font-bold text-slate-900">
             Coluna
           </p>
@@ -392,7 +425,9 @@ export function QuadroDeHistorias() {
         </div>
       )}
 
-      <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-5">
+      {/* relative: o texto só para leitor de tela (sr-only, absoluto) dos cartões
+          fora da vista fica preso aqui; sem isso ele escapa e alarga a página. */}
+      <div className="relative mt-4 flex flex-col gap-3 md:flex-row md:overflow-x-auto md:pb-2">
         {COLUNAS_DO_QUADRO.map((coluna) => (
           <Coluna
             key={coluna}

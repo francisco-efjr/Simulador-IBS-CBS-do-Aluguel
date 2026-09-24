@@ -40,6 +40,8 @@ export interface HistoriaDoQuadro {
   criterios: string
   observacoes: string
   coluna: ColunaDoQuadro
+  /** Última gravação da história; ordena a coluna Concluído. */
+  updated: string
   atividades: AtividadeDaHistoria[]
 }
 
@@ -81,6 +83,25 @@ export function destinosPermitidos(de: ColunaDoQuadro): ColunaDoQuadro[] {
   )
 }
 
+/** Quantos cartões a coluna Concluído mostra antes do "Mostrar mais". */
+export const LIMITE_DE_CONCLUIDAS = 15
+
+/**
+ * As histórias de uma coluna, na ordem do quadro: pelo número, e em Concluído
+ * as mais recentes primeiro — é a coluna que só cresce, e o que importa nela é
+ * o que acabou de ser aceito.
+ */
+export function historiasDaColuna(
+  historias: HistoriaDoQuadro[],
+  coluna: ColunaDoQuadro,
+): HistoriaDoQuadro[] {
+  const daColuna = historias.filter((h) => h.coluna === coluna)
+  if (coluna !== 'concluido') return daColuna.sort((a, b) => a.numero - b.numero)
+  return daColuna.sort(
+    (a, b) => b.updated.localeCompare(a.updated) || b.numero - a.numero,
+  )
+}
+
 /** As etiquetas em uso, sem repetir, em ordem alfabética. */
 export function etiquetasDoQuadro(historias: Pick<HistoriaDoQuadro, 'tag'>[]): string[] {
   const etiquetas = new Set<string>()
@@ -89,7 +110,7 @@ export function etiquetasDoQuadro(historias: Pick<HistoriaDoQuadro, 'tag'>[]): s
 }
 
 const COLUNAS_DA_HISTORIA =
-  'id, numero, titulo, tag, eu, quero, para, criterios, observacoes, coluna, atividades:historias_atividades(id, historia, titulo, concluida, ordem)'
+  'id, numero, titulo, tag, eu, quero, para, criterios, observacoes, coluna, updated, atividades:historias_atividades(id, historia, titulo, concluida, ordem)'
 
 function falhou(contexto: string, erro: { message: string } | null): asserts erro is null {
   if (erro) throw new Error(`${contexto}: ${erro.message}`)

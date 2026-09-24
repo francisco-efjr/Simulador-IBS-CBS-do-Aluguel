@@ -36,6 +36,7 @@ Rode em ordem. Cada arquivo é independente e roda inteiro de uma vez no SQL Edi
 | `20260923120001_modulo_quadro.sql` | acrescenta o módulo de permissão `quadro`. Arquivo à parte porque o valor novo de enum não pode ser usado na mesma transação em que nasce: **rode antes da 02** |
 | `20260923120002_quadro_de_historias.sql` | tabelas `historias` e `historias_atividades`, RLS pelo módulo `quadro` (ninguém exclui história), trilha e tempo real, e a regra de que só uma pessoa logada leva para Homologação ou Concluído (`tg_proteger_homologacao`, erro `HA002`). Pode ser rodada de novo sem erro |
 | `20260923120003_carga_do_quadro.sql` | carga inicial das 59 histórias do quadro, com atividades. Só carrega com o quadro vazio; nenhuma entra em Homologação ou Concluído |
+| `20260923120004_quadro_no_menu.sql` | registra na H-44 (a história do próprio quadro) as entregas de 23/09 como atividades feitas: menu lateral, "Mostrar mais" do Concluído, cartão mais largo e edição direta. Não muda a coluna. Pode ser rodada de novo sem erro |
 
 ## Quatro achados de segurança que esta modelagem fecha
 

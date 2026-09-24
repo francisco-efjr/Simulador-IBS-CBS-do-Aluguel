@@ -17,6 +17,7 @@ import {
   FileSpreadsheet,
   History,
   Calculator,
+  SquareKanban,
 } from 'lucide-react'
 
 export type ModuloPermissao =
@@ -133,8 +134,8 @@ export const MODULOS_SISTEMA: ModuloInfo[] = [
   {
     id: 'quadro',
     nome: 'Quadro de histórias',
-    descricao: 'Histórias do sistema, atividades e homologação, na página inicial',
-    rotas: ['/'],
+    descricao: 'Histórias do sistema, atividades e homologação',
+    rotas: ['/quadro', '/'],
   },
 ]
 
@@ -158,6 +159,13 @@ export const MODULES_LIST: MenuItem[] = [
     icon: FileSpreadsheet,
     description: 'Geração e exportação de relatórios em PDF e Excel',
     modulo: 'relatorios',
+  },
+  {
+    title: 'Quadro de Histórias',
+    path: '/quadro',
+    icon: SquareKanban,
+    description: 'Histórias do sistema, critérios de aceitação e homologação',
+    modulo: 'quadro',
   },
   {
     title: 'Importar Extrato',

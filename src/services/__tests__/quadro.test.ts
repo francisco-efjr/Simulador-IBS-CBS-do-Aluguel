@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import {
   COLUNAS_DO_QUADRO,
+  LIMITE_DE_CONCLUIDAS,
   codigoDaHistoria,
   contagemDeAtividades,
   destinosPermitidos,
   etiquetasDoQuadro,
+  historiasDaColuna,
   type AtividadeDaHistoria,
+  type ColunaDoQuadro,
+  type HistoriaDoQuadro,
 } from '../quadro'
 import { tipoDaLinha } from '@/components/produto/CriteriosEmBdd'
 
@@ -46,6 +50,51 @@ describe('destinosPermitidos — espelho da RN-QDR-02', () => {
 
   it('do Concluído se pode reabrir, mas não "ir" para Concluído de novo', () => {
     expect(destinosPermitidos('concluido')).toEqual(['backlog', 'desenvolvimento', 'teste', 'homologacao'])
+  })
+})
+
+const historia = (numero: number, coluna: ColunaDoQuadro, updated: string): HistoriaDoQuadro => ({
+  id: `h${numero}`,
+  numero,
+  titulo: `História ${numero}`,
+  tag: null,
+  eu: '',
+  quero: '',
+  para: '',
+  criterios: '',
+  observacoes: '',
+  coluna,
+  updated,
+  atividades: [],
+})
+
+describe('historiasDaColuna', () => {
+  const quadro = [
+    historia(9, 'teste', '2026-09-20T10:00:00Z'),
+    historia(3, 'teste', '2026-09-23T10:00:00Z'),
+    historia(7, 'concluido', '2026-09-21T10:00:00Z'),
+    historia(2, 'concluido', '2026-09-23T15:00:00Z'),
+    historia(5, 'concluido', '2026-09-22T08:00:00Z'),
+    historia(1, 'backlog', '2026-09-23T10:00:00Z'),
+  ]
+
+  it('nas colunas de trabalho, pelo número', () => {
+    expect(historiasDaColuna(quadro, 'teste').map((h) => h.numero)).toEqual([3, 9])
+  })
+
+  it('em Concluído, a aceita por último vem primeiro', () => {
+    expect(historiasDaColuna(quadro, 'concluido').map((h) => h.numero)).toEqual([2, 5, 7])
+  })
+
+  it('não mistura colunas nem mexe na lista de origem', () => {
+    const antes = quadro.map((h) => h.numero)
+    expect(historiasDaColuna(quadro, 'homologacao')).toEqual([])
+    historiasDaColuna(quadro, 'concluido')
+    expect(quadro.map((h) => h.numero)).toEqual(antes)
+  })
+
+  it('Concluído mostra 15 antes do "Mostrar mais"', () => {
+    expect(LIMITE_DE_CONCLUIDAS).toBe(15)
   })
 })
 

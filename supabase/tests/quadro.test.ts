@@ -1,6 +1,6 @@
 // @vitest-environment node
 /**
- * Quadro de histórias (migrações 20260923120001 a 20260923120003): a carga
+ * Quadro de histórias (migrações 20260923120001 a 20260923120004): a carga
  * inicial, a regra de que homologar é coisa de gente (RN-QDR-01 e RN-QDR-02) e
  * quem vê e quem edita (RN-QDR-03).
  *
@@ -118,21 +118,38 @@ describe('carga inicial', () => {
     })
   })
 
-  it('as três migrações podem ser rodadas de novo sem duplicar nada (SQL Editor)', async () => {
+  it('as migrações do quadro podem ser rodadas de novo sem duplicar nada (SQL Editor)', async () => {
     const doQuadro = listarMigracoes().filter((m) => m.arquivo.startsWith('20260923'))
     expect(doQuadro.map((m) => m.arquivo)).toEqual([
       '20260923120001_modulo_quadro.sql',
       '20260923120002_quadro_de_historias.sql',
       '20260923120003_carga_do_quadro.sql',
+      '20260923120004_quadro_no_menu.sql',
     ])
+    const contar = async (q: Consulta) =>
+      (
+        await q.query<{ historias: number; atividades: number }>(
+          `select (select count(*)::int from public.historias) as historias,
+                  (select count(*)::int from public.historias_atividades) as atividades`,
+        )
+      ).rows[0]
     await banco.desfazendo(async (q) => {
+      const antes = await contar(q)
       // A 01 acrescenta valor de enum, o que não pode rodar dentro de transação
       // junto do resto; rodar de novo é "if not exists" e fica de fora aqui.
-      await q.exec(doQuadro[1].sql)
-      await q.exec(doQuadro[2].sql)
-      const { rows } = await q.query<{ total: number }>(`select count(*)::int as total from public.historias`)
-      expect(rows[0].total).toBe(TOTAL_DA_CARGA)
+      for (const migracao of doQuadro.slice(1)) await q.exec(migracao.sql)
+      expect(await contar(q)).toEqual(antes)
+      expect(antes.historias).toBe(TOTAL_DA_CARGA)
     })
+  })
+
+  it('a H-44 registra as entregas de 23/09 como atividades feitas, sem mudar de coluna', async () => {
+    const { rows } = await banco.db.query<{ coluna: string; feitas: number; total: number }>(
+      `select h.coluna::text, count(a.id) filter (where a.concluida)::int as feitas, count(a.id)::int as total
+         from public.historias h join public.historias_atividades a on a.historia = h.id
+        where h.numero = 44 group by h.coluna`,
+    )
+    expect(rows[0]).toEqual({ coluna: 'teste', feitas: 10, total: 10 })
   })
 })
 

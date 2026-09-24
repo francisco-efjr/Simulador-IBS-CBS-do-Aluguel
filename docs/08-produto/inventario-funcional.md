@@ -30,7 +30,7 @@
 | Simulador IBS/CBS (público) | `/simulador` | ✅ | Falta citar a LC 227/2026 no laudo (em andamento) |
 | Entrada e senha (público) | `/login`, `/signup`, `/recuperar-senha`, `/redefinir-senha` | ✅ | Cadastro público ainda aberto no Supabase (pendência 2 do quadro) |
 | Quadro de andamento (público) | `/` | ✅ | Temporário (README do repositório) |
-| Quadro de histórias (`quadro`) | `/`, para quem entrou | ✅ | Editável, no banco; homologar é só de pessoa (RN-QDR-01) |
+| Quadro de histórias (`quadro`) | `/quadro` (menu lateral) e `/`, para quem entrou | ✅ | Editável, no banco; homologar é só de pessoa (RN-QDR-01) |
 
 ---
 
@@ -212,16 +212,17 @@ financeiro vazio.
 
 ## Quadro de histórias
 
-**Quem pode:** `visualizacao`/`edicao` no módulo `quadro`; administrador tem edição. Tela: página
-inicial ([`StatusDesenvolvimento.tsx`](../../src/pages/StatusDesenvolvimento.tsx),
-[`QuadroDeHistorias.tsx`](../../src/components/produto/QuadroDeHistorias.tsx)). Serviço:
+**Quem pode:** `visualizacao`/`edicao` no módulo `quadro`; administrador tem edição. Telas: item
+"Quadro de Histórias" do menu lateral ([`Quadro.tsx`](../../src/pages/Quadro.tsx), em `/quadro`) e
+página inicial ([`StatusDesenvolvimento.tsx`](../../src/pages/StatusDesenvolvimento.tsx)), as duas com
+[`QuadroDeHistorias.tsx`](../../src/components/produto/QuadroDeHistorias.tsx). Serviço:
 [`quadro.ts`](../../src/services/quadro.ts). Banco:
 [`…_quadro_de_historias.sql`](../../supabase/migrations/20260923120002_quadro_de_historias.sql).
 
 | Funcionalidade | Regras aplicadas | Onde | Situação |
 | :-- | :-- | :-- | :-- |
-| Cinco colunas: Backlog, Desenvolvimento, Teste, Homologação, Concluído | Cartão por fora: número, título, etiqueta e atividades feitas | tela | ✅ |
-| História | Título, etiqueta, "Eu, quero, para", critérios em BDD e observações, todos editáveis; número sequencial que não se reaproveita; ninguém exclui (RN-QDR-03, RN-QDR-04) | ambos | ✅ |
+| Cinco colunas: Backlog, Desenvolvimento, Teste, Homologação, Concluído | Cartão por fora: número, título, etiqueta e atividades feitas. Em tela estreita as colunas rolam de lado (no celular, uma por vez); Concluído mostra as 15 mais recentes e abre o resto em "Mostrar mais" | tela | ✅ |
+| História | Título, etiqueta, "Eu, quero, para", critérios em BDD e observações, todos editáveis direto no cartão aberto (salvos juntos em "Salvar alterações"; fechar com alteração pendente pede confirmação); número sequencial que não se reaproveita; ninguém exclui (RN-QDR-03, RN-QDR-04) | ambos | ✅ |
 | Atividades | Título + caixa de seleção; incluir, renomear, marcar e excluir | ambos | ✅ |
 | Mover | Pelo diálogo ou arrastando o cartão no computador; **só pessoa logada leva para Homologação ou Concluído**, e Concluído só depois da Homologação (RN-QDR-01, RN-QDR-02) | banco (`tg_proteger_homologacao`) + tela | ✅ |
 | Trilha e tempo real | Mudança de história entra na trilha (com quem homologou); o quadro se atualiza quando outra pessoa grava | banco | ✅ |
