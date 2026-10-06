@@ -1,5 +1,11 @@
 [
   {
+    "data": "2026-10-06",
+    "titulo": "Águia Systems: Estrutura de Unidades, Locadores, Fiadores e Minutas de Contrato",
+    "texto": "O sistema agora organiza os imóveis em dois níveis: o imóvel macro (prédio, condomínio ou terreno) e as unidades filhas (apartamentos ou salas), cada uma com seus códigos de energia, água, taxa de condomínio e taxas extras (como poço artesiano). Foi adicionado o menu lateral exclusivo para Locadores, cadastro de Fiadores com outorga conjugal, atualização de inquilinos com RG opcional e endereço secundário, indicador da cota gratuita de até 3 imóveis, e emissão de contratos com 6 minutas padrão em PDF com e-mails das partes para assinatura digital.",
+    "tipo": "entrega"
+  },
+  {
     "data": "2026-09-23",
     "titulo": "Quadro de histórias aberto a todos, no menu e editável direto",
     "texto": "Qualquer pessoa volta a ver o quadro, sem precisar entrar no sistema — criar, editar e mover continuam exigindo acesso. Ele também ganhou um lugar no menu lateral, \"Quadro de Histórias\". Ao abrir uma história, o cartão ficou mais largo — no computador, o texto de um lado e a etiqueta, a coluna e as atividades do outro — e tudo se edita ali mesmo: título, quem quer, o que quer e para quê, critérios e observações, com um botão \"Salvar alterações\" sempre à vista. Se fechar sem salvar, o sistema pergunta antes. A coluna Concluído mostra as 15 histórias aceitas mais recentes e abre as outras em \"Mostrar mais\". Em tela estreita, as colunas rolam de lado em vez de ficarem espremidas.",

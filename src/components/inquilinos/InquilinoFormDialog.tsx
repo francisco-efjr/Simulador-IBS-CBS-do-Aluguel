@@ -35,6 +35,8 @@ const EMPTY = {
   telefone: '',
   email: '',
   endereco: '',
+  endereco_secundario: '',
+  endereco_secundario_origem: '',
   observacoes: '',
   status: 'ativo',
 }
@@ -146,7 +148,7 @@ export function InquilinoFormDialog({
                     className="bg-slate-50/50 min-h-[44px]"
                   />
                 </Field>
-                <Field label="RG">
+                <Field label="RG (Opcional - CIN)">
                   <Input
                     value={form.rg}
                     onChange={(e) => upd('rg', e.target.value)}
@@ -214,13 +216,31 @@ export function InquilinoFormDialog({
               />
             </Field>
           </div>
-          <Field label="Endereço">
+          <Field label="Endereço principal">
             <Input
               value={form.endereco}
               onChange={(e) => upd('endereco', e.target.value)}
               className="bg-slate-50/50 min-h-[44px]"
             />
           </Field>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <Field label="Endereço secundário de contato" className="sm:col-span-2">
+              <Input
+                value={form.endereco_secundario}
+                onChange={(e) => upd('endereco_secundario', e.target.value)}
+                placeholder="Outro endereço residencial ou comercial"
+                className="bg-slate-50/50 min-h-[44px]"
+              />
+            </Field>
+            <Field label="Observação de origem">
+              <Input
+                value={form.endereco_secundario_origem}
+                onChange={(e) => upd('endereco_secundario_origem', e.target.value)}
+                placeholder="Ex: Trabalho, Mãe, Avô"
+                className="bg-slate-50/50 min-h-[44px]"
+              />
+            </Field>
+          </div>
           <Field label="Observações">
             <Textarea
               value={form.observacoes}

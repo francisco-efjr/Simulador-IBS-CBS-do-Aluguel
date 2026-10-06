@@ -1,6 +1,6 @@
 {
-  "geradoEm": "2026-09-24T02:38:40.500Z",
-  "commit": "24c64ab",
+  "geradoEm": "2026-10-06T13:41:48.712Z",
+  "commit": "a068e2a",
   "verificacoes": [
     {
       "id": "tipos",
@@ -14,7 +14,7 @@
       "nome": "Testes automáticos",
       "descricao": "Roda a bateria de testes que confere os cálculos e o comportamento das telas.",
       "situacao": "ok",
-      "detalhe": "Todos os 454 testes automáticos passaram."
+      "detalhe": "Todos os 526 testes automáticos passaram."
     },
     {
       "id": "lint",
@@ -42,7 +42,7 @@
       "nome": "Proteção de cada tabela",
       "descricao": "Toda tabela criada em supabase/migrations tem a segurança por linha (RLS) ligada, para que cada pessoa só veja o que pode.",
       "situacao": "ok",
-      "detalhe": "As 18 tabelas do banco têm a proteção que limita cada pessoa ao que ela pode ver."
+      "detalhe": "As 21 tabelas do banco têm a proteção que limita cada pessoa ao que ela pode ver."
     },
     {
       "id": "segredos",
@@ -56,7 +56,7 @@
       "nome": "Decisões técnicas registradas",
       "descricao": "Todo registro de decisão em docs/05-adr diz em que situação está (proposta, aceita, substituída).",
       "situacao": "ok",
-      "detalhe": "Os 9 registros de decisão técnica dizem em que situação estão."
+      "detalhe": "Os 10 registros de decisão técnica dizem em que situação estão."
     },
     {
       "id": "historias-conferem",
@@ -70,7 +70,7 @@
       "nome": "Lista de novidades em dia",
       "descricao": "A seção \"Últimas atualizações\" não ficou para trás: a entrega (feat) ou correção (fix) mais recente do histórico não é mais nova que a última entrada de src/data/feed.json.",
       "situacao": "ok",
-      "detalhe": "A lista de novidades acompanha o código. Última novidade: 23/09/2026."
+      "detalhe": "A lista de novidades acompanha o código. Última novidade: 06/10/2026."
     }
   ]
 }

@@ -25,6 +25,17 @@ const COLUNA_POR_INDICE: Record<string, string> = {
   historias_titulo_preenchido: 'titulo',
   historias_titulo_tamanho: 'titulo',
   historias_tag_tamanho: 'tag',
+  // Árvore hierárquica e novas entidades (migração 20261005120002).
+  locadores_cpf_cnpj_uidx: 'cpf_cnpj',
+  locadores_cpf_cnpj_valido: 'cpf_cnpj',
+  locadores_email_valido: 'email',
+  locadores_nome_preenchido: 'nome_razao_social',
+  fiadores_cpf_uidx: 'cpf',
+  fiadores_cpf_valido: 'cpf',
+  fiadores_conjuge_cpf_valido: 'conjuge_cpf',
+  fiadores_email_valido: 'email',
+  fiadores_nome_preenchido: 'nome',
+  imovel_unidades_identificador_preenchido: 'identificador',
 }
 
 const MENSAGEM_POR_INDICE: Record<string, string> = {
@@ -48,6 +59,17 @@ const MENSAGEM_POR_INDICE: Record<string, string> = {
   historias_titulo_preenchido: 'Dê um título à história.',
   historias_titulo_tamanho: 'O título pode ter até 160 caracteres.',
   historias_tag_tamanho: 'A etiqueta pode ter até 40 caracteres.',
+  // Árvore hierárquica e novas entidades (migração 20261005120002).
+  locadores_cpf_cnpj_uidx: 'Já existe um locador com este CPF/CNPJ.',
+  locadores_cpf_cnpj_valido: 'CPF ou CNPJ inválido. Confira os caracteres digitados.',
+  locadores_email_valido: 'E-mail inválido. Use o formato nome@dominio.com.br.',
+  locadores_nome_preenchido: 'Informe o nome ou a razão social do locador.',
+  fiadores_cpf_uidx: 'Já existe um fiador com este CPF.',
+  fiadores_cpf_valido: 'CPF inválido. Confira os números digitados.',
+  fiadores_conjuge_cpf_valido: 'CPF do cônjuge inválido. Confira os números digitados.',
+  fiadores_email_valido: 'E-mail inválido. Use o formato nome@dominio.com.br.',
+  fiadores_nome_preenchido: 'Informe o nome do fiador.',
+  imovel_unidades_identificador_preenchido: 'Informe a identificação da unidade.',
 }
 
 /**
@@ -58,12 +80,12 @@ const DATA_IMPLAUSIVEL =
   /check constraint "(?:receitas|despesas|iptu_taxas|contratos)_(\w+)_plausivel"/
 
 /**
- * Recusas levantadas pelos gatilhos do banco (errcode HA001). A mensagem já sai
+ * Recusas levantadas pelos gatilhos do banco (errcode HA001 / HA003). A mensagem já sai
  * pronta para o usuário; aqui só se tira o prefixo técnico que o cliente põe
  * na frente ("Falha ao salvar em imoveis: …") e se escolhe o campo.
  */
 const RECUSA_DO_GATILHO =
-  /(Est[ea] (?:imóvel|inquilino) tem contrato ativo e não pode ser [^.]+\.[^\n]*|Só uma pessoa que entrou no sistema leva a história[^\n]*|A história só vai para Concluído[^\n]*)/
+  /(Est[ea] (?:imóvel|inquilino|unidade) tem contrato ativo e não pode ser [^.]+\.[^\n]*|Limite de até 3 imóveis atingido[^\n]*|Só uma pessoa que entrou no sistema leva a história[^\n]*|A história só vai para Concluído[^\n]*)/
 
 function textoDoErro(error: unknown): string {
   if (!error) return ''

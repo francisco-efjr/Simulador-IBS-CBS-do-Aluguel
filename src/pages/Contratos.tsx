@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { FileText, Plus, Search, Eye, Pencil, Ban, Check, AlertCircle } from 'lucide-react'
+import { FileText, Plus, Search, Eye, Pencil, Ban, Check, AlertCircle, Printer } from 'lucide-react'
 import { toast } from 'sonner'
 import { getContratos, updateContrato } from '@/services/contratos'
 import { useRealtime } from '@/hooks/use-realtime'
@@ -11,6 +11,7 @@ import {
 } from '@/lib/format'
 import { ContratoFormDialog } from '@/components/contratos/ContratoFormDialog'
 import { ContratoDetailDialog } from '@/components/contratos/ContratoDetailDialog'
+import { MinutaContratoDialog } from '@/components/contratos/MinutaContratoDialog'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/button'
 import { ConfirmarAcao } from '@/components/shared/ConfirmarAcao'
@@ -48,6 +49,13 @@ export default function Contratos() {
   const [detailOpen, setDetailOpen] = useState(false)
   const [editing, setEditing] = useState<any | null>(null)
   const [selected, setSelected] = useState<any | null>(null)
+  const [minutaOpen, setMinutaOpen] = useState(false)
+  const [minutaContrato, setMinutaContrato] = useState<any | null>(null)
+
+  const handleMinuta = (c: any) => {
+    setMinutaContrato(c)
+    setMinutaOpen(true)
+  }
 
   const load = useCallback(async () => {
     try {
@@ -233,7 +241,13 @@ export default function Contratos() {
                       )}
                     </TableCell>
                     <TableCell className="text-sm text-slate-600">
-                      {c.expand?.imovel?.nome || c.expand?.imovel?.endereco || '—'}
+                      <div>{c.expand?.imovel?.nome || c.expand?.imovel?.endereco || '—'}</div>
+                      {c.expand?.unidade_id && (
+                        <div className="text-xs text-indigo-700 font-medium">
+                          Unidade: {c.expand.unidade_id.identificador}
+                          {c.expand.unidade_id.complemento ? ` (${c.expand.unidade_id.complemento})` : ''}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="text-sm text-slate-600">
                       {c.expand?.inquilino?.nome || '—'}
@@ -249,6 +263,16 @@ export default function Contratos() {
                     </TableCell>
                     <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Gerar minuta contratual"
+                          title="Gerar Minuta de Contrato (PDF)"
+                          className="h-11 w-11 min-h-[44px] min-w-[44px] text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50"
+                          onClick={() => handleMinuta(c)}
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -331,6 +355,11 @@ export default function Contratos() {
                       </p>
                       <p className="text-xs text-slate-600 truncate">
                         {c.expand?.imovel?.nome || c.expand?.imovel?.endereco || '—'}
+                        {c.expand?.unidade_id && (
+                          <span className="text-indigo-600 font-medium ml-1">
+                            • {c.expand.unidade_id.identificador}
+                          </span>
+                        )}
                       </p>
                     </div>
                     <StatusBadge type="contrato" status={c.status} />
@@ -354,6 +383,15 @@ export default function Contratos() {
                       {formatCurrency(c.valor_aluguel)}/mês
                     </span>
                     <div className="flex gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-11 px-2.5 min-h-[44px] text-xs text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                        onClick={() => handleMinuta(c)}
+                        title="Gerar Minuta de Contrato"
+                      >
+                        <Printer className="h-3.5 w-3.5 mr-1" /> Minuta
+                      </Button>
                       {canEdit ? (
                         <>
                           <Button
@@ -429,7 +467,13 @@ export default function Contratos() {
         open={detailOpen}
         onOpenChange={setDetailOpen}
         onEdit={() => handleEdit(selected)}
+        onVerMinuta={() => handleMinuta(selected)}
         canEdit={canEdit}
+      />
+      <MinutaContratoDialog
+        contrato={minutaContrato}
+        open={minutaOpen}
+        onOpenChange={setMinutaOpen}
       />
     </div>
   )

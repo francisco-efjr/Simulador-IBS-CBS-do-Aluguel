@@ -122,3 +122,55 @@ export const FORMA_PAGAMENTO_LABELS: Record<string, string> = {
   cheque: 'Cheque',
   outros: 'Outros',
 }
+
+export function formatarCpf(valor: string | null | undefined): string {
+  if (!valor) return '—'
+  const limpo = valor.replace(/\D/g, '')
+  if (limpo.length !== 11) return valor
+  return limpo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+}
+
+export function formatarCnpj(valor: string | null | undefined): string {
+  if (!valor) return '—'
+  const limpo = valor.replace(/[^0-9A-Za-z]/g, '').toUpperCase()
+  if (limpo.length !== 14) return valor
+  return limpo.replace(/^(.{2})(.{3})(.{3})(.{4})(.{2})$/, '$1.$2.$3/$4-$5')
+}
+
+export function formatarCpfCnpj(valor: string | null | undefined): string {
+  if (!valor) return '—'
+  const limpo = valor.replace(/[^0-9A-Za-z]/g, '')
+  if (limpo.length === 11) return formatarCpf(limpo)
+  if (limpo.length === 14) return formatarCnpj(limpo)
+  return valor
+}
+
+export function formatarTelefone(valor: string | null | undefined): string {
+  if (!valor) return '—'
+  const limpo = valor.replace(/\D/g, '')
+  if (limpo.length === 11) {
+    return limpo.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3')
+  }
+  if (limpo.length === 10) {
+    return limpo.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3')
+  }
+  return valor
+}
+
+export function aplicarMascaraDocumento(valor: string, tipo: 'pf' | 'pj' = 'pf'): string {
+  const limpo = valor.replace(/[^0-9A-Za-z]/g, '').toUpperCase()
+  if (tipo === 'pf') {
+    const apenasNum = limpo.replace(/\D/g, '').slice(0, 11)
+    return apenasNum
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+      .replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4')
+  } else {
+    const chars = limpo.slice(0, 14)
+    return chars
+      .replace(/^(.{2})(.+)/, '$1.$2')
+      .replace(/^(.{2})\.(.{3})(.+)/, '$1.$2.$3')
+      .replace(/^(.{2})\.(.{3})\.(.{3})(.+)/, '$1.$2.$3/$4')
+      .replace(/^(.{2})\.(.{3})\.(.{3})\/(.{4})(.+)/, '$1.$2.$3/$4-$5')
+  }
+}

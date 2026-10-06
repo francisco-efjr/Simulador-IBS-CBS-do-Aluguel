@@ -81,11 +81,77 @@ function quantidade(rotulo: string) {
   })
 }
 
-/** Formato de e-mail propositalmente simples: algo@algo.dominio, sem espaços. */
-const FORMATO_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+/**
+ * Regex rigoroso para validação de e-mail seguindo RFC 5322 simplificado:
+ * - Não permite espaços
+ * - Usuário: letras, números e símbolos permitidos
+ * - Domínio com partes alfanuméricas/hífen (1-63 chars)
+ * - TLD com pelo menos 2 caracteres alfabéticos
+ */
+const REGEX_EMAIL_RIGOROSO =
+  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/
 
-export function emailValido(valor: string): boolean {
-  return FORMATO_EMAIL.test(valor)
+/**
+ * Verifica se a estrutura do domínio de um e-mail é válida e plausível na Internet.
+ */
+export function validarDominioEmail(dominioOuEmail: string): boolean {
+  if (!dominioOuEmail) return false
+  const dominio = dominioOuEmail.includes('@')
+    ? dominioOuEmail.split('@')[1]?.trim()
+    : dominioOuEmail.trim()
+  if (!dominio || dominio.length > 255) return false
+
+  if (dominio.startsWith('.') || dominio.endsWith('.') || dominio.includes('..')) {
+    return false
+  }
+
+  const partes = dominio.split('.')
+  if (partes.length < 2) return false
+
+  const tld = partes[partes.length - 1]
+  if (!tld || tld.length < 2 || !/^[a-zA-Z]+$/.test(tld)) {
+    return false
+  }
+
+  for (const parte of partes) {
+    if (!parte || parte.length > 63) return false
+    if (!/^[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/.test(parte)) {
+      return false
+    }
+  }
+
+  return true
+}
+
+/**
+ * Função auxiliar para checagem de domínio e formato de e-mail.
+ */
+export function checarDominioEmail(emailStr: string): {
+  valido: boolean
+  dominio?: string
+  erro?: string
+} {
+  if (!emailStr || !emailStr.includes('@')) {
+    return { valido: false, erro: 'E-mail não contém arroba (@).' }
+  }
+  const partes = emailStr.split('@')
+  if (partes.length !== 2) {
+    return { valido: false, erro: 'E-mail contém múltiplos arrobas (@).' }
+  }
+  const [, dominio] = partes
+  const dominioValido = validarDominioEmail(dominio)
+  if (!dominioValido) {
+    return { valido: false, dominio, erro: 'Domínio do e-mail inválido ou inexistente.' }
+  }
+  return { valido: true, dominio }
+}
+
+/** Valida o e-mail combinando regex rigoroso e checagem de domínio. */
+export function emailValido(valor: string | null | undefined): boolean {
+  if (!valor) return false
+  const limpo = valor.trim()
+  if (!limpo || limpo.length > 254) return false
+  return REGEX_EMAIL_RIGOROSO.test(limpo) && validarDominioEmail(limpo)
 }
 
 const email = campo((v) =>
@@ -125,6 +191,18 @@ export const imovelSchema = z.object({
       : 'Informe o estado com as duas letras da sigla, por exemplo SP ou MG.',
   ),
   matricula: livre,
+  cib: livre,
+  iptus: z
+    .preprocess((v) => {
+      if (Array.isArray(v)) return v.map(String).map((s) => s.trim()).filter(Boolean)
+      if (typeof v === 'string') {
+        const trimmed = v.trim()
+        if (!trimmed) return []
+        return trimmed.split(/[,\n]/).map((s) => s.trim()).filter(Boolean)
+      }
+      return []
+    }, z.array(z.string()))
+    .default([]),
   inscricao_imobiliaria: livre,
   area: campo((v) => {
     if (!v) return null
@@ -137,6 +215,25 @@ export const imovelSchema = z.object({
   banheiros: quantidade('Banheiros'),
   vagas: quantidade('Vagas'),
   valor_estimado: dinheiro('Valor estimado'),
+  valor_imovel: dinheiro('Valor do imóvel'),
+  observacoes: livre,
+})
+
+export const unidadeSchema = z.object({
+  imovel_id: livre,
+  identificador: obrigatorio('Informe a identificação da unidade (ex: Apto 101, Sala 02).'),
+  complemento: livre,
+  tipo_unidade: livre,
+  codigo_energia: livre,
+  codigo_agua: livre,
+  tem_condominio: z
+    .preprocess((v) => v === true || v === 'true' || v === 1 || v === '1', z.boolean())
+    .default(false),
+  valor_condominio: dinheiro('O valor do condomínio'),
+  taxa_poco: dinheiro('A taxa de poço'),
+  taxas_extras: dinheiro('As taxas extras'),
+  status: livre,
+  inquilino_atual: livre,
   observacoes: livre,
 })
 
@@ -153,6 +250,8 @@ export const inquilinoSchema = z
     telefone: livre,
     email,
     endereco: livre,
+    endereco_secundario: livre,
+    endereco_secundario_origem: livre,
     observacoes: livre,
     status: livre,
   })
@@ -187,6 +286,123 @@ export const inquilinoSchema = z
     }
   })
 
+export const locadorSchema = z
+  .object({
+    nome_razao_social: livre,
+    tipo_pessoa: livre,
+    cpf_cnpj: livre,
+    email: livre,
+    telefone: livre,
+    dados_bancarios: livre,
+    status: livre,
+  })
+  .superRefine((d, ctx) => {
+    const pf = d.tipo_pessoa !== 'pj'
+    if (!d.nome_razao_social) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['nome_razao_social'],
+        message: pf ? 'Informe o nome do locador.' : 'Informe a razão social do locador.',
+      })
+    }
+    if (!d.cpf_cnpj) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['cpf_cnpj'],
+        message: pf ? 'Informe o CPF do locador.' : 'Informe o CNPJ do locador.',
+      })
+    } else {
+      const valido = pf ? cpfValido(d.cpf_cnpj) : cnpjValido(d.cpf_cnpj)
+      if (!valido) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['cpf_cnpj'],
+          message: pf
+            ? 'Este CPF não é válido. Confira os 11 números, por exemplo 123.456.789-09.'
+            : 'Este CNPJ não é válido. Confira os 14 caracteres, por exemplo 12.345.678/0001-95.',
+        })
+      }
+    }
+    if (!d.email) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['email'],
+        message: 'Informe o e-mail do locador.',
+      })
+    } else if (!emailValido(d.email)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['email'],
+        message: 'Este e-mail parece incompleto. Confira se tem o @ e o domínio, como nome@exemplo.com.br.',
+      })
+    }
+  })
+
+export const fiadorSchema = z
+  .object({
+    nome: obrigatorio('Informe o nome do fiador.'),
+    cpf: livre,
+    rg: livre,
+    estado_civil: livre,
+    conjuge_nome: livre,
+    conjuge_cpf: livre,
+    email,
+    telefone: livre,
+    endereco_completo: livre,
+  })
+  .superRefine((d, ctx) => {
+    if (!d.cpf) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['cpf'],
+        message: 'Informe o CPF do fiador.',
+      })
+    } else if (!cpfValido(d.cpf)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['cpf'],
+        message: 'Este CPF não é válido. Confira os 11 números, por exemplo 123.456.789-09.',
+      })
+    }
+
+    const ec = (d.estado_civil ?? '').toLowerCase().trim()
+    const casado =
+      ec === 'casado' ||
+      ec === 'casada' ||
+      ec.startsWith('casad') ||
+      ec.includes('união') ||
+      ec.includes('uniao')
+
+    if (casado) {
+      if (!d.conjuge_nome) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['conjuge_nome'],
+          message: 'Informe o nome do cônjuge para a outorga conjugal.',
+        })
+      }
+      if (!d.conjuge_cpf) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['conjuge_cpf'],
+          message: 'Informe o CPF do cônjuge para a outorga conjugal.',
+        })
+      } else if (!cpfValido(d.conjuge_cpf)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['conjuge_cpf'],
+          message: 'Este CPF do cônjuge não é válido. Confira os 11 números, por exemplo 123.456.789-09.',
+        })
+      }
+    } else if (d.conjuge_cpf && !cpfValido(d.conjuge_cpf)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['conjuge_cpf'],
+        message: 'Este CPF do cônjuge não é válido. Confira os 11 números, por exemplo 123.456.789-09.',
+      })
+    }
+  })
+
 export const fornecedorSchema = z.object({
   nome: obrigatorio('Informe o nome ou a razão social do fornecedor.'),
   nome_fantasia: livre,
@@ -209,6 +425,9 @@ export const contratoSchema = z
   .object({
     numero: livre,
     imovel: obrigatorio('Escolha o imóvel deste contrato.'),
+    unidade_id: livre,
+    locador_id: livre,
+    fiador_id: livre,
     inquilino: obrigatorio('Escolha o inquilino deste contrato.'),
     data_inicio: obrigatorio('Informe a data de início do contrato.'),
     data_fim: obrigatorio('Informe a data de término do contrato.'),
