@@ -15,6 +15,7 @@ import Quadro from '@/pages/Quadro'
 import Index from '@/pages/Index'
 import Imoveis from '@/pages/Imoveis'
 import Inquilinos from '@/pages/Inquilinos'
+import Locadores from '@/pages/Locadores'
 import Contratos from '@/pages/Contratos'
 import Receitas from '@/pages/Receitas'
 import Despesas from '@/pages/Despesas'
@@ -74,6 +75,10 @@ const App = () => (
 
               <Route element={<ProtectedRoute modulo="inquilinos" />}>
                 <Route path="/inquilinos" element={<Inquilinos />} />
+              </Route>
+
+              <Route element={<ProtectedRoute modulo="locadores" />}>
+                <Route path="/locadores" element={<Locadores />} />
               </Route>
 
               <Route element={<ProtectedRoute modulo="contratos" />}>

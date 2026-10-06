@@ -9,7 +9,21 @@
  */
 export const RELACOES: Record<string, Record<string, string>> = {
   imoveis: { inquilino_atual: 'inquilinos', created_by: 'users', updated_by: 'users' },
-  contratos: { imovel: 'imoveis', inquilino: 'inquilinos' },
+  imovel_unidades: {
+    imovel_id: 'imoveis',
+    inquilino_atual: 'inquilinos',
+    created_by: 'users',
+    updated_by: 'users',
+  },
+  locadores: { created_by: 'users', updated_by: 'users' },
+  fiadores: { created_by: 'users', updated_by: 'users' },
+  contratos: {
+    imovel: 'imoveis',
+    inquilino: 'inquilinos',
+    unidade_id: 'imovel_unidades',
+    locador_id: 'locadores',
+    fiador_id: 'fiadores',
+  },
   receitas: {
     imovel: 'imoveis',
     contrato: 'contratos',

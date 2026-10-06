@@ -18,11 +18,13 @@ import {
   History,
   Calculator,
   SquareKanban,
+  UserCheck,
 } from 'lucide-react'
 
 export type ModuloPermissao =
   | 'imoveis'
   | 'inquilinos'
+  | 'locadores'
   | 'fornecedores'
   | 'contratos'
   | 'receitas'
@@ -70,6 +72,12 @@ export const MODULOS_SISTEMA: ModuloInfo[] = [
     nome: 'Inquilinos',
     descricao: 'Gestão de locatários e contatos',
     rotas: ['/inquilinos'],
+  },
+  {
+    id: 'locadores',
+    nome: 'Locadores',
+    descricao: 'Cadastro de proprietários e repasses',
+    rotas: ['/locadores'],
   },
   {
     id: 'fornecedores',
@@ -196,6 +204,13 @@ export const MODULES_LIST: MenuItem[] = [
     modulo: 'inquilinos',
   },
   {
+    title: 'Locadores',
+    path: '/locadores',
+    icon: UserCheck,
+    description: 'Cadastro de proprietários e repasses',
+    modulo: 'locadores',
+  },
+  {
     title: 'Contratos',
     path: '/contratos',
     icon: FileText,
@@ -266,3 +281,5 @@ export const MODULES_LIST: MenuItem[] = [
     description: 'Simulação do IBS e da CBS sobre a locação (LC 214/2025)',
   },
 ]
+
+export const MENU_ITEMS: MenuItem[] = MODULES_LIST

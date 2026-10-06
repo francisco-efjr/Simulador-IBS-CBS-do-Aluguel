@@ -63,6 +63,7 @@ export type Modulo =
   | 'importar_extrato'
   | 'classificar_transacoes'
   | 'quadro'
+  | 'locadores'
 
 export type Nivel = 'sem_acesso' | 'visualizacao' | 'edicao'
 

@@ -1,13 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import {
+  checarDominioEmail,
   contratoSchema,
   despesaSchema,
   emailValido,
+  fiadorSchema,
   fornecedorSchema,
   imovelSchema,
   inquilinoSchema,
   iptuTaxaSchema,
+  locadorSchema,
   receitaSchema,
+  unidadeSchema,
+  validarDominioEmail,
   validarFormulario,
 } from '../esquemas'
 
@@ -41,6 +46,28 @@ describe('emailValido', () => {
       expect(emailValido(e)).toBe(false)
     },
   )
+})
+
+describe('validarDominioEmail e checarDominioEmail', () => {
+  it('aceita domínios bem formados', () => {
+    expect(validarDominioEmail('empresa.com.br')).toBe(true)
+    expect(validarDominioEmail('sub.dominio.org')).toBe(true)
+    expect(checarDominioEmail('contato@empresa.com.br').valido).toBe(true)
+  })
+
+  it('rejeita domínios com sintaxe incorreta', () => {
+    expect(validarDominioEmail('localhost')).toBe(false)
+    expect(validarDominioEmail('empresa.c')).toBe(false)
+    expect(validarDominioEmail('empresa.123')).toBe(false)
+    expect(validarDominioEmail('empresa..com')).toBe(false)
+    expect(validarDominioEmail('.empresa.com')).toBe(false)
+    expect(validarDominioEmail('empresa.com.')).toBe(false)
+    expect(validarDominioEmail('-empresa.com')).toBe(false)
+    expect(validarDominioEmail('empresa-.com')).toBe(false)
+    expect(checarDominioEmail('contato@empresa..com').valido).toBe(false)
+    expect(checarDominioEmail('sem-arroba').valido).toBe(false)
+    expect(checarDominioEmail('dois@@arrobas.com').valido).toBe(false)
+  })
 })
 
 describe('imovelSchema', () => {
@@ -139,6 +166,30 @@ describe('inquilinoSchema', () => {
       email: 'errado',
     })
     expect(Object.keys(erros).sort()).toEqual(['cpf', 'email'])
+  })
+
+  it('aceita RG nulo ou opcional para cidadãos com a nova CIN (Carteira de Identidade Nacional)', () => {
+    const comCin = {
+      tipo_pessoa: 'pf',
+      nome: 'Mariana Lima',
+      cpf: CPF,
+      rg: null,
+      endereco_secundario: 'Apto 102 - Bloco B',
+      endereco_secundario_origem: 'Contrato anterior',
+    }
+    expect(validarFormulario(inquilinoSchema, comCin)).toEqual({})
+
+    // Omissão total do campo RG
+    const semRg = { tipo_pessoa: 'pf', nome: 'Mariana Lima', cpf: CPF }
+    expect(validarFormulario(inquilinoSchema, semRg)).toEqual({})
+
+    // RG vazio
+    const rgVazio = { tipo_pessoa: 'pf', nome: 'Mariana Lima', cpf: CPF, rg: '' }
+    expect(validarFormulario(inquilinoSchema, rgVazio)).toEqual({})
+
+    // RG preenchido quando ainda utilizado
+    const rgLegado = { tipo_pessoa: 'pf', nome: 'Mariana Lima', cpf: CPF, rg: 'MG-12.345.678' }
+    expect(validarFormulario(inquilinoSchema, rgLegado)).toEqual({})
   })
 })
 
@@ -344,3 +395,244 @@ describe('iptuTaxaSchema', () => {
     ).toBeDefined()
   })
 })
+
+describe('validarDominioEmail e checarDominioEmail', () => {
+  it('valida domínios bem formados', () => {
+    expect(validarDominioEmail('exemplo.com')).toBe(true)
+    expect(validarDominioEmail('holding.com.br')).toBe(true)
+    expect(validarDominioEmail('usuario@empresa.org')).toBe(true)
+  })
+
+  it('recusa domínios sem TLD, com pontos duplos ou caracteres proibidos', () => {
+    expect(validarDominioEmail('localhost')).toBe(false)
+    expect(validarDominioEmail('empresa..com')).toBe(false)
+    expect(validarDominioEmail('empresa.c')).toBe(false)
+    expect(validarDominioEmail('')).toBe(false)
+  })
+
+  it('checarDominioEmail devolve diagnóstico do domínio', () => {
+    expect(checarDominioEmail('contato@holding.com.br')).toEqual({
+      valido: true,
+      dominio: 'holding.com.br',
+    })
+    expect(checarDominioEmail('sem-arroba')).toEqual({
+      valido: false,
+      erro: expect.stringMatching(/arroba/),
+    })
+    expect(checarDominioEmail('a@b@c.com')).toEqual({
+      valido: false,
+      erro: expect.stringMatching(/múltiplos arrobas/),
+    })
+  })
+})
+
+describe('imovelSchema — novos campos cartorários e IPTUs', () => {
+  it('aceita matrícula, CIB, múltiplos IPTUs e valor do imóvel', () => {
+    expect(
+      validarFormulario(imovelSchema, {
+        endereco: 'Av. Paulista, 1000',
+        matricula: '123.456',
+        cib: '9876543-2',
+        iptus: ['001.002.003-4', '001.002.003-5'],
+        valor_imovel: '1.250.000,00',
+      }),
+    ).toEqual({})
+  })
+
+  it('recusa valor do imóvel negativo', () => {
+    expect(
+      validarFormulario(imovelSchema, {
+        endereco: 'Rua A',
+        valor_imovel: '-500',
+      }).valor_imovel,
+    ).toMatch(/negativo/)
+  })
+})
+
+describe('inquilinoSchema — CIN e endereço secundário', () => {
+  it('permite RG em branco (facultativo com a nova CIN)', () => {
+    expect(
+      validarFormulario(inquilinoSchema, {
+        tipo_pessoa: 'pf',
+        nome: 'João da Silva',
+        cpf: CPF,
+        rg: '',
+      }),
+    ).toEqual({})
+  })
+
+  it('aceita endereço secundário e sua origem', () => {
+    expect(
+      validarFormulario(inquilinoSchema, {
+        tipo_pessoa: 'pf',
+        nome: 'Maria Silva',
+        cpf: CPF,
+        endereco: 'Rua das Flores, 10',
+        endereco_secundario: 'Av. Secundária, 200',
+        endereco_secundario_origem: 'Comprovante bancário',
+      }),
+    ).toEqual({})
+  })
+})
+
+describe('unidadeSchema', () => {
+  it('aceita unidade mínima com identificador', () => {
+    expect(
+      validarFormulario(unidadeSchema, {
+        identificador: 'Apto 101',
+      }),
+    ).toEqual({})
+  })
+
+  it('exige identificador preenchido', () => {
+    expect(validarFormulario(unidadeSchema, { identificador: '   ' }).identificador).toMatch(
+      /identificação da unidade/,
+    )
+  })
+
+  it('aceita taxas e condomínio válidos (ex: taxa de poço R$ 30,00)', () => {
+    expect(
+      validarFormulario(unidadeSchema, {
+        identificador: 'Sala 204',
+        tem_condominio: true,
+        valor_condominio: '450,00',
+        taxa_poco: '30,00',
+        taxas_extras: '15,50',
+        codigo_energia: 'EN-98765',
+        codigo_agua: 'AG-12345',
+      }),
+    ).toEqual({})
+  })
+
+  it('recusa taxa de poço ou condomínio negativos', () => {
+    const erros = validarFormulario(unidadeSchema, {
+      identificador: 'Casa 02',
+      taxa_poco: '-30',
+      valor_condominio: '-10',
+    })
+    expect(erros.taxa_poco).toMatch(/negativo/)
+    expect(erros.valor_condominio).toMatch(/negativo/)
+  })
+})
+
+describe('locadorSchema', () => {
+  const CNPJ_ALFANUMERICO = '12.ABC.345/01DE-35'
+
+  it('pessoa física: exige nome, CPF válido e e-mail obrigatório', () => {
+    expect(
+      validarFormulario(locadorSchema, {
+        tipo_pessoa: 'pf',
+        nome_razao_social: 'Carlos Alberto',
+        cpf_cnpj: CPF,
+        email: 'carlos@holding.com.br',
+        dados_bancarios: 'Banco do Brasil Ag 1234 CC 5678-9',
+      }),
+    ).toEqual({})
+  })
+
+  it('pessoa física: recusa sem nome, sem CPF ou com CPF inválido', () => {
+    const erros = validarFormulario(locadorSchema, {
+      tipo_pessoa: 'pf',
+      nome_razao_social: '',
+      cpf_cnpj: '111.111.111-11',
+      email: 'carlos@exemplo.com',
+    })
+    expect(erros.nome_razao_social).toMatch(/nome do locador/)
+    expect(erros.cpf_cnpj).toMatch(/não é válido/)
+  })
+
+  it('pessoa jurídica: aceita CNPJ alfanumérico da RFB 2026', () => {
+    expect(
+      validarFormulario(locadorSchema, {
+        tipo_pessoa: 'pj',
+        nome_razao_social: 'Holding Imobiliária Ltda',
+        cpf_cnpj: CNPJ_ALFANUMERICO,
+        email: 'financeiro@holding.com.br',
+      }),
+    ).toEqual({})
+  })
+
+  it('exige e-mail preenchido e com formato válido', () => {
+    const semEmail = validarFormulario(locadorSchema, {
+      tipo_pessoa: 'pf',
+      nome_razao_social: 'Ana',
+      cpf_cnpj: CPF,
+      email: '',
+    })
+    expect(semEmail.email).toMatch(/Informe o e-mail/)
+
+    const emailInvalido = validarFormulario(locadorSchema, {
+      tipo_pessoa: 'pf',
+      nome_razao_social: 'Ana',
+      cpf_cnpj: CPF,
+      email: 'ana@semdominio',
+    })
+    expect(emailInvalido.email).toMatch(/e-mail parece incompleto/)
+  })
+})
+
+describe('fiadorSchema', () => {
+  const fiadorValido = {
+    nome: 'Marcos Vinicius',
+    cpf: CPF,
+    rg: '12.345.678-9',
+    estado_civil: 'Solteiro',
+    email: 'marcos@fiador.com',
+  }
+
+  it('aceita fiador solteiro sem cônjuge', () => {
+    expect(validarFormulario(fiadorSchema, fiadorValido)).toEqual({})
+  })
+
+  it('exige nome e CPF válido do fiador', () => {
+    const erros = validarFormulario(fiadorSchema, {
+      nome: '',
+      cpf: '123',
+    })
+    expect(erros.nome).toMatch(/nome do fiador/)
+    expect(erros.cpf).toMatch(/não é válido/)
+  })
+
+  it('se casado, exige nome e CPF válido do cônjuge (outorga conjugal)', () => {
+    const casadoSemConjuge = validarFormulario(fiadorSchema, {
+      ...fiadorValido,
+      estado_civil: 'Casado',
+    })
+    expect(casadoSemConjuge.conjuge_nome).toMatch(/outorga conjugal/)
+    expect(casadoSemConjuge.conjuge_cpf).toMatch(/outorga conjugal/)
+
+    const casadoComConjugeInvalido = validarFormulario(fiadorSchema, {
+      ...fiadorValido,
+      estado_civil: 'casada',
+      conjuge_nome: 'Patrícia',
+      conjuge_cpf: '000.000.000-00',
+    })
+    expect(casadoComConjugeInvalido.conjuge_cpf).toMatch(/não é válido/)
+
+    const casadoCompleto = validarFormulario(fiadorSchema, {
+      ...fiadorValido,
+      estado_civil: 'Casado sob comunhão parcial',
+      conjuge_nome: 'Patrícia Silva',
+      conjuge_cpf: '111.444.777-35',
+    })
+    expect(casadoCompleto).toEqual({})
+  })
+})
+
+describe('contratoSchema — vínculos com unidade, locador e fiador', () => {
+  it('aceita unidade_id, locador_id e fiador_id opcionais no contrato', () => {
+    expect(
+      validarFormulario(contratoSchema, {
+        imovel: 'im1',
+        unidade_id: 'u1',
+        locador_id: 'loc1',
+        fiador_id: 'fia1',
+        inquilino: 'iq1',
+        data_inicio: '2026-01-01',
+        data_fim: '2027-01-01',
+        valor_aluguel: '2500',
+      }),
+    ).toEqual({})
+  })
+})
+

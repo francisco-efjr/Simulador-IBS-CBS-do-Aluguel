@@ -36,15 +36,26 @@ const EMPTY = {
   cidade: '',
   estado: '',
   matricula: '',
+  cib: '',
+  iptus: '',
   inscricao_imobiliaria: '',
+  valor_imovel: '',
+  valor_estimado: '',
   area: '',
   quartos: '',
   banheiros: '',
   vagas: '',
-  valor_estimado: '',
   observacoes: '',
 }
-const NUM_FIELDS = ['area', 'quartos', 'banheiros', 'vagas', 'valor_estimado']
+
+const NUM_FIELDS = [
+  'area',
+  'quartos',
+  'banheiros',
+  'vagas',
+  'valor_estimado',
+  'valor_imovel',
+]
 
 export function ImovelFormDialog({
   open,
@@ -66,11 +77,16 @@ export function ImovelFormDialog({
     if (!open) return
     setErrors({})
     if (editing) {
+      const iptusFormatado = Array.isArray(editing.iptus)
+        ? editing.iptus.join(', ')
+        : (editing.iptus || '')
+
       setForm({
         ...EMPTY,
         ...Object.fromEntries(
           Object.entries(editing).map(([k, v]) => [k, v == null ? '' : String(v)]),
         ),
+        iptus: iptusFormatado,
       })
     } else {
       setForm(EMPTY)
@@ -80,16 +96,29 @@ export function ImovelFormDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
+
     const fe = validarFormulario(imovelSchema, form)
     if (Object.keys(fe).length) {
       setErrors(fe)
       return
     }
+
     const data: Record<string, any> = {}
     for (const [k, v] of Object.entries(form)) {
+      if (k === 'iptus') {
+        const iptusArray = v
+          ? v
+              .split(/[,\n]/)
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : []
+        data.iptus = iptusArray
+        continue
+      }
       if (v === '' || v == null) continue
       data[k] = NUM_FIELDS.includes(k) ? Number(v) : v
     }
+
     setSubmitting(true)
     try {
       if (editing) {
@@ -125,6 +154,7 @@ export function ImovelFormDialog({
               <Input
                 value={form.codigo}
                 onChange={(e) => upd('codigo', e.target.value)}
+                placeholder="Ex: IMO-001"
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
@@ -132,6 +162,7 @@ export function ImovelFormDialog({
               <Input
                 value={form.nome}
                 onChange={(e) => upd('nome', e.target.value)}
+                placeholder="Ex: Edifício Aguiar Center"
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
@@ -163,21 +194,24 @@ export function ImovelFormDialog({
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Valor estimado (R$)" error={errors.valor_estimado}>
+            <Field label="Valor estimado aluguel (R$)" error={errors.valor_estimado}>
               <Input
                 type="number"
                 step="0.01"
                 value={form.valor_estimado}
                 onChange={(e) => upd('valor_estimado', e.target.value)}
+                placeholder="0,00"
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <Field label="Endereço" error={errors.endereco} className="sm:col-span-2">
               <Input
                 value={form.endereco}
                 onChange={(e) => upd('endereco', e.target.value)}
+                placeholder="Rua / Avenida"
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
@@ -185,6 +219,7 @@ export function ImovelFormDialog({
               <Input
                 value={form.numero}
                 onChange={(e) => upd('numero', e.target.value)}
+                placeholder="123"
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
@@ -192,6 +227,7 @@ export function ImovelFormDialog({
               <Input
                 value={form.complemento}
                 onChange={(e) => upd('complemento', e.target.value)}
+                placeholder="Apto, Bloco..."
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
@@ -206,6 +242,7 @@ export function ImovelFormDialog({
               <Input
                 value={form.cep}
                 onChange={(e) => upd('cep', e.target.value)}
+                placeholder="00000-000"
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
@@ -219,27 +256,70 @@ export function ImovelFormDialog({
             <Field label="Estado" error={errors.estado}>
               <Input
                 value={form.estado}
-                onChange={(e) => upd('estado', e.target.value)}
+                onChange={(e) => upd('estado', e.target.value.toUpperCase())}
                 maxLength={2}
+                placeholder="SP"
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-            <Field label="Matrícula" className="col-span-2 sm:col-span-1">
+
+          {/* Dados Cartorários e Patrimoniais */}
+          <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-3.5 space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-700">
+              Dados Cartorários e Registro Imobiliário
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+              <Field label="Matrícula do Imóvel" error={errors.matricula}>
+                <Input
+                  value={form.matricula}
+                  onChange={(e) => upd('matricula', e.target.value)}
+                  placeholder="Nº da Matrícula / RI"
+                  className="bg-white min-h-[44px]"
+                />
+              </Field>
+              <Field label="CIB (Cad. Imob. Brasileiro)" error={errors.cib}>
+                <Input
+                  value={form.cib}
+                  onChange={(e) => upd('cib', e.target.value)}
+                  placeholder="Código CIB"
+                  className="bg-white min-h-[44px]"
+                />
+              </Field>
+              <Field label="Inscrição Imobiliária" error={errors.inscricao_imobiliaria}>
+                <Input
+                  value={form.inscricao_imobiliaria}
+                  onChange={(e) => upd('inscricao_imobiliaria', e.target.value)}
+                  placeholder="Inscrição municipal"
+                  className="bg-white min-h-[44px]"
+                />
+              </Field>
+              <Field label="Valor do Imóvel (R$)" error={errors.valor_imovel}>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={form.valor_imovel}
+                  onChange={(e) => upd('valor_imovel', e.target.value)}
+                  placeholder="Valor patrimonial"
+                  className="bg-white min-h-[44px]"
+                />
+              </Field>
+            </div>
+            <Field
+              label="Múltiplos IPTUs (separados por vírgula)"
+              error={errors.iptus}
+            >
               <Input
-                value={form.matricula}
-                onChange={(e) => upd('matricula', e.target.value)}
-                className="bg-slate-50/50 min-h-[44px]"
+                value={form.iptus}
+                onChange={(e) => upd('iptus', e.target.value)}
+                placeholder="Ex: 01.02.03.04, 01.02.03.05 (caso haja mais de uma inscrição)"
+                className="bg-white min-h-[44px]"
               />
             </Field>
-            <Field label="Inscrição" className="col-span-2 sm:col-span-1">
-              <Input
-                value={form.inscricao_imobiliaria}
-                onChange={(e) => upd('inscricao_imobiliaria', e.target.value)}
-                className="bg-slate-50/50 min-h-[44px]"
-              />
-            </Field>
+          </div>
+
+          {/* Características Físicas */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Field label="Área (m²)" error={errors.area}>
               <Input
                 type="number"
@@ -274,6 +354,7 @@ export function ImovelFormDialog({
               />
             </Field>
           </div>
+
           <Field label="Observações">
             <Textarea
               value={form.observacoes}

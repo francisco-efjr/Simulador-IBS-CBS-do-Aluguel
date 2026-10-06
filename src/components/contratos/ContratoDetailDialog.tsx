@@ -1,5 +1,4 @@
-import { Download, Pencil } from 'lucide-react'
-import dados from '@/lib/dados/cliente'
+import { Download, Pencil, FileText } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -27,17 +26,22 @@ export function ContratoDetailDialog({
   open,
   onOpenChange,
   onEdit,
+  onVerMinuta,
   canEdit = true,
 }: {
   contrato: any
   open: boolean
   onOpenChange: (v: boolean) => void
   onEdit: () => void
+  onVerMinuta?: () => void
   canEdit?: boolean
 }) {
   if (!contrato) return null
   const imovel = contrato.expand?.imovel
   const inquilino = contrato.expand?.inquilino
+  const locador = contrato.expand?.locador_id
+  const unidade = contrato.expand?.unidade_id
+  const fiador = contrato.expand?.fiador_id
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -51,8 +55,20 @@ export function ContratoDetailDialog({
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             <InfoItem label="Número" value={contrato.numero} />
-            <InfoItem label="Imóvel" value={imovel?.nome || imovel?.endereco || '—'} />
+            <InfoItem label="Locador" value={locador?.nome_razao_social || '—'} />
             <InfoItem label="Inquilino" value={inquilino?.nome || '—'} />
+            <InfoItem label="Imóvel" value={imovel?.nome || imovel?.endereco || '—'} />
+            <InfoItem
+              label="Unidade"
+              value={
+                unidade?.identificador
+                  ? `${unidade.identificador}${unidade.complemento ? ` (${unidade.complemento})` : ''}`
+                  : 'Imóvel integral'
+              }
+            />
+            {contrato.tipo_garantia === 'fiador' && (
+              <InfoItem label="Fiador" value={fiador?.nome || '—'} />
+            )}
             <InfoItem label="Data de início" value={formatDate(contrato.data_inicio)} />
             <InfoItem label="Data de término" value={formatDate(contrato.data_fim)} />
             <InfoItem
@@ -102,6 +118,15 @@ export function ContratoDetailDialog({
           >
             Fechar
           </Button>
+          {onVerMinuta && (
+            <Button
+              variant="outline"
+              onClick={onVerMinuta}
+              className="w-full sm:w-auto min-h-[44px] text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+            >
+              <FileText className="h-4 w-4 mr-1.5" /> Gerar Minuta / PDF
+            </Button>
+          )}
           {canEdit && (
             <Button
               onClick={onEdit}
