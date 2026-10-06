@@ -8,6 +8,9 @@
   "scripts": {
     "start": "vite dev",
     "dev": "vite",
+    "dev:local": "VITE_SUPABASE_URL=http://localhost:54321 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1sb2NhbCIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzAwMDAwMDAwLCJleHAiOjQxMDI0NDQ4MDB9.I3GF5TEP3lEVuAe3sc4AQ9swWXDQYRsEvPvzkidnadM vite --port 8083 --strictPort",
+    "supabase:local": "node supabase/local/servidor.ts",
+    "smoke:local": "node supabase/local/smoke.ts",
     "build": "node scripts/auditor.mjs && vite build",
     "auditor": "node scripts/auditor.mjs",
     "build:dev": "vite build --mode development",
