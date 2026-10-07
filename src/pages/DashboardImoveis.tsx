@@ -64,6 +64,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
+import { valorRealizado } from '@/lib/indicadores-financeiros'
 
 type PeriodPreset =
   | 'current_month'
@@ -363,28 +364,30 @@ export default function DashboardImoveis() {
     // Taxa de ocupação: (Alugados / Total de ativos) * 100
     const taxaOcupacao = totalAtivos > 0 ? (alugados / totalAtivos) * 100 : 0
 
-    // Receita Total do Portfólio: soma de valor_recebido de receitas com status_financeiro = 'recebido'
+    // Receita Total do Portfólio: soma de valor_recebido (inclusive parcial)
     // no período e nos imóveis filtrados
     let receitaTotal = 0
     receitas.forEach((r) => {
       if (!r.imovel || !filteredImovelIdSet.has(r.imovel)) return
-      if (r.status_financeiro === 'recebido') {
+      const valorRec = valorRealizado(r, 'receita')
+      if (valorRec > 0) {
         const d = r.data_recebimento || r.data
         if (isDateInRange(d)) {
-          receitaTotal += Number(r.valor_recebido || r.valor || 0)
+          receitaTotal += valorRec
         }
       }
     })
 
-    // Despesa Total do Portfólio: soma de valor_pago de despesas com status_financeiro = 'pago'
+    // Despesa Total do Portfólio: soma de valor_pago (inclusive parcial)
     // no período e nos imóveis filtrados
     let despesaTotal = 0
     despesas.forEach((d) => {
       if (!d.imovel || !filteredImovelIdSet.has(d.imovel)) return
-      if (d.status_financeiro === 'pago') {
+      const valorPag = valorRealizado(d, 'despesa')
+      if (valorPag > 0) {
         const dt = d.data_pagamento || d.data
         if (isDateInRange(dt)) {
-          despesaTotal += Number(d.valor_pago || d.valor || 0)
+          despesaTotal += valorPag
         }
       }
     })
@@ -420,11 +423,12 @@ export default function DashboardImoveis() {
 
     receitas.forEach((r) => {
       if (!r.imovel || !imovelMap.has(r.imovel)) return
-      if (r.status_financeiro === 'recebido') {
+      const valorRec = valorRealizado(r, 'receita')
+      if (valorRec > 0) {
         const d = r.data_recebimento || r.data
         if (isDateInRange(d)) {
           const item = imovelMap.get(r.imovel)!
-          item.valor += Number(r.valor_recebido || r.valor || 0)
+          item.valor += valorRec
         }
       }
     })
@@ -449,11 +453,12 @@ export default function DashboardImoveis() {
 
     despesas.forEach((d) => {
       if (!d.imovel || !imovelMap.has(d.imovel)) return
-      if (d.status_financeiro === 'pago') {
+      const valorPag = valorRealizado(d, 'despesa')
+      if (valorPag > 0) {
         const dt = d.data_pagamento || d.data
         if (isDateInRange(dt)) {
           const item = imovelMap.get(d.imovel)!
-          item.valor += Number(d.valor_pago || d.valor || 0)
+          item.valor += valorPag
         }
       }
     })
@@ -637,20 +642,22 @@ export default function DashboardImoveis() {
 
     receitas.forEach((r) => {
       if (!r.imovel || !financeMap.has(r.imovel)) return
-      if (r.status_financeiro === 'recebido') {
+      const valorRec = valorRealizado(r, 'receita')
+      if (valorRec > 0) {
         const d = r.data_recebimento || r.data
         if (isDateInRange(d)) {
-          financeMap.get(r.imovel)!.receitas += Number(r.valor_recebido || r.valor || 0)
+          financeMap.get(r.imovel)!.receitas += valorRec
         }
       }
     })
 
     despesas.forEach((d) => {
       if (!d.imovel || !financeMap.has(d.imovel)) return
-      if (d.status_financeiro === 'pago') {
+      const valorPag = valorRealizado(d, 'despesa')
+      if (valorPag > 0) {
         const dt = d.data_pagamento || d.data
         if (isDateInRange(dt)) {
-          financeMap.get(d.imovel)!.despesas += Number(d.valor_pago || d.valor || 0)
+          financeMap.get(d.imovel)!.despesas += valorPag
         }
       }
     })

@@ -11,12 +11,14 @@ import { getImoveis } from '@/services/imoveis'
 import { getInquilinos } from '@/services/inquilinos'
 import { getContratos } from '@/services/contratos'
 import { getReceitas } from '@/services/receitas'
+import { totaisDeReceitas, type LancamentoFinanceiro } from '@/lib/indicadores-financeiros'
 
 const ESTATISTICAS_VAZIAS = {
   imoveis: '—',
   inquilinos: '—',
   contratos: '—',
   receitas: '—',
+  aReceber: '—',
 }
 
 const ESPERA_DA_RECARGA_MS = 800
@@ -41,19 +43,19 @@ export default function Index() {
       if (!montado.current) return
       const activeInqs = inqs.filter((i) => i.status === 'ativo').length
       const activeCts = cts.filter((c) => c.status === 'ativo').length
-      const totalRec = recs.reduce(
-        (acc, r) => acc + (Number(r.valor_recebido) || Number(r.valor) || 0),
-        0,
-      )
+      // Recebido (dinheiro que entrou, inclusive parcial) e saldo ainda a receber ficam separados.
+      const totais = totaisDeReceitas(recs as LancamentoFinanceiro[])
+      const moeda = new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        maximumFractionDigits: 0,
+      })
       setStats({
         imoveis: String(ims.length),
         inquilinos: String(activeInqs),
         contratos: String(activeCts),
-        receitas: new Intl.NumberFormat('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
-          maximumFractionDigits: 0,
-        }).format(totalRec),
+        receitas: moeda.format(totais.recebido),
+        aReceber: moeda.format(totais.saldo),
       })
       setErroNasEstatisticas(false)
     } catch (erro) {
@@ -106,8 +108,9 @@ export default function Index() {
       color: 'text-amber-700 bg-amber-50',
     },
     {
-      title: 'Receitas Totais',
+      title: 'Recebido no total',
       value: stats.receitas,
+      detail: `A receber: ${stats.aReceber}`,
       icon: TrendingUp,
       color: 'text-blue-600 bg-blue-50',
     },
@@ -152,6 +155,9 @@ export default function Index() {
                   <div>
                     <p className="text-xs font-medium text-slate-600">{card.title}</p>
                     <p className="text-2xl font-bold text-slate-900 mt-1">{card.value}</p>
+                    {'detail' in card && card.detail && (
+                      <p className="text-xs text-slate-600 mt-0.5">{card.detail}</p>
+                    )}
                   </div>
                   <div
                     className={`flex h-12 w-12 items-center justify-center rounded-xl ${card.color}`}
