@@ -132,7 +132,8 @@ export default function Signup() {
         titulo="Conta criada, aguardando liberação"
         subtitulo={
           <>
-            Seu cadastro foi feito sem um convite válido. Um administrador do sistema precisa liberar o seu acesso antes do primeiro login.
+            Seu cadastro foi feito sem um convite válido. Um administrador do sistema precisa
+            liberar o seu acesso antes do primeiro login.
           </>
         }
       >
@@ -167,7 +168,7 @@ export default function Signup() {
             {inviteStatus.perfil && (
               <div className="flex items-center gap-1.5 mt-1">
                 <span>Papel atribuído:</span>
-                <Badge className="bg-gold-500 font-bold text-xs uppercase">
+                <Badge variant="ok" className="uppercase">
                   {inviteStatus.perfil}
                 </Badge>
               </div>
@@ -212,10 +213,10 @@ export default function Signup() {
                 <Input
                   id="token"
                   type="text"
-                  placeholder="Cole o código do convite..."
+                  placeholder="Código do convite"
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
-                  className="pl-12 h-9 text-xs font-mono"
+                  className="pl-12"
                 />
               </div>
               <Button
@@ -224,7 +225,7 @@ export default function Signup() {
                 size="sm"
                 onClick={() => handleValidateToken(token)}
                 disabled={validatingToken || !token.trim()}
-                className="h-9 border-gold-500/40 text-primary hover:bg-gold-500/10 text-xs shrink-0"
+                className="shrink-0"
               >
                 {validatingToken ? 'Validando...' : 'Validar'}
               </Button>
@@ -273,9 +274,7 @@ export default function Signup() {
               placeholder="seu.email@exemplo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`pl-9 bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-300 focus:border-gold-500 focus:ring-gold-500 ${
-                inviteStatus?.email ? 'opacity-80 cursor-not-allowed' : ''
-              }`}
+              className={`pl-12 ${inviteStatus?.email ? 'opacity-80 cursor-not-allowed' : ''}`}
             />
           </div>
           {fieldErrors.email && (
@@ -299,7 +298,7 @@ export default function Signup() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="pl-12 pr-14 min-h-[48px] text-base"
+              className="pl-12 pr-14"
             />
             <button
               type="button"
@@ -336,7 +335,7 @@ export default function Signup() {
               placeholder="••••••••"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="pl-12 pr-14 min-h-[48px] text-base"
+              className="pl-12 pr-14"
             />
             <button
               type="button"
