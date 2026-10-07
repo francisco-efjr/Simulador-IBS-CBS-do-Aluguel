@@ -210,7 +210,7 @@
         },
         {
           "titulo": "Visual novo (Gestão de imóveis)",
-          "detalhe": "Cores, letras, menu em gaveta no celular e as telas de acesso, Início, Imóveis, Contratos e Simulador no estilo novo. As demais telas já usam as cores novas e aguardam o desenho detalhado.",
+          "detalhe": "Cores, letras, menu em gaveta no celular e, no estilo novo: telas de acesso, Início, Imóveis, Contratos (com o novo contrato em página própria), Inquilinos, Locadores e fiadores, Simulador, esta página, avisos, confirmações e páginas de erro. As demais telas já usam as cores novas e aguardam o desenho detalhado.",
           "situacao": "andamento"
         }
       ]
