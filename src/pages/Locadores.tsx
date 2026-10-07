@@ -28,7 +28,7 @@ import {
 import { LocadorFormDialog } from '@/components/locadores/LocadorFormDialog'
 import { FiadorFormDialog } from '@/components/fiadores/FiadorFormDialog'
 import { EstadoVazio, IconeTile } from '@/components/organico'
-import { Badge } from '@/components/ui/badge'
+import { Badge, badgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ConfirmarAcao } from '@/components/shared/ConfirmarAcao'
 import { Input } from '@/components/ui/input'
@@ -282,7 +282,9 @@ export default function Locadores() {
                           <strong className="font-serif text-lg font-bold leading-tight [@container(min-width:50em)]:text-[1.3125rem]">
                             {loc.nome_razao_social}
                           </strong>
-                          {loc.status === 'inativo' && <Badge variant="neutral">Inativo</Badge>}
+                          {loc.status === 'inativo' && (
+                            <span className={badgeVariants({ variant: 'neutral' })}>Inativo</span>
+                          )}
                         </span>
                         {contratosDisponiveis && (
                           <span className="text-sm text-accent-foreground [@container(min-width:50em)]:hidden">
