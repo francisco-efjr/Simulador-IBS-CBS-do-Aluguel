@@ -340,7 +340,7 @@ export default function Relatorios() {
         if (reportFormat === 'pdf') {
           await exportarRelatorioFinanceiroPDF(payload)
         } else {
-          exportarRelatorioFinanceiroExcel(payload)
+          await exportarRelatorioFinanceiroExcel(payload)
         }
         toast.success('Relatório financeiro gerado com sucesso.')
       }
@@ -446,7 +446,7 @@ export default function Relatorios() {
         if (reportFormat === 'pdf') {
           await exportarRelatorioImoveisPDF(payload)
         } else {
-          exportarRelatorioImoveisExcel(payload)
+          await exportarRelatorioImoveisExcel(payload)
         }
         toast.success('Relatório de imóveis gerado com sucesso.')
       }
@@ -492,7 +492,7 @@ export default function Relatorios() {
         if (reportFormat === 'pdf') {
           await exportarRelatorioContratosPDF(payload)
         } else {
-          exportarRelatorioContratosExcel(payload)
+          await exportarRelatorioContratosExcel(payload)
         }
         toast.success('Relatório de contratos gerado com sucesso.')
       }
@@ -567,7 +567,7 @@ export default function Relatorios() {
         if (reportFormat === 'pdf') {
           await exportarRelatorioInadimplenciaPDF(payload)
         } else {
-          exportarRelatorioInadimplenciaExcel(payload)
+          await exportarRelatorioInadimplenciaExcel(payload)
         }
         toast.success('Relatório de inadimplência gerado com sucesso.')
       }
