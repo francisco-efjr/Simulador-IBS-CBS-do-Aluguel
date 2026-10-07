@@ -39,7 +39,8 @@ export async function enviarArquivo(bucket: string, arquivo: File, pasta?: strin
 }
 
 export async function removerArquivo(bucket: string, caminho: string): Promise<void> {
-  await supabase.storage.from(bucket).remove([caminho])
+  const { error } = await supabase.storage.from(bucket).remove([caminho])
+  if (error) throw new Error(`Falha ao remover o arquivo: ${error.message}`)
 }
 
 /** Descobre o bucket pelo par tabela/campo declarado em esquema.ts. */
