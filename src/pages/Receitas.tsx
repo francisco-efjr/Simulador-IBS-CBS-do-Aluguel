@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import { TrendingUp, Plus, Search, Eye, Pencil, Trash2, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { getReceitas, deleteReceita } from '@/services/receitas'
@@ -69,7 +70,7 @@ export default function Receitas() {
   })
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = termoDeBusca(search)
     return items.filter((r) => {
       const imovelNome = r.expand?.imovel?.nome || r.expand?.imovel?.endereco || ''
       const contratoNum = r.expand?.contrato?.numero || ''
@@ -78,7 +79,7 @@ export default function Receitas() {
       const ms =
         !q ||
         [r.descricao, r.observacoes, imovelNome, contratoNum, inquilinoNome, categoriaNome].some(
-          (v) => (v || '').toLowerCase().includes(q),
+          (v) => semAcento(v || '').includes(q),
         )
       return (
         ms &&

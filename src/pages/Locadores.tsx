@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import { UserCheck, Plus, Search, Pencil, Ban, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -70,7 +71,7 @@ export default function Locadores() {
   })
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = termoDeBusca(search)
     return locadores.filter((loc) => {
       const matchSearch =
         !q ||
@@ -80,7 +81,7 @@ export default function Locadores() {
           loc.email,
           loc.telefone,
           loc.dados_bancarios,
-        ].some((v) => (v || '').toLowerCase().includes(q))
+        ].some((v) => semAcento(v || '').includes(q))
 
       const matchTipo = fTipo === 'all' || loc.tipo_pessoa === fTipo
       const matchStatus = fStatus === 'all' || loc.status === fStatus

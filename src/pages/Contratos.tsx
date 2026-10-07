@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import { FileText, Plus, Search, Eye, Pencil, Ban, Check, AlertCircle, Printer } from 'lucide-react'
 import { toast } from 'sonner'
 import { getContratos, updateContrato } from '@/services/contratos'
@@ -78,12 +79,12 @@ export default function Contratos() {
   })
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = termoDeBusca(search)
     return contratos.filter((c) => {
       const imovelNome = c.expand?.imovel?.nome || c.expand?.imovel?.endereco || ''
       const inquilinoNome = c.expand?.inquilino?.nome || ''
       const ms =
-        !q || [c.numero, imovelNome, inquilinoNome].some((v) => (v || '').toLowerCase().includes(q))
+        !q || [c.numero, imovelNome, inquilinoNome].some((v) => semAcento(v || '').includes(q))
       return (
         ms &&
         (fStatus === 'all' || c.status === fStatus) &&

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import { Receipt, Plus, Search, Eye, Pencil, Trash2, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { getIptuTaxas, deleteIptuTaxa } from '@/services/iptu-taxas'
@@ -66,14 +67,14 @@ export default function IptuTaxas() {
   })
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = termoDeBusca(search)
     return items.filter((c) => {
       const imovelNome = c.expand?.imovel?.nome || c.expand?.imovel?.endereco || ''
       const imovelCodigo = c.expand?.imovel?.codigo || ''
       const ms =
         !q ||
         [c.descricao, imovelNome, imovelCodigo, TIPO_IPTU_LABELS[c.tipo] || c.tipo].some((v) =>
-          (v || '').toLowerCase().includes(q),
+          semAcento(v || '').includes(q),
         )
       return (
         ms && (fTipo === 'all' || c.tipo === fTipo) && (fStatus === 'all' || c.status === fStatus)

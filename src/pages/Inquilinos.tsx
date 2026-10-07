@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import { Users, Plus, Search, Eye, Pencil, Ban, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { getInquilinos, updateInquilino } from '@/services/inquilinos'
@@ -65,10 +66,10 @@ export default function Inquilinos() {
   })
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = termoDeBusca(search)
     return inquilinos.filter((iq) => {
       const doc = iq.tipo_pessoa === 'pj' ? iq.cnpj : iq.cpf
-      const ms = !q || [iq.nome, doc, iq.email].some((v) => (v || '').toLowerCase().includes(q))
+      const ms = !q || [iq.nome, doc, iq.email].some((v) => semAcento(v || '').includes(q))
       return (
         ms &&
         (fTipo === 'all' || iq.tipo_pessoa === fTipo) &&

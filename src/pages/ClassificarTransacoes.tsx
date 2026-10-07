@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import {
   ListChecks,
@@ -150,7 +151,7 @@ export default function ClassificarTransacoes() {
 
   // Filtered transactions
   const filteredTransacoes = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = termoDeBusca(search)
     return transacoes.filter((t) => {
       // Status filter
       if (statusFilter === 'pendentes' && (t.classificada || t.ignorada)) return false
@@ -162,13 +163,9 @@ export default function ClassificarTransacoes() {
 
       // Text search
       if (q) {
-        const descMatch = t.descricao.toLowerCase().includes(q)
-        const catMatch = (t.sugestao_categoria || t.categoria_classificada || '')
-          .toLowerCase()
-          .includes(q)
-        const imovMatch = (t.sugestao_imovel || t.imovel_classificado || '')
-          .toLowerCase()
-          .includes(q)
+        const descMatch = semAcento(t.descricao).includes(q)
+        const catMatch = semAcento(t.sugestao_categoria || t.categoria_classificada || '').includes(q)
+        const imovMatch = semAcento(t.sugestao_imovel || t.imovel_classificado || '').includes(q)
         if (!descMatch && !catMatch && !imovMatch) return false
       }
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import { TrendingDown, Plus, Search, Eye, Pencil, Trash2, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { getDespesas, deleteDespesa } from '@/services/despesas'
@@ -69,7 +70,7 @@ export default function Despesas() {
   })
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = termoDeBusca(search)
     return items.filter((d) => {
       const imovelNome = d.expand?.imovel?.nome || d.expand?.imovel?.endereco || ''
       const fornecedorNome = d.expand?.fornecedor?.nome || ''
@@ -77,7 +78,7 @@ export default function Despesas() {
       const ms =
         !q ||
         [d.descricao, d.observacoes, imovelNome, fornecedorNome, categoriaNome].some((v) =>
-          (v || '').toLowerCase().includes(q),
+          semAcento(v || '').includes(q),
         )
       return (
         ms &&

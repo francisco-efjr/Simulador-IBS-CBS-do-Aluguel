@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import { useNavigate } from 'react-router-dom'
 import {
   Bell,
@@ -380,10 +381,10 @@ export default function Alertas() {
 
       // 5. Search term
       if (searchTerm.trim()) {
-        const term = searchTerm.toLowerCase()
-        const matchesTitulo = alert.titulo.toLowerCase().includes(term)
-        const matchesDesc = alert.descricao.toLowerCase().includes(term)
-        const matchesImovel = alert.imovelNome.toLowerCase().includes(term)
+        const term = termoDeBusca(searchTerm)
+        const matchesTitulo = semAcento(alert.titulo).includes(term)
+        const matchesDesc = semAcento(alert.descricao).includes(term)
+        const matchesImovel = semAcento(alert.imovelNome).includes(term)
         if (!matchesTitulo && !matchesDesc && !matchesImovel) return false
       }
 
