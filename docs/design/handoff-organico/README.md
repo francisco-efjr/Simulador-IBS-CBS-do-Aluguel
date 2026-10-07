@@ -199,7 +199,10 @@ Números, valores em R$, datas, códigos e pílulas nunca quebram linha (`whites
 ## Acessibilidade (não negociável)
 - Contrastes da tabela de cores acima. Não colocar texto sobre `secondary` (#C18C5D).
 - Blobs, granulação e rotações são decorativos (`aria-hidden`), não afetam leitura.
-- Foco visível em anel duplo musgo.
+- Foco visível: `outline: 3px solid #5D7052; outline-offset: 3px` em link, botão e campo (5,2:1). Não usar `box-shadow` para foco: some quando o componente tem sombra própria.
+- Campos sem marcação são obrigatórios (`required`); os outros levam "(opcional)" no rótulo. Erro: borda siena 2px + ícone + texto ligado por `aria-describedby`, `aria-invalid`, resumo no topo do formulário com `role=alert` que recebe o foco. Textos no catálogo da seção 07 do protótipo.
+- Botão carregando: mantém largura, texto "Aguarde…" ou a ação ("Entrando…"), `aria-busy`, bloqueia novo toque. Desativado sempre com texto dizendo o que falta.
+- Avisos (toast) não somem sozinhos. Confirmação de exclusão começa com foco em "Cancelar".
 - Mantém: foco devolvido ao fechar diálogos, confirmação antes de excluir, landmarks, ordem de títulos.
 - Rodar a varredura axe/WCAG das 140 páginas ao fim de cada fase: **zero violações** continua sendo o critério.
 
@@ -224,7 +227,7 @@ Ao fim de cada fase: testes de app e banco, varredura WCAG, medir carregamento n
 
 ## Arquivos
 - `.claude/agents/qa-aguia.md`, `QA-RELATORIO.md` — QA.
-- `Holding Aguiar Organico.dc.html` + `support.js` — referência visual das 5 telas (celular e computador). Abrir no navegador.
+- `Holding Aguiar Organico.dc.html` + `support.js` — referência visual das 5 telas (celular e computador) e, desde a rodada 3: 06 guia de estilo e estados, 07 erros/confirmações/avisos, 08 páginas 404 e 500, 09 tablet 768. Abrir no navegador.
 - `tokens/main.css` — variáveis claro/escuro, base, granulação, utilitários de blob.
 - `tokens/tailwind.config.ts` — fontes, escala, cores, raios, sombras, animações.
 - `PROMPT-CLAUDE-CODE.md` — prompt para colar no Claude Code.
