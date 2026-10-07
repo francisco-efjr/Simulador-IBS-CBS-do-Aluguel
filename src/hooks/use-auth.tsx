@@ -181,7 +181,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return {
         error: {
           message:
-            'Sua conta não está ativa no sistema. Procure um administrador do Controle de Imóveis.',
+            'Sua conta não está ativa. Procure um administrador do sistema.',
         },
       }
     }

@@ -22,7 +22,7 @@ export const TaxParametersCard: React.FC<TaxParametersCardProps> = ({ params, on
   ).toFixed(2)
 
   return (
-    <div className="bg-surface border border-sim-border rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition-all">
+    <div className="bg-surface border border-sim-border rounded-organic-tr p-4 sm:p-5 shadow-soft transition-all">
       <div
         className="flex items-center justify-between cursor-pointer select-none"
         onClick={() => setIsOpen(!isOpen)}
@@ -45,7 +45,7 @@ export const TaxParametersCard: React.FC<TaxParametersCardProps> = ({ params, on
               <h3 className="text-sm sm:text-base font-serif font-medium text-text-primary tracking-tight">
                 Premissas Econômico-Fiscais &amp; Parâmetros Regulatórios
               </h3>
-              <span className="text-[10px] uppercase font-sim-mono px-2 py-0.5 rounded-full bg-surface-muted text-text-secondary border border-sim-border hidden sm:inline">
+              <span className="text-xs uppercase font-sim-mono px-2 py-0.5 rounded-full bg-surface-muted text-text-secondary border border-sim-border hidden sm:inline">
                 LC 214/2025
               </span>
             </div>

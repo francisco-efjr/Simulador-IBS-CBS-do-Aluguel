@@ -65,7 +65,7 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
   return (
     <div className="space-y-6">
       {/* Cabeçalho da API & Ações de Integração */}
-      <div className="bg-surface border border-sim-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-5">
+      <div className="bg-surface border border-sim-border rounded-organic-tr p-5 sm:p-6 shadow-soft space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -75,7 +75,7 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
               <span className="font-sim-mono text-sm sm:text-base font-semibold text-text-primary">
                 {SCHEDULE_ENDPOINT}
               </span>
-              <span className="px-2.5 py-0.5 bg-positive-bg text-positive-text rounded-full text-[10px] font-sim-mono border border-positive-border font-semibold">
+              <span className="px-2.5 py-0.5 bg-positive-bg text-positive-text rounded-full text-xs font-sim-mono border border-positive-border font-semibold">
                 200 OK
               </span>
             </div>
@@ -122,38 +122,38 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
         {/* Metadados de Auditoria e Garantia Legal */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
           <div className="bg-surface-muted border border-sim-border rounded-2xl p-4 space-y-1">
-            <span className="text-text-muted text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5">
+            <span className="text-text-muted text-xs uppercase tracking-wider font-semibold flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-positive-text" />
               Status de Validação
             </span>
             <div className="text-positive-text font-bold font-sim-mono">
               {payload.metadata.status}
             </div>
-            <p className="text-[11px] text-text-secondary">
+            <p className="text-xs text-text-secondary">
               Conformidade garantida com EC 132/2023 e LC 214/2025.
             </p>
           </div>
 
           <div className="bg-surface-muted border border-sim-border rounded-2xl p-4 space-y-1">
-            <span className="text-text-muted text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5">
+            <span className="text-text-muted text-xs uppercase tracking-wider font-semibold flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 text-info-text" />
               Horizonte Temporal
             </span>
             <div className="text-text-primary font-bold font-sim-mono">2026 – 2033 (8 Fases)</div>
-            <p className="text-[11px] text-text-secondary">
+            <p className="text-xs text-text-secondary">
               Fase teste (1%) &rarr; CBS plena &rarr; IBS escalonado.
             </p>
           </div>
 
           <div className="bg-surface-muted border border-sim-border rounded-2xl p-4 space-y-1">
-            <span className="text-text-muted text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5">
+            <span className="text-text-muted text-xs uppercase tracking-wider font-semibold flex items-center gap-1.5">
               <Globe className="w-3.5 h-3.5 text-text-primary" />
               Regra de Redução Locação
             </span>
             <div className="text-text-primary font-bold font-sim-mono">
               - {payload.realEstateDiscountPercent}% da Alíquota Padrão
             </div>
-            <p className="text-[11px] text-text-secondary">
+            <p className="text-xs text-text-secondary">
               Alíquota efetiva de locação: 30% da nominal (Art. 260).
             </p>
           </div>
@@ -187,7 +187,7 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
 
       {/* Conteúdo Dinâmico */}
       {activeTab === 'table' ? (
-        <div className="bg-surface border border-sim-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-x-auto no-scrollbar">
+        <div className="bg-surface border border-sim-border rounded-organic-tr p-5 sm:p-6 shadow-soft overflow-x-auto no-scrollbar">
           <table className="w-full text-left text-xs font-sim-mono">
             <thead>
               <tr className="border-b border-sim-border text-text-muted">
@@ -218,7 +218,7 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
                   </td>
                   <td className="py-3.5 font-sim text-text-primary">
                     <div className="font-medium text-text-primary">{item.label}</div>
-                    <div className="text-[10px] text-text-muted">{item.description}</div>
+                    <div className="text-xs text-text-muted">{item.description}</div>
                   </td>
                   <td className="py-3.5 text-text-secondary tabular-nums">
                     {item.nominalCbsRate.toFixed(2)}%
@@ -231,22 +231,22 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
                   </td>
                   <td className="py-3.5 text-positive-text font-bold text-sm tabular-nums">
                     {item.effectiveTotalRate.toFixed(2)}%
-                    <span className="text-[10px] font-normal text-text-muted block">
+                    <span className="text-xs font-normal text-text-muted block">
                       CBS: {item.effectiveCbsRate.toFixed(2)}% | IBS:{' '}
                       {item.effectiveIbsRate.toFixed(2)}%
                     </span>
                   </td>
                   <td className="py-3.5 font-sim">
                     {item.isTestPhase ? (
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-warning-bg text-warning-text border border-warning-border">
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-warning-bg text-warning-text border border-warning-border">
                         Ano Teste
                       </span>
                     ) : item.isFullPhase ? (
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-positive-bg text-positive-text border border-positive-border">
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-positive-bg text-positive-text border border-positive-border">
                         Regime Pleno
                       </span>
                     ) : (
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-info-bg text-info-text border border-info-border">
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-info-bg text-info-text border border-info-border">
                         Transição
                       </span>
                     )}
@@ -255,7 +255,7 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
               ))}
             </tbody>
           </table>
-          <div className="mt-4 pt-3 border-t border-sim-border text-[11px] text-text-muted flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <div className="mt-4 pt-3 border-t border-sim-border text-xs text-text-muted flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <span>
               * Linha destacada representa o ano atualmente selecionado no simulador (
               {params.transitionYear}).
@@ -267,8 +267,8 @@ export const TransitionApiExplorer: React.FC<TransitionApiExplorerProps> = ({ pa
         </div>
       ) : (
         /* Visualizador de JSON com Headers */
-        <div className="bg-neutral-900 border border-neutral-700 rounded-2xl sm:rounded-3xl p-5 font-sim-mono text-xs space-y-4 shadow-sm text-neutral-100">
-          <div className="flex items-center justify-between border-b border-neutral-700 pb-3 text-neutral-400 text-[11px]">
+        <div className="bg-neutral-900 border border-neutral-700 rounded-organic-tr p-5 font-sim-mono text-xs space-y-4 shadow-sm text-neutral-100">
+          <div className="flex items-center justify-between border-b border-neutral-700 pb-3 text-neutral-400 text-xs">
             <div className="flex items-center gap-2">
               <span>Headers:</span>
               <span className="text-emerald-400">Content-Type: application/json</span>

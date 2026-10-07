@@ -38,7 +38,7 @@ describe('mensagemDeAutenticacao (SEG-12, FIN-17, PRD-10)', () => {
   })
 
   it('texto já em português passa como veio', () => {
-    const msg = 'Sua conta não está ativa no sistema. Procure um administrador do Controle de Imóveis.'
+    const msg = 'Sua conta não está ativa. Procure um administrador do sistema.'
     expect(mensagemDeAutenticacao({ message: msg }, PADRAO)).toBe(msg)
   })
 })

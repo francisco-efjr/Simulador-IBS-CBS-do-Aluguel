@@ -1,5 +1,6 @@
 import { LayoutCarregavel } from '@/components/LayoutCarregavel'
 import { useAuth } from '@/hooks/use-auth'
+import { TelaCarregando } from '@/components/TelaCarregando'
 import { App as SimuladorApp } from '@/simulador/ui/App'
 
 /**
@@ -14,14 +15,7 @@ export default function Simulador() {
   const { isAuthenticated, loading } = useAuth()
 
   if (loading) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-9 w-9 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
-          <p className="text-sm font-medium text-slate-600">Carregando simulador...</p>
-        </div>
-      </div>
-    )
+    return <TelaCarregando mensagem="Carregando simulador…" />
   }
 
   if (isAuthenticated) {

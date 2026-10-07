@@ -133,7 +133,7 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       {/* Formulário */}
-      <section className="lg:col-span-6 bg-surface border border-sim-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] space-y-6">
+      <section className="lg:col-span-6 bg-surface border border-sim-border rounded-organic-tr p-5 sm:p-6 shadow-soft space-y-6">
         <h2 className="text-lg sm:text-xl font-semibold text-text-primary tracking-tight border-b border-sim-border pb-4">
           Dados do aluguel
         </h2>
@@ -268,7 +268,7 @@ export const SingleSimulationTab: React.FC<SingleSimulationTabProps> = ({
       </section>
 
       {/* Resultado */}
-      <section className="lg:col-span-6 bg-surface border border-sim-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] space-y-5">
+      <section className="lg:col-span-6 bg-surface border border-sim-border rounded-organic-tr p-5 sm:p-6 shadow-soft space-y-5">
         <div className="flex items-center justify-between gap-3 border-b border-sim-border pb-4">
           <h2 className="text-lg sm:text-xl font-semibold text-text-primary tracking-tight">
             Resultado

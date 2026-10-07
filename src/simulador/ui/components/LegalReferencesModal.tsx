@@ -5,7 +5,7 @@ import { LEGAL_REFERENCES } from '../../core/domain/constants.ts'
 export const LegalReferencesModal: React.FC = () => {
   return (
     <div className="space-y-6">
-      <div className="bg-surface border border-sim-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div className="bg-surface border border-sim-border rounded-organic-tr p-5 sm:p-6 shadow-soft">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-sim-border pb-4 mb-6">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-surface-muted border border-sim-border text-text-primary rounded-full shrink-0">
@@ -38,7 +38,7 @@ export const LegalReferencesModal: React.FC = () => {
               expressamente a ser fatos geradores do IBS e da CBS. A norma unifica o tratamento das
               operações sob sistemática diferenciada de tributação e não cumulatividade.
             </p>
-            <div className="bg-surface p-3.5 rounded-xl border border-sim-border text-[11px] text-text-secondary shadow-sm">
+            <div className="bg-surface p-3.5 rounded-xl border border-sim-border text-xs text-text-secondary shadow-sm">
               <span className="text-text-primary font-semibold font-sim-mono">Art. 265:</span>{' '}
               Obrigatoriedade de integração ao Cadastro Imobiliário Brasileiro (CIB/Sinter) para
               fins de regularidade fiscal e escrituração eletrônica.
@@ -57,7 +57,7 @@ export const LegalReferencesModal: React.FC = () => {
               <strong className="text-text-primary">70% de desconto</strong> incidente sobre a
               alíquota-padrão de referência da União, Estados e Municípios.
             </p>
-            <div className="bg-surface p-3.5 rounded-xl border border-sim-border text-[11px] text-text-secondary font-sim-mono shadow-sm">
+            <div className="bg-surface p-3.5 rounded-xl border border-sim-border text-xs text-text-secondary font-sim-mono shadow-sm">
               <span className="text-text-primary font-semibold font-sim">Apuração:</span> Alíquota
               Efetiva = 26,5% &times; (1 - 0,70) ={' '}
               <span className="text-positive-text font-bold">7,95%</span>
@@ -76,7 +76,7 @@ export const LegalReferencesModal: React.FC = () => {
               600,00 por mês por imóvel diretamente da base de cálculo tributável antes da
               incidência das alíquotas de IBS e CBS.
             </p>
-            <div className="bg-surface p-3.5 rounded-xl border border-sim-border text-[11px] text-text-secondary font-sim-mono shadow-sm">
+            <div className="bg-surface p-3.5 rounded-xl border border-sim-border text-xs text-text-secondary font-sim-mono shadow-sm">
               <span className="text-text-primary font-semibold font-sim">Simulação:</span> Aluguel
               R$ 2.000 &rarr; Base R$ 1.400 &rarr; Tributo (7,95%):{' '}
               <span className="text-positive-text font-bold">R$ 111,30</span> (alíquota média de
@@ -99,7 +99,7 @@ export const LegalReferencesModal: React.FC = () => {
               <li>Possuir mais de 3 unidades imobiliárias locadas no exercício (&gt; 3);</li>
               <li>Receita anual total de locação superior a R$ 240.000,00.</li>
             </ul>
-            <div className="bg-surface p-3.5 rounded-xl border border-sim-border text-[11px] text-text-secondary shadow-sm">
+            <div className="bg-surface p-3.5 rounded-xl border border-sim-border text-xs text-text-secondary shadow-sm">
               Caso não atinja ambos os gatilhos, o locador PF usufrui de isenção plena de IBS/CBS,
               recolhendo apenas o IRPF Carnê-Leão.
             </div>

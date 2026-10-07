@@ -11,83 +11,79 @@
 .simulador-theme {
   color-scheme: light;
 
-  --sim-canvas: 250 248 245;
-  --sim-surface: 255 255 255;
-  --sim-surface-muted: 250 248 245;
+  /* Visual "Orgânico / Natural" — mesmos valores dos tokens do sistema (src/main.css). */
+  --sim-canvas: 253 252 248; /* papel de arroz */
+  --sim-surface: 254 254 250; /* cartão */
+  --sim-surface-muted: 240 235 229; /* pedra */
 
-  --sim-border: 214 208 198;
-  --sim-border-strong: 201 194 182;
+  --sim-border: 222 216 207; /* madeira crua */
+  --sim-border-strong: 196 188 175;
 
-  --sim-text-primary: 22 22 22;
-  --sim-text-secondary: 74 71 68;
-  --sim-text-muted: 94 90 85;
+  --sim-text-primary: 44 44 36; /* 14,5:1 */
+  --sim-text-secondary: 74 74 64; /* 9:1 */
+  --sim-text-muted: 107 107 95; /* 5,2:1 */
 
-  /* Botão/estado selecionado: inverte em relação ao fundo */
-  --sim-accent-bg: 22 22 22;
-  --sim-accent-fg: 255 255 255;
+  /* Botão/estado selecionado: musgo */
+  --sim-accent-bg: 93 112 82;
+  --sim-accent-fg: 243 244 241;
 
-  --sim-positive-bg: 234 244 236;
-  --sim-positive-border: 140 199 154;
-  --sim-positive-text: 21 87 36;
+  --sim-positive-bg: 230 236 225;
+  --sim-positive-border: 157 179 142;
+  --sim-positive-text: 63 82 54;
 
-  --sim-warning-bg: 254 247 237;
-  --sim-warning-border: 232 181 77;
-  --sim-warning-text: 120 53 15;
+  --sim-warning-bg: 245 234 222;
+  --sim-warning-border: 214 176 140;
+  --sim-warning-text: 122 79 43;
 
-  --sim-info-bg: 238 243 250;
-  --sim-info-border: 185 210 238;
-  --sim-info-text: 29 82 143;
+  --sim-info-bg: 230 239 241;
+  --sim-info-border: 162 199 209;
+  --sim-info-text: 33 81 92;
 
-  --sim-danger-bg: 254 242 242;
-  --sim-danger-border: 248 113 113;
-  --sim-danger-text: 153 27 27;
+  --sim-danger-bg: 246 230 227;
+  --sim-danger-border: 214 135 122;
+  --sim-danger-text: 126 58 48;
 
   background-color: rgb(var(--sim-canvas));
   color: rgb(var(--sim-text-primary));
-  font-family:
-    'Plus Jakarta Sans',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
+  font-family: 'Nunito Variable', Nunito, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
 }
 
+/* Escuro "floresta à noite", alinhado ao tema escuro do sistema. */
 .simulador-theme.dark {
   color-scheme: dark;
 
-  --sim-canvas: 11 13 17;
-  --sim-surface: 20 23 31;
-  --sim-surface-muted: 26 30 39;
+  --sim-canvas: 28 30 24;
+  --sim-surface: 35 38 31;
+  --sim-surface-muted: 41 44 37;
 
-  --sim-border: 42 48 61;
-  --sim-border-strong: 58 65 80;
+  --sim-border: 54 58 49;
+  --sim-border-strong: 72 77 66;
 
-  --sim-text-primary: 241 243 247;
-  --sim-text-secondary: 195 202 213;
-  --sim-text-muted: 152 162 179;
+  --sim-text-primary: 236 232 223;
+  --sim-text-secondary: 205 200 189;
+  --sim-text-muted: 181 176 163;
 
-  --sim-accent-bg: 255 255 255;
-  --sim-accent-fg: 22 22 22;
+  --sim-accent-bg: 157 179 142;
+  --sim-accent-fg: 28 30 24;
 
-  --sim-positive-bg: 14 36 22;
-  --sim-positive-border: 44 107 63;
-  --sim-positive-text: 110 231 160;
+  --sim-positive-bg: 34 46 28;
+  --sim-positive-border: 74 96 62;
+  --sim-positive-text: 178 206 160;
 
-  --sim-warning-bg: 36 26 14;
-  --sim-warning-border: 107 78 30;
-  --sim-warning-text: 251 191 36;
+  --sim-warning-bg: 46 34 22;
+  --sim-warning-border: 110 80 50;
+  --sim-warning-text: 236 196 158;
 
-  --sim-info-bg: 16 30 51;
-  --sim-info-border: 42 74 120;
-  --sim-info-text: 127 180 245;
+  --sim-info-bg: 24 38 42;
+  --sim-info-border: 52 86 94;
+  --sim-info-text: 160 205 214;
 
-  --sim-danger-bg: 42 19 21;
-  --sim-danger-border: 127 42 46;
-  --sim-danger-text: 252 165 165;
+  --sim-danger-bg: 48 26 23;
+  --sim-danger-border: 120 60 52;
+  --sim-danger-text: 240 170 158;
 }
 
 /* Scrollbar discreta, apenas dentro do simulador */

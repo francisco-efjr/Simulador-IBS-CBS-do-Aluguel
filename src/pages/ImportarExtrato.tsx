@@ -204,7 +204,9 @@ export default function ImportarExtrato() {
       }
     } catch (err) {
       console.error(err)
-      toast.error('Não foi possível ler o conteúdo do arquivo. Confira se ele está completo e tente novamente.')
+      toast.error(
+        'Não foi possível ler o conteúdo do arquivo. Confira se ele está completo e tente novamente.',
+      )
     } finally {
       setParsing(false)
     }
@@ -286,7 +288,11 @@ export default function ImportarExtrato() {
       prev.map((t) => (t.duplicata_detectada ? { ...t, incluir: false } : t)),
     )
     setDuplicateModalOpen(false)
-    toast.info(duplicateCount === 1 ? '1 transação duplicada foi desmarcada.' : `${duplicateCount} transações duplicadas foram desmarcadas.`)
+    toast.info(
+      duplicateCount === 1
+        ? '1 transação duplicada foi desmarcada.'
+        : `${duplicateCount} transações duplicadas foram desmarcadas.`,
+    )
   }
 
   const handleIncludeAllDuplicates = () => {
@@ -294,7 +300,9 @@ export default function ImportarExtrato() {
       prev.map((t) => (t.duplicata_detectada ? { ...t, incluir: true } : t)),
     )
     setDuplicateModalOpen(false)
-    toast.warning(`${duplicateCount === 1 ? '1 transação duplicada será importada' : `${duplicateCount} transações duplicadas serão importadas`} mesmo assim.`)
+    toast.warning(
+      `${duplicateCount === 1 ? '1 transação duplicada será importada' : `${duplicateCount} transações duplicadas serão importadas`} mesmo assim.`,
+    )
   }
 
   // Confirma a importação: o lote inteiro vai numa chamada só e o banco grava
@@ -558,7 +566,9 @@ export default function ImportarExtrato() {
                     <p className="font-semibold text-slate-800 text-sm">
                       Clique para escolher ou arraste o arquivo até aqui
                     </p>
-                    <p className="text-xs text-slate-600">Suporta arquivos .OFX e .CSV de até 5 MB</p>
+                    <p className="text-xs text-slate-600">
+                      Suporta arquivos .OFX e .CSV de até 5 MB
+                    </p>
                   </div>
                   <div className="flex items-center gap-2 pt-1">
                     <Badge variant="secondary" className="text-xs bg-slate-100 font-medium">
@@ -879,7 +889,7 @@ export default function ImportarExtrato() {
             <Button
               type="button"
               onClick={handleIgnoreAllDuplicates}
-              className="bg-amber-600 hover:bg-amber-700 text-white font-semibold"
+              className="bg-secondary-ink hover:bg-secondary-ink/90 text-white"
             >
               Ignorar Duplicatas (Recomendado)
             </Button>

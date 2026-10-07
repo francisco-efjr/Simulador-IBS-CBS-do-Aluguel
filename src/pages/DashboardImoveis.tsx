@@ -168,10 +168,10 @@ const MONTH_NAMES_SHORT = [
 ]
 
 const STATUS_DONUT_COLORS: Record<string, string> = {
-  vago: '#0284c7', // Sky Blue
-  alugado: '#10b981', // Emerald Green
-  em_manutencao: '#f59e0b', // Amber / Gold
-  inativo: '#64748b', // Slate Gray
+  vago: '#A97447', // argila escura
+  alugado: '#5D7052', // musgo
+  em_manutencao: '#8C7B5E', // palha
+  inativo: '#6B6B5F', // pedra
 }
 
 export default function DashboardImoveis() {
@@ -1151,11 +1151,11 @@ export default function DashboardImoveis() {
                     data={receitasPorImovelData}
                     margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F0EBE5" />
                     <XAxis
                       type="number"
-                      tick={{ fontSize: 12, fill: '#64748b' }}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      tick={{ fontSize: 14, fill: '#6B6B5F' }}
+                      axisLine={{ stroke: '#DED8CF' }}
                       tickFormatter={(val) =>
                         `R$ ${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`
                       }
@@ -1163,16 +1163,16 @@ export default function DashboardImoveis() {
                     <YAxis
                       dataKey="name"
                       type="category"
-                      tick={{ fontSize: 12, fill: '#334155' }}
+                      tick={{ fontSize: 14, fill: '#4A4A40' }}
                       width={130}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      axisLine={{ stroke: '#DED8CF' }}
                       tickLine={false}
                     />
                     <RechartsTooltip
                       formatter={formatTooltipCurrency}
                       contentStyle={{
-                        backgroundColor: '#ffffff',
-                        borderColor: '#e2e8f0',
+                        backgroundColor: '#FEFEFA',
+                        borderColor: '#DED8CF',
                         borderRadius: '0.5rem',
                         fontSize: '12px',
                       }}
@@ -1180,7 +1180,7 @@ export default function DashboardImoveis() {
                     <Bar
                       name="Receita Recebida"
                       dataKey="valor"
-                      fill="#10b981"
+                      fill="#5D7052"
                       radius={[0, 4, 4, 0]}
                     />
                   </BarChart>
@@ -1218,11 +1218,11 @@ export default function DashboardImoveis() {
                     data={despesasPorImovelData}
                     margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F0EBE5" />
                     <XAxis
                       type="number"
-                      tick={{ fontSize: 12, fill: '#64748b' }}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      tick={{ fontSize: 14, fill: '#6B6B5F' }}
+                      axisLine={{ stroke: '#DED8CF' }}
                       tickFormatter={(val) =>
                         `R$ ${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`
                       }
@@ -1230,21 +1230,21 @@ export default function DashboardImoveis() {
                     <YAxis
                       dataKey="name"
                       type="category"
-                      tick={{ fontSize: 12, fill: '#334155' }}
+                      tick={{ fontSize: 14, fill: '#4A4A40' }}
                       width={130}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      axisLine={{ stroke: '#DED8CF' }}
                       tickLine={false}
                     />
                     <RechartsTooltip
                       formatter={formatTooltipCurrency}
                       contentStyle={{
-                        backgroundColor: '#ffffff',
-                        borderColor: '#e2e8f0',
+                        backgroundColor: '#FEFEFA',
+                        borderColor: '#DED8CF',
                         borderRadius: '0.5rem',
                         fontSize: '12px',
                       }}
                     />
-                    <Bar name="Despesa Paga" dataKey="valor" fill="#e11d48" radius={[0, 4, 4, 0]} />
+                    <Bar name="Despesa Paga" dataKey="valor" fill="#A97447" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -1295,8 +1295,8 @@ export default function DashboardImoveis() {
                       <RechartsTooltip
                         formatter={(val: any, name: any) => [`${val} unidade(s)`, name]}
                         contentStyle={{
-                          backgroundColor: '#ffffff',
-                          borderColor: '#e2e8f0',
+                          backgroundColor: '#FEFEFA',
+                          borderColor: '#DED8CF',
                           borderRadius: '0.5rem',
                           fontSize: '12px',
                         }}
@@ -1350,24 +1350,24 @@ export default function DashboardImoveis() {
                   data={evolucaoOcupacaoData}
                   margin={{ top: 10, right: 10, left: -10, bottom: 10 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0EBE5" />
                   <XAxis
                     dataKey="label"
-                    tick={{ fontSize: 12, fill: '#64748b' }}
-                    axisLine={{ stroke: '#e2e8f0' }}
+                    tick={{ fontSize: 14, fill: '#6B6B5F' }}
+                    axisLine={{ stroke: '#DED8CF' }}
                     tickLine={false}
                   />
                   <YAxis
                     allowDecimals={false}
-                    tick={{ fontSize: 12, fill: '#64748b' }}
-                    axisLine={{ stroke: '#e2e8f0' }}
+                    tick={{ fontSize: 14, fill: '#6B6B5F' }}
+                    axisLine={{ stroke: '#DED8CF' }}
                     tickLine={false}
                   />
                   <RechartsTooltip
                     formatter={(val: any) => [`${val} contratos ativos`, 'Ocupação']}
                     contentStyle={{
-                      backgroundColor: '#ffffff',
-                      borderColor: '#e2e8f0',
+                      backgroundColor: '#FEFEFA',
+                      borderColor: '#DED8CF',
                       borderRadius: '0.5rem',
                       fontSize: '12px',
                     }}
@@ -1376,9 +1376,9 @@ export default function DashboardImoveis() {
                     name="Contratos Ativos"
                     type="monotone"
                     dataKey="contratosAtivos"
-                    stroke="#10b981"
+                    stroke="#5D7052"
                     strokeWidth={2.5}
-                    dot={{ r: 4, fill: '#10b981' }}
+                    dot={{ r: 4, fill: '#5D7052' }}
                     activeDot={{ r: 6 }}
                   />
                 </LineChart>
@@ -1414,16 +1414,16 @@ export default function DashboardImoveis() {
                     data={iptuTaxasPorStatusData}
                     margin={{ top: 10, right: 10, left: 10, bottom: 20 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0EBE5" />
                     <XAxis
                       dataKey="name"
-                      tick={{ fontSize: 12, fill: '#64748b' }}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      tick={{ fontSize: 14, fill: '#6B6B5F' }}
+                      axisLine={{ stroke: '#DED8CF' }}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fontSize: 12, fill: '#64748b' }}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      tick={{ fontSize: 14, fill: '#6B6B5F' }}
+                      axisLine={{ stroke: '#DED8CF' }}
                       tickLine={false}
                       tickFormatter={(val) =>
                         `R$ ${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`
@@ -1432,8 +1432,8 @@ export default function DashboardImoveis() {
                     <RechartsTooltip
                       formatter={formatTooltipCurrency}
                       contentStyle={{
-                        backgroundColor: '#ffffff',
-                        borderColor: '#e2e8f0',
+                        backgroundColor: '#FEFEFA',
+                        borderColor: '#DED8CF',
                         borderRadius: '0.5rem',
                         fontSize: '12px',
                       }}
@@ -1447,21 +1447,21 @@ export default function DashboardImoveis() {
                     <Bar
                       name="Pago"
                       dataKey="pago"
-                      fill="#10b981"
+                      fill="#5D7052"
                       radius={[4, 4, 0, 0]}
                       maxBarSize={35}
                     />
                     <Bar
                       name="Pendente"
                       dataKey="pendente"
-                      fill="#f59e0b"
+                      fill="#8C7B5E"
                       radius={[4, 4, 0, 0]}
                       maxBarSize={35}
                     />
                     <Bar
                       name="Vencido"
                       dataKey="vencido"
-                      fill="#e11d48"
+                      fill="#A97447"
                       radius={[4, 4, 0, 0]}
                       maxBarSize={35}
                     />

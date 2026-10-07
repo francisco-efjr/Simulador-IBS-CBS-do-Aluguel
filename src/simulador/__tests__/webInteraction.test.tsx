@@ -16,7 +16,12 @@ describe('Interface pública (locador assistido)', () => {
   it('renderiza o cabeçalho e apenas os módulos de uso do locador', () => {
     render(<App />)
 
-    expect(screen.getByText('Simulador Tributário Imobiliário')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: 'Quanto a reforma tributária pesa no seu aluguel?',
+      }),
+    ).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Contrato Individual' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Gestão de Portfólio' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Cenário Comparativo' })).toBeInTheDocument()

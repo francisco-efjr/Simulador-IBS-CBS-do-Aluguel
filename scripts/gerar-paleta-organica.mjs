@@ -110,7 +110,9 @@ const DE_PARA = {
   emerald: 'musgo', green: 'musgo', lime: 'musgo', teal: 'musgo',
   gold: 'argila', amber: 'argila', yellow: 'argila', orange: 'argila',
   red: 'siena', rose: 'siena', pink: 'siena',
-  blue: 'lagoa', sky: 'lagoa', indigo: 'lagoa', cyan: 'lagoa', violet: 'lagoa', purple: 'lagoa', fuchsia: 'lagoa',
+  // indigo era a cor de ação das telas: vira musgo, a primária do visual novo.
+  indigo: 'musgo',
+  blue: 'lagoa', sky: 'lagoa', cyan: 'lagoa', violet: 'lagoa', purple: 'lagoa', fuchsia: 'lagoa',
 }
 
 const saida = {}

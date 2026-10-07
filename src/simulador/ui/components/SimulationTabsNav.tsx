@@ -35,7 +35,7 @@ export const SimulationTabsNav: React.FC<SimulationTabsNavProps> = ({
   const navItems = NAV_ITEMS.filter((item) => isProfessional || !item.professionalOnly)
 
   return (
-    <div className="bg-surface/95 border border-sim-border rounded-2xl p-2 shadow-[0_2px_12px_rgba(0,0,0,0.04)] sticky top-16 z-30 backdrop-blur-md transition-colors">
+    <div className="bg-surface/95 border border-sim-border rounded-2xl p-2 shadow-soft sticky top-16 z-30 backdrop-blur-md transition-colors">
       <nav
         className="flex items-center gap-1.5 overflow-x-auto no-scrollbar"
         role="tablist"

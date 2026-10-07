@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Navbar, ActiveTab } from './components/Navbar.tsx'
 import { Footer } from './components/Footer.tsx'
+import { ComoFunciona } from './components/ComoFunciona.tsx'
+import { Blob } from '@/components/organico'
 
 import { TransitionYearSelector } from './components/TransitionYearSelector.tsx'
 import { TaxParametersCard } from './components/TaxParametersCard.tsx'
@@ -20,7 +22,7 @@ const THEME_STORAGE_KEY = 'simulador-theme'
 
 interface AppProps {
   /**
-   * Embutido no shell do Controle de Imóveis (sidebar + header já na tela).
+   * Embutido no shell do Gestão de imóveis (sidebar + header já na tela).
    * Nesse modo o simulador não desenha cabeçalho, rodapé nem ocupa a altura
    * toda — quem manda no scroll é o <main> do Layout.
    */
@@ -75,7 +77,7 @@ export const App: React.FC<AppProps> = ({ embedded = false }) => {
   const rootClass = [
     'simulador-theme',
     theme === 'dark' ? 'dark' : '',
-    embedded ? 'w-full' : 'min-h-screen flex flex-col',
+    embedded ? 'w-full' : 'relative min-h-screen flex flex-col overflow-x-hidden',
     'bg-canvas text-text-primary transition-colors',
   ]
     .filter(Boolean)
@@ -140,15 +142,40 @@ export const App: React.FC<AppProps> = ({ embedded = false }) => {
         Ir para a simulação
       </a>
 
+      {/* Duas manchas de fundo no simulador público (decorativas). */}
+      <Blob
+        forma={1}
+        cor="primary"
+        className="-left-28 -top-16 h-[480px] w-[520px] opacity-[0.16] blur-[80px]"
+      />
+      <Blob
+        forma={2}
+        cor="secondary"
+        className="-right-36 top-60 h-[440px] w-[480px] opacity-[0.18] blur-[80px]"
+      />
+
       <Navbar theme={theme} onToggleTheme={toggleTheme} />
 
       {isProfessional && <ProfessionalModeBar onExit={exitProfessionalMode} />}
 
       <main
         id="simulador"
-        className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6"
+        className="relative flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-16 py-8 sm:py-12 space-y-8"
       >
+        <div className="flex max-w-3xl flex-col gap-4 px-2 sm:gap-5 sm:px-0">
+          <span className="self-start rounded-full bg-accent-bg/10 px-4 py-2 text-sm font-extrabold text-positive-text">
+            Reforma tributária na locação
+          </span>
+          <h1 className="text-[2.125rem] leading-[1.1] text-text-primary sm:text-5xl lg:text-6xl lg:leading-[1.04]">
+            Quanto a reforma tributária pesa no seu aluguel?
+          </h1>
+          <p className="max-w-[540px] text-base leading-relaxed text-text-secondary sm:text-xl">
+            Informe o valor mensal e veja uma estimativa do IBS e da CBS, já com o redutor de 70% da
+            locação.
+          </p>
+        </div>
         {content}
+        <ComoFunciona />
       </main>
 
       <Footer onSelectTab={setActiveTab} isProfessional={isProfessional} />
