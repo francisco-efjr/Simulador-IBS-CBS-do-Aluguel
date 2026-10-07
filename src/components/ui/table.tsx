@@ -8,7 +8,7 @@ const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableE
     // A área rolável recebe foco: sem isso, quem navega só pelo teclado não
     // alcança as colunas que ficaram fora da tela (WCAG 2.1.1).
     <div
-      className="relative w-full overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-800"
+      className="relative w-full overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       tabIndex={0}
     >
       <table ref={ref} className={cn('w-full caption-bottom text-base', className)} {...props} />
@@ -39,7 +39,7 @@ const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn('border-t bg-muted/50 font-medium [&>tr]:last:border-b-0', className)}
+    className={cn('border-t bg-muted/60 font-bold [&>tr]:last:border-b-0', className)}
     {...props}
   />
 ))
@@ -50,7 +50,7 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
     <tr
       ref={ref}
       className={cn(
-        'border-b border-slate-100 transition-colors hover:bg-slate-50 data-[state=selected]:bg-slate-100',
+        'border-b border-border/60 transition-colors hover:bg-primary/5 data-[state=selected]:bg-primary/10',
         className,
       )}
       {...props}
@@ -66,7 +66,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      'h-14 px-4 text-left align-middle text-sm font-semibold uppercase tracking-wide text-slate-600 [&:has([role=checkbox])]:pr-0',
+      'h-14 bg-muted px-4 text-left align-middle text-[0.9375rem] font-extrabold text-accent-foreground [&:has([role=checkbox])]:pr-0',
       className,
     )}
     {...props}

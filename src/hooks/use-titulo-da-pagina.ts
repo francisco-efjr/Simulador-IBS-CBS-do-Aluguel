@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { MODULES_LIST } from '@/lib/constants'
-
-const NOME_DO_SISTEMA = 'Holding Aguiar'
+import { NOME_DO_SISTEMA } from '@/lib/marca'
 
 /**
  * Mantém o título da aba coerente com a tela aberta.
@@ -15,10 +14,8 @@ export function useTituloDaPagina(titulo?: string) {
   const location = useLocation()
 
   useEffect(() => {
-    const modulo = MODULES_LIST.find((m) =>
-      m.path === '/' ? location.pathname === '/' : location.pathname.startsWith(m.path),
-    )
-    const nomeDaTela = titulo ?? modulo?.title ?? 'Controle de Imóveis'
-    document.title = `${nomeDaTela} — ${NOME_DO_SISTEMA}`
+    const modulo = MODULES_LIST.find((m) => location.pathname.startsWith(m.path))
+    const nomeDaTela = titulo ?? modulo?.title
+    document.title = nomeDaTela ? `${nomeDaTela} — ${NOME_DO_SISTEMA}` : NOME_DO_SISTEMA
   }, [location.pathname, titulo])
 }

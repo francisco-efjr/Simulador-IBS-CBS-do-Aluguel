@@ -19,6 +19,7 @@ import {
   Calculator,
   SquareKanban,
   UserCheck,
+  ScrollText,
 } from 'lucide-react'
 
 export type ModuloPermissao =
@@ -44,6 +45,18 @@ export interface PermissaoModulo {
   nivel: NivelPermissao
 }
 
+export const GRUPOS_MENU = [
+  'Visão geral',
+  'Extratos',
+  'Cadastros',
+  'Financeiro',
+  'Análise',
+  'Gestão',
+  'Ferramentas',
+] as const
+
+export type GrupoMenu = (typeof GRUPOS_MENU)[number]
+
 export interface MenuItem {
   title: string
   path: string
@@ -51,6 +64,8 @@ export interface MenuItem {
   description: string
   adminOnly?: boolean
   modulo?: ModuloPermissao
+  /** Grupo do menu lateral (rótulo em caixa alta acima dos itens). */
+  grupo: GrupoMenu
 }
 
 export interface ModuloInfo {
@@ -153,40 +168,30 @@ export const MODULES_LIST: MenuItem[] = [
     path: '/inicio',
     icon: Home,
     description: 'Visão geral e acesso rápido aos módulos',
+    grupo: 'Visão geral',
   },
   {
-    title: 'Alertas',
-    path: '/alertas',
-    icon: Bell,
-    description: 'Central de vencimentos de contratos, receitas, despesas e IPTU',
-    modulo: 'alertas',
-  },
-  {
-    title: 'Relatórios',
-    path: '/relatorios',
-    icon: FileSpreadsheet,
-    description: 'Geração e exportação de relatórios em PDF e Excel',
-    modulo: 'relatorios',
-  },
-  {
-    title: 'Quadro de Histórias',
-    path: '/quadro',
-    icon: SquareKanban,
-    // Ler o quadro é aberto a todos; o módulo 'quadro' decide só quem edita.
-    description: 'Histórias do sistema, critérios de aceitação e homologação',
-  },
-  {
-    title: 'Importar Extrato',
+    title: 'Importar extrato',
     path: '/importar-extrato',
     icon: UploadCloud,
     description: 'Upload de extratos bancários CSV/OFX e conciliação',
+    grupo: 'Extratos',
     modulo: 'importar_extrato',
   },
   {
-    title: 'Classificar Transações',
+    title: 'Histórico de importações',
+    path: '/historico-importacoes',
+    icon: History,
+    description: 'Importações já feitas, com o que entrou e o que foi descartado',
+    grupo: 'Extratos',
+    modulo: 'importar_extrato',
+  },
+  {
+    title: 'Classificar transações',
     path: '/classificar-transacoes',
     icon: ListChecks,
     description: 'Fila de classificação e lançamento inteligente',
+    grupo: 'Extratos',
     modulo: 'classificar_transacoes',
   },
   {
@@ -194,6 +199,7 @@ export const MODULES_LIST: MenuItem[] = [
     path: '/imoveis',
     icon: Building2,
     description: 'Gestão de edifícios, casas e salas comerciais',
+    grupo: 'Cadastros',
     modulo: 'imoveis',
   },
   {
@@ -201,20 +207,31 @@ export const MODULES_LIST: MenuItem[] = [
     path: '/inquilinos',
     icon: Users,
     description: 'Cadastro e dados de contato dos locatários',
+    grupo: 'Cadastros',
     modulo: 'inquilinos',
   },
   {
-    title: 'Locadores',
+    title: 'Locadores e fiadores',
     path: '/locadores',
     icon: UserCheck,
     description: 'Cadastro de proprietários e repasses',
+    grupo: 'Cadastros',
     modulo: 'locadores',
+  },
+  {
+    title: 'Fornecedores',
+    path: '/fornecedores',
+    icon: Truck,
+    description: 'Prestadores de serviço e parceiros',
+    grupo: 'Cadastros',
+    modulo: 'fornecedores',
   },
   {
     title: 'Contratos',
     path: '/contratos',
     icon: FileText,
     description: 'Contratos de locação, reajustes e prazos',
+    grupo: 'Cadastros',
     modulo: 'contratos',
   },
   {
@@ -222,6 +239,7 @@ export const MODULES_LIST: MenuItem[] = [
     path: '/receitas',
     icon: TrendingUp,
     description: 'Recebimento de aluguéis e taxas',
+    grupo: 'Financeiro',
     modulo: 'receitas',
   },
   {
@@ -229,49 +247,72 @@ export const MODULES_LIST: MenuItem[] = [
     path: '/despesas',
     icon: TrendingDown,
     description: 'Controle de custos, obras e manutenção',
+    grupo: 'Financeiro',
     modulo: 'despesas',
   },
   {
-    title: 'IPTU e Taxas',
+    title: 'IPTU e taxas',
     path: '/iptu-taxas',
     icon: Receipt,
     description: 'Acompanhamento do IPTU, condomínio e impostos',
+    grupo: 'Financeiro',
     modulo: 'iptu_taxas',
   },
   {
-    title: 'Fornecedores',
-    path: '/fornecedores',
-    icon: Truck,
-    description: 'Prestadores de serviço e parceiros',
-    modulo: 'fornecedores',
-  },
-  {
-    title: 'Usuários',
-    path: '/usuarios',
-    icon: UserCog,
-    description: 'Gestão de permissões, convites e acessos do sistema',
-    adminOnly: true,
-  },
-  {
-    title: 'Logs de Atividade',
-    path: '/logs-atividade',
-    icon: History,
-    description: 'Auditoria de acessos, criações, edições e exclusões no sistema',
-    adminOnly: true,
-  },
-  {
-    title: 'Dashboard Financeiro',
+    title: 'Dashboard financeiro',
     path: '/dashboard-financeiro',
     icon: BarChart3,
     description: 'Indicadores financeiros e fluxo de caixa',
+    grupo: 'Análise',
     modulo: 'dashboards',
   },
   {
-    title: 'Dashboard de Imóveis',
+    title: 'Dashboard de imóveis',
     path: '/dashboard-imoveis',
     icon: PieChart,
     description: 'Métricas de ocupação e rendimento',
+    grupo: 'Análise',
     modulo: 'dashboards',
+  },
+  {
+    title: 'Alertas',
+    path: '/alertas',
+    icon: Bell,
+    description: 'Central de vencimentos de contratos, receitas, despesas e IPTU',
+    grupo: 'Análise',
+    modulo: 'alertas',
+  },
+  {
+    title: 'Relatórios',
+    path: '/relatorios',
+    icon: FileSpreadsheet,
+    description: 'Geração e exportação de relatórios em PDF e Excel',
+    grupo: 'Análise',
+    modulo: 'relatorios',
+  },
+  {
+    // Ler o quadro é aberto a todos; o módulo 'quadro' decide só quem edita.
+    title: 'Quadro de andamento',
+    path: '/quadro',
+    icon: SquareKanban,
+    description: 'Histórias do sistema, critérios de aceitação e homologação',
+    grupo: 'Gestão',
+  },
+  {
+    title: 'Usuários e permissões',
+    path: '/usuarios',
+    icon: UserCog,
+    description: 'Gestão de permissões, convites e acessos do sistema',
+    grupo: 'Gestão',
+    adminOnly: true,
+  },
+  {
+    title: 'Logs de atividade',
+    path: '/logs-atividade',
+    icon: ScrollText,
+    description: 'Auditoria de acessos, criações, edições e exclusões no sistema',
+    grupo: 'Gestão',
+    adminOnly: true,
   },
   {
     // Rota pública: fica visível para todo usuário logado, sem permissão de módulo.
@@ -279,6 +320,7 @@ export const MODULES_LIST: MenuItem[] = [
     path: '/simulador',
     icon: Calculator,
     description: 'Simulação do IBS e da CBS sobre a locação (LC 214/2025)',
+    grupo: 'Ferramentas',
   },
 ]
 

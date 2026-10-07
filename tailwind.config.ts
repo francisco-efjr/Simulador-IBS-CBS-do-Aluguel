@@ -1,8 +1,10 @@
-/* Tailwind config for the frontend react app. This is where the app theme should be defined: https://v2.tailwindcss.com/docs/configuration. */
+/* Tema do Gestão de Imóveis — visual "Orgânico / Natural" (handoff do design, 07/10/2026).
+   Tokens semânticos em src/main.css; aqui ficam fontes, escala, raios, sombras e animações. */
 import type { Config } from 'tailwindcss'
 import animatePlugin from 'tailwindcss-animate'
 import typographyPlugin from '@tailwindcss/typography'
 import aspectRatioPlugin from '@tailwindcss/aspect-ratio'
+import paletaOrganica from './tailwind.paleta-organica'
 
 // Tokens do Simulador IBS/CBS. Vivem como triplas RGB em src/simulador/simulador.css;
 // o placeholder <alpha-value> deixa o Tailwind aplicar opacidade (bg-surface/80)
@@ -18,95 +20,62 @@ export default {
     './src/**/*.{ts,tsx}',
   ],
   prefix: '',
+  // Hover só onde há ponteiro de verdade: no toque, efeito de hover gruda no botão.
+  future: { hoverOnlyWhenSupported: true },
   theme: {
     container: {
       center: true,
-      padding: '2rem',
-      screens: {
-        sm: '640px',
-        md: '768px',
-        lg: '1024px',
-        xl: '1280px',
-        '2xl': '1400px',
-      },
+      padding: { DEFAULT: '1rem', sm: '1.5rem', lg: '3rem' },
+      screens: { '2xl': '1280px' },
     },
     extend: {
       /**
        * Escala tipográfica elevada para o público do sistema (40 a 90 anos).
        *
-       * Cada degrau subiu um passo e o piso passou a ser 14px: `text-xs` a 12px
-       * — o valor padrão do Tailwind — é ilegível para quem já usa óculos de
-       * perto, e era o tamanho mais usado nas telas. Como tudo está em `rem`, a
-       * escala inteira ainda responde ao ajuste de fonte do navegador e ao
-       * controle "A-/A/A+" do cabeçalho (WCAG 1.4.4).
+       * Piso de 14px (`text-xs`) e corpo de 17px. Tudo em `rem`, então a escala
+       * inteira responde ao ajuste de fonte do navegador e ao controle de
+       * tamanho da letra (WCAG 1.4.4). Os degraus grandes seguem o handoff do
+       * visual orgânico (H1 32/44px, número de destaque 44/60px).
        */
       fontSize: {
-        xs: ['0.875rem', { lineHeight: '1.25rem' }],
-        sm: ['1rem', { lineHeight: '1.5rem' }],
-        base: ['1.0625rem', { lineHeight: '1.625rem' }],
-        lg: ['1.1875rem', { lineHeight: '1.75rem' }],
-        xl: ['1.3125rem', { lineHeight: '1.875rem' }],
-        '2xl': ['1.5625rem', { lineHeight: '2.125rem' }],
-        '3xl': ['1.9375rem', { lineHeight: '2.375rem' }],
-        '4xl': ['2.375rem', { lineHeight: '2.625rem' }],
-        '5xl': ['3rem', { lineHeight: '1.1' }],
+        xs: ['0.875rem', { lineHeight: '1.25rem' }], // 14
+        sm: ['1rem', { lineHeight: '1.5rem' }], // 16
+        base: ['1.0625rem', { lineHeight: '1.65rem' }], // 17
+        lg: ['1.1875rem', { lineHeight: '1.75rem' }], // 19
+        xl: ['1.375rem', { lineHeight: '1.875rem' }], // 22
+        '2xl': ['1.625rem', { lineHeight: '2.125rem' }], // 26
+        '3xl': ['2rem', { lineHeight: '1.15' }], // 32
+        '4xl': ['2.375rem', { lineHeight: '1.1' }], // 38
+        '5xl': ['2.75rem', { lineHeight: '1.05' }], // 44
+        '6xl': ['3.75rem', { lineHeight: '1.04' }], // 60
       },
       fontFamily: {
-        sans: ['Inter var', 'SF Pro Display', 'system-ui', 'sans-serif'],
-        display: ['SF Pro Display', 'Inter var', 'system-ui', 'sans-serif'],
-        // Tipografia própria do Simulador IBS/CBS
-        sim: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        'sim-mono': [
-          'JetBrains Mono',
-          'ui-monospace',
-          'SFMono-Regular',
-          'Menlo',
-          'Monaco',
-          'Consolas',
-          'monospace',
-        ],
+        sans: ['"Nunito Variable"', 'Nunito', 'system-ui', 'sans-serif'],
+        serif: ['"Fraunces Variable"', 'Fraunces', 'Georgia', 'serif'],
+        display: ['"Fraunces Variable"', 'Fraunces', 'Georgia', 'serif'],
+        // O simulador deixou a tipografia própria e usa a do sistema.
+        sim: ['"Nunito Variable"', 'Nunito', 'system-ui', 'sans-serif'],
+        'sim-mono': ['"Nunito Variable"', 'Nunito', 'system-ui', 'sans-serif'],
       },
       colors: {
+        // Paletas legadas (slate, blue, navy, gold...) no matiz orgânico, com a
+        // luminância original. Ver scripts/gerar-paleta-organica.mjs.
+        ...paletaOrganica,
+
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
-        navy: {
-          DEFAULT: '#0A182E',
-          50: '#F0F4F8',
-          100: '#D9E2EC',
-          200: '#BCCCDC',
-          300: '#9FB3C8',
-          400: '#829AB1',
-          500: '#334E68',
-          600: '#243B53',
-          700: '#102A43',
-          800: '#0A182E',
-          900: '#060F20',
-          950: '#030814',
-        },
-        gold: {
-          DEFAULT: '#C89F53',
-          50: '#FBF8EE',
-          100: '#F6EFD5',
-          200: '#EDDDA9',
-          300: '#E4CA7E',
-          400: '#DBB854',
-          500: '#C89F53',
-          600: '#B5883A',
-          700: '#946B2A',
-          800: '#735022',
-          900: '#5A3D1C',
-          950: '#38250E',
-        },
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
         },
+        // Argila: SÓ decoração (blobs, sombras). Texto argila usa `secondary-ink`.
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
           foreground: 'hsl(var(--secondary-foreground))',
+          ink: 'hsl(var(--secondary-ink))',
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
@@ -128,6 +97,9 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        sunken: 'hsl(var(--surface-sunken))',
+        success: { ink: 'hsl(var(--success-ink))' },
+        warning: { ink: 'hsl(var(--warning-ink))' },
         sidebar: {
           DEFAULT: 'hsl(var(--sidebar-background))',
           foreground: 'hsl(var(--sidebar-foreground))',
@@ -179,22 +151,40 @@ export default {
         'danger-text': simToken('--sim-danger-text'),
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        sm: '0.75rem',
+        md: '1rem',
+        lg: 'var(--radius)', // 24px
+        xl: '1.5rem',
+        '2xl': '2rem',
+        '3xl': '2.5rem',
+        // Cantos orgânicos dos cartões: 32px com um canto de 64px, ciclando por índice.
+        'organic-tr': '2rem 4rem 2rem 2rem',
+        'organic-tl': '4rem 2rem 2rem 2rem',
+        'organic-br': '2rem 2rem 4rem 2rem',
+        'organic-bl': '2rem 2rem 2rem 4rem',
+        destaque: '2rem 5rem 2rem 2rem',
       },
       transitionProperty: {
         width: 'width',
         height: 'height',
       },
       boxShadow: {
-        subtle: '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03)',
-        elevation: '0 4px 20px rgba(0, 0, 0, 0.05)',
-        gold: '0 4px 20px rgba(200, 159, 83, 0.25)',
+        soft: 'var(--shadow-soft)',
+        float: 'var(--shadow-float)',
+        lift: 'var(--shadow-lift)',
+        hero: 'var(--shadow-hero)',
+        papel: '12px 12px 0 -2px hsl(var(--accent)), var(--shadow-hero)',
+        'papel-esq': '-12px 12px 0 -2px hsl(var(--accent)), var(--shadow-hero)',
+        // Nomes antigos, agora com sombra tingida (nunca preta).
+        subtle: 'var(--shadow-soft)',
+        elevation: 'var(--shadow-soft)',
+        gold: 'var(--shadow-float)',
       },
       transitionTimingFunction: {
-        apple: 'cubic-bezier(0.42, 0, 0.58, 1)',
+        organic: 'cubic-bezier(.34,.12,.2,1)',
+        apple: 'cubic-bezier(.34,.12,.2,1)',
       },
+      transitionDuration: { 400: '400ms', 700: '700ms' },
     },
   },
   plugins: [animatePlugin, typographyPlugin, aspectRatioPlugin],

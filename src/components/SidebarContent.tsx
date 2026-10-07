@@ -1,21 +1,27 @@
 import { Link, useLocation } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
-import { MODULES_LIST } from '@/lib/constants'
+import { GRUPOS_MENU, MODULES_LIST } from '@/lib/constants'
+import { CLIENTE, NOME_DO_SISTEMA } from '@/lib/marca'
 import { useAuth } from '@/hooks/use-auth'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import dados from '@/lib/dados/cliente'
 import { useRealtime } from '@/hooks/use-realtime'
-import darkLogo from '@/assets/logo-holding-aguiar.jpg'
-import symbolLogo from '@/assets/simbolo-holding-aguiar.png'
+import { ControleDeFonte } from '@/components/ControleDeFonte'
+import { CreditoAguia, LogoSistema } from '@/components/organico'
 
 interface SidebarContentProps {
-  isTabletRail?: boolean
+  /** Dentro da gaveta do celular: itens maiores e o controle de letra no topo. */
+  emGaveta?: boolean
   onItemClick?: () => void
 }
 
-export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarContentProps) {
+/**
+ * Menu do sistema (AppShell do handoff): grupos com rótulo em caixa alta,
+ * itens em pílula, item ativo em musgo com `aria-current="page"`. O mesmo
+ * conteúdo serve ao menu fixo (≥ 1024px) e à gaveta do celular.
+ */
+export function SidebarContent({ emGaveta = false, onItemClick }: SidebarContentProps) {
   const location = useLocation()
   const { signOut, isAdministrador, canViewModule } = useAuth()
 
@@ -126,164 +132,104 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
   useRealtime('despesas', computeActiveAlerts)
   useRealtime('convites', computePendingInvites)
 
+  const visiveis = MODULES_LIST.filter((item) => {
+    // Módulos só de administrador (Usuários, Logs de atividade)
+    if (item.adminOnly && !isAdministrador) return false
+    // Permissão por módulo
+    if (item.modulo && !canViewModule(item.modulo)) return false
+    return true
+  })
+
   return (
-    <div className="flex h-full min-h-0 flex-col bg-navy-800 text-slate-100 border-r border-navy-700/60 shadow-xl">
-      <div className="flex min-h-0 flex-1 flex-col">
-        <div
-          className={cn(
-            'flex shrink-0 items-center border-b border-navy-700/80 px-4 py-4 transition-all',
-            isTabletRail ? 'justify-center px-2 py-4' : 'px-5 py-4',
-          )}
+    <div className="flex h-full min-h-0 flex-col gap-4 bg-sunken text-foreground">
+      <div className={cn('flex shrink-0 items-center gap-3', emGaveta ? 'pr-14' : 'px-2')}>
+        <Link
+          to="/inicio"
+          onClick={onItemClick}
+          className="flex min-h-11 items-center gap-3 rounded-full pr-2 no-underline"
         >
-          {isTabletRail ? (
-            <Tooltip delayDuration={100}>
-              <TooltipTrigger asChild>
-                <Link
-                  to="/inicio"
-                  className="flex h-11 w-11 items-center justify-center rounded-xl bg-navy-900 p-1.5 border border-gold-500/30 shadow-md transition-transform hover:scale-105"
-                >
-                  <img
-                    src={symbolLogo}
-                    alt="Holding Aguiar"
-                    width={32}
-                    height={32}
-                    className="h-8 w-8 object-contain rounded-md"
-                  />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent
-                side="right"
-                className="font-semibold bg-navy-900 text-gold-400 border border-gold-500/30"
-              >
-                Holding Aguiar
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Link to="/inicio" className="flex items-center gap-3 group">
-              <img
-                src={darkLogo}
-                alt="Holding Aguiar"
-                width={48}
-                height={48}
-                className="h-12 w-auto object-contain transition-transform group-hover:scale-[1.02]"
-              />
-            </Link>
-          )}
-        </div>
-
-        <nav className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain p-3">
-          {MODULES_LIST.filter((item) => {
-            // Admin-only modules (Usuarios, Logs de Atividade)
-            if (item.adminOnly && !isAdministrador) return false
-            // Granular permission check for regular modules
-            if (item.modulo && !canViewModule(item.modulo)) return false
-            return true
-          }).map((item) => {
-            const Icon = item.icon
-            const isActive =
-              item.path === '/'
-                ? location.pathname === '/'
-                : location.pathname.startsWith(item.path)
-            const isUsuarios = item.path === '/usuarios'
-            const isAlertas = item.path === '/alertas'
-
-            const linkContent = (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={onItemClick}
-                className={cn(
-                  'group relative flex items-center rounded-lg text-sm font-medium transition-all duration-200 active:scale-[0.98]',
-                  isTabletRail ? 'h-11 w-11 justify-center' : 'gap-3 px-3.5 py-2.5',
-                  isActive
-                    ? 'bg-gold-500/15 text-gold-400 font-semibold shadow-xs border border-gold-500/20'
-                    : 'text-slate-300 hover:bg-navy-700/70 hover:text-white',
-                )}
-              >
-                {isActive && (
-                  <span
-                    className={cn(
-                      'absolute left-0 rounded-r-full bg-gold-500 transition-all shadow-gold',
-                      isTabletRail ? 'bottom-2 top-2 w-1' : 'bottom-1.5 top-1.5 w-1',
-                    )}
-                  />
-                )}
-                <Icon
-                  className={cn(
-                    'h-5 w-5 shrink-0 transition-colors',
-                    isActive ? 'text-gold-400' : 'text-slate-400 group-hover:text-gold-300',
-                  )}
-                />
-                {!isTabletRail && <span className="truncate flex-1">{item.title}</span>}
-                {!isTabletRail && isAlertas && alertasCount > 0 && (
-                  <span className="ml-auto inline-flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold rounded-full bg-rose-600 text-white shadow-xs">
-                    {alertasCount}
-                  </span>
-                )}
-                {isTabletRail && isAlertas && alertasCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-navy-800" />
-                )}
-
-                {!isTabletRail && isUsuarios && convitesPendentesCount > 0 && (
-                  <span
-                    className="ml-auto inline-flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold rounded-full bg-gold-500 text-navy-950 shadow-xs"
-                    title={`${convitesPendentesCount} convite(s) pendente(s)`}
-                  >
-                    {convitesPendentesCount}
-                  </span>
-                )}
-                {isTabletRail && isUsuarios && convitesPendentesCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-gold-500 ring-2 ring-navy-800" />
-                )}
-              </Link>
-            )
-
-            if (isTabletRail) {
-              return (
-                <Tooltip key={item.path} delayDuration={100}>
-                  <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-                  <TooltipContent
-                    side="right"
-                    className="font-medium bg-navy-900 text-slate-100 border border-navy-700"
-                  >
-                    {item.title}
-                  </TooltipContent>
-                </Tooltip>
-              )
-            }
-
-            return linkContent
-          })}
-        </nav>
+          <LogoSistema />
+          <span className="flex flex-col leading-tight">
+            <span className="font-serif text-lg font-bold text-foreground">{NOME_DO_SISTEMA}</span>
+            <span className="text-xs font-bold text-accent-foreground">{CLIENTE}</span>
+          </span>
+        </Link>
       </div>
 
-      <div className="shrink-0 border-t border-navy-700/80 p-3">
-        {isTabletRail ? (
-          <Tooltip delayDuration={100}>
-            <TooltipTrigger asChild>
-              <button
-                onClick={signOut}
-                className="flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 hover:bg-red-500/15 hover:text-red-400 transition-colors"
-              >
-                <LogOut className="h-5 w-5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent
-              side="right"
-              className="text-red-400 font-medium bg-navy-900 border border-red-500/20"
-            >
-              Sair do sistema
-            </TooltipContent>
-          </Tooltip>
-        ) : (
-          <button
-            onClick={signOut}
-            className="flex w-full items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-red-500/15 hover:text-red-400 active:scale-[0.98] group"
-          >
-            <LogOut className="h-5 w-5 text-slate-400 transition-colors group-hover:text-red-400" />
-            <span>Sair do sistema</span>
-          </button>
-        )}
+      {emGaveta && <ControleDeFonte className="self-start" />}
+
+      <nav
+        aria-label="Menu principal"
+        className="-mx-1 min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-1 pb-2"
+      >
+        {GRUPOS_MENU.map((grupo) => {
+          const itens = visiveis.filter((item) => item.grupo === grupo)
+          if (itens.length === 0) return null
+          return (
+            <div key={grupo} className="flex flex-col gap-0.5">
+              <p className="px-3.5 pb-1 text-xs font-extrabold uppercase tracking-[0.08em] text-muted-foreground">
+                {grupo}
+              </p>
+              {itens.map((item) => {
+                const Icon = item.icon
+                const isActive = location.pathname.startsWith(item.path)
+                const contagem =
+                  item.path === '/alertas'
+                    ? alertasCount
+                    : item.path === '/usuarios'
+                      ? convitesPendentesCount
+                      : 0
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={onItemClick}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={cn(
+                      'flex items-center gap-3 rounded-full px-3.5 no-underline transition-colors duration-300',
+                      emGaveta ? 'min-h-12 text-base' : 'min-h-11 text-sm',
+                      isActive
+                        ? 'bg-primary font-extrabold text-primary-foreground'
+                        : 'font-semibold text-foreground hover:bg-primary/10',
+                    )}
+                  >
+                    <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+                    <span className="flex-1">{item.title}</span>
+                    {contagem > 0 && (
+                      <span
+                        className={cn(
+                          'numero inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs font-extrabold',
+                          isActive
+                            ? 'bg-primary-foreground text-primary'
+                            : item.path === '/alertas'
+                              ? 'bg-destructive text-destructive-foreground'
+                              : 'bg-accent text-accent-foreground',
+                        )}
+                      >
+                        {contagem}
+                        <span className="sr-only">
+                          {item.path === '/alertas' ? ' alertas ativos' : ' convites pendentes'}
+                        </span>
+                      </span>
+                    )}
+                  </Link>
+                )
+              })}
+            </div>
+          )
+        })}
+      </nav>
+
+      <div className="shrink-0 space-y-3 border-t border-dashed border-border px-1 pt-3">
+        <button
+          type="button"
+          onClick={signOut}
+          className="flex min-h-11 w-full items-center gap-3 rounded-full px-3.5 text-sm font-bold text-foreground transition-colors hover:bg-destructive/10 hover:text-red-800"
+        >
+          <LogOut className="h-5 w-5" aria-hidden="true" />
+          Sair do sistema
+        </button>
+        <CreditoAguia className="px-3.5" />
       </div>
     </div>
   )

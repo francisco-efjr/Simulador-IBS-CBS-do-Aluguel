@@ -3,10 +3,15 @@ import { Outlet } from 'react-router-dom'
 import { Header } from '@/components/Header'
 import { TelaCarregando } from '@/components/TelaCarregando'
 import { SidebarContent } from '@/components/SidebarContent'
-import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet'
-import { useIsMobile } from '@/hooks/use-mobile'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet'
+import { Blob } from '@/components/organico'
 import { useTituloDaPagina } from '@/hooks/use-titulo-da-pagina'
-import { cn } from '@/lib/utils'
 
 interface LayoutProps {
   /**
@@ -19,50 +24,54 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
-  const isMobile = useIsMobile()
   useTituloDaPagina()
 
-  const desktopSidebar = (
-    <aside className="hidden lg:flex w-64 shrink-0">
-      <SidebarContent />
-    </aside>
-  )
-
   return (
-    <div className="flex h-dvh w-full overflow-hidden bg-navy-950">
+    <div className="flex h-dvh w-full overflow-hidden bg-background">
       {/* Primeira parada do teclado: pular o menu inteiro e cair no conteúdo.
           Sem isso, cada troca de tela custa uma dezena de tabulações. */}
       <a
         href="#conteudo"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-gold-500 focus:px-5 focus:py-3 focus:text-base focus:font-bold focus:text-navy-950"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-primary focus:px-6 focus:py-3 focus:text-base focus:font-extrabold focus:text-primary-foreground"
       >
         Ir para o conteúdo
       </a>
 
-      {desktopSidebar}
+      {/* Computador (≥ 1024px): menu lateral fixo de 288px com rolagem própria. */}
+      <aside className="hidden w-72 shrink-0 border-r border-border/60 bg-sunken px-4 py-7 lg:flex">
+        <SidebarContent />
+      </aside>
 
-      {/* Mobile & Tablet Drawer */}
+      {/* Celular e tablet: gaveta à esquerda. Foco preso, Esc fecha e o foco
+          volta ao botão do menu (Radix); fecha também ao navegar. */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-72 sm:w-80 border-none p-0 bg-navy-800">
+        <SheetContent
+          side="left"
+          className="flex w-[min(330px,85vw)] flex-col bg-background px-4 py-6 sm:max-w-none"
+        >
           <SheetHeader className="sr-only">
-            <h2>Navegação Holding Aguiar</h2>
+            <SheetTitle>Menu principal</SheetTitle>
+            <SheetDescription>Navegação entre as telas do sistema</SheetDescription>
           </SheetHeader>
-          <SidebarContent onItemClick={() => setMobileOpen(false)} />
+          <SidebarContent emGaveta onItemClick={() => setMobileOpen(false)} />
         </SheetContent>
       </Sheet>
 
-      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
-        <Header onOpenMobileSidebar={() => setMobileOpen(true)} />
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <main
           id="conteudo"
           tabIndex={-1}
-          className="flex-1 overflow-y-auto bg-slate-50 focus:outline-none"
+          className="relative flex-1 overflow-y-auto overflow-x-hidden focus:outline-none"
         >
-          {/* Em monitor largo, conteúdo esticado de ponta a ponta obriga o olho
-              a atravessar a tela para ligar o começo da linha ao fim. A faixa
-              central resolve isso sem desperdiçar espaço: 1.600px comporta a
-              tabela inteira com folga e mantém a linha em comprimento legível. */}
-          <div className="mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 lg:px-8 lg:py-6">
+          <Header onOpenMobileSidebar={() => setMobileOpen(true)} />
+          {/* Mancha de fundo, uma por tela interna (decorativa). */}
+          <Blob
+            forma={1}
+            cor="secondary"
+            className="-right-24 top-10 h-[400px] w-[460px] opacity-[0.14] blur-[70px]"
+          />
+          {/* Em monitor largo o conteúdo fica numa faixa central de 1.280px. */}
+          <div className="relative mx-auto w-full max-w-[1376px] px-4 pb-14 pt-5 lg:px-12 lg:pt-4">
             <Suspense fallback={<TelaCarregando variante="conteudo" />}>
               {children ?? <Outlet />}
             </Suspense>
