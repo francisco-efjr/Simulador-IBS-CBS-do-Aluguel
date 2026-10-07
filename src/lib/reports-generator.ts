@@ -1,6 +1,5 @@
-import { jsPDF } from 'jspdf'
-import autoTable from 'jspdf-autotable'
-import * as XLSX from 'xlsx'
+import type { jsPDF as JsPdfDocumento } from 'jspdf'
+import { hojeLocalISO } from '@/lib/indicadores-financeiros'
 import {
   formatCurrency,
   formatDate,
@@ -39,7 +38,7 @@ const getBase64ImageFromUrl = async (imageUrl: string): Promise<string> => {
 
 // Helper: Add Standard Holding Aguiar Header to PDF
 const addPdfHeader = async (
-  doc: jsPDF,
+  doc: JsPdfDocumento,
   title: string,
   periodoLabel: string,
   extraFilterInfo?: string,
@@ -99,7 +98,7 @@ const addPdfHeader = async (
 }
 
 // Helper: Add Standard PDF Footer with pagination
-const addPdfFooter = (doc: jsPDF) => {
+const addPdfFooter = (doc: JsPdfDocumento) => {
   const pageCount = (doc as any).internal.getNumberOfPages()
   const pageWidth = doc.internal.pageSize.getWidth()
   const pageHeight = doc.internal.pageSize.getHeight()
@@ -124,6 +123,19 @@ const addPdfFooter = (doc: jsPDF) => {
 // ==========================================
 // 1. RELATÓRIO FINANCEIRO
 // ==========================================
+
+/**
+ * jsPDF, jspdf-autotable e xlsx pesam centenas de KB e só servem na hora de exportar:
+ * entram por import() dinâmico, fora do pacote inicial do sistema.
+ */
+async function carregarPdf() {
+  const [{ jsPDF }, { autoTable }] = await Promise.all([import('jspdf'), import('jspdf-autotable')])
+  return { jsPDF, autoTable }
+}
+
+async function carregarExcel() {
+  return import('xlsx')
+}
 
 export interface RelatorioFinanceiroParams {
   periodoLabel: string
@@ -151,7 +163,8 @@ export interface RelatorioFinanceiroParams {
 }
 
 export async function exportarRelatorioFinanceiroPDF(data: RelatorioFinanceiroParams) {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+  const { jsPDF, autoTable } = await carregarPdf()
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true })
 
   await addPdfHeader(
     doc,
@@ -262,10 +275,11 @@ export async function exportarRelatorioFinanceiroPDF(data: RelatorioFinanceiroPa
   })
 
   addPdfFooter(doc)
-  doc.save(`Relatorio_Financeiro_Holding_Aguiar_${new Date().toISOString().slice(0, 10)}.pdf`)
+  doc.save(`Relatorio_Financeiro_Holding_Aguiar_${hojeLocalISO()}.pdf`)
 }
 
-export function exportarRelatorioFinanceiroExcel(data: RelatorioFinanceiroParams) {
+export async function exportarRelatorioFinanceiroExcel(data: RelatorioFinanceiroParams) {
+  const XLSX = await carregarExcel()
   const wb = XLSX.utils.book_new()
 
   // Sheet 1: Indicadores
@@ -306,7 +320,7 @@ export function exportarRelatorioFinanceiroExcel(data: RelatorioFinanceiroParams
 
   XLSX.writeFile(
     wb,
-    `Relatorio_Financeiro_Holding_Aguiar_${new Date().toISOString().slice(0, 10)}.xlsx`,
+    `Relatorio_Financeiro_Holding_Aguiar_${hojeLocalISO()}.xlsx`,
   )
 }
 
@@ -344,7 +358,8 @@ export interface RelatorioImoveisParams {
 }
 
 export async function exportarRelatorioImoveisPDF(data: RelatorioImoveisParams) {
-  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+  const { jsPDF, autoTable } = await carregarPdf()
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true })
 
   await addPdfHeader(
     doc,
@@ -471,10 +486,11 @@ export async function exportarRelatorioImoveisPDF(data: RelatorioImoveisParams) 
   })
 
   addPdfFooter(doc)
-  doc.save(`Relatorio_Imoveis_Holding_Aguiar_${new Date().toISOString().slice(0, 10)}.pdf`)
+  doc.save(`Relatorio_Imoveis_Holding_Aguiar_${hojeLocalISO()}.pdf`)
 }
 
-export function exportarRelatorioImoveisExcel(data: RelatorioImoveisParams) {
+export async function exportarRelatorioImoveisExcel(data: RelatorioImoveisParams) {
+  const XLSX = await carregarExcel()
   const wb = XLSX.utils.book_new()
 
   const rows = [
@@ -534,7 +550,7 @@ export function exportarRelatorioImoveisExcel(data: RelatorioImoveisParams) {
   XLSX.utils.book_append_sheet(wb, ws, 'Imóveis')
   XLSX.writeFile(
     wb,
-    `Relatorio_Imoveis_Holding_Aguiar_${new Date().toISOString().slice(0, 10)}.xlsx`,
+    `Relatorio_Imoveis_Holding_Aguiar_${hojeLocalISO()}.xlsx`,
   )
 }
 
@@ -561,7 +577,8 @@ export interface RelatorioContratosParams {
 }
 
 export async function exportarRelatorioContratosPDF(data: RelatorioContratosParams) {
-  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+  const { jsPDF, autoTable } = await carregarPdf()
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true })
 
   await addPdfHeader(
     doc,
@@ -632,10 +649,11 @@ export async function exportarRelatorioContratosPDF(data: RelatorioContratosPara
   })
 
   addPdfFooter(doc)
-  doc.save(`Relatorio_Contratos_Holding_Aguiar_${new Date().toISOString().slice(0, 10)}.pdf`)
+  doc.save(`Relatorio_Contratos_Holding_Aguiar_${hojeLocalISO()}.pdf`)
 }
 
-export function exportarRelatorioContratosExcel(data: RelatorioContratosParams) {
+export async function exportarRelatorioContratosExcel(data: RelatorioContratosParams) {
+  const XLSX = await carregarExcel()
   const wb = XLSX.utils.book_new()
 
   const rows = [
@@ -674,7 +692,7 @@ export function exportarRelatorioContratosExcel(data: RelatorioContratosParams) 
   XLSX.utils.book_append_sheet(wb, ws, 'Contratos')
   XLSX.writeFile(
     wb,
-    `Relatorio_Contratos_Holding_Aguiar_${new Date().toISOString().slice(0, 10)}.xlsx`,
+    `Relatorio_Contratos_Holding_Aguiar_${hojeLocalISO()}.xlsx`,
   )
 }
 
@@ -712,7 +730,8 @@ export interface RelatorioInadimplenciaParams {
 }
 
 export async function exportarRelatorioInadimplenciaPDF(data: RelatorioInadimplenciaParams) {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+  const { jsPDF, autoTable } = await carregarPdf()
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true })
 
   await addPdfHeader(
     doc,
@@ -861,10 +880,11 @@ export async function exportarRelatorioInadimplenciaPDF(data: RelatorioInadimple
   })
 
   addPdfFooter(doc)
-  doc.save(`Relatorio_Inadimplencia_Holding_Aguiar_${new Date().toISOString().slice(0, 10)}.pdf`)
+  doc.save(`Relatorio_Inadimplencia_Holding_Aguiar_${hojeLocalISO()}.pdf`)
 }
 
-export function exportarRelatorioInadimplenciaExcel(data: RelatorioInadimplenciaParams) {
+export async function exportarRelatorioInadimplenciaExcel(data: RelatorioInadimplenciaParams) {
+  const XLSX = await carregarExcel()
   const wb = XLSX.utils.book_new()
 
   // Sheet 1: Receitas Atraso
@@ -938,6 +958,6 @@ export function exportarRelatorioInadimplenciaExcel(data: RelatorioInadimplencia
 
   XLSX.writeFile(
     wb,
-    `Relatorio_Inadimplencia_Holding_Aguiar_${new Date().toISOString().slice(0, 10)}.xlsx`,
+    `Relatorio_Inadimplencia_Holding_Aguiar_${hojeLocalISO()}.xlsx`,
   )
 }

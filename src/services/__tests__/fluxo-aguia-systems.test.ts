@@ -32,6 +32,9 @@ vi.mock('@/lib/dados/supabase', () => ({
   supabase: {
     rpc: (...args: unknown[]) => rpc(...args),
     from: (...args: unknown[]) => from(...args),
+    auth: {
+      getSession: async () => ({ data: { session: { user: { id: 'u-1' } } } }),
+    },
   },
 }))
 
@@ -275,7 +278,8 @@ describe('Fluxo Integrado Águia Systems (Fase 4)', () => {
     it('calcula se a cota gratuita de 3 imóveis foi atingida', async () => {
       // Caso 1: 2 imóveis cadastrados -> dentro do limite
       const neq1 = vi.fn().mockResolvedValueOnce({ count: 2, error: null })
-      const select1 = vi.fn(() => ({ neq: neq1 }))
+      const eq1 = vi.fn(() => ({ neq: neq1 }))
+      const select1 = vi.fn(() => ({ eq: eq1 }))
       from.mockReturnValueOnce({ select: select1 })
 
       const totalAbaixo = await contarImoveisAtivos()
@@ -285,7 +289,8 @@ describe('Fluxo Integrado Águia Systems (Fase 4)', () => {
 
       // Caso 2: 3 imóveis cadastrados -> atingiu o teto
       const neq2 = vi.fn().mockResolvedValueOnce({ count: 3, error: null })
-      const select2 = vi.fn(() => ({ neq: neq2 }))
+      const eq2 = vi.fn(() => ({ neq: neq2 }))
+      const select2 = vi.fn(() => ({ eq: eq2 }))
       from.mockReturnValueOnce({ select: select2 })
 
       const totalNoTeto = await contarImoveisAtivos()

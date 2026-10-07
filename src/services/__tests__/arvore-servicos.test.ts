@@ -20,11 +20,13 @@ vi.mock('@/lib/dados/cliente', () => ({
 
 const rpc = vi.fn()
 const from = vi.fn()
+const getSession = vi.fn().mockResolvedValue({ data: { session: { user: { id: 'u-1' } } } })
 
 vi.mock('@/lib/dados/supabase', () => ({
   supabase: {
     rpc: (...args: unknown[]) => rpc(...args),
     from: (...args: unknown[]) => from(...args),
+    auth: { getSession: () => getSession() },
   },
 }))
 
@@ -195,16 +197,25 @@ describe('Serviço de Imóveis — Contagem e Limite', () => {
     expect(res).toHaveLength(1)
   })
 
-  it('contarImoveisAtivos consulta a contagem exata no Supabase ignorando inativos', async () => {
+  it('contarImoveisAtivos conta só os ativos criados pela pessoa logada (SEG-17)', async () => {
     const neq = vi.fn().mockResolvedValueOnce({ count: 2, error: null })
-    const select = vi.fn(() => ({ neq }))
+    const eq = vi.fn(() => ({ neq }))
+    const select = vi.fn(() => ({ eq }))
     from.mockReturnValueOnce({ select })
 
     const total = await contarImoveisAtivos()
     expect(from).toHaveBeenCalledWith('imoveis')
     expect(select).toHaveBeenCalledWith('id', { count: 'exact', head: true })
+    expect(eq).toHaveBeenCalledWith('created_by', 'u-1')
     expect(neq).toHaveBeenCalledWith('status', 'inativo')
     expect(total).toBe(2)
+  })
+
+  it('contarImoveisAtivos devolve 0 sem sessão, sem consultar o banco', async () => {
+    getSession.mockResolvedValueOnce({ data: { session: null } })
+    from.mockClear()
+    expect(await contarImoveisAtivos()).toBe(0)
+    expect(from).not.toHaveBeenCalled()
   })
 })
 

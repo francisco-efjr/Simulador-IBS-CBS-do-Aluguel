@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import { Truck, Plus, Search, Eye, Pencil, Ban, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { getFornecedores, updateFornecedor } from '@/services/fornecedores'
@@ -65,10 +66,10 @@ export default function Fornecedores() {
   })
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = termoDeBusca(search)
     return fornecedores.filter((fo) => {
       const ms =
-        !q || [fo.nome, fo.cnpj_cpf, fo.email].some((v) => (v || '').toLowerCase().includes(q))
+        !q || [fo.nome, fo.cnpj_cpf, fo.email].some((v) => semAcento(v || '').includes(q))
       return (
         ms &&
         (fTipo === 'all' || fo.tipo_fornecedor === fTipo) &&

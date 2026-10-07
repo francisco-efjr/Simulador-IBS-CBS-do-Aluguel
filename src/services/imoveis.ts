@@ -52,13 +52,20 @@ export const updateImovel = (
 export const deleteImovel = (id: string) => colecao('imoveis').delete(id)
 
 /**
- * Conta a quantidade de imóveis ativos do usuário corrente.
- * Utilizado para validação do limite comercial de até 3 imóveis ativos (HA003).
+ * Conta os imóveis ativos que a pessoa logada cadastrou (e só eles).
+ * Mesma regra do gatilho do banco (HA003, migração 20261006120007): `created_by = auth.uid()`
+ * e status diferente de inativo. Contar tudo o que a pessoa enxerga bloquearia um editor
+ * legítimo num sistema com imóveis de outros sócios.
  */
 export async function contarImoveisAtivos(): Promise<number> {
+  const { data: sessao } = await supabase.auth.getSession()
+  const idDaPessoa = sessao.session?.user.id
+  if (!idDaPessoa) return 0
+
   const { count, error } = await supabase
     .from('imoveis')
     .select('id', { count: 'exact', head: true })
+    .eq('created_by', idDaPessoa)
     .neq('status', 'inativo')
 
   if (error) {

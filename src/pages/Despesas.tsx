@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import { TrendingDown, Plus, Search, Eye, Pencil, Trash2, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { getDespesas, deleteDespesa } from '@/services/despesas'
@@ -9,6 +10,8 @@ import { DespesaFormDialog } from '@/components/despesas/DespesaFormDialog'
 import { DespesaDetailDialog } from '@/components/despesas/DespesaDetailDialog'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/button'
+import { ConfirmarAcao } from '@/components/shared/ConfirmarAcao'
+import { rotuloDoLancamento } from '@/lib/rotulo-lancamento'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -67,7 +70,7 @@ export default function Despesas() {
   })
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = termoDeBusca(search)
     return items.filter((d) => {
       const imovelNome = d.expand?.imovel?.nome || d.expand?.imovel?.endereco || ''
       const fornecedorNome = d.expand?.fornecedor?.nome || ''
@@ -75,7 +78,7 @@ export default function Despesas() {
       const ms =
         !q ||
         [d.descricao, d.observacoes, imovelNome, fornecedorNome, categoriaNome].some((v) =>
-          (v || '').toLowerCase().includes(q),
+          semAcento(v || '').includes(q),
         )
       return (
         ms &&
@@ -105,7 +108,7 @@ export default function Despesas() {
       setDetailOpen(false)
       load()
     } catch {
-      toast.error('Não foi possível excluir a despesa. Tente novamente.')
+      toast.error('Não foi possível excluir despesa. Tente novamente.')
     }
   }
 
@@ -246,7 +249,7 @@ export default function Despesas() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          aria-label="Ver detalhes"
+                          aria-label={`Ver detalhes da despesa ${rotuloDoLancamento(d, 'Despesa')}`}
                           title="Ver detalhes"
                           className="h-11 w-11 min-h-[44px] min-w-[44px]"
                           onClick={() => handleView(d)}
@@ -257,7 +260,7 @@ export default function Despesas() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            aria-label="Editar"
+                            aria-label={`Editar despesa ${rotuloDoLancamento(d, 'Despesa')}`}
                             title="Editar"
                             className="h-11 w-11 min-h-[44px] min-w-[44px]"
                             onClick={() => handleEdit(d)}
@@ -317,24 +320,34 @@ export default function Despesas() {
                           <Button
                             variant="outline"
                             size="sm"
+                            aria-label={`Editar despesa ${rotuloDoLancamento(d, 'Despesa')}`}
                             className="h-11 px-3 min-h-[44px] text-sm"
                             onClick={() => handleEdit(d)}
                           >
                             <Pencil className="h-3.5 w-3.5 mr-1 text-slate-600" /> Editar
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-11 px-3 min-h-[44px] text-red-600 hover:bg-red-50 border-red-200"
-                            onClick={() => handleDelete(d)}
+                          <ConfirmarAcao
+                            titulo="Excluir esta despesa?"
+                            descricao={`${rotuloDoLancamento(d, 'Despesa')}: ${formatCurrency(d.valor_previsto)}, vencimento em ${formatDate(d.data_vencimento)}. Essa ação não pode ser desfeita.`}
+                            rotuloConfirmar="Sim, excluir despesa"
+                            onConfirmar={() => handleDelete(d)}
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              aria-label={`Excluir despesa ${rotuloDoLancamento(d, 'Despesa')}`}
+                              title="Excluir"
+                              className="h-11 w-11 min-h-[44px] min-w-[44px] px-0 text-red-600 hover:bg-red-50 border-red-200"
+                            >
+                              <Trash2 className="h-4 w-4" aria-hidden="true" />
+                            </Button>
+                          </ConfirmarAcao>
                         </>
                       ) : (
                         <Button
                           variant="outline"
                           size="sm"
+                          aria-label={`Detalhes da despesa ${rotuloDoLancamento(d, 'Despesa')}`}
                           className="h-11 px-3 min-h-[44px] text-sm"
                           onClick={() => handleView(d)}
                         >

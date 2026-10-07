@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import {
   Building2,
   Plus,
@@ -139,12 +140,12 @@ export default function Imoveis() {
   }
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = termoDeBusca(search)
     return imoveis.filter((im) => {
       const matchSearch =
         !q ||
         [im.codigo, im.nome, im.endereco, im.matricula, im.cib].some((v) =>
-          (v || '').toLowerCase().includes(q),
+          semAcento(v || '').includes(q),
         )
       return (
         matchSearch &&

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import { Receipt, Plus, Search, Eye, Pencil, Trash2, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { getIptuTaxas, deleteIptuTaxa } from '@/services/iptu-taxas'
@@ -8,6 +9,8 @@ import { IptuTaxaFormDialog } from '@/components/iptu-taxas/IptuTaxaFormDialog'
 import { IptuTaxaDetailDialog } from '@/components/iptu-taxas/IptuTaxaDetailDialog'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/button'
+import { ConfirmarAcao } from '@/components/shared/ConfirmarAcao'
+import { rotuloDoLancamento } from '@/lib/rotulo-lancamento'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -64,14 +67,14 @@ export default function IptuTaxas() {
   })
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = termoDeBusca(search)
     return items.filter((c) => {
       const imovelNome = c.expand?.imovel?.nome || c.expand?.imovel?.endereco || ''
       const imovelCodigo = c.expand?.imovel?.codigo || ''
       const ms =
         !q ||
         [c.descricao, imovelNome, imovelCodigo, TIPO_IPTU_LABELS[c.tipo] || c.tipo].some((v) =>
-          (v || '').toLowerCase().includes(q),
+          semAcento(v || '').includes(q),
         )
       return (
         ms && (fTipo === 'all' || c.tipo === fTipo) && (fStatus === 'all' || c.status === fStatus)
@@ -99,7 +102,7 @@ export default function IptuTaxas() {
       setDetailOpen(false)
       load()
     } catch {
-      toast.error('Não foi possível excluir a obrigação. Tente novamente.')
+      toast.error('Não foi possível excluir obrigação. Tente novamente.')
     }
   }
 
@@ -242,7 +245,7 @@ export default function IptuTaxas() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          aria-label="Ver detalhes"
+                          aria-label={`Ver detalhes da obrigação ${rotuloDoLancamento(c, 'Obrigação')}`}
                           title="Ver detalhes"
                           className="h-11 w-11 min-h-[44px] min-w-[44px]"
                           onClick={() => handleView(c)}
@@ -253,7 +256,7 @@ export default function IptuTaxas() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            aria-label="Editar"
+                            aria-label={`Editar obrigação ${rotuloDoLancamento(c, 'Obrigação')}`}
                             title="Editar"
                             className="h-11 w-11 min-h-[44px] min-w-[44px]"
                             onClick={() => handleEdit(c)}
@@ -302,24 +305,34 @@ export default function IptuTaxas() {
                           <Button
                             variant="outline"
                             size="sm"
+                            aria-label={`Editar obrigação ${rotuloDoLancamento(c, 'Obrigação')}`}
                             className="h-11 px-3 min-h-[44px] text-sm"
                             onClick={() => handleEdit(c)}
                           >
                             <Pencil className="h-3.5 w-3.5 mr-1 text-slate-600" /> Editar
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-11 px-3 min-h-[44px] text-red-600 hover:bg-red-50 border-red-200"
-                            onClick={() => handleDelete(c)}
+                          <ConfirmarAcao
+                            titulo="Excluir esta obrigação?"
+                            descricao={`${rotuloDoLancamento(c, 'Obrigação')}: ${formatCurrency(c.valor)}, vencimento em ${formatDate(c.vencimento)}. Essa ação não pode ser desfeita.`}
+                            rotuloConfirmar="Sim, excluir obrigação"
+                            onConfirmar={() => handleDelete(c)}
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              aria-label={`Excluir obrigação ${rotuloDoLancamento(c, 'Obrigação')}`}
+                              title="Excluir"
+                              className="h-11 w-11 min-h-[44px] min-w-[44px] px-0 text-red-600 hover:bg-red-50 border-red-200"
+                            >
+                              <Trash2 className="h-4 w-4" aria-hidden="true" />
+                            </Button>
+                          </ConfirmarAcao>
                         </>
                       ) : (
                         <Button
                           variant="outline"
                           size="sm"
+                          aria-label={`Detalhes da obrigação ${rotuloDoLancamento(c, 'Obrigação')}`}
                           className="h-11 px-3 min-h-[44px] text-sm"
                           onClick={() => handleView(c)}
                         >

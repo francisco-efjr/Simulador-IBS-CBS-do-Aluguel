@@ -57,6 +57,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
+import { resumirFinanceiro, valorRealizado } from '@/lib/indicadores-financeiros'
 
 type PeriodPreset =
   | 'current_month'
@@ -327,86 +328,22 @@ export default function DashboardFinanceiro() {
     return true
   }
 
-  // 1. CARDS CALCULATION
+  // 1. CARDS CALCULATION — cálculo único em src/lib/indicadores-financeiros.ts (FIN-02)
   const kpis = useMemo(() => {
-    // Receitas recebidas: status_financeiro === 'recebido', filtered by data_recebimento in range
-    let receitasRecebidas = 0
-    let countReceitasRecebidas = 0
-
-    // Despesas pagas: status_financeiro === 'pago', filtered by data_pagamento in range
-    let despesasPagas = 0
-    let countDespesasPagas = 0
-
-    // Receitas pendentes: status_financeiro === 'previsto', filtered by data_vencimento in range
-    let receitasPendentes = 0
-
-    // Receitas vencidas: status_financeiro === 'em_atraso', filtered by data_vencimento in range
-    let receitasVencidas = 0
-
-    // Despesas pendentes: status_financeiro === 'previsto', filtered by data_vencimento in range
-    let despesasPendentes = 0
-
-    // Despesas vencidas: status_financeiro === 'em_atraso', filtered by data_vencimento in range
-    let despesasVencidas = 0
-
-    receitas.forEach((r) => {
-      if (!matchesImovelAndCategoria(r)) return
-
-      const status = r.status_financeiro || ''
-      const recDate = r.data_recebimento || r.data
-      const vencDate = r.data_vencimento || r.data
-
-      if (status === 'recebido') {
-        if (isDateInRange(recDate)) {
-          receitasRecebidas += Number(r.valor_recebido || r.valor || 0)
-          countReceitasRecebidas++
-        }
-      } else if (status === 'previsto') {
-        if (isDateInRange(vencDate)) {
-          receitasPendentes += Number(r.valor_previsto || r.valor || 0)
-        }
-      } else if (status === 'em_atraso') {
-        if (isDateInRange(vencDate)) {
-          receitasVencidas += Number(r.valor_previsto || r.valor || 0)
-        }
-      }
-    })
-
-    despesas.forEach((d) => {
-      if (!matchesImovelAndCategoria(d)) return
-
-      const status = d.status_financeiro || ''
-      const pagDate = d.data_pagamento || d.data
-      const vencDate = d.data_vencimento || d.data
-
-      if (status === 'pago') {
-        if (isDateInRange(pagDate)) {
-          despesasPagas += Number(d.valor_pago || d.valor || 0)
-          countDespesasPagas++
-        }
-      } else if (status === 'previsto') {
-        if (isDateInRange(vencDate)) {
-          despesasPendentes += Number(d.valor_previsto || d.valor || 0)
-        }
-      } else if (status === 'em_atraso') {
-        if (isDateInRange(vencDate)) {
-          despesasVencidas += Number(d.valor_previsto || d.valor || 0)
-        }
-      }
-    })
-
-    const resultadoLiquido = receitasRecebidas - despesasPagas
-    const hasData = countReceitasRecebidas > 0 || countDespesasPagas > 0
-
+    const resumo = resumirFinanceiro(
+      receitas.filter(matchesImovelAndCategoria),
+      despesas.filter(matchesImovelAndCategoria),
+      { inicio: startDateStr, fim: endDateStr },
+    )
     return {
-      receitasRecebidas,
-      despesasPagas,
-      resultadoLiquido,
-      hasData,
-      receitasPendentes,
-      receitasVencidas,
-      despesasPendentes,
-      despesasVencidas,
+      receitasRecebidas: resumo.receitasRecebidas,
+      despesasPagas: resumo.despesasPagas,
+      resultadoLiquido: resumo.resultadoLiquido,
+      hasData: resumo.quantidadeReceitasRecebidas > 0 || resumo.quantidadeDespesasPagas > 0,
+      receitasPendentes: resumo.receitasAReceber,
+      receitasVencidas: resumo.receitasVencidas,
+      despesasPendentes: resumo.despesasAPagar,
+      despesasVencidas: resumo.despesasVencidas,
     }
   }, [receitas, despesas, selectedImovel, selectedCategoria, startDateStr, endDateStr])
 
@@ -474,7 +411,8 @@ export default function DashboardFinanceiro() {
 
     // Populate receitas realizadas (status_financeiro = 'recebido')
     receitas.forEach((r) => {
-      if (r.status_financeiro !== 'recebido') return
+      const valorRec = valorRealizado(r, 'receita')
+      if (valorRec <= 0) return
       if (!matchesImovelAndCategoria(r)) return
 
       const dStr = getDateStr(r.data_recebimento || r.data)
@@ -483,13 +421,14 @@ export default function DashboardFinanceiro() {
 
       if (monthsMap.has(key)) {
         const item = monthsMap.get(key)!
-        item.receitas += Number(r.valor_recebido || r.valor || 0)
+        item.receitas += valorRec
       }
     })
 
     // Populate despesas realizadas (status_financeiro = 'pago')
     despesas.forEach((d) => {
-      if (d.status_financeiro !== 'pago') return
+      const valorPag = valorRealizado(d, 'despesa')
+      if (valorPag <= 0) return
       if (!matchesImovelAndCategoria(d)) return
 
       const dStr = getDateStr(d.data_pagamento || d.data)
@@ -498,7 +437,7 @@ export default function DashboardFinanceiro() {
 
       if (monthsMap.has(key)) {
         const item = monthsMap.get(key)!
-        item.despesas += Number(d.valor_pago || d.valor || 0)
+        item.despesas += valorPag
       }
     })
 
@@ -523,13 +462,14 @@ export default function DashboardFinanceiro() {
     const imovelMap = new Map<string, { name: string; valor: number }>()
 
     receitas.forEach((r) => {
-      if (r.status_financeiro !== 'recebido') return
+      const valorRec = valorRealizado(r, 'receita')
+      if (valorRec <= 0) return
       if (!matchesImovelAndCategoria(r)) return
       if (!isDateInRange(r.data_recebimento || r.data)) return
 
       const imId = r.imovel || 'nao_identificado'
       const name = getImovelDisplayName(r.imovel, r.expand?.imovel)
-      const val = Number(r.valor_recebido || r.valor || 0)
+      const val = valorRec
 
       const curr = imovelMap.get(imId) || { name, valor: 0 }
       curr.valor += val
@@ -547,13 +487,14 @@ export default function DashboardFinanceiro() {
     const imovelMap = new Map<string, { name: string; valor: number }>()
 
     despesas.forEach((d) => {
-      if (d.status_financeiro !== 'pago') return
+      const valorPag = valorRealizado(d, 'despesa')
+      if (valorPag <= 0) return
       if (!matchesImovelAndCategoria(d)) return
       if (!isDateInRange(d.data_pagamento || d.data)) return
 
       const imId = d.imovel || 'nao_identificado'
       const name = getImovelDisplayName(d.imovel, d.expand?.imovel)
-      const val = Number(d.valor_pago || d.valor || 0)
+      const val = valorPag
 
       const curr = imovelMap.get(imId) || { name, valor: 0 }
       curr.valor += val
@@ -571,7 +512,8 @@ export default function DashboardFinanceiro() {
     const catMap = new Map<string, { name: string; valor: number }>()
 
     despesas.forEach((d) => {
-      if (d.status_financeiro !== 'pago') return
+      const valorPag = valorRealizado(d, 'despesa')
+      if (valorPag <= 0) return
       if (!matchesImovelAndCategoria(d)) return
       if (!isDateInRange(d.data_pagamento || d.data)) return
 
@@ -583,7 +525,7 @@ export default function DashboardFinanceiro() {
       }
       if (!catName) catName = 'Sem Categoria'
 
-      const val = Number(d.valor_pago || d.valor || 0)
+      const val = valorPag
       const curr = catMap.get(catId) || { name: catName, valor: 0 }
       curr.valor += val
       catMap.set(catId, curr)
@@ -630,7 +572,8 @@ export default function DashboardFinanceiro() {
 
     // Add receitas recebidas
     receitas.forEach((r) => {
-      if (r.status_financeiro !== 'recebido') return
+      const valorRec = valorRealizado(r, 'receita')
+      if (valorRec <= 0) return
       if (!matchesImovelAndCategoria(r)) return
       if (!isDateInRange(r.data_recebimento || r.data)) return
 
@@ -646,12 +589,13 @@ export default function DashboardFinanceiro() {
         })
       }
       const item = summaryMap.get(imId)!
-      item.receitas += Number(r.valor_recebido || r.valor || 0)
+      item.receitas += valorRec
     })
 
     // Add despesas pagas
     despesas.forEach((d) => {
-      if (d.status_financeiro !== 'pago') return
+      const valorPag = valorRealizado(d, 'despesa')
+      if (valorPag <= 0) return
       if (!matchesImovelAndCategoria(d)) return
       if (!isDateInRange(d.data_pagamento || d.data)) return
 
@@ -667,7 +611,7 @@ export default function DashboardFinanceiro() {
         })
       }
       const item = summaryMap.get(imId)!
-      item.despesas += Number(d.valor_pago || d.valor || 0)
+      item.despesas += valorPag
     })
 
     const list = Array.from(summaryMap.values()).map((row) => ({
@@ -987,6 +931,14 @@ export default function DashboardFinanceiro() {
                     className="h-9 text-xs bg-slate-50/50"
                   />
                 </div>
+                {customStartDate && customEndDate && customStartDate > customEndDate && (
+                  <p
+                    role="alert"
+                    className="sm:col-span-2 lg:col-span-4 text-sm font-medium text-red-700"
+                  >
+                    A data de início é depois da data de fim. Troque as datas para ver os números.
+                  </p>
+                )}
               </>
             )}
 

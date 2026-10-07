@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import {
   UserPlus,
   Pencil,
@@ -215,23 +216,23 @@ export default function Usuarios() {
   // Filtragem
   const filteredUsers = useMemo(() => {
     if (!searchTerm.trim()) return users
-    const term = searchTerm.toLowerCase()
+    const term = termoDeBusca(searchTerm)
     return users.filter(
       (u) =>
-        (u.name && u.name.toLowerCase().includes(term)) ||
-        (u.email && u.email.toLowerCase().includes(term)) ||
-        (u.perfil && u.perfil.toLowerCase().includes(term)),
+        (u.name && semAcento(u.name).includes(term)) ||
+        (u.email && semAcento(u.email).includes(term)) ||
+        (u.perfil && semAcento(u.perfil).includes(term)),
     )
   }, [users, searchTerm])
 
   const filteredConvites = useMemo(() => {
     if (!searchTerm.trim()) return convites
-    const term = searchTerm.toLowerCase()
+    const term = termoDeBusca(searchTerm)
     return convites.filter(
       (c) =>
-        (c.email && c.email.toLowerCase().includes(term)) ||
-        (c.status && c.status.toLowerCase().includes(term)) ||
-        (c.perfil && c.perfil.toLowerCase().includes(term)),
+        (c.email && semAcento(c.email).includes(term)) ||
+        (c.status && semAcento(c.status).includes(term)) ||
+        (c.perfil && semAcento(c.perfil).includes(term)),
     )
   }, [convites, searchTerm])
 
