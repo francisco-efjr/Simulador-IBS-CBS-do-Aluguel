@@ -26,6 +26,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { COLUNA_ACOES_CABECALHO, COLUNA_ACOES_CELULA } from '@/lib/tabela'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { useAuth } from '@/hooks/use-auth'
@@ -185,7 +187,7 @@ export default function Fornecedores() {
       ) : (
         <>
           <p className="text-sm text-slate-600">{filtered.length} fornecedor(es)</p>
-          <div className="hidden md:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="hidden lg:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table className="min-w-[650px]">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">
@@ -194,7 +196,9 @@ export default function Fornecedores() {
                   <TableHead>Status</TableHead>
                   <TableHead>CPF/CNPJ</TableHead>
                   <TableHead>Contato</TableHead>
-                  <TableHead className="w-[120px] text-right">Ações</TableHead>
+                  <TableHead className={cn('w-[120px] text-right', COLUNA_ACOES_CABECALHO)}>
+                    Ações
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -218,7 +222,10 @@ export default function Fornecedores() {
                     <TableCell className="text-sm text-slate-600">
                       {fo.telefone || fo.contato || '—'}
                     </TableCell>
-                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                    <TableCell
+                      className={cn('text-right', COLUNA_ACOES_CELULA)}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <div className="flex justify-end gap-1">
                         <Button
                           variant="ghost"
@@ -269,7 +276,7 @@ export default function Fornecedores() {
               </TableBody>
             </Table>
           </div>
-          <div className="md:hidden space-y-3">
+          <div className="lg:hidden space-y-3">
             {filtered.map((fo) => (
               <Card
                 key={fo.id}
@@ -325,9 +332,10 @@ export default function Fornecedores() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-11 px-3 min-h-[44px] text-red-600 hover:bg-red-50 border-red-200"
+                                className="h-11 min-h-[44px] min-w-[44px] px-3 text-red-600 hover:bg-red-50 border-red-200"
+                                aria-label={`Inativar ${fo.nome}`}
                               >
-                                <Ban className="h-3.5 w-3.5" />
+                                <Ban className="h-3.5 w-3.5" aria-hidden="true" />
                               </Button>
                             </ConfirmarAcao>
                           )}

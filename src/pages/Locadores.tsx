@@ -1,17 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { UserCheck, Plus, Search, Pencil, Ban, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
-import {
-  getLocadores,
-  inactivateLocador,
-  type Locador,
-} from '@/services/locadores'
+import { getLocadores, inactivateLocador, type Locador } from '@/services/locadores'
 import { useRealtime } from '@/hooks/use-realtime'
-import {
-  TIPO_PESSOA_LABELS,
-  formatarCpfCnpj,
-  formatarTelefone,
-} from '@/lib/format'
+import { TIPO_PESSOA_LABELS, formatarCpfCnpj, formatarTelefone } from '@/lib/format'
 import { LocadorFormDialog } from '@/components/locadores/LocadorFormDialog'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/button'
@@ -33,6 +25,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { COLUNA_ACOES_CABECALHO, COLUNA_ACOES_CELULA } from '@/lib/tabela'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/hooks/use-auth'
 
@@ -74,13 +68,9 @@ export default function Locadores() {
     return locadores.filter((loc) => {
       const matchSearch =
         !q ||
-        [
-          loc.nome_razao_social,
-          loc.cpf_cnpj,
-          loc.email,
-          loc.telefone,
-          loc.dados_bancarios,
-        ].some((v) => (v || '').toLowerCase().includes(q))
+        [loc.nome_razao_social, loc.cpf_cnpj, loc.email, loc.telefone, loc.dados_bancarios].some(
+          (v) => (v || '').toLowerCase().includes(q),
+        )
 
       const matchTipo = fTipo === 'all' || loc.tipo_pessoa === fTipo
       const matchStatus = fStatus === 'all' || loc.status === fStatus
@@ -196,7 +186,7 @@ export default function Locadores() {
           <p className="text-sm text-slate-600">{filtered.length} locador(es)</p>
 
           {/* Versão Desktop: Tabela */}
-          <div className="hidden md:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="hidden lg:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table className="min-w-[700px]">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">
@@ -206,7 +196,9 @@ export default function Locadores() {
                   <TableHead>Contato</TableHead>
                   <TableHead>Dados Bancários</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="w-[100px] text-right">Ações</TableHead>
+                  <TableHead className={cn('w-[100px] text-right', COLUNA_ACOES_CABECALHO)}>
+                    Ações
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -224,16 +216,21 @@ export default function Locadores() {
                     <TableCell className="text-sm text-slate-600">
                       <div>{loc.email || '—'}</div>
                       {loc.telefone && (
-                        <div className="text-xs text-slate-600">{formatarTelefone(loc.telefone)}</div>
+                        <div className="text-xs text-slate-600">
+                          {formatarTelefone(loc.telefone)}
+                        </div>
                       )}
                     </TableCell>
-                    <TableCell className="text-xs text-slate-600 max-w-[220px] truncate" title={loc.dados_bancarios || undefined}>
+                    <TableCell
+                      className="text-xs text-slate-600 max-w-[220px] truncate"
+                      title={loc.dados_bancarios || undefined}
+                    >
                       {loc.dados_bancarios || '—'}
                     </TableCell>
                     <TableCell>
                       <StatusBadge type="geral" status={loc.status} />
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className={cn('text-right', COLUNA_ACOES_CELULA)}>
                       {canEdit && (
                         <div className="flex justify-end gap-1">
                           <Button
@@ -274,7 +271,7 @@ export default function Locadores() {
           </div>
 
           {/* Versão Mobile: Cards */}
-          <div className="md:hidden space-y-3">
+          <div className="lg:hidden space-y-3">
             {filtered.map((loc) => (
               <Card key={loc.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4 space-y-2.5">
@@ -319,7 +316,8 @@ export default function Locadores() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-11 px-3 min-h-[44px] text-red-600 hover:bg-red-50 border-red-200"
+                            className="h-11 min-h-[44px] min-w-[44px] px-3 text-red-600 hover:bg-red-50 border-red-200"
+                            aria-label={`Inativar ${loc.nome_razao_social}`}
                             title="Inativar"
                           >
                             <Ban className="h-3.5 w-3.5" />

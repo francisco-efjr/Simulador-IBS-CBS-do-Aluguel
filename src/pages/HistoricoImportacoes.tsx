@@ -34,6 +34,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { COLUNA_ACOES_CABECALHO, COLUNA_ACOES_CELULA } from '@/lib/tabela'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export default function HistoricoImportacoes() {
@@ -125,7 +127,7 @@ export default function HistoricoImportacoes() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             onClick={() => navigate('/importar-extrato')}
             className="bg-navy-800 hover:bg-navy-900 text-white font-medium"
@@ -181,7 +183,7 @@ export default function HistoricoImportacoes() {
           </CardHeader>
           <CardContent className="p-0">
             {/* Mobile View */}
-            <div className="md:hidden divide-y divide-slate-100">
+            <div className="lg:hidden divide-y divide-slate-100">
               {importacoes.map((imp) => {
                 const stat = statsMap[imp.id] || {
                   total: imp.total_transacoes || 0,
@@ -229,11 +231,12 @@ export default function HistoricoImportacoes() {
                       </div>
                       <Progress
                         value={percent}
+                        aria-label="Progresso da classificação da importação"
                         className={`h-2 ${isDone ? '[&>div]:bg-emerald-600' : ''}`}
                       />
                     </div>
 
-                    <div className="flex items-center justify-between pt-1">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                       {isDone ? (
                         <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">
                           <CheckCircle2 className="h-3 w-3 mr-1 text-emerald-700" /> Concluída
@@ -251,7 +254,7 @@ export default function HistoricoImportacoes() {
                         <Button
                           size="sm"
                           onClick={() => navigate(`/classificar-transacoes?importacao=${imp.id}`)}
-                          className="min-h-[40px] text-xs bg-navy-800 hover:bg-navy-900 text-white font-medium"
+                          className="min-h-[44px] text-xs bg-navy-800 hover:bg-navy-900 text-white font-medium"
                         >
                           <ListChecks className="h-3.5 w-3.5 mr-1 text-gold-400" />
                           {stat.pendentes > 0 ? 'Classificar' : 'Ver Fila'}
@@ -260,9 +263,10 @@ export default function HistoricoImportacoes() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDelete(imp)}
-                          className="h-10 w-10 text-slate-600 hover:text-red-600 hover:bg-red-50"
+                          aria-label="Excluir histórico de importação"
+                          className="h-11 w-11 text-slate-600 hover:text-red-600 hover:bg-red-50"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
                         </Button>
                       </div>
                     </div>
@@ -272,7 +276,7 @@ export default function HistoricoImportacoes() {
             </div>
 
             {/* Desktop View */}
-            <div className="hidden md:block overflow-x-auto">
+            <div className="hidden lg:block overflow-x-auto">
               <Table className="min-w-[750px]">
                 <TableHeader>
                   <TableRow className="bg-slate-50/80">
@@ -281,7 +285,9 @@ export default function HistoricoImportacoes() {
                     <TableHead className="w-[100px] text-center">Formato</TableHead>
                     <TableHead className="w-[220px]">Progresso de Classificação</TableHead>
                     <TableHead className="w-[130px] text-center">Status</TableHead>
-                    <TableHead className="w-[160px] text-right">Ações</TableHead>
+                    <TableHead className={cn('w-[160px] text-right', COLUNA_ACOES_CABECALHO)}>
+                      Ações
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -347,6 +353,7 @@ export default function HistoricoImportacoes() {
                             </div>
                             <Progress
                               value={percent}
+                              aria-label="Progresso da classificação da importação"
                               className={`h-2 ${isDone ? '[&>div]:bg-emerald-600' : ''}`}
                             />
                           </div>
@@ -374,7 +381,9 @@ export default function HistoricoImportacoes() {
                           )}
                         </TableCell>
 
-                        <TableCell className="text-right whitespace-nowrap">
+                        <TableCell
+                          className={cn('text-right whitespace-nowrap', COLUNA_ACOES_CELULA)}
+                        >
                           <div className="flex items-center justify-end gap-1.5">
                             <Button
                               size="sm"
@@ -391,10 +400,10 @@ export default function HistoricoImportacoes() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleDelete(imp)}
-                              className="h-8 w-8 text-slate-600 hover:text-red-600 hover:bg-red-50"
-                              title="Excluir histórico de importação"
+                              className="h-11 w-11 text-slate-600 hover:text-red-600 hover:bg-red-50"
+                              aria-label="Excluir histórico de importação"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-4 w-4" aria-hidden="true" />
                             </Button>
                           </div>
                         </TableCell>

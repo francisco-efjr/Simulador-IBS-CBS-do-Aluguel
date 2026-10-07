@@ -70,13 +70,14 @@ export function ResumoDasEntregas({ progresso, compacto = false }: Props) {
             return (
               <div
                 key={situacao}
-                className={`flex items-center gap-3 rounded-lg border px-4 py-3 ${estilo.caixa}`}
+                className={`grid grid-cols-[auto_1fr] items-center gap-x-3 rounded-lg border px-4 py-3 ${estilo.caixa}`}
               >
-                <Icone className={`h-6 w-6 shrink-0 ${estilo.texto}`} aria-hidden="true" />
-                <div>
-                  <dt className={`text-sm font-semibold ${estilo.texto}`}>{estilo.rotulo}</dt>
-                  <dd className="text-2xl font-bold text-slate-900">{contagem[situacao]}</dd>
-                </div>
+                <Icone
+                  className={`row-span-2 h-6 w-6 shrink-0 ${estilo.texto}`}
+                  aria-hidden="true"
+                />
+                <dt className={`text-sm font-semibold ${estilo.texto}`}>{estilo.rotulo}</dt>
+                <dd className="text-2xl font-bold text-slate-900">{contagem[situacao]}</dd>
               </div>
             )
           })}

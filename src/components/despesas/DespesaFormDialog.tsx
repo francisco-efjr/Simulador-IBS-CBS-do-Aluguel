@@ -272,7 +272,7 @@ export function DespesaFormDialog({
               className="bg-slate-50/50"
             />
           </Field>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-600">
             O status financeiro é recalculado automaticamente conforme valores e datas.
           </p>
           <DialogFooter className="flex-col sm:flex-row gap-2 pt-2">

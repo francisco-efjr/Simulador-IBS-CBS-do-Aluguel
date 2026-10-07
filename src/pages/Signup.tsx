@@ -413,7 +413,7 @@ export default function Signup() {
                 Já possui uma conta ativa?{' '}
                 <Link
                   to="/login"
-                  className="font-semibold text-gold-400 hover:text-gold-300 hover:underline"
+                  className="inline-flex min-h-[44px] items-center px-1 font-semibold text-gold-400 hover:text-gold-300 hover:underline"
                 >
                   Fazer login
                 </Link>

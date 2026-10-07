@@ -127,11 +127,11 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
   useRealtime('convites', computePendingInvites)
 
   return (
-    <div className="flex h-full flex-col justify-between bg-navy-800 text-slate-100 border-r border-navy-700/60 shadow-xl">
-      <div>
+    <div className="flex h-full min-h-0 flex-col bg-navy-800 text-slate-100 border-r border-navy-700/60 shadow-xl">
+      <div className="flex min-h-0 flex-1 flex-col">
         <div
           className={cn(
-            'flex items-center border-b border-navy-700/80 px-4 py-4 transition-all',
+            'flex shrink-0 items-center border-b border-navy-700/80 px-4 py-4 transition-all',
             isTabletRail ? 'justify-center px-2 py-4' : 'px-5 py-4',
           )}
         >
@@ -167,7 +167,7 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
           )}
         </div>
 
-        <nav className="space-y-1.5 p-3">
+        <nav className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain p-3">
           {MODULES_LIST.filter((item) => {
             // Admin-only modules (Usuarios, Logs de Atividade)
             if (item.adminOnly && !isAdministrador) return false
@@ -253,7 +253,7 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
         </nav>
       </div>
 
-      <div className="border-t border-navy-700/80 p-3">
+      <div className="shrink-0 border-t border-navy-700/80 p-3">
         {isTabletRail ? (
           <Tooltip delayDuration={100}>
             <TooltipTrigger asChild>

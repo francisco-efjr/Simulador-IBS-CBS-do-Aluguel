@@ -356,7 +356,7 @@ export default function LogsAtividade() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             onClick={fetchLogs}
@@ -557,7 +557,10 @@ export default function LogsAtividade() {
                 setPage(1)
               }}
             >
-              <SelectTrigger className="h-7 w-20 text-xs bg-white border-slate-200">
+              <SelectTrigger
+                aria-label="Registros por página"
+                className="h-11 min-h-[44px] w-24 text-sm bg-white border-slate-200"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -657,7 +660,7 @@ export default function LogsAtividade() {
                             <div className="font-semibold text-xs text-slate-900 truncate flex items-center gap-1">
                               {usuarioName}
                               {isCurrentUser && (
-                                <span className="text-xs text-gold-700 bg-gold-50 border border-gold-300 px-1 rounded">
+                                <span className="text-xs text-gold-800 bg-gold-50 border border-gold-300 px-1 rounded">
                                   Você
                                 </span>
                               )}

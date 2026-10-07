@@ -28,7 +28,7 @@ export default function Layout({ children }: LayoutProps) {
   )
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-navy-950">
+    <div className="flex h-dvh w-full overflow-hidden bg-navy-950">
       {/* Primeira parada do teclado: pular o menu inteiro e cair no conteúdo.
           Sem isso, cada troca de tela custa uma dezena de tabulações. */}
       <a

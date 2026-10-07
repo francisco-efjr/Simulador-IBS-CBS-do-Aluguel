@@ -14,23 +14,10 @@ import {
   Droplet,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import {
-  getImoveis,
-  updateImovel,
-  contarImoveisAtivos,
-  type Imovel,
-} from '@/services/imoveis'
-import {
-  getUnidades,
-  inactivateUnidade,
-  type ImovelUnidade,
-} from '@/services/unidades'
+import { getImoveis, updateImovel, contarImoveisAtivos, type Imovel } from '@/services/imoveis'
+import { getUnidades, inactivateUnidade, type ImovelUnidade } from '@/services/unidades'
 import { useRealtime } from '@/hooks/use-realtime'
-import {
-  formatCurrency,
-  TIPO_IMOVEL_LABELS,
-  STATUS_IMOVEL_LABELS,
-} from '@/lib/format'
+import { formatCurrency, TIPO_IMOVEL_LABELS, STATUS_IMOVEL_LABELS } from '@/lib/format'
 import { ImovelFormDialog } from '@/components/imoveis/ImovelFormDialog'
 import { ImovelDetailDialog } from '@/components/imoveis/ImovelDetailDialog'
 import { UnidadeFormDialog } from '@/components/imoveis/UnidadeFormDialog'
@@ -55,6 +42,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { COLUNA_ACOES_CABECALHO, COLUNA_ACOES_CELULA } from '@/lib/tabela'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/hooks/use-auth'
 
@@ -103,7 +92,7 @@ export default function Imoveis() {
       } else {
         setAtivosCount(ims.filter((i) => i.status !== 'inativo').length)
       }
-      setSelected((prev) => (prev ? ims.find((im) => im.id === prev.id) ?? null : null))
+      setSelected((prev) => (prev ? (ims.find((im) => im.id === prev.id) ?? null) : null))
     } catch {
       setError('Erro ao carregar imóveis e unidades. Verifique sua conexão.')
     } finally {
@@ -205,7 +194,9 @@ export default function Imoveis() {
       toast.success('Unidade marcada como inativa.')
       load()
     } catch {
-      toast.error('Não foi possível inativar a unidade. Verifique se há contratos ativos vinculados.')
+      toast.error(
+        'Não foi possível inativar a unidade. Verifique se há contratos ativos vinculados.',
+      )
     }
   }
 
@@ -316,12 +307,10 @@ export default function Imoveis() {
         </Card>
       ) : (
         <>
-          <p className="text-sm text-slate-600">
-            {filtered.length} imóvel(is) encontrado(s)
-          </p>
+          <p className="text-sm text-slate-600">{filtered.length} imóvel(is) encontrado(s)</p>
 
           {/* Versão Desktop: Tabela com Linhas Expansíveis */}
-          <div className="hidden md:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="hidden lg:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table className="min-w-[850px]">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">
@@ -332,7 +321,9 @@ export default function Imoveis() {
                   <TableHead>Unidades</TableHead>
                   <TableHead>Endereço</TableHead>
                   <TableHead className="text-right">Valor Est.</TableHead>
-                  <TableHead className="w-[160px] text-right">Ações</TableHead>
+                  <TableHead className={cn('w-[160px] text-right', COLUNA_ACOES_CABECALHO)}>
+                    Ações
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -414,7 +405,7 @@ export default function Imoveis() {
                         </TableCell>
 
                         <TableCell
-                          className="text-right"
+                          className={cn('text-right', COLUNA_ACOES_CELULA)}
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="flex justify-end items-center gap-1">
@@ -502,7 +493,8 @@ export default function Imoveis() {
 
                               {filhas.length === 0 ? (
                                 <p className="text-xs text-slate-500 py-3 text-center">
-                                  Nenhuma unidade cadastrada neste imóvel. Clique em "+ Nova Unidade" para adicionar.
+                                  Nenhuma unidade cadastrada neste imóvel. Clique em "+ Nova
+                                  Unidade" para adicionar.
                                 </p>
                               ) : (
                                 <div className="divide-y divide-slate-100">
@@ -544,14 +536,10 @@ export default function Imoveis() {
                                         {/* Taxas */}
                                         <div className="text-right text-slate-600 space-x-2">
                                           {u.tem_condominio && u.valor_condominio && (
-                                            <span>
-                                              Cond.: {formatCurrency(u.valor_condominio)}
-                                            </span>
+                                            <span>Cond.: {formatCurrency(u.valor_condominio)}</span>
                                           )}
                                           {u.taxa_poco != null && (
-                                            <span>
-                                              Poço: {formatCurrency(u.taxa_poco)}
-                                            </span>
+                                            <span>Poço: {formatCurrency(u.taxa_poco)}</span>
                                           )}
                                         </div>
 
@@ -561,6 +549,7 @@ export default function Imoveis() {
                                               variant="ghost"
                                               size="icon"
                                               className="h-7 w-7 text-slate-500 hover:text-slate-900"
+                                              aria-label="Editar unidade"
                                               title="Editar unidade"
                                               onClick={() => handleEditUnidade(u, im)}
                                             >
@@ -577,6 +566,7 @@ export default function Imoveis() {
                                                   variant="ghost"
                                                   size="icon"
                                                   className="h-7 w-7 text-red-500 hover:text-red-700"
+                                                  aria-label="Inativar unidade"
                                                   title="Inativar unidade"
                                                 >
                                                   <Ban className="h-3 w-3" />
@@ -602,7 +592,7 @@ export default function Imoveis() {
           </div>
 
           {/* Versão Mobile: Cards com Unidades Integradas */}
-          <div className="md:hidden space-y-3">
+          <div className="lg:hidden space-y-3">
             {filtered.map((im) => {
               const filhas = unidadesPorImovel.get(im.id) || []
               const isExpanded = expandedIds.has(im.id)
@@ -645,9 +635,7 @@ export default function Imoveis() {
                     {isExpanded && (
                       <div className="rounded-lg bg-slate-50 p-2.5 space-y-2 border border-slate-200">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-slate-700">
-                            Unidades Filhas
-                          </span>
+                          <span className="text-xs font-bold text-slate-700">Unidades Filhas</span>
                           {canEdit && (
                             <Button
                               size="sm"
@@ -670,9 +658,7 @@ export default function Imoveis() {
                                 className="flex items-center justify-between p-2 rounded-md bg-white border border-slate-100 text-xs"
                               >
                                 <div>
-                                  <p className="font-semibold text-slate-900">
-                                    {u.identificador}
-                                  </p>
+                                  <p className="font-semibold text-slate-900">{u.identificador}</p>
                                   {u.complemento && (
                                     <p className="text-[11px] text-slate-500">{u.complemento}</p>
                                   )}
@@ -683,10 +669,11 @@ export default function Imoveis() {
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      className="h-8 w-8 min-h-[36px]"
+                                      className="h-11 w-11 min-h-[44px] min-w-[44px]"
+                                      aria-label={`Editar unidade ${u.identificador}`}
                                       onClick={() => handleEditUnidade(u, im)}
                                     >
-                                      <Pencil className="h-3 w-3" />
+                                      <Pencil className="h-3 w-3" aria-hidden="true" />
                                     </Button>
                                   )}
                                 </div>
@@ -726,9 +713,10 @@ export default function Imoveis() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-11 px-3 min-h-[44px] text-red-600 hover:bg-red-50 border-red-200"
+                                className="h-11 min-h-[44px] min-w-[44px] px-3 text-red-600 hover:bg-red-50 border-red-200"
+                                aria-label={`Inativar ${im.nome}`}
                               >
-                                <Ban className="h-3.5 w-3.5" />
+                                <Ban className="h-3.5 w-3.5" aria-hidden="true" />
                               </Button>
                             </ConfirmarAcao>
                           )}
