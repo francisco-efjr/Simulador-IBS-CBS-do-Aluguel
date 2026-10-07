@@ -186,7 +186,7 @@ export default function Locadores() {
           <p className="text-sm text-slate-600">{filtered.length} locador(es)</p>
 
           {/* Versão Desktop: Tabela */}
-          <div className="hidden lg:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="hidden min-[1450px]:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table className="min-w-[700px]">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">
@@ -271,7 +271,7 @@ export default function Locadores() {
           </div>
 
           {/* Versão Mobile: Cards */}
-          <div className="lg:hidden space-y-3">
+          <div className="min-[1450px]:hidden grid grid-cols-1 gap-3 md:grid-cols-2">
             {filtered.map((loc) => (
               <Card key={loc.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4 space-y-2.5">

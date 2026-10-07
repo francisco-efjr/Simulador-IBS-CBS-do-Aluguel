@@ -214,7 +214,7 @@ export default function Contratos() {
       ) : (
         <>
           <p className="text-sm text-slate-600">{filtered.length} contrato(s)</p>
-          <div className="hidden lg:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="hidden min-[1320px]:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table className="min-w-[750px]">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">
@@ -349,7 +349,7 @@ export default function Contratos() {
               </TableBody>
             </Table>
           </div>
-          <div className="lg:hidden space-y-3">
+          <div className="min-[1320px]:hidden grid grid-cols-1 gap-3 md:grid-cols-2">
             {filtered.map((c) => (
               <Card
                 key={c.id}

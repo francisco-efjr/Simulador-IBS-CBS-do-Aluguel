@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { Fragment, useState, useEffect, useCallback, useMemo } from 'react'
 import {
   Building2,
   Plus,
@@ -310,8 +310,8 @@ export default function Imoveis() {
           <p className="text-sm text-slate-600">{filtered.length} imóvel(is) encontrado(s)</p>
 
           {/* Versão Desktop: Tabela com Linhas Expansíveis */}
-          <div className="hidden lg:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <Table className="min-w-[850px]">
+          <div className="hidden min-[1450px]:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <Table className="min-w-[850px] [&_th]:px-3 [&_td:not([colspan])]:px-3">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">
                   <TableHead className="w-[48px]"></TableHead>
@@ -334,7 +334,7 @@ export default function Imoveis() {
                   const alugadasCount = filhas.filter((u) => u.status === 'alugado').length
 
                   return (
-                    <tbody key={im.id} className="border-b border-slate-200/80">
+                    <Fragment key={im.id}>
                       <TableRow
                         className="hover:bg-slate-50/60 cursor-pointer transition-colors"
                         onClick={() => handleView(im)}
@@ -395,7 +395,7 @@ export default function Imoveis() {
                           </div>
                         </TableCell>
 
-                        <TableCell className="text-sm text-slate-600 max-w-[200px] truncate">
+                        <TableCell className="text-sm text-slate-600 max-w-[160px] truncate">
                           {im.endereco}
                           {im.numero ? `, ${im.numero}` : ''}
                         </TableCell>
@@ -584,7 +584,7 @@ export default function Imoveis() {
                           </TableCell>
                         </TableRow>
                       )}
-                    </tbody>
+                    </Fragment>
                   )
                 })}
               </TableBody>
@@ -592,7 +592,7 @@ export default function Imoveis() {
           </div>
 
           {/* Versão Mobile: Cards com Unidades Integradas */}
-          <div className="lg:hidden space-y-3">
+          <div className="min-[1450px]:hidden grid grid-cols-1 gap-3 md:grid-cols-2">
             {filtered.map((im) => {
               const filhas = unidadesPorImovel.get(im.id) || []
               const isExpanded = expandedIds.has(im.id)

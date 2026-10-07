@@ -619,11 +619,11 @@ export default function ClassificarTransacoes() {
           </Select>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2 w-full">
+        <div className="flex flex-col gap-2 w-full min-w-0 xl:flex-row">
           <Select value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)}>
             <SelectTrigger
               aria-label="Status"
-              className="bg-slate-50/70 border-slate-300 w-full sm:flex-1"
+              className="bg-slate-50/70 border-slate-300 w-full xl:flex-1"
             >
               <SelectValue placeholder="Status" />
             </SelectTrigger>
@@ -638,7 +638,7 @@ export default function ClassificarTransacoes() {
           <Select value={tipoFilter} onValueChange={(v: any) => setTipoFilter(v)}>
             <SelectTrigger
               aria-label="Tipo"
-              className="bg-slate-50/70 border-slate-300 w-full sm:w-[110px]"
+              className="bg-slate-50/70 border-slate-300 w-full xl:w-[110px]"
             >
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>

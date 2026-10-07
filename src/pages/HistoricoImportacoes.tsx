@@ -183,7 +183,7 @@ export default function HistoricoImportacoes() {
           </CardHeader>
           <CardContent className="p-0">
             {/* Mobile View */}
-            <div className="lg:hidden divide-y divide-slate-100">
+            <div className="xl:hidden divide-y divide-slate-100">
               {importacoes.map((imp) => {
                 const stat = statsMap[imp.id] || {
                   total: imp.total_transacoes || 0,
@@ -276,7 +276,7 @@ export default function HistoricoImportacoes() {
             </div>
 
             {/* Desktop View */}
-            <div className="hidden lg:block overflow-x-auto">
+            <div className="hidden xl:block overflow-x-auto">
               <Table className="min-w-[750px]">
                 <TableHeader>
                   <TableRow className="bg-slate-50/80">

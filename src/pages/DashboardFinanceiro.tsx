@@ -946,7 +946,7 @@ export default function DashboardFinanceiro() {
                   variant={isActive ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setPeriodPreset(p.id as PeriodPreset)}
-                  className={`text-xs h-8 px-3 rounded-md transition-colors ${
+                  className={`text-xs h-11 min-h-[44px] px-3 rounded-md transition-colors ${
                     isActive
                       ? 'bg-navy-800 text-gold-400 hover:bg-navy-900 border-navy-700 shadow-xs'
                       : 'border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -1070,17 +1070,21 @@ export default function DashboardFinanceiro() {
                   Nenhum dado encontrado para o período selecionado
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                  initialDimension={{ width: 320, height: 240 }}
+                >
                   <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis
                       dataKey="label"
-                      tick={{ fontSize: 11, fill: '#64748b' }}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fontSize: 11, fill: '#64748b' }}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickLine={false}
                       tickFormatter={(val) =>
@@ -1147,7 +1151,11 @@ export default function DashboardFinanceiro() {
                   Nenhum dado encontrado para o período selecionado
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                  initialDimension={{ width: 320, height: 240 }}
+                >
                   <LineChart
                     data={monthlyData}
                     margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
@@ -1155,12 +1163,12 @@ export default function DashboardFinanceiro() {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis
                       dataKey="label"
-                      tick={{ fontSize: 11, fill: '#64748b' }}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fontSize: 11, fill: '#64748b' }}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickLine={false}
                       tickFormatter={(val) =>
@@ -1220,7 +1228,11 @@ export default function DashboardFinanceiro() {
                   Nenhuma receita realizada para o período selecionado
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                  initialDimension={{ width: 320, height: 240 }}
+                >
                   <BarChart
                     layout="vertical"
                     data={receitasPorImovelData}
@@ -1229,7 +1241,7 @@ export default function DashboardFinanceiro() {
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
                     <XAxis
                       type="number"
-                      tick={{ fontSize: 10, fill: '#64748b' }}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickFormatter={(val) =>
                         `R$ ${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`
@@ -1238,7 +1250,7 @@ export default function DashboardFinanceiro() {
                     <YAxis
                       dataKey="name"
                       type="category"
-                      tick={{ fontSize: 11, fill: '#334155' }}
+                      tick={{ fontSize: 12, fill: '#334155' }}
                       width={120}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickLine={false}
@@ -1285,7 +1297,11 @@ export default function DashboardFinanceiro() {
                   Nenhuma despesa paga para o período selecionado
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                  initialDimension={{ width: 320, height: 240 }}
+                >
                   <BarChart
                     layout="vertical"
                     data={despesasPorImovelData}
@@ -1294,7 +1310,7 @@ export default function DashboardFinanceiro() {
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
                     <XAxis
                       type="number"
-                      tick={{ fontSize: 10, fill: '#64748b' }}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickFormatter={(val) =>
                         `R$ ${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`
@@ -1303,7 +1319,7 @@ export default function DashboardFinanceiro() {
                     <YAxis
                       dataKey="name"
                       type="category"
-                      tick={{ fontSize: 11, fill: '#334155' }}
+                      tick={{ fontSize: 12, fill: '#334155' }}
                       width={120}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickLine={false}
@@ -1348,7 +1364,11 @@ export default function DashboardFinanceiro() {
                     Nenhuma despesa paga com categoria para o período selecionado
                   </div>
                 ) : (
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer
+                    width="100%"
+                    height="100%"
+                    initialDimension={{ width: 320, height: 240 }}
+                  >
                     <PieChart>
                       <Pie
                         data={despesasPorCategoriaData}

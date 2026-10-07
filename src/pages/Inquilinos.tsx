@@ -187,7 +187,7 @@ export default function Inquilinos() {
       ) : (
         <>
           <p className="text-sm text-slate-600">{filtered.length} inquilino(s)</p>
-          <div className="hidden lg:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="hidden xl:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table className="min-w-[650px]">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">
@@ -276,7 +276,7 @@ export default function Inquilinos() {
               </TableBody>
             </Table>
           </div>
-          <div className="lg:hidden space-y-3">
+          <div className="xl:hidden grid grid-cols-1 gap-3 md:grid-cols-2">
             {filtered.map((iq) => (
               <Card
                 key={iq.id}

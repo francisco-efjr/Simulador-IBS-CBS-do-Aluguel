@@ -1011,7 +1011,7 @@ export default function DashboardImoveis() {
                   variant={isActive ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setPeriodPreset(p.id as PeriodPreset)}
-                  className={`text-xs h-8 px-3 rounded-md transition-colors ${
+                  className={`text-xs h-11 min-h-[44px] px-3 rounded-md transition-colors ${
                     isActive
                       ? 'bg-navy-800 text-gold-400 hover:bg-navy-900 border-navy-700 shadow-xs'
                       : 'border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -1125,7 +1125,11 @@ export default function DashboardImoveis() {
                   Nenhuma receita recebida registrada para o filtro e período
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                  initialDimension={{ width: 320, height: 240 }}
+                >
                   <BarChart
                     layout="vertical"
                     data={receitasPorImovelData}
@@ -1134,7 +1138,7 @@ export default function DashboardImoveis() {
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
                     <XAxis
                       type="number"
-                      tick={{ fontSize: 10, fill: '#64748b' }}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickFormatter={(val) =>
                         `R$ ${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`
@@ -1143,7 +1147,7 @@ export default function DashboardImoveis() {
                     <YAxis
                       dataKey="name"
                       type="category"
-                      tick={{ fontSize: 11, fill: '#334155' }}
+                      tick={{ fontSize: 12, fill: '#334155' }}
                       width={130}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickLine={false}
@@ -1188,7 +1192,11 @@ export default function DashboardImoveis() {
                   Nenhuma despesa paga registrada para o filtro e período
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                  initialDimension={{ width: 320, height: 240 }}
+                >
                   <BarChart
                     layout="vertical"
                     data={despesasPorImovelData}
@@ -1197,7 +1205,7 @@ export default function DashboardImoveis() {
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
                     <XAxis
                       type="number"
-                      tick={{ fontSize: 10, fill: '#64748b' }}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickFormatter={(val) =>
                         `R$ ${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`
@@ -1206,7 +1214,7 @@ export default function DashboardImoveis() {
                     <YAxis
                       dataKey="name"
                       type="category"
-                      tick={{ fontSize: 11, fill: '#334155' }}
+                      tick={{ fontSize: 12, fill: '#334155' }}
                       width={130}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickLine={false}
@@ -1248,7 +1256,11 @@ export default function DashboardImoveis() {
                     Nenhum imóvel encontrado
                   </div>
                 ) : (
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer
+                    width="100%"
+                    height="100%"
+                    initialDimension={{ width: 320, height: 240 }}
+                  >
                     <PieChart>
                       <Pie
                         data={statusDistributionData}
@@ -1313,7 +1325,11 @@ export default function DashboardImoveis() {
           </CardHeader>
           <CardContent className="pt-2">
             <div className="h-[250px] sm:h-[280px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+                initialDimension={{ width: 320, height: 240 }}
+              >
                 <LineChart
                   data={evolucaoOcupacaoData}
                   margin={{ top: 10, right: 10, left: -10, bottom: 10 }}
@@ -1321,13 +1337,13 @@ export default function DashboardImoveis() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis
                     dataKey="label"
-                    tick={{ fontSize: 10, fill: '#64748b' }}
+                    tick={{ fontSize: 12, fill: '#64748b' }}
                     axisLine={{ stroke: '#e2e8f0' }}
                     tickLine={false}
                   />
                   <YAxis
                     allowDecimals={false}
-                    tick={{ fontSize: 10, fill: '#64748b' }}
+                    tick={{ fontSize: 12, fill: '#64748b' }}
                     axisLine={{ stroke: '#e2e8f0' }}
                     tickLine={false}
                   />
@@ -1373,7 +1389,11 @@ export default function DashboardImoveis() {
                   Nenhuma taxa ou IPTU cadastrado para os imóveis filtrados
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                  initialDimension={{ width: 320, height: 240 }}
+                >
                   <BarChart
                     data={iptuTaxasPorStatusData}
                     margin={{ top: 10, right: 10, left: 10, bottom: 20 }}
@@ -1381,12 +1401,12 @@ export default function DashboardImoveis() {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis
                       dataKey="name"
-                      tick={{ fontSize: 11, fill: '#64748b' }}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fontSize: 11, fill: '#64748b' }}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickLine={false}
                       tickFormatter={(val) =>
