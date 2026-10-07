@@ -73,13 +73,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
         closeButtonAriaLabel: 'Fechar aviso',
         classNames: {
           toast:
-            'group/aviso flex w-full items-center gap-3.5 rounded-3xl border border-border/60 bg-card py-4 pl-4 pr-16 text-foreground shadow-float sm:w-[var(--width)]',
+            'group/aviso flex w-full flex-wrap items-center gap-x-3.5 gap-y-2.5 rounded-3xl border border-border/60 bg-card py-4 pl-4 pr-16 text-foreground shadow-float sm:w-[var(--width)]',
           icon: 'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/[.14] text-success-ink group-data-[type=error]/aviso:bg-destructive/[.14] group-data-[type=error]/aviso:text-destructive group-data-[type=warning]/aviso:bg-secondary/20 group-data-[type=warning]/aviso:text-warning-ink',
-          content: 'flex min-w-0 flex-1 flex-col gap-0.5',
+          content: 'flex min-w-[10rem] flex-1 flex-col gap-0.5',
           title: 'text-[1.0625rem] font-extrabold leading-snug',
           description: 'text-[0.9375rem] leading-snug text-accent-foreground',
           actionButton:
-            'inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-full border-2 border-secondary-ink px-4 text-[0.9375rem] font-extrabold text-secondary-ink hover:bg-secondary-ink hover:text-white',
+            'inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-full max-sm:ml-[62px] border-2 border-secondary-ink px-4 text-[0.9375rem] font-extrabold text-secondary-ink hover:bg-secondary-ink hover:text-white',
           cancelButton:
             'inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border-2 border-secondary-ink px-5 text-[0.9375rem] font-extrabold text-secondary-ink',
           closeButton:

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { Button } from '@/components/ui/button'
+import { ErroDoSistema } from '@/components/ErroDoSistema'
 import { Input } from '@/components/ui/input'
 import { Field } from '@/components/shared/Field'
 import { ResumoDeErros } from '@/components/shared/ResumoDeErros'
@@ -112,5 +113,38 @@ describe('catálogo de mensagens', () => {
   it('confere o formato do e-mail', () => {
     expect(emailCompleto('helena@holding')).toBe(false)
     expect(emailCompleto('helena@holdingaguiar.com.br')).toBe(true)
+  })
+})
+
+describe('Página 500 (ErroDoSistema)', () => {
+  function Quebra({ quebrar }: { quebrar: boolean }) {
+    if (quebrar) throw new Error('falhou ao desenhar')
+    return <p>Tela funcionando</p>
+  }
+
+  it('mostra a página de falha, esconde o erro técnico e deixa tentar de novo', () => {
+    const silencio = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const { rerender } = render(
+      <ErroDoSistema>
+        <Quebra quebrar />
+      </ErroDoSistema>,
+    )
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Algo deu errado do nosso lado',
+    )
+    expect(screen.queryByText(/falhou ao desenhar/)).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Ir para o início' })).toHaveAttribute(
+      'href',
+      '/inicio',
+    )
+
+    rerender(
+      <ErroDoSistema>
+        <Quebra quebrar={false} />
+      </ErroDoSistema>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Tentar de novo' }))
+    expect(screen.getByText('Tela funcionando')).toBeInTheDocument()
+    silencio.mockRestore()
   })
 })
