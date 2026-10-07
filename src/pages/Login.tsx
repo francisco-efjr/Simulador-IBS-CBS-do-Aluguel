@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { Eye, EyeOff, Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
@@ -7,7 +7,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { extractFieldErrors } from '@/lib/dados/erros'
+import { extractFieldErrors, mensagemDeAutenticacao } from '@/lib/dados/erros'
+import { lerAvisoDeLogin } from '@/lib/dados/sessao'
+import { toast } from 'sonner'
 import darkLogo from '@/assets/chatgpt-image-aug-7-2026-061737-pm-5-f38c6.png'
 
 export default function Login() {
@@ -17,11 +19,18 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [generalError, setGeneralError] = useState('')
+  // Aviso de sessão que terminou no meio do trabalho: vale uma vez só.
+  const [aviso] = useState(() => lerAvisoDeLogin())
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
   const { signIn } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  useEffect(() => {
+    // O aviso explica o que houve; o toast de "não foi possível salvar" que ficou para trás só confunde.
+    if (aviso) toast.dismiss()
+  }, [aviso])
+
   const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/inicio'
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,9 +57,10 @@ export default function Login() {
         setFieldErrors(extracted)
       } else {
         setGeneralError(
-          error?.message && !error?.response
-            ? error.message
-            : 'E-mail ou senha incorretos. Verifique suas credenciais e tente novamente.',
+          mensagemDeAutenticacao(
+            error,
+            'E-mail ou senha incorretos. Verifique suas credenciais e tente novamente.',
+          ),
         )
       }
     } else {
@@ -87,6 +97,15 @@ export default function Login() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {aviso && !generalError && (
+                <div
+                  role="status"
+                  className="rounded-lg bg-amber-950/70 p-3 text-sm font-semibold text-amber-100 border border-amber-700/60"
+                >
+                  {aviso}
+                </div>
+              )}
+
               {generalError && (
                 <div
                   role="alert"

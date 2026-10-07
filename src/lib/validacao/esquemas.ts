@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import type { FieldErrors } from '@/lib/dados/erros'
 import { cnpjValido, cpfOuCnpjValido, cpfValido } from './documentos'
+import { lerValorEmReais, mensagemDeValor, paraNumeroEmReais } from '@/lib/dinheiro'
 
 /**
  * Esquemas de validação dos cadastros (achado S-06).
@@ -40,17 +41,17 @@ function obrigatorio(mensagem: string) {
 /** Maior valor que cabe em numeric(14, 2). */
 const TETO_MONETARIO = 999_999_999_999.99
 
-/** Aceita "1500", "1500.50" e também "1.500,50", caso o valor venha digitado à brasileira. */
-function paraNumero(valor: string): number {
-  const normalizado = valor.includes(',') ? valor.replace(/\./g, '').replace(',', '.') : valor
-  return normalizado === '' ? Number.NaN : Number(normalizado)
-}
+/** Valor digitado como número, ou NaN. Uma leitura só para tela e validação: ver `@/lib/dinheiro`. */
+const paraNumero = paraNumeroEmReais
 
 function dinheiro(rotulo: string, obrigatorioMsg?: string) {
   return campo((v) => {
-    if (!v) return obrigatorioMsg ?? null
-    const n = paraNumero(v)
-    if (!Number.isFinite(n)) return `${rotulo} deve ter apenas números, por exemplo 1500,00.`
+    const leitura = lerValorEmReais(v)
+    if (!leitura.ok) {
+      if (leitura.motivo === 'vazio') return obrigatorioMsg ?? null
+      return mensagemDeValor(rotulo, leitura.motivo)
+    }
+    const n = leitura.valor
     if (n < 0) return `${rotulo} não pode ser negativo. Informe zero ou um valor positivo.`
     if (n > TETO_MONETARIO) return `${rotulo} está acima do limite. Confira se não sobrou algum zero.`
     return null
@@ -451,6 +452,15 @@ export const contratoSchema = z
         code: 'custom',
         path: ['data_fim'],
         message: 'A data de término não pode ser anterior à data de início. Confira as duas datas.',
+      })
+    }
+    // Garantia por fiador sem fiador deixa o contrato sem garantia nenhuma e a minuta sem a
+    // qualificação dele (CAD-04).
+    if (d.tipo_garantia === 'fiador' && !d.fiador_id) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['fiador_id'],
+        message: 'Escolha o fiador deste contrato ou cadastre um novo fiador.',
       })
     }
   })

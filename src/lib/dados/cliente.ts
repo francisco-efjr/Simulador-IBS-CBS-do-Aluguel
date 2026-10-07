@@ -1,6 +1,12 @@
 import { supabase } from './supabase'
 import { ARQUIVOS, RELACOES, chaveEstrangeira, pastaDoAnexo } from './esquema'
 import { enviarArquivo } from './arquivos'
+import {
+  ErroDeSessao,
+  erroDePermissao,
+  erroDeSessaoVencida,
+  sinalizarSessaoTerminada,
+} from './sessao'
 
 /**
  * Camada de dados da aplicação.
@@ -158,8 +164,24 @@ function aplicarOrdem(consulta: Consulta, sort?: string): Consulta {
   return q
 }
 
-function erro(contexto: string, e: { message: string } | null): void {
-  if (e) throw new Error(`${contexto}: ${e.message}`)
+function erro(
+  contexto: string,
+  e: { message: string; code?: string; status?: number } | null,
+): void {
+  if (!e) return
+  // Token vencido: não é problema de campo, e a tela precisa saber (FIN-13).
+  if (erroDeSessaoVencida(e)) {
+    sinalizarSessaoTerminada()
+    throw new ErroDeSessao()
+  }
+  // Sem sessão, "sem permissão" é o jeito de o banco dizer "entre de novo": quem
+  // apagou ou perdeu a sessão com a tela aberta só recebe a recusa da RLS.
+  if (erroDePermissao(e)) {
+    void supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) sinalizarSessaoTerminada()
+    })
+  }
+  throw new Error(`${contexto}: ${e.message}`)
 }
 
 /**
@@ -169,7 +191,7 @@ function erro(contexto: string, e: { message: string } | null): void {
  * para o bucket e o que fica gravado na coluna é o caminho — o mesmo desenho
  * do PocketBase, que guardava o nome do arquivo.
  */
-async function prepararDados(
+export async function prepararDados(
   tabela: string,
   dados: Record<string, unknown> | FormData,
 ): Promise<Record<string, unknown>> {
@@ -200,10 +222,43 @@ async function prepararDados(
       continue
     }
 
-    saida[chave] = valor
+    // Texto vazio no envio com arquivo quer dizer "limpar a coluna": o FormData não
+    // tem nulo, e nenhuma tela manda campo vazio por outro motivo.
+    saida[chave] = valor === '' ? null : valor
   }
 
   return { ...saida, ...multiplos }
+}
+
+/**
+ * Chaves que descrevem o registro mas não são coluna para gravar: a relação
+ * embutida (`expand`, `exp__*`), a identidade, os carimbos de data e a autoria
+ * (esta o gatilho do banco preenche e não deixa trocar). As telas montam o
+ * formulário copiando o registro lido, então elas vêm junto — e o PostgREST
+ * recusa coluna desconhecida com 400 (era o CAD-01/FIN-01: nenhuma edição
+ * gravava).
+ */
+const CHAVES_SOMENTE_LEITURA = new Set([
+  'expand',
+  'id',
+  'created',
+  'updated',
+  'created_at',
+  'updated_at',
+  'created_by',
+  'updated_by',
+  'collectionId',
+  'collectionName',
+])
+
+/** Tira do corpo as chaves que o banco não aceita ou não deixa a tela definir. */
+export function sanearCorpo(corpo: Record<string, unknown>): Record<string, unknown> {
+  const limpo: Record<string, unknown> = {}
+  for (const [chave, valor] of Object.entries(corpo)) {
+    if (CHAVES_SOMENTE_LEITURA.has(chave) || chave.startsWith(PREFIXO)) continue
+    limpo[chave] = valor
+  }
+  return limpo
 }
 
 function colecao<T extends Registro = Registro>(tabela: string) {
@@ -258,14 +313,14 @@ function colecao<T extends Registro = Registro>(tabela: string) {
     },
 
     async create<R = T>(dados: Record<string, unknown> | FormData): Promise<R> {
-      const corpo = await prepararDados(tabela, dados)
+      const corpo = sanearCorpo(await prepararDados(tabela, dados))
       const { data, error } = await supabase.from(tabela).insert(corpo).select().single()
       erro(`Falha ao criar em ${tabela}`, error)
       return normalizar<R>(data as unknown as Record<string, unknown>)
     },
 
     async update<R = T>(id: string, dados: Record<string, unknown> | FormData): Promise<R> {
-      const corpo = await prepararDados(tabela, dados)
+      const corpo = sanearCorpo(await prepararDados(tabela, dados))
       const { data, error } = await supabase
         .from(tabela)
         .update(corpo)
