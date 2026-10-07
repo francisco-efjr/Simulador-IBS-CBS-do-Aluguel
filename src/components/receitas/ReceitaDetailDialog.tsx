@@ -7,6 +7,8 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { ConfirmarAcao } from '@/components/shared/ConfirmarAcao'
+import { rotuloDoLancamento } from '@/lib/rotulo-lancamento'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { DocumentUpload } from '@/components/shared/DocumentUpload'
 import {
@@ -104,13 +106,19 @@ export function ReceitaDetailDialog({
         </div>
         <DialogFooter className="flex-col sm:flex-row gap-2 pt-2">
           {canEdit && (
-            <Button
-              variant="outline"
-              className="w-full sm:w-auto min-h-[44px] text-red-600 hover:bg-red-50 hover:text-red-700"
-              onClick={onDelete}
+            <ConfirmarAcao
+              titulo="Excluir receita?"
+              descricao={`${rotuloDoLancamento(receita, 'receita')}: ${formatCurrency(receita.valor_previsto)}, vencimento em ${formatDate(receita.data_vencimento)}. Essa ação não pode ser desfeita.`}
+              rotuloConfirmar="Sim, excluir receita"
+              onConfirmar={onDelete}
             >
-              <Trash2 className="h-4 w-4 mr-1" /> Excluir
-            </Button>
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto min-h-[44px] text-red-600 hover:bg-red-50 hover:text-red-700"
+              >
+                <Trash2 className="h-4 w-4 mr-1" aria-hidden="true" /> Excluir
+              </Button>
+            </ConfirmarAcao>
           )}
           <Button
             variant="outline"

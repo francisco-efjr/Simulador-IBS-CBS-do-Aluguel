@@ -9,6 +9,8 @@ import { ReceitaFormDialog } from '@/components/receitas/ReceitaFormDialog'
 import { ReceitaDetailDialog } from '@/components/receitas/ReceitaDetailDialog'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/button'
+import { ConfirmarAcao } from '@/components/shared/ConfirmarAcao'
+import { rotuloDoLancamento } from '@/lib/rotulo-lancamento'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -106,7 +108,7 @@ export default function Receitas() {
       setDetailOpen(false)
       load()
     } catch {
-      toast.error('Não foi possível excluir a receita. Tente novamente.')
+      toast.error('Não foi possível excluir receita. Tente novamente.')
     }
   }
 
@@ -247,7 +249,7 @@ export default function Receitas() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          aria-label="Ver detalhes"
+                          aria-label={`Ver detalhes da receita ${rotuloDoLancamento(r, 'Receita')}`}
                           title="Ver detalhes"
                           className="h-11 w-11 min-h-[44px] min-w-[44px]"
                           onClick={() => handleView(r)}
@@ -258,7 +260,7 @@ export default function Receitas() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            aria-label="Editar"
+                            aria-label={`Editar receita ${rotuloDoLancamento(r, 'Receita')}`}
                             title="Editar"
                             className="h-11 w-11 min-h-[44px] min-w-[44px]"
                             onClick={() => handleEdit(r)}
@@ -318,24 +320,34 @@ export default function Receitas() {
                           <Button
                             variant="outline"
                             size="sm"
+                            aria-label={`Editar receita ${rotuloDoLancamento(r, 'Receita')}`}
                             className="h-11 px-3 min-h-[44px] text-sm"
                             onClick={() => handleEdit(r)}
                           >
                             <Pencil className="h-3.5 w-3.5 mr-1 text-slate-600" /> Editar
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-11 px-3 min-h-[44px] text-red-600 hover:bg-red-50 border-red-200"
-                            onClick={() => handleDelete(r)}
+                          <ConfirmarAcao
+                            titulo="Excluir esta receita?"
+                            descricao={`${rotuloDoLancamento(r, 'Receita')}: ${formatCurrency(r.valor_previsto)}, vencimento em ${formatDate(r.data_vencimento)}. Essa ação não pode ser desfeita.`}
+                            rotuloConfirmar="Sim, excluir receita"
+                            onConfirmar={() => handleDelete(r)}
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              aria-label={`Excluir receita ${rotuloDoLancamento(r, 'Receita')}`}
+                              title="Excluir"
+                              className="h-11 w-11 min-h-[44px] min-w-[44px] px-0 text-red-600 hover:bg-red-50 border-red-200"
+                            >
+                              <Trash2 className="h-4 w-4" aria-hidden="true" />
+                            </Button>
+                          </ConfirmarAcao>
                         </>
                       ) : (
                         <Button
                           variant="outline"
                           size="sm"
+                          aria-label={`Detalhes da receita ${rotuloDoLancamento(r, 'Receita')}`}
                           className="h-11 px-3 min-h-[44px] text-sm"
                           onClick={() => handleView(r)}
                         >
