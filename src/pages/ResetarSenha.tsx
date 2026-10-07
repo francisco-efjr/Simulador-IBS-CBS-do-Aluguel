@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Lock, Eye, EyeOff, ArrowRight, CheckCircle2, AlertTriangle, ArrowLeft } from 'lucide-react'
+import { CircleAlert, CircleCheck, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { LayoutDeAcesso } from '@/components/organico'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Field } from '@/components/shared/Field'
+import { PasswordInput } from '@/components/shared/PasswordInput'
+import { RegrasDaSenha } from '@/components/shared/RegrasDaSenha'
+import { ResumoDeErros, type ErroDoResumo } from '@/components/shared/ResumoDeErros'
+import { MENSAGENS } from '@/lib/mensagens-de-erro'
+import { MENSAGENS_DA_SENHA, TAMANHO_MINIMO_DA_SENHA } from '@/lib/senha'
 import { validarLinkDeRecuperacao, redefinirSenha } from '@/services/auth-recovery'
 
 export default function RedefinirSenha() {
@@ -18,8 +22,8 @@ export default function RedefinirSenha() {
 
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [tentativa, setTentativa] = useState(0)
+  const [erro, setErro] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [success, setSuccess] = useState(false)
@@ -56,247 +60,191 @@ export default function RedefinirSenha() {
     }
   }, [])
 
-  // Cálculo da força da senha
-  const getPasswordStrength = (pwd: string) => {
-    if (!pwd) return { score: 0, label: 'Não informada', color: 'bg-slate-600' }
-    let score = 0
-    if (pwd.length >= 8) score++
-    if (pwd.length >= 12) score++
-    if (/[A-Z]/.test(pwd)) score++
-    if (/[0-9]/.test(pwd)) score++
-    if (/[^A-Za-z0-9]/.test(pwd)) score++
-
-    if (score <= 2) return { score: 1, label: 'Fraca', color: 'bg-rose-500' }
-    if (score <= 3) return { score: 2, label: 'Média', color: 'bg-amber-500' }
-    return { score: 3, label: 'Forte', color: 'bg-emerald-500' }
+  const conferir = (campo: 'password' | 'confirmPassword', valor: string): string => {
+    if (campo === 'password') {
+      if (!valor) return MENSAGENS.obrigatorio('Senha nova')
+      return valor.length >= TAMANHO_MINIMO_DA_SENHA ? '' : MENSAGENS_DA_SENHA.curta
+    }
+    if (!valor) return MENSAGENS.obrigatorio('Repita a senha nova')
+    return valor === password ? '' : MENSAGENS_DA_SENHA.diferentes
   }
 
-  const strength = getPasswordStrength(password)
+  const aoSairDoCampo = (campo: 'password' | 'confirmPassword', valor: string) => {
+    if (!valor && tentativa === 0) return
+    const mensagem = conferir(campo, valor)
+    setErrors((atuais) => {
+      const novos = { ...atuais }
+      if (mensagem) novos[campo] = mensagem
+      else delete novos[campo]
+      return novos
+    })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setErrors({})
+    setTentativa((n) => n + 1)
 
     const fieldErrors: Record<string, string> = {}
-    if (!password) {
-      fieldErrors.password = 'A nova senha é obrigatória'
-    } else if (password.length < 8) {
-      fieldErrors.password = 'A senha deve conter no mínimo 8 caracteres'
-    }
-
-    if (!confirmPassword) {
-      fieldErrors.confirmPassword = 'A confirmação de senha é obrigatória'
-    } else if (password !== confirmPassword) {
-      fieldErrors.confirmPassword = 'As senhas informadas não coincidem'
-    }
-
-    if (Object.keys(fieldErrors).length > 0) {
-      setErrors(fieldErrors)
-      return
-    }
+    const erroSenha = conferir('password', password)
+    const erroConfirmacao = conferir('confirmPassword', confirmPassword)
+    if (erroSenha) fieldErrors.password = erroSenha
+    if (erroConfirmacao) fieldErrors.confirmPassword = erroConfirmacao
+    setErrors(fieldErrors)
+    if (Object.keys(fieldErrors).length > 0) return
 
     setSubmitting(true)
     try {
       const res = await redefinirSenha(password)
       if (res.success) {
         setSuccess(true)
-        toast.success('Senha redefinida com sucesso. Você já pode entrar com a sua nova senha.')
+        toast.success('Senha nova salva. Já pode entrar com ela.')
         setTimeout(() => {
           navigate('/login', { replace: true })
         }, 2500)
       } else {
-        toast.error(res.message || 'Não foi possível redefinir a senha. Tente novamente.')
-        setTokenErrorMsg(res.message)
+        setErro(res.message || 'Não foi possível salvar a senha agora. Tente de novo.')
       }
-    } catch (err: any) {
-      const msg =
-        err?.data?.message ||
-        err?.message ||
-        'Não foi possível redefinir a senha. O link pode ter expirado.'
-      toast.error(msg)
-      setTokenErrorMsg(msg)
+    } catch (err: unknown) {
+      const e = err as { data?: { message?: string }; message?: string }
+      setErro(
+        e?.data?.message ||
+          e?.message ||
+          'Não foi possível salvar a senha agora. O link pode ter vencido.',
+      )
     } finally {
       setSubmitting(false)
     }
   }
 
+  const errosDoResumo: ErroDoResumo[] = [
+    errors.password && { campo: 'password', rotulo: 'Senha nova', mensagem: errors.password },
+    errors.confirmPassword && {
+      campo: 'confirmPassword',
+      rotulo: 'Repita a senha nova',
+      mensagem: errors.confirmPassword,
+    },
+  ].filter(Boolean) as ErroDoResumo[]
+
+  const linkDeTexto =
+    'inline-flex min-h-11 items-center self-center px-2.5 text-base font-bold text-primary underline hover:text-foreground'
+
   return (
     <LayoutDeAcesso
-      titulo="Redefinir senha"
-      subtitulo={<>Crie uma nova senha de acesso institucional para sua conta.</>}
+      etiqueta={checkingToken ? 'Senha nova' : !tokenValid ? 'Recuperar acesso' : 'Senha nova'}
+      titulo={
+        !checkingToken && !tokenValid
+          ? 'Este link não vale mais'
+          : success
+            ? 'Senha nova salva'
+            : 'Crie uma senha nova'
+      }
+      subtitulo={
+        !checkingToken && !tokenValid
+          ? undefined
+          : success
+            ? 'Você será levado ao login em instantes.'
+            : 'Depois de salvar, use a senha nova para entrar.'
+      }
     >
       {checkingToken ? (
-        <div className="py-8 flex flex-col items-center justify-center gap-3 text-xs">
-          <div className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <span>Validando token de segurança...</span>
+        <div role="status" className="flex flex-col items-center gap-3 py-8 text-base">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
+          <span>Conferindo o link…</span>
         </div>
       ) : !tokenValid ? (
-        <div className="space-y-4">
-          <div className="flex items-start gap-3 rounded-lg bg-destructive/15 p-4 border border-transparent text-red-800">
-            <AlertTriangle className="h-5 w-5 text-red-800 shrink-0 mt-0.5" />
-            <div className="space-y-1 text-xs sm:text-sm">
-              <p className="font-semibold text-red-800">Link Inválido ou Expirado</p>
-              <p className="text-xs">
-                {tokenErrorMsg ||
-                  'O link de redefinição de senha não é válido ou ultrapassou o limite de 1 hora.'}
-              </p>
-            </div>
+        <div className="flex flex-col gap-4">
+          <div
+            role="alert"
+            className="flex items-start gap-3 rounded-3xl bg-destructive/10 px-5 py-4 text-base text-destructive"
+          >
+            <CircleAlert className="mt-0.5 h-6 w-6 shrink-0" aria-hidden="true" />
+            <p>
+              {tokenErrorMsg ||
+                'O link de redefinição venceu ou já foi usado. Cada link vale por 1 hora.'}
+            </p>
           </div>
-
-          <div className="pt-2 flex flex-col gap-2">
-            <Link to="/recuperar-senha" className="w-full">
-              <Button className="w-full min-h-[44px] font-bold py-2.5">
-                Solicitar Novo Link de Recuperação
-              </Button>
-            </Link>
-
-            <Link to="/login" className="w-full">
-              <Button variant="ghost" className="w-full text-xs sm:text-sm">
-                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para o login
-              </Button>
-            </Link>
-          </div>
-        </div>
-      ) : success ? (
-        <div className="space-y-4">
-          <div className="flex items-start gap-3 rounded-lg bg-primary/15 p-4 border border-transparent text-success-ink">
-            <CheckCircle2 className="h-6 w-6 text-success-ink shrink-0 mt-0.5" />
-            <div className="space-y-1 text-xs sm:text-sm">
-              <p className="font-semibold text-success-ink">Senha Alterada com Sucesso!</p>
-              <p className="text-xs">
-                Sua senha de acesso foi atualizada no sistema. Você será redirecionado para o login
-                em instantes...
-              </p>
-            </div>
-          </div>
-
-          <Link to="/login" className="w-full block pt-2">
-            <Button className="w-full min-h-[44px] font-bold py-2.5">
-              Ir para a Tela de Login &rarr;
-            </Button>
+          <Button asChild size="lg" className="w-full">
+            <Link to="/recuperar-senha">Pedir um link novo</Link>
+          </Button>
+          <Link to="/login" className={linkDeTexto}>
+            Voltar para o login
           </Link>
         </div>
+      ) : success ? (
+        <div className="flex flex-col gap-4">
+          <div
+            role="status"
+            className="flex items-start gap-3 rounded-3xl bg-primary/10 px-5 py-4 text-base text-success-ink"
+          >
+            <CircleCheck className="mt-0.5 h-6 w-6 shrink-0" aria-hidden="true" />
+            <p>Sua senha foi atualizada.</p>
+          </div>
+          <Button asChild size="lg" className="w-full">
+            <Link to="/login">Ir para o login</Link>
+          </Button>
+        </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
           {accountEmail && (
-            <div className="p-2.5 rounded-lg border text-xs">
-              Redefinindo senha para: <strong className="text-primary">{accountEmail}</strong>
+            <p className="rounded-3xl bg-muted px-5 py-3 text-base">
+              Senha nova para <strong className="break-all">{accountEmail}</strong>
+            </p>
+          )}
+
+          {erro && (
+            <div
+              role="alert"
+              className="flex items-start gap-2 rounded-3xl bg-destructive/10 px-5 py-3 text-sm font-bold text-destructive"
+            >
+              <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>{erro}</span>
             </div>
           )}
 
-          <div className="space-y-1.5">
-            <Label htmlFor="password" className="font-semibold text-sm">
-              Nova Senha
-            </Label>
-            <div className="relative">
-              <Lock className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
-              <Input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Mínimo 8 caracteres"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={submitting}
-                className="pl-12 pr-14 min-h-[48px] text-base"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2.5 hover:text-foreground transition-colors"
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            {errors.password && (
-              <p role="alert" className="text-sm font-semibold text-red-800">
-                {errors.password}
-              </p>
-            )}
+          <ResumoDeErros erros={errosDoResumo} tentativa={tentativa} />
 
-            {/* Indicador de Força de Senha */}
-            {password.length > 0 && (
-              <div className="pt-1.5 space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span>Força da senha:</span>
-                  <span className="font-semibold">{strength.label}</span>
-                </div>
-                <div className="flex h-1.5 w-full gap-1 overflow-hidden rounded-full">
-                  <div
-                    className={`h-full flex-1 rounded-full ${
-                      strength.score >= 1 ? strength.color : 'bg-transparent'
-                    }`}
-                  />
-                  <div
-                    className={`h-full flex-1 rounded-full ${
-                      strength.score >= 2 ? strength.color : 'bg-transparent'
-                    }`}
-                  />
-                  <div
-                    className={`h-full flex-1 rounded-full ${
-                      strength.score >= 3 ? strength.color : 'bg-transparent'
-                    }`}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+          <Field id="password" label="Senha nova" error={errors.password} anunciar={false}>
+            <PasswordInput
+              autoComplete="new-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onBlur={(e) => aoSairDoCampo('password', e.target.value)}
+              disabled={submitting}
+            />
+          </Field>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="confirm" className="font-semibold text-sm">
-              Confirmar Nova Senha
-            </Label>
-            <div className="relative">
-              <Lock className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
-              <Input
-                id="confirm"
-                type={showConfirmPassword ? 'text' : 'password'}
-                placeholder="Repita a nova senha"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={submitting}
-                className="pl-12 pr-14 min-h-[48px] text-base"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-2.5 hover:text-foreground transition-colors"
-              >
-                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            {errors.confirmPassword && (
-              <p role="alert" className="text-sm font-semibold text-red-800">
-                {errors.confirmPassword}
-              </p>
-            )}
-          </div>
+          <Field
+            id="confirmPassword"
+            label="Repita a senha nova"
+            error={errors.confirmPassword}
+            anunciar={false}
+          >
+            <PasswordInput
+              autoComplete="new-password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              onBlur={(e) => aoSairDoCampo('confirmPassword', e.target.value)}
+              disabled={submitting}
+            />
+          </Field>
+
+          <RegrasDaSenha senha={password} confirmacao={confirmPassword} />
 
           <Button
             type="submit"
-            disabled={submitting}
-            className="w-full min-h-[44px] font-bold py-2.5 transition-all active:scale-[0.98]"
+            size="lg"
+            carregando={submitting}
+            textoCarregando="Salvando…"
+            className="mt-1 w-full"
           >
-            {submitting ? (
-              <span className="flex items-center gap-2">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
-                Redefinindo senha...
-              </span>
-            ) : (
-              <>
-                <span>Salvar Nova Senha</span>
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            )}
+            Salvar senha nova
           </Button>
 
-          <div className="text-center pt-2">
-            <Link
-              to="/login"
-              className="text-xs font-semibold text-primary hover:text-foreground hover:underline flex items-center justify-center gap-1.5"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" /> Voltar para o login
-            </Link>
-          </div>
+          <Link to="/login" className={linkDeTexto}>
+            Voltar para o login
+          </Link>
         </form>
       )}
     </LayoutDeAcesso>

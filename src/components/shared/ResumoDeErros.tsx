@@ -45,7 +45,8 @@ export function ResumoDeErros({ erros, tentativa, className = '' }: ResumoDeErro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tentativa])
 
-  if (erros.length === 0) return null
+  // Só depois de uma tentativa de envio: o aviso no campo, ao sair dele, basta até lá.
+  if (tentativa === 0 || erros.length === 0) return null
 
   return (
     <div

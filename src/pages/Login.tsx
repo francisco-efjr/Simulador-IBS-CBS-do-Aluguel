@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
-import { CircleAlert, Eye, EyeOff, ShieldCheck } from 'lucide-react'
+import { CircleAlert, ShieldCheck } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Field } from '@/components/shared/Field'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 import { ResumoDeErros, type ErroDoResumo } from '@/components/shared/ResumoDeErros'
 import { Checkbox } from '@/components/ui/checkbox'
 import { AvisoDeAcesso, LayoutDeAcesso } from '@/components/organico'
@@ -16,7 +17,6 @@ import { toast } from 'sonner'
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [generalError, setGeneralError] = useState('')
@@ -150,30 +150,13 @@ export default function Login() {
         </Field>
 
         <Field id="password" label="Senha" error={fieldErrors.password} anunciar={false}>
-          <div className="relative">
-            <Input
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onBlur={(e) => aoSairDoCampo('password', e.target.value)}
-              required
-              className="min-h-14 pr-16"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-              aria-pressed={showPassword}
-              className="absolute right-1.5 top-1.5 flex h-11 w-11 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/10"
-            >
-              {showPassword ? (
-                <EyeOff className="h-[22px] w-[22px]" aria-hidden="true" />
-              ) : (
-                <Eye className="h-[22px] w-[22px]" aria-hidden="true" />
-              )}
-            </button>
-          </div>
+          <PasswordInput
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onBlur={(e) => aoSairDoCampo('password', e.target.value)}
+            required
+          />
         </Field>
 
         <div className="flex min-h-11 items-center gap-3 px-1">

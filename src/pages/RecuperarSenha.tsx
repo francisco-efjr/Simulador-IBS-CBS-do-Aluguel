@@ -1,146 +1,183 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Mail, ArrowLeft, ArrowRight, CheckCircle, RefreshCw } from 'lucide-react'
+import { CircleAlert, MailCheck } from 'lucide-react'
+import { toast } from 'sonner'
 import { LayoutDeAcesso } from '@/components/organico'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Field } from '@/components/shared/Field'
+import { ResumoDeErros } from '@/components/shared/ResumoDeErros'
+import { emailCompleto, MENSAGENS } from '@/lib/mensagens-de-erro'
 import { solicitarRecuperacaoSenha } from '@/services/auth-recovery'
+
+const LINK_DE_TEXTO =
+  'inline-flex min-h-11 items-center self-center px-2.5 text-base font-bold text-primary underline hover:text-foreground'
 
 export default function RecuperarSenha() {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [reenviando, setReenviando] = useState(false)
+  const [fieldError, setFieldError] = useState('')
   const [error, setError] = useState('')
+  const [tentativa, setTentativa] = useState(0)
+
+  const conferir = (valor: string): string => {
+    if (!valor.trim()) return MENSAGENS.obrigatorio('E-mail')
+    return emailCompleto(valor) ? '' : MENSAGENS.emailIncompleto
+  }
+
+  /** Pede o link ao serviço. Devolve se deu certo; a mensagem de falha vai para a tela. */
+  const pedirLink = async (): Promise<boolean> => {
+    try {
+      const res = await solicitarRecuperacaoSenha(email)
+      if (res.success) return true
+      setError(res.message || 'Não foi possível pedir o link agora. Tente de novo em instantes.')
+    } catch (err: unknown) {
+      const e = err as { data?: { message?: string }; message?: string }
+      setError(
+        e?.data?.message ||
+          e?.message ||
+          'Não foi possível enviar o e-mail. Tente de novo mais tarde.',
+      )
+    }
+    return false
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email.trim()) {
-      setError('E-mail institucional é obrigatório')
-      return
-    }
-    if (!email.includes('@')) {
-      setError('Por favor, informe um e-mail válido.')
-      return
-    }
+    setError('')
+    setTentativa((n) => n + 1)
+
+    const mensagem = conferir(email)
+    setFieldError(mensagem)
+    if (mensagem) return
 
     setSubmitting(true)
-    setError('')
+    if (await pedirLink()) setSent(true)
+    setSubmitting(false)
+  }
 
-    try {
-      const res = await solicitarRecuperacaoSenha(email)
-      if (res.success) {
-        setSent(true)
-      } else {
-        setError(res.message || 'Não foi possível solicitar a recuperação de senha.')
-      }
-    } catch (err: any) {
-      const msg =
-        err?.data?.message ||
-        err?.message ||
-        'Não foi possível enviar o e-mail. Tente novamente mais tarde.'
-      setError(msg)
-    } finally {
-      setSubmitting(false)
-    }
+  const reenviar = async () => {
+    setError('')
+    setReenviando(true)
+    if (await pedirLink()) toast.success('Link enviado de novo. Veja também a caixa de spam.')
+    setReenviando(false)
+  }
+
+  if (sent) {
+    return (
+      <LayoutDeAcesso
+        icone={MailCheck}
+        etiqueta="Recuperar acesso"
+        titulo="Confira seu e-mail"
+        subtitulo={
+          <>
+            Se existir um acesso com <strong className="break-all">{email}</strong>, o link chega em
+            alguns minutos e vale por 1 hora. Veja também a caixa de spam.
+          </>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          {error && (
+            <div
+              role="alert"
+              className="flex items-start gap-2 rounded-3xl bg-destructive/10 px-5 py-3 text-sm font-bold text-destructive"
+            >
+              <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>{error}</span>
+            </div>
+          )}
+          <Button asChild size="lg" className="w-full">
+            <Link to="/login">Voltar para o login</Link>
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            carregando={reenviando}
+            textoCarregando="Enviando…"
+            onClick={reenviar}
+            className="self-center"
+          >
+            Não chegou? Enviar de novo
+          </Button>
+          <button
+            type="button"
+            className={LINK_DE_TEXTO}
+            onClick={() => {
+              setSent(false)
+              setEmail('')
+              setError('')
+              setTentativa(0)
+            }}
+          >
+            Usar outro e-mail
+          </button>
+        </div>
+      </LayoutDeAcesso>
+    )
   }
 
   return (
     <LayoutDeAcesso
-      titulo="Recuperar senha"
-      subtitulo={
-        sent
-          ? 'Verifique sua caixa de entrada e siga as orientações enviadas.'
-          : 'Informe seu e-mail institucional para receber o link seguro de redefinição.'
-      }
+      etiqueta="Recuperar acesso"
+      titulo="Esqueceu a senha?"
+      subtitulo="Informe seu e-mail. Vamos enviar um link para você criar uma senha nova."
     >
-      {sent ? (
-        <div className="space-y-4">
-          <div className="flex items-start gap-3 rounded-lg bg-primary/15 p-4 border border-transparent text-success-ink">
-            <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-            <div className="space-y-1 text-xs sm:text-sm">
-              <p className="font-semibold text-success-ink">Instruções enviadas com sucesso!</p>
-              <p className="text-xs">
-                Se o e-mail <strong className="">{email}</strong> estiver cadastrado na Holding
-                Aguiar, você receberá uma mensagem com o link de redefinição válido por{' '}
-                <strong>1 hora</strong>.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2 pt-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSent(false)
-                setEmail('')
-              }}
-              className="w-full min-h-[44px] font-medium text-xs sm:text-sm"
-            >
-              <RefreshCw className="mr-2 h-4 w-4 text-primary" /> Enviar para outro e-mail
-            </Button>
-
-            <Link to="/login" className="w-full">
-              <Button variant="ghost" className="w-full min-h-[48px] text-base">
-                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para o login
-              </Button>
-            </Link>
-          </div>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="rounded-lg bg-destructive/15 p-3 text-xs font-medium text-red-800 border border-transparent">
-              {error}
-            </div>
-          )}
-
-          <div className="space-y-1.5">
-            <Label htmlFor="email" className="font-semibold text-sm">
-              E-mail institucional cadastrado
-            </Label>
-            <div className="relative">
-              <Mail className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
-              <Input
-                id="email"
-                type="email"
-                placeholder="seu.email@holdingaguiar.com.br"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={submitting}
-                className="pl-12"
-              />
-            </div>
-          </div>
-
-          <Button
-            type="submit"
-            disabled={submitting}
-            className="w-full min-h-[44px] font-bold py-2.5 transition-all active:scale-[0.98]"
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+        {error && (
+          <div
+            role="alert"
+            className="flex items-start gap-2 rounded-3xl bg-destructive/10 px-5 py-3 text-sm font-bold text-destructive"
           >
-            {submitting ? (
-              <span className="flex items-center gap-2">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
-                Enviando instruções...
-              </span>
-            ) : (
-              <>
-                <span>Enviar link de recuperação</span>
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            )}
-          </Button>
-
-          <div className="text-center pt-2">
-            <Link
-              to="/login"
-              className="inline-flex min-h-[44px] items-center justify-center gap-1.5 text-sm font-semibold text-primary underline underline-offset-4 hover:text-foreground"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" /> Voltar para o login
-            </Link>
+            <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+            <span>{error}</span>
           </div>
-        </form>
-      )}
+        )}
+
+        <ResumoDeErros
+          erros={fieldError ? [{ campo: 'email', rotulo: 'E-mail', mensagem: fieldError }] : []}
+          tentativa={tentativa}
+        />
+
+        <Field
+          id="email"
+          label="E-mail"
+          error={fieldError}
+          anunciar={false}
+          hint="O mesmo e-mail com que você entra no sistema."
+        >
+          <Input
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            autoCapitalize="none"
+            spellCheck={false}
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onBlur={(e) => {
+              if (e.target.value || tentativa > 0) setFieldError(conferir(e.target.value))
+            }}
+            disabled={submitting}
+            className="min-h-14"
+          />
+        </Field>
+
+        <Button
+          type="submit"
+          size="lg"
+          carregando={submitting}
+          textoCarregando="Enviando…"
+          className="w-full"
+        >
+          Enviar link
+        </Button>
+
+        <Link to="/login" className={LINK_DE_TEXTO}>
+          Voltar para o login
+        </Link>
+      </form>
     </LayoutDeAcesso>
   )
 }

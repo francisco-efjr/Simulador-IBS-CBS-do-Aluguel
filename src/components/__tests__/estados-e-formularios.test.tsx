@@ -98,8 +98,10 @@ describe('ResumoDeErros', () => {
     expect(screen.getByLabelText('E-mail')).toHaveFocus()
   })
 
-  it('não aparece sem erros', () => {
-    render(<ResumoDeErros erros={[]} tentativa={3} />)
+  it('não aparece sem erros, nem antes da primeira tentativa de envio', () => {
+    const { rerender } = render(<ResumoDeErros erros={[]} tentativa={3} />)
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    rerender(<ResumoDeErros erros={erros} tentativa={0} />)
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 })
