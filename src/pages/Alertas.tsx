@@ -141,7 +141,10 @@ export default function Alertas() {
       setDespesas(despesasData)
     } catch (err) {
       console.error('Erro ao carregar alertas:', err)
-      toast.error('Não foi possível carregar os avisos. Atualize a página e tente novamente.')
+      toast.error('Não foi possível carregar os avisos', {
+        description: 'Confira a internet e tente de novo.',
+        action: { label: 'Tentar de novo', onClick: () => void loadData() },
+      })
     } finally {
       setLoading(false)
     }

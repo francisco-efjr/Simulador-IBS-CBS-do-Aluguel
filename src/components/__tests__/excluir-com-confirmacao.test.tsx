@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { ReceitaDetailDialog } from '@/components/receitas/ReceitaDetailDialog'
 import { DespesaDetailDialog } from '@/components/despesas/DespesaDetailDialog'
 import { IptuTaxaDetailDialog } from '@/components/iptu-taxas/IptuTaxaDetailDialog'
+import { ConfirmarAcao } from '@/components/shared/ConfirmarAcao'
 import { rotuloDoLancamento } from '@/lib/rotulo-lancamento'
 
 // Os anexos falam com o banco; aqui só interessa o botão de excluir.
@@ -67,7 +68,7 @@ describe('excluir lançamento financeiro pede confirmação (FIN-06)', () => {
     expect(onDelete).toHaveBeenCalledTimes(1)
   })
 
-  it('"Voltar sem alterar" não apaga', () => {
+  it('"Cancelar" não apaga', () => {
     const onDelete = vi.fn()
     render(
       <ReceitaDetailDialog
@@ -80,7 +81,7 @@ describe('excluir lançamento financeiro pede confirmação (FIN-06)', () => {
       />,
     )
     fireEvent.click(screen.getByRole('button', { name: /^Excluir/ }))
-    fireEvent.click(screen.getByRole('button', { name: /Voltar sem alterar/ }))
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
     expect(onDelete).not.toHaveBeenCalled()
   })
 })
@@ -93,5 +94,28 @@ describe('rotuloDoLancamento', () => {
     )
     expect(rotuloDoLancamento({}, 'Receita')).toBe('Receita')
     expect(rotuloDoLancamento(null, 'Receita')).toBe('Receita')
+  })
+})
+
+describe('ConfirmarAcao (guia de estilo, seção 07)', () => {
+  it('abre com o foco em "Cancelar", e o botão perigoso diz o que faz', async () => {
+    const onConfirmar = vi.fn()
+    render(
+      <ConfirmarAcao
+        titulo="Excluir a Casa Jardim?"
+        descricao="O imóvel sai da lista. Não dá para desfazer."
+        rotuloConfirmar="Sim, excluir"
+        onConfirmar={onConfirmar}
+      >
+        <button type="button">Excluir</button>
+      </ConfirmarAcao>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+    const dialogo = await screen.findByRole('alertdialog')
+    expect(dialogo).toHaveAccessibleName('Excluir a Casa Jardim?')
+    expect(screen.getByRole('button', { name: 'Cancelar' })).toHaveFocus()
+    expect(onConfirmar).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: 'Sim, excluir' }))
+    expect(onConfirmar).toHaveBeenCalledTimes(1)
   })
 })

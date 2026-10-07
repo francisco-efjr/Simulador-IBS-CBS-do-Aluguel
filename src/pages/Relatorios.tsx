@@ -97,7 +97,10 @@ export default function Relatorios() {
       setIptuTaxas(iptuData)
     } catch (err) {
       console.error('Erro ao carregar dados para relatórios:', err)
-      toast.error('Não foi possível carregar os dados. Atualize a página e tente novamente.')
+      toast.error('Não foi possível carregar os dados', {
+        description: 'Confira a internet e tente de novo.',
+        action: { label: 'Tentar de novo', onClick: () => void loadData() },
+      })
     } finally {
       setLoading(false)
     }

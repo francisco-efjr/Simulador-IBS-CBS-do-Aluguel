@@ -20,6 +20,9 @@ const buttonVariants = cva(
         // Argila escura: a argila clara (#C18C5D) não aguenta texto (2,9:1).
         outline:
           'border-2 border-secondary-ink bg-transparent text-secondary-ink hover:bg-secondary-ink hover:text-white active:scale-95',
+        // Ação que apaga ou desativa: só dentro de uma confirmação (guia de estilo, seção 06).
+        perigo:
+          'border-2 border-destructive bg-transparent text-destructive hover:bg-destructive hover:text-destructive-foreground active:scale-95',
         secondary: 'bg-muted text-foreground hover:bg-accent active:scale-95',
         ghost: 'text-primary hover:bg-primary/10',
         link: 'text-primary underline underline-offset-4 decoration-2 hover:text-foreground',
