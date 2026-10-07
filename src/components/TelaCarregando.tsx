@@ -21,16 +21,16 @@ export function TelaCarregando({
       aria-live="polite"
       className={
         variante === 'pagina'
-          ? 'flex min-h-dvh w-full items-center justify-center bg-slate-50'
+          ? 'flex min-h-dvh w-full items-center justify-center bg-background'
           : 'flex min-h-[50vh] w-full items-center justify-center'
       }
     >
       <div className="flex flex-col items-center gap-3">
         <div
-          className="h-9 w-9 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent motion-reduce:animate-none"
+          className="h-9 w-9 animate-spin rounded-full border-4 border-primary border-t-transparent motion-reduce:animate-none"
           aria-hidden="true"
         />
-        <p className="text-sm font-medium text-slate-600">{mensagem}</p>
+        <p className="text-sm font-bold text-accent-foreground">{mensagem}</p>
       </div>
     </div>
   )
