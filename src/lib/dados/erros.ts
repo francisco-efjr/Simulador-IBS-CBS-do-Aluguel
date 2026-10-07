@@ -37,6 +37,7 @@ const COLUNA_POR_INDICE: Record<string, string> = {
   fiadores_email_valido: 'email',
   fiadores_nome_preenchido: 'nome',
   imovel_unidades_identificador_preenchido: 'identificador',
+  imovel_unidades_identificador_uidx: 'identificador',
 }
 
 const MENSAGEM_POR_INDICE: Record<string, string> = {
@@ -72,6 +73,7 @@ const MENSAGEM_POR_INDICE: Record<string, string> = {
   fiadores_email_valido: 'E-mail inválido. Use o formato nome@dominio.com.br.',
   fiadores_nome_preenchido: 'Informe o nome do fiador.',
   imovel_unidades_identificador_preenchido: 'Informe a identificação da unidade.',
+  imovel_unidades_identificador_uidx: 'Já existe uma unidade com este identificador neste imóvel.',
 }
 
 /**
@@ -188,10 +190,7 @@ const TRADUCOES: Array<[RegExp, string]> = [
     /password should be at least|weak password|password is too (short|weak)/i,
     'A senha é curta ou fraca demais. Use pelo menos 8 caracteres, misturando letras e números.',
   ],
-  [
-    /new password should be different/i,
-    'A nova senha precisa ser diferente da senha atual.',
-  ],
+  [/new password should be different/i, 'A nova senha precisa ser diferente da senha atual.'],
   [
     /signups? (not allowed|are disabled|disabled)/i,
     'O cadastro está fechado. Peça um convite a quem administra o sistema.',
@@ -200,10 +199,7 @@ const TRADUCOES: Array<[RegExp, string]> = [
     /otp.*expired|token has expired|link.*(expired|invalid)|invalid.*(token|link)/i,
     'Este link venceu ou já foi usado. Peça um novo.',
   ],
-  [
-    /jwt expired|invalid jwt|jwt.*(malformed|invalid)|refresh token/i,
-    MENSAGEM_SESSAO_TERMINOU,
-  ],
+  [/jwt expired|invalid jwt|jwt.*(malformed|invalid)|refresh token/i, MENSAGEM_SESSAO_TERMINOU],
   [
     /failed to fetch|networkerror|network request failed|load failed/i,
     'Sem conexão com o servidor. Confira a internet e tente de novo.',

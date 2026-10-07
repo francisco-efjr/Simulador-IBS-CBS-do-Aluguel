@@ -160,6 +160,7 @@ const MONTH_NAMES_SHORT = [
   'Mai',
   'Jun',
   'Jul',
+  'Ago',
   'Set',
   'Out',
   'Nov',
@@ -1101,7 +1102,10 @@ export default function DashboardImoveis() {
                   />
                 </div>
                 {customStartDate && customEndDate && customStartDate > customEndDate && (
-                  <p role="alert" className="sm:col-span-2 lg:col-span-4 text-sm font-medium text-red-700">
+                  <p
+                    role="alert"
+                    className="sm:col-span-2 lg:col-span-4 text-sm font-medium text-red-700"
+                  >
                     A data de início é depois da data de fim. Troque as datas para ver os números.
                   </p>
                 )}

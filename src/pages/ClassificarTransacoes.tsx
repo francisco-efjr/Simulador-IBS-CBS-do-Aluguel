@@ -20,6 +20,9 @@ import {
   Search,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useAuth } from '@/hooks/use-auth'
+import { getErrorMessage } from '@/lib/dados/erros'
+import { COLUNA_ACOES_CABECALHO, COLUNA_ACOES_CELULA } from '@/lib/tabela'
 import {
   getTransacoesImportadas,
   updateTransacaoImportada,
@@ -63,6 +66,10 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 
 export default function ClassificarTransacoes() {
+  // Quem só consulta vê a fila, mas não aceita, ajusta nem ignora: o banco
+  // negaria a gravação, e a tela ficava muda.
+  const { canEditModule } = useAuth()
+  const canEdit = canEditModule('classificar_transacoes')
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const importacaoIdParam = searchParams.get('importacao') || 'all'
@@ -164,7 +171,9 @@ export default function ClassificarTransacoes() {
       // Text search
       if (q) {
         const descMatch = semAcento(t.descricao).includes(q)
-        const catMatch = semAcento(t.sugestao_categoria || t.categoria_classificada || '').includes(q)
+        const catMatch = semAcento(t.sugestao_categoria || t.categoria_classificada || '').includes(
+          q,
+        )
         const imovMatch = semAcento(t.sugestao_imovel || t.imovel_classificado || '').includes(q)
         if (!descMatch && !catMatch && !imovMatch) return false
       }
@@ -321,67 +330,72 @@ export default function ClassificarTransacoes() {
     observacoes?: string
     descricao: string
   }) => {
-    if (!dialogItem) return
+    try {
+      if (!dialogItem) return
 
-    const t = dialogItem
-    const isReceita = data.tipo === 'receita'
+      const t = dialogItem
+      const isReceita = data.tipo === 'receita'
 
-    let createdId = ''
-    if (isReceita) {
-      const rec = await createReceita({
-        imovel: data.imovel,
-        contrato: data.contrato || null,
-        inquilino: data.inquilino || null,
-        categoria: data.categoria,
-        descricao: data.descricao || t.descricao,
-        data: data.data,
-        data_vencimento: data.data,
-        data_recebimento: data.data,
-        valor: data.valor,
-        valor_previsto: data.valor,
-        valor_recebido: data.valor,
-        competencia: data.competencia,
-        status_financeiro: 'recebido',
-        forma_recebimento: data.forma,
-        status: 'ativo',
-        transacao_importada_id: t.id,
-        observacoes: data.observacoes || '',
+      let createdId = ''
+      if (isReceita) {
+        const rec = await createReceita({
+          imovel: data.imovel,
+          contrato: data.contrato || null,
+          inquilino: data.inquilino || null,
+          categoria: data.categoria,
+          descricao: data.descricao || t.descricao,
+          data: data.data,
+          data_vencimento: data.data,
+          data_recebimento: data.data,
+          valor: data.valor,
+          valor_previsto: data.valor,
+          valor_recebido: data.valor,
+          competencia: data.competencia,
+          status_financeiro: 'recebido',
+          forma_recebimento: data.forma,
+          status: 'ativo',
+          transacao_importada_id: t.id,
+          observacoes: data.observacoes || '',
+        })
+        createdId = rec.id
+      } else {
+        const desp = await createDespesa({
+          imovel: data.imovel,
+          fornecedor: data.fornecedor || null,
+          categoria: data.categoria,
+          descricao: data.descricao || t.descricao,
+          data: data.data,
+          data_vencimento: data.data,
+          data_pagamento: data.data,
+          valor: data.valor,
+          valor_previsto: data.valor,
+          valor_pago: data.valor,
+          competencia: data.competencia,
+          status_financeiro: 'pago',
+          forma_pagamento: data.forma,
+          status: 'ativo',
+          transacao_importada_id: t.id,
+          observacoes: data.observacoes || '',
+        })
+        createdId = desp.id
+      }
+
+      await updateTransacaoImportada(t.id, {
+        classificada: true,
+        ignorada: false,
+        categoria_classificada: data.categoria || null,
+        imovel_classificado: data.imovel || null,
+        receita_gerada: isReceita ? createdId : null,
+        despesa_gerada: !isReceita ? createdId : null,
       })
-      createdId = rec.id
-    } else {
-      const desp = await createDespesa({
-        imovel: data.imovel,
-        fornecedor: data.fornecedor || null,
-        categoria: data.categoria,
-        descricao: data.descricao || t.descricao,
-        data: data.data,
-        data_vencimento: data.data,
-        data_pagamento: data.data,
-        valor: data.valor,
-        valor_previsto: data.valor,
-        valor_pago: data.valor,
-        competencia: data.competencia,
-        status_financeiro: 'pago',
-        forma_pagamento: data.forma,
-        status: 'ativo',
-        transacao_importada_id: t.id,
-        observacoes: data.observacoes || '',
-      })
-      createdId = desp.id
+
+      toast.success(`Lançamento registrado com sucesso como ${isReceita ? 'receita' : 'despesa'}.`)
+      loadData()
+    } catch (err) {
+      // O diálogo continua aberto para a pessoa corrigir ou desistir.
+      toast.error(`Não foi possível registrar o lançamento. ${getErrorMessage(err)}`)
+      throw err
     }
-
-
-    await updateTransacaoImportada(t.id, {
-      classificada: true,
-      ignorada: false,
-      categoria_classificada: data.categoria || null,
-      imovel_classificado: data.imovel || null,
-      receita_gerada: isReceita ? createdId : null,
-      despesa_gerada: !isReceita ? createdId : null,
-    })
-
-    toast.success(`Lançamento registrado com sucesso como ${isReceita ? 'receita' : 'despesa'}.`)
-    loadData()
   }
 
   // Batch Classification Confirm
@@ -460,7 +474,22 @@ export default function ClassificarTransacoes() {
       }
     }
 
-    toast.success(successCount === 1 ? '1 transação classificada com sucesso.' : `${successCount} transações classificadas com sucesso.`)
+    const falhas = selectedTransactions.length - successCount
+    if (successCount === 0) {
+      toast.error(
+        'Nenhuma transação foi classificada. Confira se você tem permissão para editar e tente de novo.',
+      )
+      return
+    }
+    if (falhas > 0) {
+      toast.warning(`${successCount} classificada(s); ${falhas} não puderam ser gravadas.`)
+    } else {
+      toast.success(
+        successCount === 1
+          ? '1 transação classificada com sucesso.'
+          : `${successCount} transações classificadas com sucesso.`,
+      )
+    }
     setSelectedIds([])
     loadData()
   }
@@ -489,7 +518,11 @@ export default function ClassificarTransacoes() {
         for (const id of selectedIds) {
           await updateTransacaoImportada(id, { ignorada: true, classificada: false })
         }
-        toast.info(selectedIds.length === 1 ? '1 transação foi ignorada.' : `${selectedIds.length} transações foram ignoradas.`)
+        toast.info(
+          selectedIds.length === 1
+            ? '1 transação foi ignorada.'
+            : `${selectedIds.length} transações foram ignoradas.`,
+        )
         setSelectedIds([])
         loadData()
       } catch {
@@ -717,14 +750,16 @@ export default function ClassificarTransacoes() {
                 <TableHeader>
                   <TableRow className="bg-slate-50/80">
                     <TableHead className="w-[44px] text-center">
-                      <Checkbox
-                        checked={
-                          selectedIds.length === filteredTransacoes.length &&
-                          filteredTransacoes.length > 0
-                        }
-                        onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
-                        aria-label="Selecionar todas"
-                      />
+                      {canEdit && (
+                        <Checkbox
+                          checked={
+                            selectedIds.length === filteredTransacoes.length &&
+                            filteredTransacoes.length > 0
+                          }
+                          onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
+                          aria-label="Selecionar todas"
+                        />
+                      )}
                     </TableHead>
                     <TableHead className="w-[105px]">Data</TableHead>
                     <TableHead className="min-w-[220px]">Descrição no Extrato</TableHead>
@@ -733,7 +768,9 @@ export default function ClassificarTransacoes() {
                       Sugestão Automática / Classificação
                     </TableHead>
                     <TableHead className="w-[120px] text-center">Status</TableHead>
-                    <TableHead className="w-[180px] text-right">Ações</TableHead>
+                    <TableHead className={`w-[180px] text-right ${COLUNA_ACOES_CABECALHO}`}>
+                      Ações
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -752,11 +789,13 @@ export default function ClassificarTransacoes() {
                       >
                         {/* Checkbox */}
                         <TableCell className="text-center">
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={(checked) => handleSelectOne(t.id, Boolean(checked))}
-                            aria-label={`Selecionar ${t.descricao}`}
-                          />
+                          {canEdit && (
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={(checked) => handleSelectOne(t.id, Boolean(checked))}
+                              aria-label={`Selecionar ${t.descricao}`}
+                            />
+                          )}
                         </TableCell>
 
                         {/* Date */}
@@ -885,8 +924,12 @@ export default function ClassificarTransacoes() {
                         </TableCell>
 
                         {/* Actions */}
-                        <TableCell className="text-right whitespace-nowrap">
-                          {!t.classificada && !t.ignorada ? (
+                        <TableCell
+                          className={`text-right whitespace-nowrap ${COLUNA_ACOES_CELULA}`}
+                        >
+                          {!canEdit ? (
+                            <span className="text-sm text-slate-600">Somente consulta</span>
+                          ) : !t.classificada && !t.ignorada ? (
                             <div className="flex items-center justify-end gap-1.5">
                               {/* Quick Accept button */}
                               <Button

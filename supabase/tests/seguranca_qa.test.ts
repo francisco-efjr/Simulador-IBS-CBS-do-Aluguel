@@ -114,9 +114,9 @@ afterAll(async () => {
 describe('migrações da rodada de QA', () => {
   const novas = () => listarMigracoes().filter((m) => m.arquivo.startsWith('20261006'))
 
-  it('são dez, em ordem, e cada uma pode ser rodada de novo sem erro (SQL Editor)', async () => {
+  it('são onze, em ordem, e cada uma pode ser rodada de novo sem erro (SQL Editor)', async () => {
     expect(novas().map((m) => m.arquivo.slice(0, 14))).toEqual(
-      Array.from({ length: 10 }, (_, i) => `202610061200${String(i + 1).padStart(2, '0')}`),
+      Array.from({ length: 11 }, (_, i) => `202610061200${String(i + 1).padStart(2, '0')}`),
     )
     for (const m of novas()) {
       await banco.desfazendo((q) => q.exec(m.sql))
@@ -841,6 +841,30 @@ describe('FIN-15 — o sistema nunca fica sem administrador ativo (HA005, HA006)
       const comum = await id(`select id from public.users where id = $1`, [leitorContratos])
       await q.query(`update public.users set ativo = false where id = $1`, [comum])
       await q.query(`delete from public.users where id = $1`, [comum])
+    })
+  })
+})
+
+describe('REG-03 — uma unidade por identificador dentro do mesmo imóvel', () => {
+  it('recusa repetir o identificador no mesmo imóvel, sem diferença de maiúsculas nem espaços', async () => {
+    for (const repetido of ['Sala 01', 'sala 01 ', 'SALA 01']) {
+      await banco.desfazendo(async (q) => {
+        const erro = await recusado(
+          q,
+          `insert into public.imovel_unidades (imovel_id, identificador) values ($1, $2)`,
+          [imovelA, repetido],
+        )
+        expect(erro.code).toBe('23505')
+        expect(erro.message).toContain('imovel_unidades_identificador_uidx')
+      })
+    }
+  })
+
+  it('aceita o mesmo identificador em outro imóvel', async () => {
+    await banco.desfazendo(async (q) => {
+      await q.query(`insert into public.imovel_unidades (imovel_id, identificador) values ($1, 'Sala 01')`, [
+        imovelC,
+      ])
     })
   })
 })

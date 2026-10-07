@@ -31,6 +31,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { useAuth } from '@/hooks/use-auth'
+import { COLUNA_ACOES_CABECALHO, COLUNA_ACOES_CELULA } from '@/lib/tabela'
 
 export default function IptuTaxas() {
   const { canEditModule } = useAuth()
@@ -206,7 +207,9 @@ export default function IptuTaxas() {
                   <TableHead>Vencimento</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Forma Pagto.</TableHead>
-                  <TableHead className="w-[100px] text-right">Ações</TableHead>
+                  <TableHead className={`w-[100px] text-right ${COLUNA_ACOES_CABECALHO}`}>
+                    Ações
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -240,7 +243,10 @@ export default function IptuTaxas() {
                     <TableCell className="text-sm text-slate-600">
                       {c.forma_pagamento || '—'}
                     </TableCell>
-                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                    <TableCell
+                      className={`text-right ${COLUNA_ACOES_CELULA}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <div className="flex justify-end gap-1">
                         <Button
                           variant="ghost"

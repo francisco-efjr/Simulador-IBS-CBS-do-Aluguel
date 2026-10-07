@@ -174,6 +174,8 @@ export function ClassificarTransacaoDialog({
         observacoes,
       })
       onOpenChange(false)
+    } catch {
+      // Quem chamou já avisou o erro; o diálogo fica aberto.
     } finally {
       setSubmitting(false)
     }

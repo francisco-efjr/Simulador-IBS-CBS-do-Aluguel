@@ -32,6 +32,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { useAuth } from '@/hooks/use-auth'
+import { COLUNA_ACOES_CABECALHO, COLUNA_ACOES_CELULA } from '@/lib/tabela'
 
 export default function Receitas() {
   const { canEditModule } = useAuth()
@@ -213,7 +214,9 @@ export default function Receitas() {
                   <TableHead className="text-right">Recebido</TableHead>
                   <TableHead>Vencimento</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="w-[100px] text-right">Ações</TableHead>
+                  <TableHead className={`w-[100px] text-right ${COLUNA_ACOES_CABECALHO}`}>
+                    Ações
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -245,7 +248,10 @@ export default function Receitas() {
                     <TableCell>
                       <StatusBadge type="receita" status={r.status_financeiro} />
                     </TableCell>
-                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                    <TableCell
+                      className={`text-right ${COLUNA_ACOES_CELULA}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <div className="flex justify-end gap-1">
                         <Button
                           variant="ghost"
