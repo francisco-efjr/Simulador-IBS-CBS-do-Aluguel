@@ -200,7 +200,7 @@ export default function Despesas() {
       ) : (
         <>
           <p className="text-sm text-slate-600">{filtered.length} despesa(s)</p>
-          <div className="hidden md:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="hidden xl:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table className="min-w-[800px]">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">
@@ -275,7 +275,7 @@ export default function Despesas() {
               </TableBody>
             </Table>
           </div>
-          <div className="md:hidden space-y-3">
+          <div className="xl:hidden grid grid-cols-1 gap-3 md:grid-cols-2">
             {filtered.map((d) => (
               <Card
                 key={d.id}

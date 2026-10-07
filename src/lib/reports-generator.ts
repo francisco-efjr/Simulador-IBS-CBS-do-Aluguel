@@ -11,7 +11,7 @@ import {
   STATUS_RECEITA_LABELS,
   STATUS_DESPESA_LABELS,
 } from '@/lib/format'
-import brandLogo from '@/assets/chatgpt-image-aug-7-2026-061737-pm-5-f38c6.png'
+import brandLogo from '@/assets/logo-holding-aguiar.jpg'
 
 // Colors Holding Aguiar
 const COLOR_NAVY = [15, 23, 42] as [number, number, number] // #0f172a
@@ -57,7 +57,7 @@ const addPdfHeader = async (
   try {
     const logoBase64 = await getBase64ImageFromUrl(brandLogo)
     if (logoBase64) {
-      doc.addImage(logoBase64, 'PNG', 14, 4, 38, 20)
+      doc.addImage(logoBase64, 'JPEG', 14, 4, 38, 20)
     }
   } catch {
     // fallback
@@ -318,10 +318,7 @@ export async function exportarRelatorioFinanceiroExcel(data: RelatorioFinanceiro
   const wsImoveis = XLSX.utils.aoa_to_sheet(imovelRows)
   XLSX.utils.book_append_sheet(wb, wsImoveis, 'Resumo Imóveis')
 
-  XLSX.writeFile(
-    wb,
-    `Relatorio_Financeiro_Holding_Aguiar_${hojeLocalISO()}.xlsx`,
-  )
+  XLSX.writeFile(wb, `Relatorio_Financeiro_Holding_Aguiar_${hojeLocalISO()}.xlsx`)
 }
 
 // ==========================================
@@ -548,10 +545,7 @@ export async function exportarRelatorioImoveisExcel(data: RelatorioImoveisParams
 
   const ws = XLSX.utils.aoa_to_sheet(rows)
   XLSX.utils.book_append_sheet(wb, ws, 'Imóveis')
-  XLSX.writeFile(
-    wb,
-    `Relatorio_Imoveis_Holding_Aguiar_${hojeLocalISO()}.xlsx`,
-  )
+  XLSX.writeFile(wb, `Relatorio_Imoveis_Holding_Aguiar_${hojeLocalISO()}.xlsx`)
 }
 
 // ==========================================
@@ -690,10 +684,7 @@ export async function exportarRelatorioContratosExcel(data: RelatorioContratosPa
 
   const ws = XLSX.utils.aoa_to_sheet(rows)
   XLSX.utils.book_append_sheet(wb, ws, 'Contratos')
-  XLSX.writeFile(
-    wb,
-    `Relatorio_Contratos_Holding_Aguiar_${hojeLocalISO()}.xlsx`,
-  )
+  XLSX.writeFile(wb, `Relatorio_Contratos_Holding_Aguiar_${hojeLocalISO()}.xlsx`)
 }
 
 // ==========================================
@@ -956,8 +947,5 @@ export async function exportarRelatorioInadimplenciaExcel(data: RelatorioInadimp
   const wsIptu = XLSX.utils.aoa_to_sheet(iptuRows)
   XLSX.utils.book_append_sheet(wb, wsIptu, 'IPTU Vencido')
 
-  XLSX.writeFile(
-    wb,
-    `Relatorio_Inadimplencia_Holding_Aguiar_${hojeLocalISO()}.xlsx`,
-  )
+  XLSX.writeFile(wb, `Relatorio_Inadimplencia_Holding_Aguiar_${hojeLocalISO()}.xlsx`)
 }
