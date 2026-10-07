@@ -1,23 +1,26 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
-import { Eye, EyeOff, ShieldCheck } from 'lucide-react'
+import { CircleAlert, ShieldCheck } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Field } from '@/components/shared/Field'
+import { PasswordInput } from '@/components/shared/PasswordInput'
+import { ResumoDeErros, type ErroDoResumo } from '@/components/shared/ResumoDeErros'
 import { Checkbox } from '@/components/ui/checkbox'
 import { AvisoDeAcesso, LayoutDeAcesso } from '@/components/organico'
 import { extractFieldErrors, mensagemDeAutenticacao } from '@/lib/dados/erros'
+import { emailCompleto, MENSAGENS } from '@/lib/mensagens-de-erro'
 import { lerAvisoDeLogin } from '@/lib/dados/sessao'
 import { toast } from 'sonner'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [generalError, setGeneralError] = useState('')
+  const [tentativa, setTentativa] = useState(0)
   // Aviso de sessão que terminou no meio do trabalho: vale uma vez só.
   const [aviso] = useState(() => lerAvisoDeLogin())
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
@@ -32,19 +35,43 @@ export default function Login() {
 
   const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/inicio'
 
+  const NOMES: Record<string, string> = { email: 'E-mail', password: 'Senha' }
+
+  /** Confere um campo; usado ao sair dele e ao enviar. */
+  const conferir = (campo: 'email' | 'password', valor: string): string => {
+    if (campo === 'email') {
+      if (!valor.trim()) return MENSAGENS.obrigatorio(NOMES.email)
+      if (!emailCompleto(valor)) return MENSAGENS.emailIncompleto
+      return ''
+    }
+    return valor ? '' : MENSAGENS.obrigatorio(NOMES.password)
+  }
+
+  const aoSairDoCampo = (campo: 'email' | 'password', valor: string) => {
+    // Só avisa quem já escreveu algo ou já tentou enviar; passar o foco por um campo vazio não é erro.
+    if (!valor && tentativa === 0) return
+    const mensagem = conferir(campo, valor)
+    setFieldErrors((atuais) => {
+      const novos = { ...atuais }
+      if (mensagem) novos[campo] = mensagem
+      else delete novos[campo]
+      return novos
+    })
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setGeneralError('')
-    setFieldErrors({})
+    setTentativa((n) => n + 1)
 
     const errors: Record<string, string> = {}
-    if (!email.trim()) errors.email = 'E-mail é obrigatório'
-    if (!password) errors.password = 'Senha é obrigatória'
+    const erroEmail = conferir('email', email)
+    const erroSenha = conferir('password', password)
+    if (erroEmail) errors.email = erroEmail
+    if (erroSenha) errors.password = erroSenha
+    setFieldErrors(errors)
 
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors)
-      return
-    }
+    if (Object.keys(errors).length > 0) return
 
     setIsSubmitting(true)
     const { error } = await signIn(email, password)
@@ -55,17 +82,16 @@ export default function Login() {
       if (Object.keys(extracted).length > 0) {
         setFieldErrors(extracted)
       } else {
-        setGeneralError(
-          mensagemDeAutenticacao(
-            error,
-            'E-mail ou senha incorretos. Verifique suas credenciais e tente novamente.',
-          ),
-        )
+        setGeneralError(mensagemDeAutenticacao(error, MENSAGENS.loginRecusado))
       }
     } else {
       navigate(from, { replace: true })
     }
   }
+
+  const errosDoResumo: ErroDoResumo[] = (['email', 'password'] as const)
+    .filter((campo) => fieldErrors[campo])
+    .map((campo) => ({ campo, rotulo: NOMES[campo], mensagem: fieldErrors[campo] }))
 
   return (
     <LayoutDeAcesso
@@ -86,7 +112,7 @@ export default function Login() {
         </AvisoDeAcesso>
       }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
         {aviso && !generalError && (
           <div
             role="status"
@@ -99,18 +125,17 @@ export default function Login() {
         {generalError && (
           <div
             role="alert"
-            className="rounded-3xl bg-destructive/15 px-5 py-3 text-sm font-bold text-red-800"
+            className="flex items-start gap-2 rounded-3xl bg-destructive/10 px-5 py-3 text-sm font-bold text-red-800"
           >
-            {generalError}
+            <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+            <span>{generalError}</span>
           </div>
         )}
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="email" className="text-sm font-bold">
-            E-mail
-          </Label>
+        <ResumoDeErros erros={errosDoResumo} tentativa={tentativa} />
+
+        <Field id="email" label="E-mail" error={fieldErrors.email} anunciar={false}>
           <Input
-            id="email"
             type="email"
             inputMode="email"
             autoComplete="email"
@@ -118,52 +143,21 @@ export default function Login() {
             spellCheck={false}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            aria-invalid={Boolean(fieldErrors.email) || undefined}
-            aria-describedby={fieldErrors.email ? 'email-erro' : undefined}
+            onBlur={(e) => aoSairDoCampo('email', e.target.value)}
+            required
             className="min-h-14"
           />
-          {fieldErrors.email && (
-            <p id="email-erro" role="alert" className="px-2 text-sm font-bold text-red-800">
-              {fieldErrors.email}
-            </p>
-          )}
-        </div>
+        </Field>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="password" className="text-sm font-bold">
-            Senha
-          </Label>
-          <div className="relative">
-            <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              aria-invalid={Boolean(fieldErrors.password) || undefined}
-              aria-describedby={fieldErrors.password ? 'password-erro' : undefined}
-              className="min-h-14 pr-16"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-              aria-pressed={showPassword}
-              className="absolute right-1.5 top-1.5 flex h-11 w-11 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/10"
-            >
-              {showPassword ? (
-                <EyeOff className="h-[22px] w-[22px]" aria-hidden="true" />
-              ) : (
-                <Eye className="h-[22px] w-[22px]" aria-hidden="true" />
-              )}
-            </button>
-          </div>
-          {fieldErrors.password && (
-            <p id="password-erro" role="alert" className="px-2 text-sm font-bold text-red-800">
-              {fieldErrors.password}
-            </p>
-          )}
-        </div>
+        <Field id="password" label="Senha" error={fieldErrors.password} anunciar={false}>
+          <PasswordInput
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onBlur={(e) => aoSairDoCampo('password', e.target.value)}
+            required
+          />
+        </Field>
 
         <div className="flex min-h-11 items-center gap-3 px-1">
           <Checkbox
@@ -176,8 +170,14 @@ export default function Login() {
           </label>
         </div>
 
-        <Button type="submit" size="lg" disabled={isSubmitting} className="mt-1 w-full">
-          {isSubmitting ? 'Entrando...' : 'Entrar'}
+        <Button
+          type="submit"
+          size="lg"
+          carregando={isSubmitting}
+          textoCarregando="Entrando…"
+          className="mt-1 w-full"
+        >
+          Entrar
         </Button>
 
         <Link

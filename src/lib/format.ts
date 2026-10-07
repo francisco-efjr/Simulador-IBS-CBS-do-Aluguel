@@ -174,3 +174,17 @@ export function aplicarMascaraDocumento(valor: string, tipo: 'pf' | 'pj' = 'pf')
       .replace(/^(.{2})\.(.{3})\.(.{3})\/(.{4})(.+)/, '$1.$2.$3/$4-$5')
   }
 }
+
+/**
+ * Corta o texto para caber numa opção de seletor (regra Q32 do handoff: até ~24
+ * caracteres). O nome inteiro vai no texto de apoio embaixo do campo. Corta na
+ * última palavra inteira e põe reticências.
+ */
+export function abreviar(texto: string | null | undefined, maximo = 24): string {
+  const limpo = (texto ?? '').trim().replace(/\s+/g, ' ')
+  if (limpo.length <= maximo) return limpo
+  const corte = limpo.slice(0, maximo - 1)
+  const ultimoEspaco = corte.lastIndexOf(' ')
+  const base = ultimoEspaco > maximo / 2 ? corte.slice(0, ultimoEspaco) : corte
+  return `${base.trimEnd()}…`
+}

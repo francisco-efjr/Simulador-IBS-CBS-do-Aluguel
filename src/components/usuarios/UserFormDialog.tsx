@@ -363,10 +363,10 @@ export function UserFormDialog({
             </Button>
             <Button
               type="submit"
-              disabled={submitting}
-              className="bg-navy-900 hover:bg-navy-800 text-white font-medium"
+              carregando={submitting}
+              textoCarregando="Salvando…"
             >
-              {submitting ? 'Salvando...' : 'Salvar Alterações'}
+              {'Salvar Alterações'}
             </Button>
           </DialogFooter>
         </form>

@@ -174,7 +174,7 @@ export default function Index() {
           {primeiroNome && `, ${primeiroNome}`}
           <span className="hidden lg:inline"> · {diaPorExtenso(agora)}</span>
         </p>
-        <h1 className="text-3xl lg:text-5xl">{titulo}</h1>
+        <h1 className="text-3xl md:text-[2.375rem] lg:text-5xl">{titulo}</h1>
       </header>
 
       {erro && !carregando && (
@@ -186,13 +186,13 @@ export default function Index() {
 
       <section
         aria-label="Resumo do mês"
-        className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,150px),1fr))] gap-3 lg:grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] lg:gap-6"
+        className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,150px),1fr))] gap-3 md:grid-cols-2 md:gap-4 lg:grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] lg:gap-6"
       >
         <CartaoDestaque tom={noVermelho ? 'alerta' : 'musgo'} className="col-span-full">
           <h2 className="font-sans text-base font-bold lg:text-lg">
             Resultado de {mesFechado || 'o último mês'}
           </h2>
-          <p className="numero my-2 font-serif text-[clamp(1.875rem,13cqw,3.75rem)] font-bold leading-[1.05]">
+          <p className="numero my-2 font-serif text-[clamp(1.875rem,13cqw,3.75rem)] md:text-[clamp(2.25rem,12cqw,3.25rem)] lg:text-[clamp(1.875rem,13cqw,3.75rem)] font-bold leading-[1.05]">
             {carregando ? '…' : valor(resultado?.resultado)}
           </p>
           <div className="lg:hidden">
@@ -339,15 +339,15 @@ function NumeroDoPainel({
     <Card
       canto={canto}
       className={cn(
-        'flex flex-col gap-1 p-5 transition-all duration-300 [container-type:inline-size] hover:-translate-y-1 hover:shadow-lift lg:p-7',
+        'flex flex-col gap-1 p-5 transition-all duration-300 [container-type:inline-size] hover:-translate-y-1 hover:shadow-lift md:p-6 lg:p-7',
         className,
       )}
     >
-      <h2 className="font-sans text-sm font-bold text-muted-foreground lg:text-base">{rotulo}</h2>
+      <h2 className="font-sans text-sm font-bold text-muted-foreground md:text-base">{rotulo}</h2>
       <p className="numero font-serif text-[clamp(1.625rem,11cqw,2.25rem)] font-bold leading-tight">
         {valor}
       </p>
-      {detalhe && <p className="text-sm text-accent-foreground lg:text-base">{detalhe}</p>}
+      {detalhe && <p className="text-sm text-accent-foreground md:text-base">{detalhe}</p>}
     </Card>
   )
 }

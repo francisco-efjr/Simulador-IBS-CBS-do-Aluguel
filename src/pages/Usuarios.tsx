@@ -738,25 +738,26 @@ export default function Usuarios() {
         open={!!deleteUserTarget}
         onOpenChange={(open) => !open && setDeleteUserTarget(null)}
       >
-        <AlertDialogContent className="bg-white border-slate-200">
+        <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-red-600 flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" /> Remover Usuário
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" aria-hidden="true" /> Remover usuário?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-600 text-xs sm:text-sm">
-              Tem certeza de que deseja remover o usuário{' '}
-              <strong>{deleteUserTarget?.name || deleteUserTarget?.email}</strong>? Essa ação é
-              irreversível e removerá os acessos desta conta ao sistema.
+            <AlertDialogDescription>
+              {deleteUserTarget?.name || deleteUserTarget?.email} perde o acesso ao sistema na
+              hora. Não dá para desfazer.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={actionLoading}>Cancelar</AlertDialogCancel>
+          <AlertDialogFooter className="gap-2.5 sm:flex-row-reverse sm:justify-start">
+            <AlertDialogCancel variant="default" disabled={actionLoading}>
+              Cancelar
+            </AlertDialogCancel>
             <AlertDialogAction
+              variant="perigo"
               onClick={handleConfirmDeleteUser}
               disabled={actionLoading}
-              className="bg-red-600 hover:bg-red-700 text-white font-medium"
             >
-              {actionLoading ? 'Removendo...' : 'Sim, Remover Usuário'}
+              {actionLoading ? 'Removendo…' : 'Sim, remover usuário'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -767,24 +768,25 @@ export default function Usuarios() {
         open={!!cancelInviteTarget}
         onOpenChange={(open) => !open && setCancelInviteTarget(null)}
       >
-        <AlertDialogContent className="bg-white border-slate-200">
+        <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-amber-700 flex items-center gap-2">
-              <XCircle className="h-5 w-5" /> Cancelar Convite
+            <AlertDialogTitle className="flex items-center gap-2 text-warning-ink">
+              <XCircle className="h-5 w-5" aria-hidden="true" /> Cancelar o convite?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-600 text-xs sm:text-sm">
-              Deseja cancelar o convite enviado para <strong>{cancelInviteTarget?.email}</strong>? O
-              link gerado deixará de funcionar imediatamente.
+            <AlertDialogDescription>
+              O link enviado para {cancelInviteTarget?.email} deixa de funcionar na hora.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={actionLoading}>Manter Convite</AlertDialogCancel>
+          <AlertDialogFooter className="gap-2.5 sm:flex-row-reverse sm:justify-start">
+            <AlertDialogCancel variant="default" disabled={actionLoading}>
+              Manter convite
+            </AlertDialogCancel>
             <AlertDialogAction
+              variant="perigo"
               onClick={handleConfirmCancelInvite}
               disabled={actionLoading}
-              className="bg-secondary-ink hover:bg-secondary-ink/90 text-white"
             >
-              {actionLoading ? 'Cancelando...' : 'Cancelar Convite'}
+              {actionLoading ? 'Cancelando…' : 'Sim, cancelar convite'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

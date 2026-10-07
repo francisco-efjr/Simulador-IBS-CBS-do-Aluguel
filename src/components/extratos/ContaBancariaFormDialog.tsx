@@ -213,10 +213,10 @@ export function ContaBancariaFormDialog({
             </Button>
             <Button
               type="submit"
-              disabled={submitting}
-              className="bg-navy-800 hover:bg-navy-900 text-white"
+              carregando={submitting}
+              textoCarregando="Salvando…"
             >
-              {submitting ? 'Salvando...' : editing ? 'Salvar Alterações' : 'Cadastrar Conta'}
+              {editing ? 'Salvar Alterações' : 'Cadastrar Conta'}
             </Button>
           </DialogFooter>
         </form>

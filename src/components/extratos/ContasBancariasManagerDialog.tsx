@@ -40,7 +40,10 @@ export function ContasBancariasManagerDialog({
       const data = await getContasBancarias()
       setContas(data)
     } catch {
-      toast.error('Não foi possível carregar as contas bancárias. Atualize a página e tente novamente.')
+      toast.error('Não foi possível carregar as contas bancárias', {
+        description: 'Confira a internet e tente de novo.',
+        action: { label: 'Tentar de novo', onClick: () => void loadContas() },
+      })
     } finally {
       setLoading(false)
     }

@@ -156,7 +156,7 @@ export function SidebarContent({ emGaveta = false, onItemClick }: SidebarContent
         </Link>
       </div>
 
-      {emGaveta && <ControleDeFonte className="self-start" />}
+      {emGaveta && <ControleDeFonte className="self-start md:hidden" />}
 
       <nav
         aria-label="Menu principal"
@@ -224,7 +224,7 @@ export function SidebarContent({ emGaveta = false, onItemClick }: SidebarContent
         <button
           type="button"
           onClick={signOut}
-          className="flex min-h-11 w-full items-center gap-3 rounded-full px-3.5 text-sm font-bold text-foreground transition-colors hover:bg-destructive/10 hover:text-red-800"
+          className="foco-interno flex min-h-11 w-full items-center gap-3 rounded-full px-3.5 text-sm font-bold text-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
         >
           <LogOut className="h-5 w-5" aria-hidden="true" />
           Sair do sistema

@@ -1,25 +1,30 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
-import {
-  User,
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  ArrowRight,
-  CheckCircle2,
-  AlertTriangle,
-  KeyRound,
-} from 'lucide-react'
+import { CircleAlert, CircleCheck } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { LayoutDeAcesso } from '@/components/organico'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { Field } from '@/components/shared/Field'
+import { PasswordInput } from '@/components/shared/PasswordInput'
+import { RegrasDaSenha } from '@/components/shared/RegrasDaSenha'
+import { ResumoDeErros, type ErroDoResumo } from '@/components/shared/ResumoDeErros'
 import { extractFieldErrors, mensagemDeAutenticacao } from '@/lib/dados/erros'
+import { emailCompleto, MENSAGENS } from '@/lib/mensagens-de-erro'
+import { MENSAGENS_DA_SENHA, TAMANHO_MINIMO_DA_SENHA } from '@/lib/senha'
+import { CLIENTE, NOME_DO_SISTEMA } from '@/lib/marca'
 import { validarConviteToken } from '@/services/convites'
 import { toast } from 'sonner'
+
+type Campo = 'name' | 'email' | 'password' | 'confirmPassword'
+
+const ROTULOS: Record<Campo, string> = {
+  name: 'Nome completo',
+  email: 'E-mail',
+  password: 'Senha',
+  confirmPassword: 'Repita a senha',
+}
 
 export default function Signup() {
   const [searchParams] = useSearchParams()
@@ -30,11 +35,10 @@ export default function Signup() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [generalError, setGeneralError] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [tentativa, setTentativa] = useState(0)
   // Cadastro feito sem convite válido: a conta existe, mas espera um administrador liberar.
   const [aguardaLiberacao, setAguardaLiberacao] = useState(false)
 
@@ -67,37 +71,61 @@ export default function Signup() {
       if (res.valid) {
         setInviteStatus(res)
         if (res.email) setEmail(res.email)
-        toast.success('Convite validado com sucesso.')
       } else {
         setInviteStatus(res)
         setGeneralError(res.message || 'Convite inválido ou expirado.')
       }
     } catch {
-      setGeneralError('Não foi possível verificar o token.')
+      setGeneralError('Não foi possível verificar o convite. Confira a internet e tente de novo.')
     } finally {
       setValidatingToken(false)
     }
   }
 
+  const emailDoConvite = Boolean(inviteStatus?.valid && inviteStatus.email)
+
+  /** Confere um campo (ao sair dele e ao enviar). Devolve o texto do erro, ou vazio. */
+  const conferir = (campo: Campo, valor: string): string => {
+    switch (campo) {
+      case 'name':
+        return valor.trim() ? '' : MENSAGENS.obrigatorio(ROTULOS.name)
+      case 'email':
+        if (!valor.trim()) return MENSAGENS.obrigatorio(ROTULOS.email)
+        return emailCompleto(valor) ? '' : MENSAGENS.emailIncompleto
+      case 'password':
+        if (!valor) return MENSAGENS.obrigatorio(ROTULOS.password)
+        return valor.length >= TAMANHO_MINIMO_DA_SENHA ? '' : MENSAGENS_DA_SENHA.curta
+      case 'confirmPassword':
+        if (!valor) return MENSAGENS.obrigatorio(ROTULOS.confirmPassword)
+        return valor === password ? '' : MENSAGENS_DA_SENHA.diferentes
+    }
+  }
+
+  const aoSairDoCampo = (campo: Campo, valor: string) => {
+    // Passar o foco por um campo vazio, antes de tentar enviar, ainda não é erro.
+    if (!valor && tentativa === 0) return
+    const mensagem = conferir(campo, valor)
+    setFieldErrors((atuais) => {
+      const novos = { ...atuais }
+      if (mensagem) novos[campo] = mensagem
+      else delete novos[campo]
+      return novos
+    })
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setGeneralError('')
-    setFieldErrors({})
+    setTentativa((n) => n + 1)
 
     const errors: Record<string, string> = {}
-    if (!name.trim()) errors.name = 'Nome é obrigatório'
-    if (!email.trim()) errors.email = 'E-mail é obrigatório'
-    if (!password || password.length < 8) {
-      errors.password = 'A senha deve ter no mínimo 8 caracteres'
-    }
-    if (password !== confirmPassword) {
-      errors.confirmPassword = 'As senhas não coincidem'
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors)
-      return
-    }
+    const valores: Record<Campo, string> = { name, email, password, confirmPassword }
+    ;(Object.keys(valores) as Campo[]).forEach((campo) => {
+      const mensagem = conferir(campo, valores[campo])
+      if (mensagem) errors[campo] = mensagem
+    })
+    setFieldErrors(errors)
+    if (Object.keys(errors).length > 0) return
 
     // Só segue o token que a verificação aprovou; o banco confere de novo.
     const conviteToken = inviteStatus?.valid ? token.trim() : undefined
@@ -113,7 +141,7 @@ export default function Signup() {
       } else {
         const errorMsg = mensagemDeAutenticacao(
           error,
-          'Ocorreu um erro ao criar a conta. Verifique se o e-mail já está em uso.',
+          'Não foi possível criar a conta agora. Confira os dados e tente de novo.',
         )
         setGeneralError(errorMsg)
       }
@@ -121,14 +149,19 @@ export default function Signup() {
       // Sem convite a conta nasce inativa: nada de entrar no sistema agora.
       setAguardaLiberacao(true)
     } else {
-      toast.success('Conta ativada com sucesso. Boas-vindas à Holding Aguiar.')
+      toast.success(`Conta ativada. Boas-vindas à ${CLIENTE}.`)
       navigate('/inicio', { replace: true })
     }
   }
 
+  const errosDoResumo: ErroDoResumo[] = (Object.keys(ROTULOS) as Campo[])
+    .filter((campo) => fieldErrors[campo])
+    .map((campo) => ({ campo, rotulo: ROTULOS[campo], mensagem: fieldErrors[campo] }))
+
   if (aguardaLiberacao) {
     return (
       <LayoutDeAcesso
+        etiqueta="Cadastro feito"
         titulo="Conta criada, aguardando liberação"
         subtitulo={
           <>
@@ -137,256 +170,190 @@ export default function Signup() {
           </>
         }
       >
-        <Link
-          to="/login"
-          className="font-semibold text-primary hover:text-foreground hover:underline"
-        >
-          Ir para o login
-        </Link>
+        <Button asChild size="lg" className="w-full">
+          <Link to="/login">Ir para o login</Link>
+        </Button>
       </LayoutDeAcesso>
     )
   }
 
   return (
     <LayoutDeAcesso
-      titulo={inviteStatus?.valid ? 'Ativar seu convite' : 'Criar conta'}
+      etiqueta={inviteStatus?.valid ? 'Convite recebido' : 'Cadastro'}
+      titulo={inviteStatus?.valid ? 'Crie sua senha de acesso' : 'Criar conta'}
       subtitulo={
         inviteStatus?.valid
-          ? 'Defina seu nome e senha para acessar o Gestão de imóveis da Holding Aguiar'
+          ? `Defina seu nome e sua senha para acessar o ${NOME_DO_SISTEMA} da ${CLIENTE}.`
           : 'Defina suas credenciais. Sem convite, a conta fica aguardando a liberação de um administrador.'
       }
     >
-      {/* Se tem token de convite validado */}
+      {/* Convite validado: mostra o e-mail e o papel que ele dá. */}
       {inviteStatus?.valid && (
-        <div className="mb-4 rounded-lg bg-primary/10 border border-primary/30 p-3.5 text-xs text-primary flex items-start gap-2.5">
-          <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <div className="font-semibold">Convite Validado com Sucesso</div>
-            <div>
-              E-mail: <strong className="text-primary">{inviteStatus.email}</strong>
-            </div>
+        <div
+          role="status"
+          className="flex items-start gap-3 rounded-3xl bg-primary/10 px-5 py-4 text-base text-success-ink"
+        >
+          <CircleCheck className="mt-0.5 h-6 w-6 shrink-0" aria-hidden="true" />
+          <div className="flex flex-col gap-1">
+            <strong className="font-extrabold">Convite confirmado</strong>
             {inviteStatus.perfil && (
-              <div className="flex items-center gap-1.5 mt-1">
-                <span>Papel atribuído:</span>
+              <span className="flex flex-wrap items-center gap-2">
+                Seu acesso será de
                 <Badge variant="ok" className="uppercase">
                   {inviteStatus.perfil}
                 </Badge>
-              </div>
+              </span>
             )}
           </div>
         </div>
       )}
 
-      {/* Se token inválido */}
+      {/* Convite recusado (inválido, vencido, já usado). */}
       {inviteStatus && !inviteStatus.valid && (
-        <div className="mb-4 rounded-lg bg-destructive/15 border border-transparent p-3.5 text-xs text-red-800 flex items-start gap-2.5">
-          <AlertTriangle className="h-5 w-5 text-red-800 shrink-0 mt-0.5" />
-          <div>
-            <strong className="block text-red-800 font-semibold mb-0.5">
-              Convite Inválido ou Expirado
-            </strong>
-            <p>{inviteStatus.message || 'Solicite um novo convite ao administrador.'}</p>
+        <div
+          role="alert"
+          className="flex items-start gap-3 rounded-3xl bg-destructive/10 px-5 py-4 text-base text-red-800"
+        >
+          <CircleAlert className="mt-0.5 h-6 w-6 shrink-0" aria-hidden="true" />
+          <div className="flex flex-col gap-1">
+            <strong className="font-extrabold">Convite inválido ou vencido</strong>
+            <span>{inviteStatus.message || 'Peça um novo convite a quem administra o sistema.'}</span>
           </div>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {generalError && (
-          <div className="rounded-lg bg-destructive/15 p-3 text-xs font-medium text-red-800 border border-transparent">
-            {generalError}
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+        {generalError && !(inviteStatus && !inviteStatus.valid) && (
+          <div
+            role="alert"
+            className="flex items-start gap-2 rounded-3xl bg-destructive/10 px-5 py-3 text-sm font-bold text-red-800"
+          >
+            <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+            <span>{generalError}</span>
           </div>
         )}
 
-        {/* Campo para inserir token se não validado pela URL */}
+        <ResumoDeErros erros={errosDoResumo} tentativa={tentativa} />
+
+        {/* Código de convite digitado à mão, quando a pessoa não chegou pelo link. */}
         {!tokenFromUrl && !inviteStatus?.valid && (
-          <div className="space-y-1.5 p-3 rounded-lg border">
-            <Label
-              htmlFor="token"
-              className="font-medium text-xs flex items-center justify-between"
+          <div className="flex flex-col gap-3 rounded-3xl bg-muted px-5 py-4">
+            <Field
+              id="token"
+              label="Código do convite"
+              opcional
+              hint="Está no e-mail do convite. Sem ele, um administrador libera o acesso depois."
             >
-              <span>Possui um Código / Token de Convite?</span>
-              <span className="text-xs text-primary font-normal">Opcional</span>
-            </Label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <KeyRound className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
-                <Input
-                  id="token"
-                  type="text"
-                  placeholder="Código do convite"
-                  value={token}
-                  onChange={(e) => setToken(e.target.value)}
-                  className="pl-12"
-                />
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => handleValidateToken(token)}
-                disabled={validatingToken || !token.trim()}
-                className="shrink-0"
-              >
-                {validatingToken ? 'Validando...' : 'Validar'}
-              </Button>
-            </div>
+              <Input
+                type="text"
+                autoComplete="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+              />
+            </Field>
+            <Button
+              type="button"
+              variant="outline"
+              carregando={validatingToken}
+              textoCarregando="Conferindo…"
+              disabled={!validatingToken && !token.trim()}
+              onClick={() => handleValidateToken(token)}
+              className="self-start"
+            >
+              Conferir convite
+            </Button>
+            {!token.trim() && (
+              <p className="text-sm text-accent-foreground">
+                Digite o código para poder conferir o convite.
+              </p>
+            )}
           </div>
         )}
 
-        <div className="space-y-1.5">
-          <Label htmlFor="name" className="font-semibold text-sm">
-            Nome completo *
-          </Label>
-          <div className="relative">
-            <User className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
-            <Input
-              id="name"
-              type="text"
-              required
-              placeholder="Seu Nome Completo"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="pl-12"
-            />
-          </div>
-          {fieldErrors.name && (
-            <p role="alert" className="text-sm font-semibold text-red-800">
-              {fieldErrors.name}
-            </p>
-          )}
-        </div>
+        <Field id="name" label={ROTULOS.name} error={fieldErrors.name} anunciar={false}>
+          <Input
+            type="text"
+            autoComplete="name"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onBlur={(e) => aoSairDoCampo('name', e.target.value)}
+            className="min-h-14"
+          />
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="email" className="font-semibold text-sm">
-            E-mail *
-          </Label>
-          <div className="relative">
-            <Mail className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
-            <Input
-              id="email"
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              autoCapitalize="none"
-              spellCheck={false}
-              required
-              disabled={!!inviteStatus?.email}
-              placeholder="seu.email@exemplo.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={`pl-12 ${inviteStatus?.email ? 'opacity-80 cursor-not-allowed' : ''}`}
-            />
-          </div>
-          {fieldErrors.email && (
-            <p role="alert" className="text-sm font-semibold text-red-800">
-              {fieldErrors.email}
-            </p>
-          )}
-        </div>
+        <Field
+          id="email"
+          label={ROTULOS.email}
+          error={fieldErrors.email}
+          anunciar={false}
+          hint={
+            emailDoConvite
+              ? 'É o e-mail do convite. Para trocar, fale com a administração.'
+              : undefined
+          }
+        >
+          <Input
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            autoCapitalize="none"
+            spellCheck={false}
+            required
+            readOnly={emailDoConvite}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onBlur={(e) => aoSairDoCampo('email', e.target.value)}
+            className={emailDoConvite ? 'min-h-14 border-dashed' : 'min-h-14'}
+          />
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="password" className="font-semibold text-sm">
-            Definir Senha (mín. 8 caracteres) *
-          </Label>
-          <div className="relative">
-            <Lock className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
-            <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="new-password"
-              required
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="pl-12 pr-14"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-              aria-pressed={showPassword}
-              className="absolute right-0 top-0 flex h-full min-h-[48px] w-12 items-center justify-center rounded-r-md hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 transition-colors"
-            >
-              {showPassword ? (
-                <EyeOff className="h-5 w-5" aria-hidden="true" />
-              ) : (
-                <Eye className="h-5 w-5" aria-hidden="true" />
-              )}
-            </button>
-          </div>
-          {fieldErrors.password && (
-            <p role="alert" className="text-sm font-semibold text-red-800">
-              {fieldErrors.password}
-            </p>
-          )}
-        </div>
+        <Field id="password" label={ROTULOS.password} error={fieldErrors.password} anunciar={false}>
+          <PasswordInput
+            autoComplete="new-password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onBlur={(e) => aoSairDoCampo('password', e.target.value)}
+          />
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="confirm-password" className="font-semibold text-sm">
-            Confirmar Senha *
-          </Label>
-          <div className="relative">
-            <Lock className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
-            <Input
-              id="confirm-password"
-              type={showConfirmPassword ? 'text' : 'password'}
-              autoComplete="new-password"
-              required
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="pl-12 pr-14"
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              aria-label={
-                showConfirmPassword
-                  ? 'Ocultar confirmação de senha'
-                  : 'Mostrar confirmação de senha'
-              }
-              aria-pressed={showConfirmPassword}
-              className="absolute right-0 top-0 flex h-full min-h-[48px] w-12 items-center justify-center rounded-r-md hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 transition-colors"
-            >
-              {showConfirmPassword ? (
-                <EyeOff className="h-5 w-5" aria-hidden="true" />
-              ) : (
-                <Eye className="h-5 w-5" aria-hidden="true" />
-              )}
-            </button>
-          </div>
-          {fieldErrors.confirmPassword && (
-            <p role="alert" className="text-sm font-semibold text-red-800">
-              {fieldErrors.confirmPassword}
-            </p>
-          )}
-        </div>
+        <Field
+          id="confirmPassword"
+          label={ROTULOS.confirmPassword}
+          error={fieldErrors.confirmPassword}
+          anunciar={false}
+        >
+          <PasswordInput
+            autoComplete="new-password"
+            required
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            onBlur={(e) => aoSairDoCampo('confirmPassword', e.target.value)}
+          />
+        </Field>
+
+        <RegrasDaSenha senha={password} confirmacao={confirmPassword} />
 
         <Button
           type="submit"
-          disabled={isSubmitting}
-          className="w-full font-bold py-2.5 transition-all active:scale-[0.98]"
+          size="lg"
+          carregando={isSubmitting}
+          textoCarregando="Criando seu acesso…"
+          className="mt-1 w-full"
         >
-          {isSubmitting
-            ? 'Salvando cadastro...'
-            : inviteStatus?.valid
-              ? 'Concluir Cadastro e Acessar'
-              : 'Criar conta'}
-          {!isSubmitting && <ArrowRight className="ml-2 h-4 w-4" />}
+          {inviteStatus?.valid ? 'Criar meu acesso' : 'Criar conta'}
         </Button>
-      </form>
 
-      <div className="mt-6 border-t pt-4 text-center">
-        <p className="text-xs">
-          Já possui uma conta ativa?{' '}
-          <Link
-            to="/login"
-            className="inline-flex min-h-[44px] items-center px-1 font-semibold text-primary hover:text-foreground hover:underline"
-          >
-            Fazer login
-          </Link>
-        </p>
-      </div>
+        <Link
+          to="/login"
+          className="self-center px-2.5 py-2.5 text-base font-bold text-primary underline hover:text-foreground"
+        >
+          Já tenho acesso · Entrar
+        </Link>
+      </form>
     </LayoutDeAcesso>
   )
 }

@@ -1,4 +1,5 @@
 import { cloneElement, isValidElement, useId, type ReactElement, type ReactNode } from 'react'
+import { CircleAlert } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 
 interface FieldProps {
@@ -8,6 +9,18 @@ interface FieldProps {
   className?: string
   /** Texto de apoio abaixo do campo (formato esperado, exemplo, unidade). */
   hint?: string
+  /**
+   * Campo que pode ficar em branco. Campos sem marcação são obrigatórios; os
+   * outros levam "(opcional)" no rótulo (sem asterisco, como no guia de estilo).
+   */
+  opcional?: boolean
+  /** Identificação fixa do controle, para o resumo de erros apontar para ele. */
+  id?: string
+  /**
+   * O erro é anunciado ao aparecer (`role="alert"`). Desligue quando o formulário
+   * tem `ResumoDeErros`, que já anuncia e leva o foco: evita ler tudo duas vezes.
+   */
+  anunciar?: boolean
 }
 
 /** Elementos que podem receber o `id` e responder por `label[for]`. */
@@ -23,7 +36,7 @@ function pareceControle(node: ReactElement): 'nativo' | 'combobox' | null {
     (node.type as { displayName?: string; name?: string })?.displayName ||
     (node.type as { name?: string })?.name ||
     ''
-  if (/Trigger/i.test(nome)) return 'combobox'
+  if (/Trigger|Combobox/i.test(nome)) return 'combobox'
   // `Select` sozinho é a raiz do Radix, que não vira nada no DOM: parar nela
   // deixaria o gatilho sem nome. Quem responde pelo campo é o Trigger.
   if (/(Input|Textarea)$/i.test(nome)) return 'nativo'
@@ -83,9 +96,9 @@ function identificarControle(
  * acerto maior para quem tem menos precisão no gesto. O erro entra em
  * `aria-describedby` e é anunciado assim que aparece.
  */
-export function Field({ label, error, children, className, hint }: FieldProps) {
+export function Field({ label, error, children, className, hint, opcional, id, anunciar = true }: FieldProps) {
   const gerado = useId()
-  const idCampo = `campo-${gerado}`
+  const idCampo = id ?? `campo-${gerado}`
   const idRotulo = `rotulo-${gerado}`
   const idErro = `erro-${gerado}`
   const idHint = `apoio-${gerado}`
@@ -94,8 +107,13 @@ export function Field({ label, error, children, className, hint }: FieldProps) {
 
   return (
     <div className={`space-y-1.5 w-full ${className || ''}`}>
-      <Label id={idRotulo} htmlFor={idCampo} className="text-sm font-semibold text-slate-800">
+      <Label
+        id={idRotulo}
+        htmlFor={idCampo}
+        className="text-base font-bold leading-snug text-foreground"
+      >
         {label}
+        {opcional && <span className="ml-1.5 font-semibold text-accent-foreground">(opcional)</span>}
       </Label>
       <div className="w-full">
         {identificarControle(
@@ -105,15 +123,43 @@ export function Field({ label, error, children, className, hint }: FieldProps) {
         )}
       </div>
       {hint && (
-        <p id={idHint} className="text-sm text-slate-600">
+        <p id={idHint} className="text-sm text-accent-foreground">
           {hint}
         </p>
       )}
       {error && (
-        <p id={idErro} role="alert" className="text-sm font-semibold text-red-700">
+        <MensagemDeErro id={idErro} anunciar={anunciar}>
           {error}
-        </p>
+        </MensagemDeErro>
       )}
     </div>
+  )
+}
+
+/**
+ * Mensagem de erro do campo: ícone + texto na cor siena (5,0:1), nunca só cor.
+ * Fica ligada ao campo por `aria-describedby`; o aviso na hora do envio vem do
+ * resumo de erros no topo do formulário.
+ */
+export function MensagemDeErro({
+  id,
+  children,
+  className = '',
+  anunciar = true,
+}: {
+  id?: string
+  children: ReactNode
+  className?: string
+  anunciar?: boolean
+}) {
+  return (
+    <p
+      id={id}
+      role={anunciar ? 'alert' : undefined}
+      className={`flex items-start gap-2 text-sm font-bold text-destructive ${className}`}
+    >
+      <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+      <span>{children}</span>
+    </p>
   )
 }

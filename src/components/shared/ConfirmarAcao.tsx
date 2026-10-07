@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react'
+import { CircleHelp, Trash2, type LucideIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,21 +17,25 @@ interface ConfirmarAcaoProps {
   /** O botão que dispara a ação. Recebe o papel de gatilho do diálogo. */
   children: ReactNode
   titulo: string
+  /** Diz o que acontece com o registro e se dá para desfazer. */
   descricao: string
-  /** Texto do botão que confirma. Diz o que vai acontecer, não "OK". */
+  /** Texto do botão que confirma. Diz o que vai acontecer ("Sim, excluir"), não "OK". */
   rotuloConfirmar: string
   onConfirmar: () => void
   /** Vermelho quando a ação remove ou desativa algo. */
   perigoso?: boolean
+  /** Ícone do bloco no topo; o padrão é a lixeira para ação perigosa. */
+  icone?: LucideIcon
 }
 
 /**
- * Pergunta antes de fazer o que é difícil desfazer.
+ * Pergunta antes de fazer o que é difícil desfazer (guia de estilo, seção 07).
  *
  * Um clique errado em um ícone pequeno não pode inativar um contrato. O
- * diálogo diz em palavras o que vai acontecer com qual registro, e o botão de
- * confirmação repete a ação em vez de dizer "OK" — quem lê rápido, ou lê por
- * leitor de tela, precisa da frase completa no próprio botão.
+ * diálogo diz em palavras o que vai acontecer e se dá para desfazer, e o botão
+ * de confirmação repete a ação em vez de dizer "OK". O foco abre em "Cancelar"
+ * (a opção segura, que o Radix escolhe por ser o `AlertDialogCancel`). No
+ * celular vira painel de baixo.
  */
 export function ConfirmarAcao({
   children,
@@ -38,28 +44,41 @@ export function ConfirmarAcao({
   rotuloConfirmar,
   onConfirmar,
   perigoso = true,
+  icone,
 }: ConfirmarAcaoProps) {
+  const Icone = icone ?? (perigoso ? Trash2 : CircleHelp)
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
-      <AlertDialogContent className="max-w-lg">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-xl">{titulo}</AlertDialogTitle>
-          <AlertDialogDescription className="text-base text-slate-700">
+      <AlertDialogContent className="max-w-[34rem]">
+        <AlertDialogHeader className="gap-4 text-left">
+          <span
+            aria-hidden="true"
+            className={cn(
+              'blob-1 flex h-14 w-14 items-center justify-center',
+              perigoso ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary',
+            )}
+          >
+            <Icone className="h-6 w-6" />
+          </span>
+          <AlertDialogTitle className="text-balance text-[1.625rem] leading-tight sm:text-[1.75rem]">
+            {titulo}
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-[1.0625rem] leading-normal text-accent-foreground">
             {descricao}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="gap-2">
-          <AlertDialogCancel className="min-h-[48px] text-base">
-            Voltar sem alterar
+        <AlertDialogFooter className="mt-1 flex-col gap-2.5 sm:flex-row-reverse sm:justify-start sm:gap-3">
+          <AlertDialogCancel
+            variant={perigoso ? 'default' : 'outline'}
+            className="mt-0 min-h-14 text-lg sm:min-h-[52px] sm:text-[1.0625rem]"
+          >
+            Cancelar
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirmar}
-            className={
-              perigoso
-                ? 'min-h-[48px] text-base bg-red-700 hover:bg-red-800 focus-visible:ring-red-700'
-                : 'min-h-[48px] text-base'
-            }
+            variant={perigoso ? 'perigo' : 'default'}
+            className="min-h-14 text-lg sm:min-h-[52px] sm:text-[1.0625rem]"
           >
             {rotuloConfirmar}
           </AlertDialogAction>
