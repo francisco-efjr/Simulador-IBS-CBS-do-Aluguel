@@ -1,4 +1,4 @@
-import Layout from '@/components/Layout'
+import { LayoutCarregavel } from '@/components/LayoutCarregavel'
 import { useAuth } from '@/hooks/use-auth'
 import { App as SimuladorApp } from '@/simulador/ui/App'
 
@@ -26,9 +26,9 @@ export default function Simulador() {
 
   if (isAuthenticated) {
     return (
-      <Layout>
+      <LayoutCarregavel>
         <SimuladorApp embedded />
-      </Layout>
+      </LayoutCarregavel>
     )
   }
 

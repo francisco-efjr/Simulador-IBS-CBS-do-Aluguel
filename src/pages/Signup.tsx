@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { extractFieldErrors, mensagemDeAutenticacao } from '@/lib/dados/erros'
 import { validarConviteToken } from '@/services/convites'
-import darkLogo from '@/assets/chatgpt-image-aug-7-2026-061737-pm-5-f38c6.png'
+import darkLogo from '@/assets/logo-holding-aguiar.jpg'
 import { toast } from 'sonner'
 
 export default function Signup() {
@@ -167,6 +167,8 @@ export default function Signup() {
           <img
             src={darkLogo}
             alt="Holding Aguiar"
+            width={80}
+            height={80}
             className="h-20 w-auto object-contain mb-2 drop-shadow-md"
           />
           <p className="text-xs font-semibold tracking-widest text-gold-400 uppercase">

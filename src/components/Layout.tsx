@@ -1,6 +1,7 @@
-import { useState, type ReactNode } from 'react'
+import { Suspense, useState, type ReactNode } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Header } from '@/components/Header'
+import { TelaCarregando } from '@/components/TelaCarregando'
 import { SidebarContent } from '@/components/SidebarContent'
 import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -62,7 +63,9 @@ export default function Layout({ children }: LayoutProps) {
               central resolve isso sem desperdiçar espaço: 1.600px comporta a
               tabela inteira com folga e mantém a linha em comprimento legível. */}
           <div className="mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 lg:px-8 lg:py-6">
-            {children ?? <Outlet />}
+            <Suspense fallback={<TelaCarregando variante="conteudo" />}>
+              {children ?? <Outlet />}
+            </Suspense>
           </div>
         </main>
       </div>

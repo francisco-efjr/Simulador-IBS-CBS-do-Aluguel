@@ -7,8 +7,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { cn } from '@/lib/utils'
 import dados from '@/lib/dados/cliente'
 import { useRealtime } from '@/hooks/use-realtime'
-import darkLogo from '@/assets/chatgpt-image-aug-7-2026-061737-pm-5-f38c6.png'
-import symbolLogo from '@/assets/chatgpt-image-aug-7-2026-061736-pm-2-f5529.png'
+import darkLogo from '@/assets/logo-holding-aguiar.jpg'
+import symbolLogo from '@/assets/simbolo-holding-aguiar.png'
 
 interface SidebarContentProps {
   isTabletRail?: boolean
@@ -145,6 +145,8 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
                   <img
                     src={symbolLogo}
                     alt="Holding Aguiar"
+                    width={32}
+                    height={32}
                     className="h-8 w-8 object-contain rounded-md"
                   />
                 </Link>
@@ -161,6 +163,8 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
               <img
                 src={darkLogo}
                 alt="Holding Aguiar"
+                width={48}
+                height={48}
                 className="h-12 w-auto object-contain transition-transform group-hover:scale-[1.02]"
               />
             </Link>

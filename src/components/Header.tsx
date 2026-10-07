@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import symbolLogo from '@/assets/chatgpt-image-aug-7-2026-061736-pm-2-f5529.png'
+import symbolLogo from '@/assets/simbolo-holding-aguiar.png'
 
 interface HeaderProps {
   onOpenMobileSidebar: () => void
@@ -132,6 +132,8 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
             <img
               src={symbolLogo}
               alt="Holding Aguiar"
+              width={32}
+              height={32}
               className="h-8 w-8 object-contain rounded-md"
             />
           </Link>

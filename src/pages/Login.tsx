@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { extractFieldErrors, mensagemDeAutenticacao } from '@/lib/dados/erros'
 import { lerAvisoDeLogin } from '@/lib/dados/sessao'
 import { toast } from 'sonner'
-import darkLogo from '@/assets/chatgpt-image-aug-7-2026-061737-pm-5-f38c6.png'
+import darkLogo from '@/assets/logo-holding-aguiar.jpg'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -79,6 +79,9 @@ export default function Login() {
           <img
             src={darkLogo}
             alt="Holding Aguiar"
+            width={96}
+            height={96}
+            fetchPriority="high"
             className="h-24 w-auto object-contain mb-2 drop-shadow-md"
           />
           <p className="text-xs font-semibold tracking-widest text-gold-400 uppercase">
