@@ -66,31 +66,39 @@ export function normalizeDescriptionForMatching(str: string): string {
  * Levenshtein distance between two strings
  */
 export function levenshteinDistance(a: string, b: string): number {
-  const m = a.length
-  const n = b.length
-  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0))
+  // Teto: a tabela cresce com o produto dos tamanhos; texto enorme travaria a aba.
+  const x = a.slice(0, TAMANHO_MAXIMO_COMPARACAO)
+  const y = b.slice(0, TAMANHO_MAXIMO_COMPARACAO)
+  const m = x.length
+  const n = y.length
 
-  for (let i = 0; i <= m; i++) dp[i][0] = i
-  for (let j = 0; j <= n; j++) dp[0][j] = j
-
+  let anterior = Array.from({ length: n + 1 }, (_, j) => j)
   for (let i = 1; i <= m; i++) {
+    const atual = [i]
     for (let j = 1; j <= n; j++) {
-      if (a[i - 1] === b[j - 1]) {
-        dp[i][j] = dp[i - 1][j - 1]
-      } else {
-        dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])
-      }
+      atual[j] =
+        x[i - 1] === y[j - 1]
+          ? anterior[j - 1]
+          : 1 + Math.min(anterior[j], atual[j - 1], anterior[j - 1])
     }
+    anterior = atual
   }
-  return dp[m][n]
+  return anterior[n]
 }
 
 /**
  * Similarity ratio between 0 and 1
  */
 export function calculateSimilarity(s1: string, s2: string): number {
-  const n1 = normalizeDescriptionForMatching(s1)
-  const n2 = normalizeDescriptionForMatching(s2)
+  // Corta antes de normalizar: a comparação nunca precisa de mais que isso.
+  const n1 = normalizeDescriptionForMatching(s1.slice(0, TAMANHO_MAXIMO_COMPARACAO * 2)).slice(
+    0,
+    TAMANHO_MAXIMO_COMPARACAO,
+  )
+  const n2 = normalizeDescriptionForMatching(s2.slice(0, TAMANHO_MAXIMO_COMPARACAO * 2)).slice(
+    0,
+    TAMANHO_MAXIMO_COMPARACAO,
+  )
 
   if (!n1 && !n2) return 1.0
   if (!n1 || !n2) return 0.0
@@ -122,59 +130,225 @@ export function calculateSimilarity(s1: string, s2: string): number {
   return Math.max(0, 1 - dist / maxLen)
 }
 
+// ---------------------------------------------------------------------------
+// Leitura de arquivo: decodificação, números, datas e linhas rejeitadas
+// ---------------------------------------------------------------------------
+
+/** Tamanho máximo aceito para um extrato (5 MB): maior que isso trava a aba e não é extrato. */
+export const TAMANHO_MAXIMO_EXTRATO_BYTES = 5 * 1024 * 1024
+
+/** Descrições maiores que isso são cortadas antes de comparar (evita Levenshtein quadrático). */
+export const TAMANHO_MAXIMO_COMPARACAO = 200
+
+/** Linha do arquivo que não virou transação, com o motivo, para mostrar à pessoa. */
+export interface LinhaRejeitada {
+  /** Número da linha no arquivo (começando em 1). */
+  linha: number
+  /** Trecho da linha original (cortado em 120 caracteres). */
+  conteudo: string
+  motivo: string
+}
+
+export interface ResultadoLeitura {
+  transacoes: ParsedTransaction[]
+  rejeitadas: LinhaRejeitada[]
+  /** CSV sem linha de cabeçalho: colunas assumidas como Data, Descrição, Valor. */
+  semCabecalho: boolean
+}
+
+const trecho = (s: string) => (s.length > 120 ? `${s.slice(0, 120)}…` : s)
+
 /**
- * Parses OFX file content into structured transactions
+ * Converte os bytes do arquivo em texto. Tenta UTF-8 (estrito); se o arquivo não for UTF-8
+ * válido (bancos antigos gravam Latin-1/Windows-1252), cai para windows-1252. Remove o BOM.
  */
-export function parseOFX(content: string): ParsedTransaction[] {
-  const transactions: ParsedTransaction[] = []
+export function decodificarArquivo(buffer: ArrayBuffer): string {
+  let texto: string
+  try {
+    texto = new TextDecoder('utf-8', { fatal: true }).decode(buffer)
+  } catch {
+    texto = new TextDecoder('windows-1252').decode(buffer)
+  }
+  return texto.replace(/^﻿/, '')
+}
 
-  // Extract STMTTRN blocks
-  const stmttrnRegex = /<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi
-  let match: RegExpExecArray | null
+const codigoParaTexto = (n: number) => (n > 0 && n <= 0x10ffff ? String.fromCodePoint(n) : '')
 
-  // Fallback if no closing tags (some OFX 1.x banks don't close tags)
-  let blocks: string[] = []
-  if (content.includes('</STMTTRN>')) {
-    while ((match = stmttrnRegex.exec(content)) !== null) {
-      blocks.push(match[1])
+/** Decodifica as entidades XML/HTML que aparecem em OFX ("JOÃO &amp; FILHOS"). */
+export function decodificarEntidades(texto: string): string {
+  return texto
+    .replace(/&#(\d{1,7});/g, (_, n: string) => codigoParaTexto(Number(n)))
+    .replace(/&#x([0-9a-f]{1,6});/gi, (_, n: string) => codigoParaTexto(parseInt(n, 16)))
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&amp;/gi, '&')
+}
+
+/** Data AAAA-MM-DD existe no calendário? (31/02 não existe.) */
+export function dataExiste(ano: number, mes: number, dia: number): boolean {
+  if (ano < 1900 || ano > 2100 || mes < 1 || mes > 12 || dia < 1 || dia > 31) return false
+  const d = new Date(Date.UTC(ano, mes - 1, dia))
+  return d.getUTCFullYear() === ano && d.getUTCMonth() === mes - 1 && d.getUTCDate() === dia
+}
+
+const aaaaMmDd = (ano: number, mes: number, dia: number) =>
+  `${String(ano).padStart(4, '0')}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`
+
+/**
+ * Lê data de extrato. Aceita DD/MM/AAAA (também com - ou .), DD/MM/AA e AAAA-MM-DD.
+ * Devolve null quando a data não existe (31/02, mês 13): quem chama rejeita a linha
+ * em vez de "consertar" a data em silêncio. Nunca inverte dia e mês.
+ */
+export function interpretarData(raw: string): string | null {
+  if (!raw) return null
+  const limpo = raw.replace(/[^\d/\-.]/g, '')
+
+  const br = limpo.match(/^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2}|\d{4})$/)
+  if (br) {
+    const ano = br[3].length === 2 ? 2000 + Number(br[3]) : Number(br[3])
+    const mes = Number(br[2])
+    const dia = Number(br[1])
+    return dataExiste(ano, mes, dia) ? aaaaMmDd(ano, mes, dia) : null
+  }
+
+  const iso = limpo.match(/^(\d{4})[/\-.](\d{1,2})[/\-.](\d{1,2})$/)
+  if (iso) {
+    const ano = Number(iso[1])
+    const mes = Number(iso[2])
+    const dia = Number(iso[3])
+    return dataExiste(ano, mes, dia) ? aaaaMmDd(ano, mes, dia) : null
+  }
+  return null
+}
+
+export interface OpcoesNumero {
+  /**
+   * "1.234" (um ponto e exatamente 3 dígitos depois) é milhar? Em extrato brasileiro, sim,
+   * salvo se o resto do arquivo usa ponto como decimal. No OFX o ponto é sempre decimal.
+   */
+  pontoUnicoEhMilhar?: boolean
+}
+
+/**
+ * Lê valor monetário de extrato: "1.234,56", "1,234.56", "-123.45", "(50,00)", "1.234",
+ * "1.234.567", "R$ 2.500,00 D". Devolve null quando não é número (nunca chuta).
+ */
+export function interpretarNumero(raw: string, opcoes: OpcoesNumero = {}): number | null {
+  if (!raw) return null
+  const original = raw.replace(/\s+/g, '').replace(/R\$/gi, '')
+  if (!original) return null
+
+  const negativo =
+    original.includes('-') || /D$/i.test(original) || /^D-/i.test(original) || original.includes('(')
+  let s = original.replace(/[^0-9,.]/g, '')
+  if (!/\d/.test(s)) return null
+
+  const temPonto = s.includes('.')
+  const temVirgula = s.includes(',')
+
+  if (temPonto && temVirgula) {
+    // O último separador é o decimal; o outro é milhar.
+    if (s.lastIndexOf('.') < s.lastIndexOf(',')) s = s.replace(/\./g, '').replace(',', '.')
+    else s = s.replace(/,/g, '')
+  } else if (temVirgula) {
+    const virgulas = s.split(',').length - 1
+    if (virgulas > 1) {
+      // 1,234,567 (estilo americano): só milhar, se todos os grupos tiverem 3 dígitos.
+      const grupos = s.split(',')
+      if (!grupos.slice(1).every((g) => g.length === 3)) return null
+      s = grupos.join('')
+    } else {
+      s = s.replace(',', '.')
     }
+  } else if (temPonto) {
+    const grupos = s.split('.')
+    if (grupos.length > 2) {
+      // 1.234.567: só milhar, se todos os grupos depois do primeiro tiverem 3 dígitos.
+      if (!grupos.slice(1).every((g) => g.length === 3)) return null
+      s = grupos.join('')
+    } else if (opcoes.pontoUnicoEhMilhar && grupos[1].length === 3 && grupos[0].length <= 3) {
+      s = grupos.join('')
+    }
+  }
+
+  const val = Number(s)
+  if (!Number.isFinite(val)) return null
+  const centavos = Math.round(val * 100) / 100
+  return negativo ? -Math.abs(centavos) : centavos
+}
+
+/** Mesmo valor "ainda negativo" mesmo sendo zero? Zero é tratado como valor ausente. */
+const temMarcaDeNegativo = (raw: string) =>
+  raw.includes('-') || /D$/i.test(raw.trim()) || /^D-/i.test(raw.trim()) || raw.includes('(')
+
+/**
+ * Lê o conteúdo de um arquivo OFX. Linhas que não viram transação (sem data/valor, data
+ * impossível, valor zero ou ilegível) vão para `rejeitadas` com o motivo.
+ */
+export function lerOFX(content: string): ResultadoLeitura {
+  const transacoes: ParsedTransaction[] = []
+  const rejeitadas: LinhaRejeitada[] = []
+
+  // Extrai os blocos STMTTRN (com ou sem tag de fechamento: OFX 1.x costuma não fechar)
+  let blocks: string[] = []
+  if (/<\/STMTTRN>/i.test(content)) {
+    const stmttrnRegex = /<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi
+    let match: RegExpExecArray | null
+    while ((match = stmttrnRegex.exec(content)) !== null) blocks.push(match[1])
   } else {
-    // Split by <STMTTRN>
     const parts = content.split(/<STMTTRN>/i)
     blocks = parts.slice(1).map((p) => p.split(/<STMTTRN>|<BANKTRANLIST>|<\/BANKTRANLIST>/i)[0])
   }
 
   const getTagValue = (block: string, tag: string): string => {
-    // Matches <TAG>value or <TAG>value</TAG>
-    const tagRegex = new RegExp(`<${tag}>([^<\\r\\n]+)`, 'i')
-    const m = tagRegex.exec(block)
-    return m ? m[1].trim() : ''
+    const m = new RegExp(`<${tag}>([^<\\r\\n]+)`, 'i').exec(block)
+    return m ? decodificarEntidades(m[1].trim()) : ''
   }
 
-  for (const block of blocks) {
-    const trntype = getTagValue(block, 'TRNTYPE').toUpperCase()
+  blocks.forEach((block, idx) => {
+    const numero = idx + 1
+    const rotulo = `Transação ${numero} do OFX`
     const dtpostedRaw = getTagValue(block, 'DTPOSTED')
     const trnamtRaw = getTagValue(block, 'TRNAMT')
     const fitid = getTagValue(block, 'FITID')
     const memo = getTagValue(block, 'MEMO')
     const name = getTagValue(block, 'NAME')
+    const resumo = trecho([name, memo, dtpostedRaw, trnamtRaw].filter(Boolean).join(' | '))
 
-    if (!dtpostedRaw || !trnamtRaw) continue
+    if (!dtpostedRaw || !trnamtRaw) {
+      rejeitadas.push({ linha: numero, conteudo: resumo || rotulo, motivo: 'Sem data ou sem valor' })
+      return
+    }
 
-    // Format date: OFX date is YYYYMMDD... e.g. 20250615120000
-    let year = dtpostedRaw.substring(0, 4)
-    let month = dtpostedRaw.substring(4, 6)
-    let day = dtpostedRaw.substring(6, 8)
-    if (!day || isNaN(Number(day))) day = '01'
-    if (!month || isNaN(Number(month))) month = '01'
-    const dateFormatted = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+    // Data OFX: AAAAMMDD[HHMMSS...]
+    const dm = dtpostedRaw.match(/^(\d{4})(\d{2})(\d{2})/)
+    const dateFormatted = dm ? interpretarData(`${dm[1]}-${dm[2]}-${dm[3]}`) : null
+    if (!dateFormatted) {
+      rejeitadas.push({
+        linha: numero,
+        conteudo: resumo,
+        motivo: `Data inválida (${trecho(dtpostedRaw)})`,
+      })
+      return
+    }
 
-    // Parse amount: OFX uses negative for debit, positive for credit
-    const numAmt = parseFloat(trnamtRaw.replace(',', '.'))
-    if (isNaN(numAmt)) continue
+    // O sinal de TRNAMT manda: negativo = débito, positivo = crédito (TRNTYPE só é conferido).
+    const numAmt = interpretarNumero(trnamtRaw)
+    if (numAmt === null) {
+      rejeitadas.push({
+        linha: numero,
+        conteudo: resumo,
+        motivo: `Valor ilegível (${trecho(trnamtRaw)})`,
+      })
+      return
+    }
+    if (numAmt === 0) {
+      rejeitadas.push({ linha: numero, conteudo: resumo, motivo: 'Valor zerado' })
+      return
+    }
 
-    const isCredit = numAmt > 0 || trntype === 'CREDIT' || trntype === 'DEP'
-    const valor = Math.abs(numAmt)
     const descricao =
       [name, memo, fitid ? `ID:${fitid}` : '']
         .filter(Boolean)
@@ -182,31 +356,45 @@ export function parseOFX(content: string): ParsedTransaction[] {
         .replace(/\s+/g, ' ')
         .trim() || 'Transação OFX'
 
-    transactions.push({
+    transacoes.push({
       data: dateFormatted,
       descricao,
-      valor,
-      tipo: isCredit ? 'credito' : 'debito',
+      valor: Math.abs(numAmt),
+      tipo: numAmt > 0 ? 'credito' : 'debito',
       incluir: true,
     })
-  }
+  })
 
-  return transactions
+  return { transacoes, rejeitadas, semCabecalho: false }
+}
+
+/** Compatível com o uso antigo: só as transações lidas. */
+export function parseOFX(content: string): ParsedTransaction[] {
+  return lerOFX(content).transacoes
 }
 
 /**
- * Parses CSV file with intelligent column detection, delimiter sniffing and date formatting
+ * Lê um CSV com detecção de delimitador, cabeçalho e colunas. Linhas que não viram transação
+ * vão para `rejeitadas` com o motivo (nada some em silêncio).
  */
-export function parseCSV(content: string): ParsedTransaction[] {
-  const lines = content
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0)
+export function lerCSV(content: string): ResultadoLeitura {
+  const rejeitadas: LinhaRejeitada[] = []
 
-  if (lines.length < 2) return []
+  // Mantém o número da linha original para apontar o problema à pessoa.
+  const linhasBrutas = content.replace(/^﻿/, '').split(/\r?\n/)
+  const lines: { numero: number; texto: string }[] = []
+  linhasBrutas.forEach((l, i) => {
+    const t = l.trim()
+    if (t.length > 0) lines.push({ numero: i + 1, texto: t })
+  })
+
+  if (lines.length === 0) return { transacoes: [], rejeitadas, semCabecalho: false }
 
   // Detect delimiter: evaluate semicolon, comma, tab
-  const sample = lines.slice(0, 5).join('\n')
+  const sample = lines
+    .slice(0, 5)
+    .map((l) => l.texto)
+    .join('\n')
   const countSemicolons = (sample.match(/;/g) || []).length
   const countCommas = (sample.match(/,/g) || []).length
   const countTabs = (sample.match(/\t/g) || []).length
@@ -239,10 +427,16 @@ export function parseCSV(content: string): ParsedTransaction[] {
     return result
   }
 
+  // A linha parece um lançamento (tem data válida e algum número)? Então não é cabeçalho.
+  const pareceLancamento = (cols: string[]) =>
+    cols.some((c) => interpretarData(c) !== null) &&
+    cols.some((c) => /\d/.test(c) && interpretarNumero(c) !== null && interpretarData(c) === null)
+
   // Find header row (usually the first row that has words like data, descri, valor, memo, historico)
-  let headerIndex = 0
+  let headerIndex = -1
+  let semCabecalho = true
   for (let i = 0; i < Math.min(10, lines.length); i++) {
-    const rowNorm = normalizeText(lines[i])
+    const rowNorm = normalizeText(lines[i].texto)
     if (
       rowNorm.includes('data') ||
       rowNorm.includes('dt') ||
@@ -252,12 +446,27 @@ export function parseCSV(content: string): ParsedTransaction[] {
       rowNorm.includes('descricao') ||
       rowNorm.includes('lancamento')
     ) {
-      headerIndex = i
+      if (!pareceLancamento(splitCSVRow(lines[i].texto, delimiter))) {
+        headerIndex = i
+        semCabecalho = false
+      }
       break
     }
   }
+  if (headerIndex === -1 && semCabecalho) {
+    // Nenhuma linha de cabeçalho: se a primeira já é um lançamento, ela é dado.
+    // Se não for, mantém o comportamento antigo (primeira linha é cabeçalho desconhecido).
+    const primeira = splitCSVRow(lines[0].texto, delimiter)
+    if (!pareceLancamento(primeira)) {
+      headerIndex = 0
+      semCabecalho = false
+    }
+  }
 
-  const headers = splitCSVRow(lines[headerIndex], delimiter).map((h) => normalizeText(h))
+  const headers =
+    headerIndex >= 0
+      ? splitCSVRow(lines[headerIndex].texto, delimiter).map((h) => normalizeText(h))
+      : splitCSVRow(lines[0].texto, delimiter).map(() => '')
 
   // Column mapping
   let dateCol = headers.findIndex(
@@ -279,113 +488,107 @@ export function parseCSV(content: string): ParsedTransaction[] {
       (h.includes('valor') || h.includes('amount') || h.includes('quantia')) &&
       !h.includes('saldo'),
   )
-  let debitCol = headers.findIndex(
+  const debitCol = headers.findIndex(
     (h) => h.includes('debito') || h.includes('saida') || h.includes('despesa'),
   )
-  let creditCol = headers.findIndex(
+  const creditCol = headers.findIndex(
     (h) => h.includes('credito') || h.includes('entrada') || h.includes('receita'),
   )
-  let saldoCol = headers.findIndex((h) => h.includes('saldo') || h.includes('balance'))
-  let typeCol = headers.findIndex(
+  const saldoCol = headers.findIndex((h) => h.includes('saldo') || h.includes('balance'))
+  const typeCol = headers.findIndex(
     (h) => h.includes('tipo') || h.includes('type') || h === 'd/c' || h === 'c/d',
   )
 
-  // Defaults if not found
+  // Defaults if not found (arquivo sem cabeçalho: Data, Descrição, Valor)
   if (dateCol === -1) dateCol = 0
   if (descCol === -1) descCol = headers.length > 2 ? 1 : 0
   if (valCol === -1 && debitCol === -1 && creditCol === -1) {
     valCol = headers.length > 2 ? 2 : 1
   }
 
+  const primeiraLinhaDeDados = headerIndex + 1
+  const linhasDeDados = lines.slice(primeiraLinhaDeDados)
+
+  // Contexto do arquivo para ler números ambíguos e decidir o sinal.
+  const colunasDeValor = [valCol, debitCol, creditCol].filter((c) => c >= 0)
+  const celulasDeValor: string[] = []
+  for (const l of linhasDeDados) {
+    const cols = splitCSVRow(l.texto, delimiter)
+    for (const c of colunasDeValor) if (cols[c]) celulasDeValor.push(cols[c])
+  }
+  // Ponto decimal de verdade no arquivo: "45.90" ou "12.5" (sem vírgula, 1 ou 2 casas).
+  const arquivoUsaPontoDecimal = celulasDeValor.some((c) => /^[^\d]*\d+\.\d{1,2}[^\d.,]*$/.test(c.trim()))
+  const opcoesNumero: OpcoesNumero = { pontoUnicoEhMilhar: !arquivoUsaPontoDecimal }
+  // Se o arquivo tem algum valor negativo na coluna de valor, o sinal é confiável.
+  const arquivoTemSinal =
+    valCol >= 0 &&
+    linhasDeDados.some((l) => {
+      const c = splitCSVRow(l.texto, delimiter)[valCol]
+      return !!c && temMarcaDeNegativo(c)
+    })
+
   const transactions: ParsedTransaction[] = []
 
-  // Date parsing helper
-  const parseDateStr = (raw: string): string | null => {
-    if (!raw) return null
-    const cleaned = raw.replace(/[^\d/\-.]/g, '')
+  for (const { numero, texto } of linhasDeDados) {
+    const cols = splitCSVRow(texto, delimiter)
+    const rejeitar = (motivo: string) =>
+      rejeitadas.push({ linha: numero, conteudo: trecho(texto), motivo })
 
-    // Check DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
-    const brMatch = cleaned.match(/^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2,4})$/)
-    if (brMatch) {
-      let day = brMatch[1].padStart(2, '0')
-      let month = brMatch[2].padStart(2, '0')
-      let year = brMatch[3]
-      if (year.length === 2) year = '20' + year
-      return `${year}-${month}-${day}`
+    if (cols.length < 2) {
+      rejeitar('Linha com colunas faltando')
+      continue
     }
 
-    // Check YYYY-MM-DD or YYYY/MM/DD
-    const isoMatch = cleaned.match(/^(\d{4})[/\-.](\d{1,2})[/\-.](\d{1,2})$/)
-    if (isoMatch) {
-      let year = isoMatch[1]
-      let month = isoMatch[2].padStart(2, '0')
-      let day = isoMatch[3].padStart(2, '0')
-      return `${year}-${month}-${day}`
+    const dataBruta = dateCol >= 0 ? cols[dateCol] : ''
+    if (!dataBruta) {
+      rejeitar('Sem data')
+      continue
     }
-
-    return null
-  }
-
-  // Number parsing helper (handles 1.234,56 or 1,234.56 or -123.45)
-  const parseNumberStr = (raw: string): number | null => {
-    if (!raw) return null
-    let s = raw.replace(/\s+/g, '').replace('R$', '')
-    if (!s) return null
-
-    let isNegative = false
-    if (s.includes('-') || s.endsWith('D') || s.startsWith('D-') || s.includes('(')) {
-      isNegative = true
+    const dateStr = interpretarData(dataBruta)
+    if (!dateStr) {
+      rejeitar(`Data inválida (${trecho(dataBruta)}): use dia/mês/ano, como 31/12/2026`)
+      continue
     }
-    s = s.replace(/[^0-9,.-]/g, '')
-
-    // Check for Brazilian format: 1.234,56
-    if (s.includes('.') && s.includes(',')) {
-      if (s.indexOf('.') < s.indexOf(',')) {
-        s = s.replace(/\./g, '').replace(',', '.')
-      } else {
-        s = s.replace(/,/g, '')
-      }
-    } else if (s.includes(',')) {
-      s = s.replace(',', '.')
-    }
-
-    const val = parseFloat(s)
-    if (isNaN(val)) return null
-    return isNegative ? -Math.abs(val) : val
-  }
-
-  for (let i = headerIndex + 1; i < lines.length; i++) {
-    const cols = splitCSVRow(lines[i], delimiter)
-    if (cols.length < 2) continue
-
-    const dateStr = dateCol >= 0 && cols[dateCol] ? parseDateStr(cols[dateCol]) : null
-    if (!dateStr) continue
 
     const descricao = (descCol >= 0 && cols[descCol] ? cols[descCol] : 'Lançamento bancário').trim()
 
     let valorNum = 0
     let tipo: 'credito' | 'debito' = 'credito'
+    // O tipo já está definido pelo arquivo (colunas débito/crédito, coluna de tipo ou sinal)?
+    let tipoDefinido = false
+    let valorIlegivel = ''
+    let valorEncontrado = false
 
     if (debitCol >= 0 && creditCol >= 0) {
-      const debitVal = parseNumberStr(cols[debitCol]) || 0
-      const creditVal = parseNumberStr(cols[creditCol]) || 0
+      const debitLido = interpretarNumero(cols[debitCol] ?? '', opcoesNumero)
+      const creditLido = interpretarNumero(cols[creditCol] ?? '', opcoesNumero)
+      valorEncontrado = debitLido !== null || creditLido !== null
+      const debitVal = Math.abs(debitLido ?? 0)
+      const creditVal = Math.abs(creditLido ?? 0)
       if (debitVal > 0) {
         valorNum = debitVal
         tipo = 'debito'
+        tipoDefinido = true
       } else if (creditVal > 0) {
         valorNum = creditVal
         tipo = 'credito'
+        tipoDefinido = true
+      } else if ((cols[debitCol] ?? '').trim() || (cols[creditCol] ?? '').trim()) {
+        valorIlegivel = `${cols[debitCol] ?? ''} ${cols[creditCol] ?? ''}`.trim()
       }
     } else if (valCol >= 0 && cols[valCol]) {
-      const parsedVal = parseNumberStr(cols[valCol])
-      if (parsedVal !== null) {
-        if (parsedVal < 0) {
-          valorNum = Math.abs(parsedVal)
-          tipo = 'debito'
-        } else {
-          valorNum = parsedVal
-          tipo = 'credito'
-        }
+      const parsedVal = interpretarNumero(cols[valCol], opcoesNumero)
+      valorEncontrado = parsedVal !== null
+      if (parsedVal === null) {
+        valorIlegivel = cols[valCol]
+      } else if (parsedVal < 0) {
+        valorNum = Math.abs(parsedVal)
+        tipo = 'debito'
+        tipoDefinido = true
+      } else {
+        valorNum = parsedVal
+        tipo = 'credito'
+        tipoDefinido = arquivoTemSinal // positivo num arquivo com sinais = crédito de fato
       }
     }
 
@@ -393,50 +596,68 @@ export function parseCSV(content: string): ParsedTransaction[] {
       const t = normalizeText(cols[typeCol])
       if (t.includes('deb') || t.includes('saida') || t === 'd') {
         tipo = 'debito'
+        tipoDefinido = true
       } else if (t.includes('cred') || t.includes('entr') || t === 'c') {
         tipo = 'credito'
+        tipoDefinido = true
       }
     }
 
-    // Double check common keywords in description if sign is ambiguous
-    const descNorm = normalizeText(descricao)
-    if (
-      descNorm.includes('pagamento efetuado') ||
-      descNorm.includes('tarifa') ||
-      descNorm.includes('deb aut') ||
-      descNorm.includes('saque') ||
-      descNorm.includes('compra debito') ||
-      descNorm.includes('compra cartao')
-    ) {
-      tipo = 'debito'
-    } else if (
-      descNorm.includes('ted recebida') ||
-      descNorm.includes('pix recebido') ||
-      descNorm.includes('credito em conta') ||
-      descNorm.includes('deposito recebido')
-    ) {
-      tipo = 'credito'
+    // Palavras da descrição só desempatam quando o arquivo não diz se é entrada ou saída;
+    // nunca valem contra o sinal ou contra a coluna de tipo.
+    if (!tipoDefinido) {
+      const descNorm = normalizeText(descricao)
+      if (
+        descNorm.includes('estorno') ||
+        descNorm.includes('ted recebida') ||
+        descNorm.includes('pix recebido') ||
+        descNorm.includes('credito em conta') ||
+        descNorm.includes('deposito recebido')
+      ) {
+        tipo = 'credito'
+      } else if (
+        descNorm.includes('pagamento efetuado') ||
+        descNorm.includes('tarifa') ||
+        descNorm.includes('deb aut') ||
+        descNorm.includes('saque') ||
+        descNorm.includes('compra debito') ||
+        descNorm.includes('compra cartao')
+      ) {
+        tipo = 'debito'
+      }
+    }
+
+    if (valorIlegivel) {
+      rejeitar(`Valor ilegível (${trecho(valorIlegivel)})`)
+      continue
+    }
+    if (!(valorNum > 0)) {
+      rejeitar(valorEncontrado ? 'Valor zerado' : 'Sem valor')
+      continue
     }
 
     let saldo: number | undefined
     if (saldoCol >= 0 && cols[saldoCol]) {
-      const s = parseNumberStr(cols[saldoCol])
+      const s = interpretarNumero(cols[saldoCol], opcoesNumero)
       if (s !== null) saldo = s
     }
 
-    if (valorNum > 0 || valorNum < 0) {
-      transactions.push({
-        data: dateStr,
-        descricao,
-        valor: Math.abs(valorNum),
-        tipo,
-        saldo,
-        incluir: true,
-      })
-    }
+    transactions.push({
+      data: dateStr,
+      descricao,
+      valor: Math.abs(valorNum),
+      tipo,
+      saldo,
+      incluir: true,
+    })
   }
 
-  return transactions
+  return { transacoes: transactions, rejeitadas, semCabecalho }
+}
+
+/** Compatível com o uso antigo: só as transações lidas. */
+export function parseCSV(content: string): ParsedTransaction[] {
+  return lerCSV(content).transacoes
 }
 
 /**

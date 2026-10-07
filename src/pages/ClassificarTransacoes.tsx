@@ -261,15 +261,14 @@ export default function ClassificarTransacoes() {
 
       // Mark transaction as classified
       const catObj = categorias.find((c) => c.id === catId)
-      const imovObj = imoveis.find((im) => im.id === imovId)
 
       await updateTransacaoImportada(t.id, {
         classificada: true,
         ignorada: false,
-        categoria_classificada: catObj?.nome || t.sugestao_categoria,
-        imovel_classificado: imovObj?.nome || imovObj?.endereco || t.sugestao_imovel,
-        receita_gerada: isReceita ? createdId : '',
-        despesa_gerada: !isReceita ? createdId : '',
+        categoria_classificada: catId,
+        imovel_classificado: imovId,
+        receita_gerada: isReceita ? createdId : null,
+        despesa_gerada: !isReceita ? createdId : null,
       })
 
       toast.success(
@@ -334,8 +333,8 @@ export default function ClassificarTransacoes() {
     if (isReceita) {
       const rec = await createReceita({
         imovel: data.imovel,
-        contrato: data.contrato || '',
-        inquilino: data.inquilino || '',
+        contrato: data.contrato || null,
+        inquilino: data.inquilino || null,
         categoria: data.categoria,
         descricao: data.descricao || t.descricao,
         data: data.data,
@@ -355,7 +354,7 @@ export default function ClassificarTransacoes() {
     } else {
       const desp = await createDespesa({
         imovel: data.imovel,
-        fornecedor: data.fornecedor || '',
+        fornecedor: data.fornecedor || null,
         categoria: data.categoria,
         descricao: data.descricao || t.descricao,
         data: data.data,
@@ -374,16 +373,14 @@ export default function ClassificarTransacoes() {
       createdId = desp.id
     }
 
-    const catObj = categorias.find((c) => c.id === data.categoria)
-    const imovObj = imoveis.find((im) => im.id === data.imovel)
 
     await updateTransacaoImportada(t.id, {
       classificada: true,
       ignorada: false,
-      categoria_classificada: catObj?.nome || '',
-      imovel_classificado: imovObj?.nome || imovObj?.endereco || '',
-      receita_gerada: isReceita ? createdId : '',
-      despesa_gerada: !isReceita ? createdId : '',
+      categoria_classificada: data.categoria || null,
+      imovel_classificado: data.imovel || null,
+      receita_gerada: isReceita ? createdId : null,
+      despesa_gerada: !isReceita ? createdId : null,
     })
 
     toast.success(`Lançamento registrado com sucesso como ${isReceita ? 'receita' : 'despesa'}.`)
@@ -400,8 +397,6 @@ export default function ClassificarTransacoes() {
     competencia?: string
   }) => {
     const isReceita = data.tipo === 'receita'
-    const catObj = categorias.find((c) => c.id === data.categoria)
-    const imovObj = imoveis.find((im) => im.id === data.imovel)
 
     const selectedTransactions = transacoes.filter((t) => selectedIds.includes(t.id))
 
@@ -435,7 +430,7 @@ export default function ClassificarTransacoes() {
           const desp = await createDespesa({
             imovel: data.imovel,
             categoria: data.categoria,
-            fornecedor: data.fornecedor || '',
+            fornecedor: data.fornecedor || null,
             descricao: t.descricao,
             data: dataStr,
             data_vencimento: dataStr,
@@ -456,10 +451,10 @@ export default function ClassificarTransacoes() {
         await updateTransacaoImportada(t.id, {
           classificada: true,
           ignorada: false,
-          categoria_classificada: catObj?.nome || '',
-          imovel_classificado: imovObj?.nome || imovObj?.endereco || '',
-          receita_gerada: isReceita ? createdId : '',
-          despesa_gerada: !isReceita ? createdId : '',
+          categoria_classificada: data.categoria || null,
+          imovel_classificado: data.imovel || null,
+          receita_gerada: isReceita ? createdId : null,
+          despesa_gerada: !isReceita ? createdId : null,
         })
 
         successCount++
