@@ -517,7 +517,7 @@ export default function ClassificarTransacoes() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             onClick={() => navigate('/historico-importacoes')}
@@ -571,7 +571,11 @@ export default function ClassificarTransacoes() {
             </div>
           </div>
 
-          <Progress value={progressoPercent} className="h-2.5 bg-slate-200" />
+          <Progress
+            value={progressoPercent}
+            aria-label="Progresso da classificação das transações"
+            className="h-2.5 bg-slate-200"
+          />
         </CardContent>
       </Card>
 
@@ -607,11 +611,11 @@ export default function ClassificarTransacoes() {
           </Select>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2 w-full">
+        <div className="flex flex-col gap-2 w-full min-w-0 xl:flex-row">
           <Select value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)}>
             <SelectTrigger
               aria-label="Status"
-              className="bg-slate-50/70 border-slate-300 w-full sm:flex-1"
+              className="bg-slate-50/70 border-slate-300 w-full xl:flex-1"
             >
               <SelectValue placeholder="Status" />
             </SelectTrigger>
@@ -626,7 +630,7 @@ export default function ClassificarTransacoes() {
           <Select value={tipoFilter} onValueChange={(v: any) => setTipoFilter(v)}>
             <SelectTrigger
               aria-label="Tipo"
-              className="bg-slate-50/70 border-slate-300 w-full sm:w-[110px]"
+              className="bg-slate-50/70 border-slate-300 w-full xl:w-[110px]"
             >
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
@@ -888,7 +892,7 @@ export default function ClassificarTransacoes() {
                               <Button
                                 size="sm"
                                 onClick={() => handleAcceptSuggestion(t)}
-                                className="h-8 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-2.5 shadow-xs"
+                                className="h-8 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs px-2.5 shadow-xs"
                                 title="Aceitar sugestão e criar lançamento"
                               >
                                 <Check className="h-3.5 w-3.5 mr-1" /> Aceitar

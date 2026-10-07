@@ -33,6 +33,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { COLUNA_ACOES_CABECALHO, COLUNA_ACOES_CELULA } from '@/lib/tabela'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { useAuth } from '@/hooks/use-auth'
@@ -213,7 +215,7 @@ export default function Contratos() {
       ) : (
         <>
           <p className="text-sm text-slate-600">{filtered.length} contrato(s)</p>
-          <div className="hidden md:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="hidden min-[1320px]:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table className="min-w-[750px]">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">
@@ -223,7 +225,9 @@ export default function Contratos() {
                   <TableHead>Status</TableHead>
                   <TableHead>Vigência</TableHead>
                   <TableHead className="text-right">Valor</TableHead>
-                  <TableHead className="w-[140px] text-right">Ações</TableHead>
+                  <TableHead className={cn('w-[140px] text-right', COLUNA_ACOES_CABECALHO)}>
+                    Ações
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -246,7 +250,9 @@ export default function Contratos() {
                       {c.expand?.unidade_id && (
                         <div className="text-xs text-indigo-700 font-medium">
                           Unidade: {c.expand.unidade_id.identificador}
-                          {c.expand.unidade_id.complemento ? ` (${c.expand.unidade_id.complemento})` : ''}
+                          {c.expand.unidade_id.complemento
+                            ? ` (${c.expand.unidade_id.complemento})`
+                            : ''}
                         </div>
                       )}
                     </TableCell>
@@ -262,7 +268,10 @@ export default function Contratos() {
                     <TableCell className="text-right text-sm font-medium">
                       {formatCurrency(c.valor_aluguel)}
                     </TableCell>
-                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                    <TableCell
+                      className={cn('text-right', COLUNA_ACOES_CELULA)}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <div className="flex justify-end gap-1">
                         <Button
                           variant="ghost"
@@ -341,7 +350,7 @@ export default function Contratos() {
               </TableBody>
             </Table>
           </div>
-          <div className="md:hidden space-y-3">
+          <div className="min-[1320px]:hidden grid grid-cols-1 gap-3 md:grid-cols-2">
             {filtered.map((c) => (
               <Card
                 key={c.id}
@@ -379,16 +388,17 @@ export default function Contratos() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
                     <span className="text-sm font-bold text-slate-900">
                       {formatCurrency(c.valor_aluguel)}/mês
                     </span>
-                    <div className="flex gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex flex-wrap gap-1.5" onClick={(e) => e.stopPropagation()}>
                       <Button
                         variant="outline"
                         size="sm"
                         className="h-11 px-2.5 min-h-[44px] text-xs text-indigo-600 border-indigo-200 hover:bg-indigo-50"
                         onClick={() => handleMinuta(c)}
+                        aria-label="Gerar Minuta de Contrato"
                         title="Gerar Minuta de Contrato"
                       >
                         <Printer className="h-3.5 w-3.5 mr-1" /> Minuta
@@ -414,10 +424,11 @@ export default function Contratos() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="h-11 px-3 min-h-[44px] text-emerald-700 hover:bg-emerald-50 border-emerald-200"
+                                  className="h-11 min-h-[44px] min-w-[44px] px-3 text-emerald-700 hover:bg-emerald-50 border-emerald-200"
+                                  aria-label={`Encerrar contrato ${c.numero ?? ''}`.trim()}
                                   title="Encerrar contrato"
                                 >
-                                  <Check className="h-3.5 w-3.5" />
+                                  <Check className="h-3.5 w-3.5" aria-hidden="true" />
                                 </Button>
                               </ConfirmarAcao>
                               <ConfirmarAcao
@@ -429,10 +440,11 @@ export default function Contratos() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="h-11 px-3 min-h-[44px] text-red-600 hover:bg-red-50 border-red-200"
+                                  className="h-11 min-h-[44px] min-w-[44px] px-3 text-red-600 hover:bg-red-50 border-red-200"
+                                  aria-label={`Cancelar contrato ${c.numero ?? ''}`.trim()}
                                   title="Cancelar contrato"
                                 >
-                                  <Ban className="h-3.5 w-3.5" />
+                                  <Ban className="h-3.5 w-3.5" aria-hidden="true" />
                                 </Button>
                               </ConfirmarAcao>
                             </>

@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { solicitarRecuperacaoSenha } from '@/services/auth-recovery'
-import darkLogo from '@/assets/chatgpt-image-aug-7-2026-061737-pm-5-f38c6.png'
+import darkLogo from '@/assets/logo-holding-aguiar.jpg'
 
 export default function RecuperarSenha() {
   const [email, setEmail] = useState('')
@@ -65,6 +65,8 @@ export default function RecuperarSenha() {
           <img
             src={darkLogo}
             alt="Holding Aguiar"
+            width={96}
+            height={96}
             className="h-24 w-auto object-contain mb-2 drop-shadow-md"
           />
           <p className="text-xs font-semibold tracking-widest text-gold-400 uppercase">

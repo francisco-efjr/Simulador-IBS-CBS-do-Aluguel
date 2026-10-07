@@ -253,7 +253,7 @@ export function ClassificarTransacaoDialog({
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger
                   value="receita"
-                  className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white font-medium"
+                  className="data-[state=active]:bg-emerald-700 data-[state=active]:text-white font-medium"
                 >
                   Receita (Entrada / Aluguel)
                 </TabsTrigger>

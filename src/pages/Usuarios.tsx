@@ -44,6 +44,8 @@ import {
   TableRow,
   TableCell,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { COLUNA_ACOES_CABECALHO, COLUNA_ACOES_CELULA } from '@/lib/tabela'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -83,7 +85,9 @@ export default function Usuarios() {
       const usersData = await getUsuarios()
       setUsers(usersData)
     } catch {
-      toast.error('Não foi possível carregar a lista de usuários. Atualize a página e tente novamente.')
+      toast.error(
+        'Não foi possível carregar a lista de usuários. Atualize a página e tente novamente.',
+      )
     } finally {
       setLoadingUsers(false)
     }
@@ -417,7 +421,12 @@ export default function Usuarios() {
                     <TableHead className="font-semibold text-slate-700 text-xs">
                       Cadastrado em
                     </TableHead>
-                    <TableHead className="text-right font-semibold text-slate-700 text-xs">
+                    <TableHead
+                      className={cn(
+                        'text-right font-semibold text-slate-700 text-xs',
+                        COLUNA_ACOES_CABECALHO,
+                      )}
+                    >
                       Ações
                     </TableHead>
                   </TableRow>
@@ -484,13 +493,14 @@ export default function Usuarios() {
                           <TableCell className="text-xs text-slate-600">
                             {formatDate(u.created)}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className={cn('text-right', COLUNA_ACOES_CELULA)}>
                             <div className="flex justify-end items-center gap-1">
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 className="h-8 text-xs text-slate-600 hover:text-navy-900 hover:bg-slate-100"
                                 onClick={() => handleEditUser(u)}
+                                aria-label="Editar usuário"
                                 title="Editar usuário"
                               >
                                 <Pencil className="h-3.5 w-3.5 mr-1" /> Editar
@@ -579,7 +589,12 @@ export default function Usuarios() {
                     <TableHead className="font-semibold text-slate-700 text-xs">
                       Enviado em
                     </TableHead>
-                    <TableHead className="text-right font-semibold text-slate-700 text-xs">
+                    <TableHead
+                      className={cn(
+                        'text-right font-semibold text-slate-700 text-xs',
+                        COLUNA_ACOES_CABECALHO,
+                      )}
+                    >
                       Ações
                     </TableHead>
                   </TableRow>
@@ -633,7 +648,7 @@ export default function Usuarios() {
                           <TableCell className="text-xs text-slate-600">
                             {formatDate(c.created)}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className={cn('text-right', COLUNA_ACOES_CELULA)}>
                             <div className="flex justify-end items-center gap-1">
                               {c.status === 'pendente' && (
                                 <>
@@ -642,6 +657,7 @@ export default function Usuarios() {
                                     size="sm"
                                     className="h-8 text-xs text-navy-900 hover:bg-gold-500/15"
                                     onClick={() => handleCopyInviteLink(c)}
+                                    aria-label="Copiar link do convite"
                                     title="Copiar link do convite"
                                   >
                                     {copiedTokenId === c.id ? (
@@ -657,6 +673,7 @@ export default function Usuarios() {
                                     size="sm"
                                     className="h-8 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50"
                                     onClick={() => handleReenviarConvite(c)}
+                                    aria-label="Renovar convite por +7 dias"
                                     title="Renovar convite por +7 dias"
                                   >
                                     <RefreshCw className="h-3.5 w-3.5 mr-1" /> Reenviar
@@ -667,6 +684,7 @@ export default function Usuarios() {
                                     size="icon"
                                     className="h-8 w-8 text-slate-600 hover:text-red-600 hover:bg-red-50"
                                     onClick={() => setCancelInviteTarget(c)}
+                                    aria-label="Cancelar convite"
                                     title="Cancelar convite"
                                   >
                                     <XCircle className="h-3.5 w-3.5" />
@@ -680,6 +698,7 @@ export default function Usuarios() {
                                   size="icon"
                                   className="h-8 w-8 text-slate-600 hover:text-red-600 hover:bg-red-50"
                                   onClick={() => handleDeleteInvite(c.id)}
+                                  aria-label="Excluir histórico deste convite"
                                   title="Excluir histórico deste convite"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
