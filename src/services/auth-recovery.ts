@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/dados/supabase'
+import { mensagemDeAutenticacao } from '@/lib/dados/erros'
 
 /**
  * Recuperação de senha.
@@ -35,7 +36,15 @@ export async function solicitarRecuperacaoSenha(
     redirectTo: DESTINO(),
   })
 
-  if (error) return { success: false, message: error.message }
+  if (error) {
+    return {
+      success: false,
+      message: mensagemDeAutenticacao(
+        error,
+        'Não foi possível enviar o link agora. Tente de novo em instantes.',
+      ),
+    }
+  }
 
   // A mesma resposta para e-mail que existe e para e-mail que não existe: dizer
   // qual é qual entregaria a lista de quem tem conta no sistema.
@@ -68,6 +77,14 @@ export async function validarLinkDeRecuperacao(): Promise<ValidarTokenResetRespo
 export async function redefinirSenha(password: string): Promise<RedefinirSenhaResponse> {
   const { error } = await supabase.auth.updateUser({ password })
 
-  if (error) return { success: false, message: error.message }
+  if (error) {
+    return {
+      success: false,
+      message: mensagemDeAutenticacao(
+        error,
+        'Não foi possível trocar a senha agora. Peça um novo link e tente de novo.',
+      ),
+    }
+  }
   return { success: true, message: 'Senha redefinida com sucesso.' }
 }

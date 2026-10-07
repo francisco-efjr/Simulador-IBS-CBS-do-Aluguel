@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { formatCurrency, formatDate, formatarCpfCnpj } from '@/lib/format'
+import { descreverPrazo, modeloDaMinuta } from '@/lib/minuta'
 import type { Contrato } from '@/services/contratos'
 
 export interface MinutaContratoDialogProps {
@@ -34,11 +35,17 @@ export const OPCOES_MINUTA_PADRAO = [
   { id: 'comercial_sem_garantia', rotulo: '6. Locação Comercial sem Garantia' },
 ]
 
-export function MinutaContratoDialog({
-  contrato,
-  open,
-  onOpenChange,
-}: MinutaContratoDialogProps) {
+/**
+ * O diálogo fica montado na página com `contrato = null`; o modelo sugerido e as
+ * testemunhas digitadas nascem com o primeiro valor do estado. A chave faz cada
+ * contrato abrir com o seu próprio modelo e com as testemunhas em branco, em vez
+ * de herdar as do contrato anterior (CAD-06).
+ */
+export function MinutaContratoDialog(props: MinutaContratoDialogProps) {
+  return <MinutaContratoConteudo key={props.contrato?.id ?? 'sem-contrato'} {...props} />
+}
+
+function MinutaContratoConteudo({ contrato, open, onOpenChange }: MinutaContratoDialogProps) {
   // Configuração padrão de testemunhas instrumentárias (Art. 784, III CPC)
   const [testemunha1, setTestemunha1] = useState({
     nome: '',
@@ -51,30 +58,20 @@ export function MinutaContratoDialog({
     email: '',
   })
 
-  // Detecta modelo sugerido a partir do contrato
-  const modeloInicial = useMemo(() => {
-    if (!contrato) return 'residencial_caucao'
-    const garantia = (contrato.tipo_garantia || '').toLowerCase()
-    const isFiador = garantia.includes('fiador')
-    const isCaucao = garantia.includes('caução') || garantia.includes('caucao')
+  // O modelo sugerido segue a garantia do contrato e o uso do imóvel (CAD-06).
+  const [modeloSelecionado, setModeloSelecionado] = useState<string>(() =>
+    modeloDaMinuta(
+      contrato,
+      contrato?.expand?.imovel as { tipo?: string } | undefined,
+      contrato?.expand?.unidade_id as { tipo_unidade?: string } | undefined,
+    ),
+  )
 
-    if (isFiador) return 'residencial_fiador'
-    if (isCaucao) return 'residencial_caucao'
-    return 'residencial_sem_garantia'
-  }, [contrato])
-
-  const [modeloSelecionado, setModeloSelecionado] = useState(modeloInicial)
-
-  // Cálculo de meses totais e proporcionais
-  const mesesTotais = useMemo(() => {
-    if (!contrato?.data_inicio || !contrato?.data_fim) return 12
-    const dIni = new Date(contrato.data_inicio)
-    const dFim = new Date(contrato.data_fim)
-    const diffMeses =
-      (dFim.getFullYear() - dIni.getFullYear()) * 12 +
-      (dFim.getMonth() - dIni.getMonth())
-    return diffMeses > 0 ? diffMeses : 12
-  }, [contrato?.data_inicio, contrato?.data_fim])
+  // Prazo em meses completos, lido da data civil e não do fuso (CAD-08).
+  const prazo = useMemo(
+    () => descreverPrazo(contrato?.data_inicio, contrato?.data_fim),
+    [contrato?.data_inicio, contrato?.data_fim],
+  )
 
   if (!contrato) return null
 
@@ -99,7 +96,7 @@ export function MinutaContratoDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-[95vw] sm:max-w-4xl max-h-[92vh] overflow-y-auto p-4 sm:p-6 print:max-w-none print:w-full print:p-0 print:border-none print:shadow-none">
+      <DialogContent className="minuta-dialogo w-full max-w-[95vw] sm:max-w-4xl max-h-[92vh] overflow-y-auto p-4 sm:p-6 print:max-w-none print:w-full print:p-0 print:border-none print:shadow-none">
         {/* Barra Superior - Oculta na Impressão */}
         <DialogHeader className="print:hidden border-b border-slate-200 pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -308,7 +305,7 @@ export function MinutaContratoDialog({
 
             <p>
               <strong>CLÁUSULA SEGUNDA – DO PRAZO DE VIGÊNCIA:</strong> O prazo desta locação é de{' '}
-              <strong>{mesesTotais} meses</strong>, com início em{' '}
+              <strong>{prazo || '________'}</strong>, com início em{' '}
               <strong>{formatDate(contrato.data_inicio)}</strong> e término improrrogável em{' '}
               <strong>{formatDate(contrato.data_fim)}</strong>, data em que o(a) LOCATÁRIO(A) se obriga a restituir o imóvel inteiramente desocupado e nas mesmas condições em que o recebeu.
             </p>
@@ -348,7 +345,9 @@ export function MinutaContratoDialog({
               {isGarantiaCaucao && (
                 <span>
                   A garantia locatícia é prestada por meio de CAUÇÃO no valor de{' '}
-                  <strong>{formatCurrency(contrato.valor_garantia || valorAluguel * 3)}</strong>, depositada na conta indicada pelo LOCADOR e a ser restituída ao término da locação após quitação integral das obrigações.
+                  <strong>
+                    {contrato.valor_garantia ? formatCurrency(contrato.valor_garantia) : 'R$ ________________'}
+                  </strong>, depositada na conta indicada pelo LOCADOR e a ser restituída ao término da locação após quitação integral das obrigações.
                 </span>
               )}
               {!isGarantiaFiador && !isGarantiaCaucao && (
@@ -373,7 +372,7 @@ export function MinutaContratoDialog({
           </div>
 
           {/* Seção de Assinaturas */}
-          <div className="pt-6 space-y-8 page-break-inside-avoid">
+          <div className="pt-6 space-y-8 break-inside-avoid">
             <p className="text-center text-xs font-sans text-slate-600">
               E, por estarem justas e contratadas, as partes assinam o presente contrato digitalmente.
             </p>

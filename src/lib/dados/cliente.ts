@@ -1,6 +1,12 @@
 import { supabase } from './supabase'
 import { ARQUIVOS, RELACOES, chaveEstrangeira } from './esquema'
 import { enviarArquivo } from './arquivos'
+import {
+  ErroDeSessao,
+  erroDePermissao,
+  erroDeSessaoVencida,
+  sinalizarSessaoTerminada,
+} from './sessao'
 
 /**
  * Camada de dados da aplicação.
@@ -158,8 +164,24 @@ function aplicarOrdem(consulta: Consulta, sort?: string): Consulta {
   return q
 }
 
-function erro(contexto: string, e: { message: string } | null): void {
-  if (e) throw new Error(`${contexto}: ${e.message}`)
+function erro(
+  contexto: string,
+  e: { message: string; code?: string; status?: number } | null,
+): void {
+  if (!e) return
+  // Token vencido: não é problema de campo, e a tela precisa saber (FIN-13).
+  if (erroDeSessaoVencida(e)) {
+    sinalizarSessaoTerminada()
+    throw new ErroDeSessao()
+  }
+  // Sem sessão, "sem permissão" é o jeito de o banco dizer "entre de novo": quem
+  // apagou ou perdeu a sessão com a tela aberta só recebe a recusa da RLS.
+  if (erroDePermissao(e)) {
+    void supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) sinalizarSessaoTerminada()
+    })
+  }
+  throw new Error(`${contexto}: ${e.message}`)
 }
 
 /**

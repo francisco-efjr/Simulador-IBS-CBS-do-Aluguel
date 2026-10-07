@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useRef, useState, useCallback, ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/dados/supabase'
+import { aoSessaoTerminar, guardarAvisoDeLogin } from '@/lib/dados/sessao'
 import type { ModuloPermissao, NivelPermissao, PermissaoModulo } from '@/lib/constants'
 
 interface UsuarioLogado {
@@ -74,6 +75,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UsuarioLogado | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const usuarioAtual = useRef<UsuarioLogado | null>(null)
+  usuarioAtual.current = user
+
   const isAuthenticated = user !== null
   const isAdministrador = user?.perfil === 'administrador'
 
@@ -128,8 +132,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false)
     })
 
+    // O banco recusou por sessão vencida ou ausente: sai daqui, o ProtectedRoute leva
+    // para /login guardando a rota, e a tela de entrada explica o que houve (FIN-13).
+    const cancelar = aoSessaoTerminar(() => {
+      if (!usuarioAtual.current) return
+      guardarAvisoDeLogin()
+      supabase.auth.signOut({ scope: 'local' })
+      setUser(null)
+    })
+
     return () => {
       ativo = false
+      cancelar()
       assinatura.subscription.unsubscribe()
     }
   }, [])
