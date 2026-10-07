@@ -8,6 +8,8 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DinheiroInput } from '@/components/shared/DinheiroInput'
+import { lerValorEmReais, mensagemDeValor, valorParaCampo } from '@/lib/dinheiro'
 import {
   Select,
   SelectContent,
@@ -65,7 +67,7 @@ export function ContaBancariaFormDialog({
         agencia: editing.agencia || '',
         conta: editing.conta || '',
         tipo: editing.tipo || 'Conta Corrente',
-        saldo_inicial: editing.saldo_inicial != null ? String(editing.saldo_inicial) : '',
+        saldo_inicial: valorParaCampo(editing.saldo_inicial),
         ativo: editing.ativo !== false,
       })
     } else {
@@ -79,6 +81,10 @@ export function ContaBancariaFormDialog({
 
     const fe: FieldErrors = {}
     if (!form.nome.trim()) fe.nome = 'Nome da conta é obrigatório'
+    const saldo = lerValorEmReais(form.saldo_inicial)
+    if (!saldo.ok && saldo.motivo !== 'vazio') {
+      fe.saldo_inicial = mensagemDeValor('O saldo inicial', saldo.motivo)
+    }
     if (Object.keys(fe).length) {
       setErrors(fe)
       return
@@ -92,7 +98,7 @@ export function ContaBancariaFormDialog({
         agencia: form.agencia.trim(),
         conta: form.conta.trim(),
         tipo: form.tipo,
-        saldo_inicial: form.saldo_inicial ? Number(form.saldo_inicial) : 0,
+        saldo_inicial: saldo.ok ? saldo.valor : 0,
         ativo: form.ativo,
       }
 
@@ -176,12 +182,10 @@ export function ContaBancariaFormDialog({
             </Field>
           </div>
 
-          <Field label="Saldo Inicial (R$)">
-            <Input
-              type="number"
-              step="0.01"
+          <Field label="Saldo Inicial (R$)" error={errors.saldo_inicial}>
+            <DinheiroInput
               value={form.saldo_inicial}
-              onChange={(e) => upd('saldo_inicial', e.target.value)}
+              onValueChange={(v) => upd('saldo_inicial', v)}
               placeholder="0,00"
               className="bg-slate-50/50"
             />

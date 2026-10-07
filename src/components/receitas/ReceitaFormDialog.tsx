@@ -8,6 +8,8 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DinheiroInput } from '@/components/shared/DinheiroInput'
+import { formularioDoRegistro, textoParaNumero } from '@/lib/formulario'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
@@ -43,6 +45,7 @@ const EMPTY = {
   observacoes: '',
 }
 const NUM_FIELDS = ['valor_previsto', 'valor_recebido']
+const CAMPOS_DE_DINHEIRO = ['valor_previsto', 'valor_recebido']
 
 export function ReceitaFormDialog({
   open,
@@ -68,12 +71,7 @@ export function ReceitaFormDialog({
     if (!open) return
     setErrors({})
     if (editing) {
-      setForm({
-        ...EMPTY,
-        ...Object.fromEntries(
-          Object.entries(editing).map(([k, v]) => [k, v == null ? '' : String(v)]),
-        ),
-      })
+      setForm(formularioDoRegistro(EMPTY, editing, CAMPOS_DE_DINHEIRO))
     } else {
       setForm(EMPTY)
     }
@@ -111,8 +109,11 @@ export function ReceitaFormDialog({
     const data: Record<string, any> = { status: 'ativo' }
     for (const [k, v] of Object.entries(form)) {
       if (v === '' || v == null) continue
-      data[k] = NUM_FIELDS.includes(k) ? Number(v) : v
+      data[k] = NUM_FIELDS.includes(k) ? textoParaNumero(k, v, CAMPOS_DE_DINHEIRO) : v
     }
+    // `valor` é a coluna antiga que o Início e os relatórios ainda leem; acompanha
+    // o valor previsto para a receita nova não entrar nas somas como zero (FIN-07).
+    if (data.valor_previsto != null) data.valor = data.valor_previsto
     setSubmitting(true)
     try {
       if (editing) {
@@ -237,20 +238,16 @@ export function ReceitaFormDialog({
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <Field label="Valor previsto (R$)" error={errors.valor_previsto}>
-              <Input
-                type="number"
-                step="0.01"
+              <DinheiroInput
                 value={form.valor_previsto}
-                onChange={(e) => upd('valor_previsto', e.target.value)}
+                onValueChange={(v) => upd('valor_previsto', v)}
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
             <Field label="Valor recebido (R$)" error={errors.valor_recebido}>
-              <Input
-                type="number"
-                step="0.01"
+              <DinheiroInput
                 value={form.valor_recebido}
-                onChange={(e) => upd('valor_recebido', e.target.value)}
+                onValueChange={(v) => upd('valor_recebido', v)}
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>

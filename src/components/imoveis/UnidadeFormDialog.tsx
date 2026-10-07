@@ -28,6 +28,8 @@ import { STATUS_IMOVEL_LABELS } from '@/lib/format'
 import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
 import { unidadeSchema, validarFormulario } from '@/lib/validacao/esquemas'
 import { toast } from 'sonner'
+import { DinheiroInput } from '@/components/shared/DinheiroInput'
+import { paraNumeroEmReais, valorParaCampo } from '@/lib/dinheiro'
 
 const TIPOS_UNIDADE = [
   { value: 'apartamento', label: 'Apartamento' },
@@ -87,9 +89,9 @@ export function UnidadeFormDialog({
         codigo_energia: editing.codigo_energia || '',
         codigo_agua: editing.codigo_agua || '',
         tem_condominio: Boolean(editing.tem_condominio),
-        valor_condominio: editing.valor_condominio != null ? String(editing.valor_condominio) : '',
-        taxa_poco: editing.taxa_poco != null ? String(editing.taxa_poco) : '30,00',
-        taxas_extras: editing.taxas_extras != null ? String(editing.taxas_extras) : '',
+        valor_condominio: valorParaCampo(editing.valor_condominio),
+        taxa_poco: editing.taxa_poco != null ? valorParaCampo(editing.taxa_poco) : '30,00',
+        taxas_extras: valorParaCampo(editing.taxas_extras),
         status: editing.status || 'vago',
         observacoes: (editing as any).observacoes || '',
       })
@@ -114,7 +116,7 @@ export function UnidadeFormDialog({
 
     const paraNum = (val: string) => {
       if (!val) return null
-      const n = Number(val.replace(/\./g, '').replace(',', '.'))
+      const n = paraNumeroEmReais(val)
       return Number.isFinite(n) ? n : null
     }
 
@@ -278,10 +280,9 @@ export function UnidadeFormDialog({
 
             {form.tem_condominio && (
               <Field label="Valor do Condomínio (R$)" error={errors.valor_condominio}>
-                <Input
-                  type="text"
+                <DinheiroInput
                   value={form.valor_condominio}
-                  onChange={(e) => upd('valor_condominio', e.target.value)}
+                  onValueChange={(v) => upd('valor_condominio', v)}
                   placeholder="Ex: 350,00"
                   className="bg-white min-h-[44px]"
                 />
@@ -290,20 +291,18 @@ export function UnidadeFormDialog({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-200">
               <Field label="Taxa de Poço / Água Compartilhada (R$)" error={errors.taxa_poco}>
-                <Input
-                  type="text"
+                <DinheiroInput
                   value={form.taxa_poco}
-                  onChange={(e) => upd('taxa_poco', e.target.value)}
+                  onValueChange={(v) => upd('taxa_poco', v)}
                   placeholder="30,00"
                   className="bg-white min-h-[44px]"
                 />
               </Field>
 
               <Field label="Taxas Extras (R$)" error={errors.taxas_extras}>
-                <Input
-                  type="text"
+                <DinheiroInput
                   value={form.taxas_extras}
-                  onChange={(e) => upd('taxas_extras', e.target.value)}
+                  onValueChange={(v) => upd('taxas_extras', v)}
                   placeholder="0,00"
                   className="bg-white min-h-[44px]"
                 />
