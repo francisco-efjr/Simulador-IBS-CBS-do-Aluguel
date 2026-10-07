@@ -64,6 +64,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
+import { valorRealizado } from '@/lib/indicadores-financeiros'
 
 type PeriodPreset =
   | 'current_month'
@@ -159,6 +160,7 @@ const MONTH_NAMES_SHORT = [
   'Mai',
   'Jun',
   'Jul',
+  'Ago',
   'Set',
   'Out',
   'Nov',
@@ -363,28 +365,30 @@ export default function DashboardImoveis() {
     // Taxa de ocupação: (Alugados / Total de ativos) * 100
     const taxaOcupacao = totalAtivos > 0 ? (alugados / totalAtivos) * 100 : 0
 
-    // Receita Total do Portfólio: soma de valor_recebido de receitas com status_financeiro = 'recebido'
+    // Receita Total do Portfólio: soma de valor_recebido (inclusive parcial)
     // no período e nos imóveis filtrados
     let receitaTotal = 0
     receitas.forEach((r) => {
       if (!r.imovel || !filteredImovelIdSet.has(r.imovel)) return
-      if (r.status_financeiro === 'recebido') {
+      const valorRec = valorRealizado(r, 'receita')
+      if (valorRec > 0) {
         const d = r.data_recebimento || r.data
         if (isDateInRange(d)) {
-          receitaTotal += Number(r.valor_recebido || r.valor || 0)
+          receitaTotal += valorRec
         }
       }
     })
 
-    // Despesa Total do Portfólio: soma de valor_pago de despesas com status_financeiro = 'pago'
+    // Despesa Total do Portfólio: soma de valor_pago (inclusive parcial)
     // no período e nos imóveis filtrados
     let despesaTotal = 0
     despesas.forEach((d) => {
       if (!d.imovel || !filteredImovelIdSet.has(d.imovel)) return
-      if (d.status_financeiro === 'pago') {
+      const valorPag = valorRealizado(d, 'despesa')
+      if (valorPag > 0) {
         const dt = d.data_pagamento || d.data
         if (isDateInRange(dt)) {
-          despesaTotal += Number(d.valor_pago || d.valor || 0)
+          despesaTotal += valorPag
         }
       }
     })
@@ -420,11 +424,12 @@ export default function DashboardImoveis() {
 
     receitas.forEach((r) => {
       if (!r.imovel || !imovelMap.has(r.imovel)) return
-      if (r.status_financeiro === 'recebido') {
+      const valorRec = valorRealizado(r, 'receita')
+      if (valorRec > 0) {
         const d = r.data_recebimento || r.data
         if (isDateInRange(d)) {
           const item = imovelMap.get(r.imovel)!
-          item.valor += Number(r.valor_recebido || r.valor || 0)
+          item.valor += valorRec
         }
       }
     })
@@ -449,11 +454,12 @@ export default function DashboardImoveis() {
 
     despesas.forEach((d) => {
       if (!d.imovel || !imovelMap.has(d.imovel)) return
-      if (d.status_financeiro === 'pago') {
+      const valorPag = valorRealizado(d, 'despesa')
+      if (valorPag > 0) {
         const dt = d.data_pagamento || d.data
         if (isDateInRange(dt)) {
           const item = imovelMap.get(d.imovel)!
-          item.valor += Number(d.valor_pago || d.valor || 0)
+          item.valor += valorPag
         }
       }
     })
@@ -637,20 +643,22 @@ export default function DashboardImoveis() {
 
     receitas.forEach((r) => {
       if (!r.imovel || !financeMap.has(r.imovel)) return
-      if (r.status_financeiro === 'recebido') {
+      const valorRec = valorRealizado(r, 'receita')
+      if (valorRec > 0) {
         const d = r.data_recebimento || r.data
         if (isDateInRange(d)) {
-          financeMap.get(r.imovel)!.receitas += Number(r.valor_recebido || r.valor || 0)
+          financeMap.get(r.imovel)!.receitas += valorRec
         }
       }
     })
 
     despesas.forEach((d) => {
       if (!d.imovel || !financeMap.has(d.imovel)) return
-      if (d.status_financeiro === 'pago') {
+      const valorPag = valorRealizado(d, 'despesa')
+      if (valorPag > 0) {
         const dt = d.data_pagamento || d.data
         if (isDateInRange(dt)) {
-          financeMap.get(d.imovel)!.despesas += Number(d.valor_pago || d.valor || 0)
+          financeMap.get(d.imovel)!.despesas += valorPag
         }
       }
     })
@@ -766,7 +774,7 @@ export default function DashboardImoveis() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <Button
             variant="outline"
             size="sm"
@@ -1011,7 +1019,7 @@ export default function DashboardImoveis() {
                   variant={isActive ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setPeriodPreset(p.id as PeriodPreset)}
-                  className={`text-xs h-8 px-3 rounded-md transition-colors ${
+                  className={`text-xs h-11 min-h-[44px] px-3 rounded-md transition-colors ${
                     isActive
                       ? 'bg-navy-800 text-gold-400 hover:bg-navy-900 border-navy-700 shadow-xs'
                       : 'border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -1093,6 +1101,14 @@ export default function DashboardImoveis() {
                     className="h-9 text-xs bg-slate-50/50"
                   />
                 </div>
+                {customStartDate && customEndDate && customStartDate > customEndDate && (
+                  <p
+                    role="alert"
+                    className="sm:col-span-2 lg:col-span-4 text-sm font-medium text-red-700"
+                  >
+                    A data de início é depois da data de fim. Troque as datas para ver os números.
+                  </p>
+                )}
               </>
             ) : (
               <div className="sm:col-span-2 flex items-center justify-end text-xs text-slate-600 pt-5">
@@ -1125,7 +1141,11 @@ export default function DashboardImoveis() {
                   Nenhuma receita recebida registrada para o filtro e período
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                  initialDimension={{ width: 320, height: 240 }}
+                >
                   <BarChart
                     layout="vertical"
                     data={receitasPorImovelData}
@@ -1134,7 +1154,7 @@ export default function DashboardImoveis() {
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
                     <XAxis
                       type="number"
-                      tick={{ fontSize: 10, fill: '#64748b' }}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickFormatter={(val) =>
                         `R$ ${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`
@@ -1143,7 +1163,7 @@ export default function DashboardImoveis() {
                     <YAxis
                       dataKey="name"
                       type="category"
-                      tick={{ fontSize: 11, fill: '#334155' }}
+                      tick={{ fontSize: 12, fill: '#334155' }}
                       width={130}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickLine={false}
@@ -1188,7 +1208,11 @@ export default function DashboardImoveis() {
                   Nenhuma despesa paga registrada para o filtro e período
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                  initialDimension={{ width: 320, height: 240 }}
+                >
                   <BarChart
                     layout="vertical"
                     data={despesasPorImovelData}
@@ -1197,7 +1221,7 @@ export default function DashboardImoveis() {
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
                     <XAxis
                       type="number"
-                      tick={{ fontSize: 10, fill: '#64748b' }}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickFormatter={(val) =>
                         `R$ ${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`
@@ -1206,7 +1230,7 @@ export default function DashboardImoveis() {
                     <YAxis
                       dataKey="name"
                       type="category"
-                      tick={{ fontSize: 11, fill: '#334155' }}
+                      tick={{ fontSize: 12, fill: '#334155' }}
                       width={130}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickLine={false}
@@ -1248,7 +1272,11 @@ export default function DashboardImoveis() {
                     Nenhum imóvel encontrado
                   </div>
                 ) : (
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer
+                    width="100%"
+                    height="100%"
+                    initialDimension={{ width: 320, height: 240 }}
+                  >
                     <PieChart>
                       <Pie
                         data={statusDistributionData}
@@ -1313,7 +1341,11 @@ export default function DashboardImoveis() {
           </CardHeader>
           <CardContent className="pt-2">
             <div className="h-[250px] sm:h-[280px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+                initialDimension={{ width: 320, height: 240 }}
+              >
                 <LineChart
                   data={evolucaoOcupacaoData}
                   margin={{ top: 10, right: 10, left: -10, bottom: 10 }}
@@ -1321,13 +1353,13 @@ export default function DashboardImoveis() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis
                     dataKey="label"
-                    tick={{ fontSize: 10, fill: '#64748b' }}
+                    tick={{ fontSize: 12, fill: '#64748b' }}
                     axisLine={{ stroke: '#e2e8f0' }}
                     tickLine={false}
                   />
                   <YAxis
                     allowDecimals={false}
-                    tick={{ fontSize: 10, fill: '#64748b' }}
+                    tick={{ fontSize: 12, fill: '#64748b' }}
                     axisLine={{ stroke: '#e2e8f0' }}
                     tickLine={false}
                   />
@@ -1373,7 +1405,11 @@ export default function DashboardImoveis() {
                   Nenhuma taxa ou IPTU cadastrado para os imóveis filtrados
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                  initialDimension={{ width: 320, height: 240 }}
+                >
                   <BarChart
                     data={iptuTaxasPorStatusData}
                     margin={{ top: 10, right: 10, left: 10, bottom: 20 }}
@@ -1381,12 +1417,12 @@ export default function DashboardImoveis() {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis
                       dataKey="name"
-                      tick={{ fontSize: 11, fill: '#64748b' }}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fontSize: 11, fill: '#64748b' }}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
                       axisLine={{ stroke: '#e2e8f0' }}
                       tickLine={false}
                       tickFormatter={(val) =>

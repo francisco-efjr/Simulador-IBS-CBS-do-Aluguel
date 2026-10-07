@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import { Users, Plus, Search, Eye, Pencil, Ban, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { getInquilinos, updateInquilino } from '@/services/inquilinos'
@@ -26,6 +27,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { COLUNA_ACOES_CABECALHO, COLUNA_ACOES_CELULA } from '@/lib/tabela'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { useAuth } from '@/hooks/use-auth'
@@ -65,10 +68,10 @@ export default function Inquilinos() {
   })
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = termoDeBusca(search)
     return inquilinos.filter((iq) => {
       const doc = iq.tipo_pessoa === 'pj' ? iq.cnpj : iq.cpf
-      const ms = !q || [iq.nome, doc, iq.email].some((v) => (v || '').toLowerCase().includes(q))
+      const ms = !q || [iq.nome, doc, iq.email].some((v) => semAcento(v || '').includes(q))
       return (
         ms &&
         (fTipo === 'all' || iq.tipo_pessoa === fTipo) &&
@@ -185,7 +188,7 @@ export default function Inquilinos() {
       ) : (
         <>
           <p className="text-sm text-slate-600">{filtered.length} inquilino(s)</p>
-          <div className="hidden md:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="hidden xl:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table className="min-w-[650px]">
               <TableHeader>
                 <TableRow className="bg-slate-50/80">
@@ -194,7 +197,9 @@ export default function Inquilinos() {
                   <TableHead>Status</TableHead>
                   <TableHead>CPF/CNPJ</TableHead>
                   <TableHead>Contato</TableHead>
-                  <TableHead className="w-[120px] text-right">Ações</TableHead>
+                  <TableHead className={cn('w-[120px] text-right', COLUNA_ACOES_CABECALHO)}>
+                    Ações
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -218,7 +223,10 @@ export default function Inquilinos() {
                       {iq.tipo_pessoa === 'pj' ? iq.cnpj : iq.cpf || '—'}
                     </TableCell>
                     <TableCell className="text-sm text-slate-600">{iq.telefone || '—'}</TableCell>
-                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                    <TableCell
+                      className={cn('text-right', COLUNA_ACOES_CELULA)}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <div className="flex justify-end gap-1">
                         <Button
                           variant="ghost"
@@ -269,7 +277,7 @@ export default function Inquilinos() {
               </TableBody>
             </Table>
           </div>
-          <div className="md:hidden space-y-3">
+          <div className="xl:hidden grid grid-cols-1 gap-3 md:grid-cols-2">
             {filtered.map((iq) => (
               <Card
                 key={iq.id}
@@ -325,9 +333,10 @@ export default function Inquilinos() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-11 px-3 min-h-[44px] text-red-600 hover:bg-red-50 border-red-200"
+                                className="h-11 min-h-[44px] min-w-[44px] px-3 text-red-600 hover:bg-red-50 border-red-200"
+                                aria-label={`Inativar ${iq.nome}`}
                               >
-                                <Ban className="h-3.5 w-3.5" />
+                                <Ban className="h-3.5 w-3.5" aria-hidden="true" />
                               </Button>
                             </ConfirmarAcao>
                           )}

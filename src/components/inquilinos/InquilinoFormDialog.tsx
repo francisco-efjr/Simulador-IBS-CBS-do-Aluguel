@@ -22,6 +22,7 @@ import { TIPO_PESSOA_LABELS } from '@/lib/format'
 import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
 import { inquilinoSchema, validarFormulario } from '@/lib/validacao/esquemas'
 import { toast } from 'sonner'
+import { formularioDoRegistro } from '@/lib/formulario'
 
 const EMPTY = {
   tipo_pessoa: 'pf',
@@ -62,12 +63,7 @@ export function InquilinoFormDialog({
     if (!open) return
     setErrors({})
     if (editing) {
-      setForm({
-        ...EMPTY,
-        ...Object.fromEntries(
-          Object.entries(editing).map(([k, v]) => [k, v == null ? '' : String(v)]),
-        ),
-      })
+      setForm(formularioDoRegistro(EMPTY, editing))
     } else {
       setForm(EMPTY)
     }

@@ -7,8 +7,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { cn } from '@/lib/utils'
 import dados from '@/lib/dados/cliente'
 import { useRealtime } from '@/hooks/use-realtime'
-import darkLogo from '@/assets/chatgpt-image-aug-7-2026-061737-pm-5-f38c6.png'
-import symbolLogo from '@/assets/chatgpt-image-aug-7-2026-061736-pm-2-f5529.png'
+import darkLogo from '@/assets/logo-holding-aguiar.jpg'
+import symbolLogo from '@/assets/simbolo-holding-aguiar.png'
 
 interface SidebarContentProps {
   isTabletRail?: boolean
@@ -127,11 +127,11 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
   useRealtime('convites', computePendingInvites)
 
   return (
-    <div className="flex h-full flex-col justify-between bg-navy-800 text-slate-100 border-r border-navy-700/60 shadow-xl">
-      <div>
+    <div className="flex h-full min-h-0 flex-col bg-navy-800 text-slate-100 border-r border-navy-700/60 shadow-xl">
+      <div className="flex min-h-0 flex-1 flex-col">
         <div
           className={cn(
-            'flex items-center border-b border-navy-700/80 px-4 py-4 transition-all',
+            'flex shrink-0 items-center border-b border-navy-700/80 px-4 py-4 transition-all',
             isTabletRail ? 'justify-center px-2 py-4' : 'px-5 py-4',
           )}
         >
@@ -145,6 +145,8 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
                   <img
                     src={symbolLogo}
                     alt="Holding Aguiar"
+                    width={32}
+                    height={32}
                     className="h-8 w-8 object-contain rounded-md"
                   />
                 </Link>
@@ -161,13 +163,15 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
               <img
                 src={darkLogo}
                 alt="Holding Aguiar"
+                width={48}
+                height={48}
                 className="h-12 w-auto object-contain transition-transform group-hover:scale-[1.02]"
               />
             </Link>
           )}
         </div>
 
-        <nav className="space-y-1.5 p-3">
+        <nav className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain p-3">
           {MODULES_LIST.filter((item) => {
             // Admin-only modules (Usuarios, Logs de Atividade)
             if (item.adminOnly && !isAdministrador) return false
@@ -253,7 +257,7 @@ export function SidebarContent({ isTabletRail = false, onItemClick }: SidebarCon
         </nav>
       </div>
 
-      <div className="border-t border-navy-700/80 p-3">
+      <div className="shrink-0 border-t border-navy-700/80 p-3">
         {isTabletRail ? (
           <Tooltip delayDuration={100}>
             <TooltipTrigger asChild>

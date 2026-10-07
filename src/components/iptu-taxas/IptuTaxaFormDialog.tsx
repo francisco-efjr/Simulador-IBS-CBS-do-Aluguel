@@ -8,6 +8,8 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DinheiroInput } from '@/components/shared/DinheiroInput'
+import { formularioDoRegistro, textoParaNumero } from '@/lib/formulario'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
@@ -37,6 +39,7 @@ const EMPTY = {
   observacoes: '',
 }
 const NUM_FIELDS = ['ano_referencia', 'valor']
+const CAMPOS_DE_DINHEIRO = ['valor']
 
 export function IptuTaxaFormDialog({
   open,
@@ -61,12 +64,7 @@ export function IptuTaxaFormDialog({
     setErrors({})
     setFile(null)
     if (editing) {
-      setForm({
-        ...EMPTY,
-        ...Object.fromEntries(
-          Object.entries(editing).map(([k, v]) => [k, v == null ? '' : String(v)]),
-        ),
-      })
+      setForm(formularioDoRegistro(EMPTY, editing, CAMPOS_DE_DINHEIRO))
     } else {
       setForm(EMPTY)
     }
@@ -88,7 +86,7 @@ export function IptuTaxaFormDialog({
       for (const [k, v] of Object.entries(form)) {
         if (k === 'status') continue
         if (v === '' || v == null) continue
-        fd.append(k, NUM_FIELDS.includes(k) ? String(Number(v)) : v)
+        fd.append(k, NUM_FIELDS.includes(k) ? String(textoParaNumero(k, v, CAMPOS_DE_DINHEIRO)) : v)
       }
       fd.append('status', form.status)
       fd.append('comprovante', file)
@@ -98,7 +96,7 @@ export function IptuTaxaFormDialog({
       for (const [k, v] of Object.entries(form)) {
         if (k === 'status') continue
         if (v === '' || v == null) continue
-        payload[k] = NUM_FIELDS.includes(k) ? Number(v) : v
+        payload[k] = NUM_FIELDS.includes(k) ? textoParaNumero(k, v, CAMPOS_DE_DINHEIRO) : v
       }
     }
 
@@ -182,11 +180,9 @@ export function IptuTaxaFormDialog({
               />
             </Field>
             <Field label="Valor (R$)" error={errors.valor}>
-              <Input
-                type="number"
-                step="0.01"
+              <DinheiroInput
                 value={form.valor}
-                onChange={(e) => upd('valor', e.target.value)}
+                onValueChange={(v) => upd('valor', v)}
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import dados from '@/lib/dados/cliente'
 import { formatCurrency, formatDate } from '@/lib/format'
+import { resumirFinanceiro, valorRealizado, saldoEmAberto } from '@/lib/indicadores-financeiros'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -247,54 +248,17 @@ export default function Relatorios() {
 
       // 1. RELATÓRIO FINANCEIRO
       if (reportType === 'financeiro') {
-        let receitasRecebidas = 0
-        let despesasPagas = 0
-        let receitasPendentes = 0
-        let receitasVencidas = 0
-        let despesasPendentes = 0
-        let despesasVencidas = 0
-
-        receitas.forEach((r) => {
-          if (selectedImovel !== 'all' && r.imovel !== selectedImovel) return
-          const status = r.status_financeiro || ''
-          const recDate = r.data_recebimento || r.data
-          const vencDate = r.data_vencimento || r.data
-
-          if (status === 'recebido') {
-            if (isDateInRange(recDate)) {
-              receitasRecebidas += Number(r.valor_recebido || r.valor || 0)
-            }
-          } else if (status === 'previsto') {
-            if (isDateInRange(vencDate)) {
-              receitasPendentes += Number(r.valor_previsto || r.valor || 0)
-            }
-          } else if (status === 'em_atraso') {
-            if (isDateInRange(vencDate)) {
-              receitasVencidas += Number(r.valor_previsto || r.valor || 0)
-            }
-          }
-        })
-
-        despesas.forEach((d) => {
-          if (selectedImovel !== 'all' && d.imovel !== selectedImovel) return
-          const status = d.status_financeiro || ''
-          const pagDate = d.data_pagamento || d.data
-          const vencDate = d.data_vencimento || d.data
-
-          if (status === 'pago') {
-            if (isDateInRange(pagDate)) {
-              despesasPagas += Number(d.valor_pago || d.valor || 0)
-            }
-          } else if (status === 'previsto') {
-            if (isDateInRange(vencDate)) {
-              despesasPendentes += Number(d.valor_previsto || d.valor || 0)
-            }
-          } else if (status === 'em_atraso') {
-            if (isDateInRange(vencDate)) {
-              despesasVencidas += Number(d.valor_previsto || d.valor || 0)
-            }
-          }
-        })
+        const resumo = resumirFinanceiro(
+          receitas.filter((r) => selectedImovel === 'all' || r.imovel === selectedImovel),
+          despesas.filter((d) => selectedImovel === 'all' || d.imovel === selectedImovel),
+          { inicio: startDateStr, fim: endDateStr },
+        )
+        const receitasRecebidas = resumo.receitasRecebidas
+        const despesasPagas = resumo.despesasPagas
+        const receitasPendentes = resumo.receitasAReceber
+        const receitasVencidas = resumo.receitasVencidas
+        const despesasPendentes = resumo.despesasAPagar
+        const despesasVencidas = resumo.despesasVencidas
 
         const resultadoLiquido = receitasRecebidas - despesasPagas
 
@@ -316,7 +280,8 @@ export default function Relatorios() {
         })
 
         receitas.forEach((r) => {
-          if (r.status_financeiro !== 'recebido') return
+          const valorRec = valorRealizado(r, 'receita')
+          if (valorRec <= 0) return
           if (selectedImovel !== 'all' && r.imovel !== selectedImovel) return
           if (!isDateInRange(r.data_recebimento || r.data)) return
           const imId = r.imovel || 'sem_imovel'
@@ -329,11 +294,12 @@ export default function Relatorios() {
               resultado: 0,
             })
           }
-          summaryMap.get(imId)!.receitas += Number(r.valor_recebido || r.valor || 0)
+          summaryMap.get(imId)!.receitas += valorRec
         })
 
         despesas.forEach((d) => {
-          if (d.status_financeiro !== 'pago') return
+          const valorPag = valorRealizado(d, 'despesa')
+          if (valorPag <= 0) return
           if (selectedImovel !== 'all' && d.imovel !== selectedImovel) return
           if (!isDateInRange(d.data_pagamento || d.data)) return
           const imId = d.imovel || 'sem_imovel'
@@ -346,7 +312,7 @@ export default function Relatorios() {
               resultado: 0,
             })
           }
-          summaryMap.get(imId)!.despesas += Number(d.valor_pago || d.valor || 0)
+          summaryMap.get(imId)!.despesas += valorPag
         })
 
         const imoveisSummary = Array.from(summaryMap.values()).map((row) => ({
@@ -374,7 +340,7 @@ export default function Relatorios() {
         if (reportFormat === 'pdf') {
           await exportarRelatorioFinanceiroPDF(payload)
         } else {
-          exportarRelatorioFinanceiroExcel(payload)
+          await exportarRelatorioFinanceiroExcel(payload)
         }
         toast.success('Relatório financeiro gerado com sucesso.')
       }
@@ -407,15 +373,17 @@ export default function Relatorios() {
 
         receitas.forEach((r) => {
           if (!r.imovel || !financeMap.has(r.imovel)) return
-          if (r.status_financeiro === 'recebido' && isDateInRange(r.data_recebimento || r.data)) {
-            financeMap.get(r.imovel)!.receitas += Number(r.valor_recebido || r.valor || 0)
+          const valorRec = valorRealizado(r, 'receita')
+          if (valorRec > 0 && isDateInRange(r.data_recebimento || r.data)) {
+            financeMap.get(r.imovel)!.receitas += valorRec
           }
         })
 
         despesas.forEach((d) => {
           if (!d.imovel || !financeMap.has(d.imovel)) return
-          if (d.status_financeiro === 'pago' && isDateInRange(d.data_pagamento || d.data)) {
-            financeMap.get(d.imovel)!.despesas += Number(d.valor_pago || d.valor || 0)
+          const valorPag = valorRealizado(d, 'despesa')
+          if (valorPag > 0 && isDateInRange(d.data_pagamento || d.data)) {
+            financeMap.get(d.imovel)!.despesas += valorPag
           }
         })
 
@@ -478,7 +446,7 @@ export default function Relatorios() {
         if (reportFormat === 'pdf') {
           await exportarRelatorioImoveisPDF(payload)
         } else {
-          exportarRelatorioImoveisExcel(payload)
+          await exportarRelatorioImoveisExcel(payload)
         }
         toast.success('Relatório de imóveis gerado com sucesso.')
       }
@@ -524,7 +492,7 @@ export default function Relatorios() {
         if (reportFormat === 'pdf') {
           await exportarRelatorioContratosPDF(payload)
         } else {
-          exportarRelatorioContratosExcel(payload)
+          await exportarRelatorioContratosExcel(payload)
         }
         toast.success('Relatório de contratos gerado com sucesso.')
       }
@@ -536,7 +504,8 @@ export default function Relatorios() {
         const iptuVencidos: any[] = []
 
         receitas.forEach((r) => {
-          if (r.status_financeiro === 'recebido') return
+          const saldoRec = saldoEmAberto(r, 'receita')
+          if (saldoRec <= 0) return
           if (selectedImovel !== 'all' && r.imovel !== selectedImovel) return
           const dt = r.data_vencimento || r.data
           const dias = dt ? calcDaysDiff(dt) : 0
@@ -547,13 +516,14 @@ export default function Relatorios() {
               descricao: r.descricao || 'Aluguel / Taxa',
               dataVencimento: dt,
               diasAtraso: Math.abs(dias),
-              valor: Number(r.valor_previsto || r.valor || 0),
+              valor: saldoRec,
             })
           }
         })
 
         despesas.forEach((d) => {
-          if (d.status_financeiro === 'pago') return
+          const saldoDesp = saldoEmAberto(d, 'despesa')
+          if (saldoDesp <= 0) return
           if (selectedImovel !== 'all' && d.imovel !== selectedImovel) return
           const dt = d.data_vencimento || d.data
           const dias = dt ? calcDaysDiff(dt) : 0
@@ -564,7 +534,7 @@ export default function Relatorios() {
               descricao: d.descricao || 'Despesa em Aberto',
               dataVencimento: dt,
               diasAtraso: Math.abs(dias),
-              valor: Number(d.valor_previsto || d.valor || 0),
+              valor: saldoDesp,
             })
           }
         })
@@ -597,7 +567,7 @@ export default function Relatorios() {
         if (reportFormat === 'pdf') {
           await exportarRelatorioInadimplenciaPDF(payload)
         } else {
-          exportarRelatorioInadimplenciaExcel(payload)
+          await exportarRelatorioInadimplenciaExcel(payload)
         }
         toast.success('Relatório de inadimplência gerado com sucesso.')
       }
@@ -889,6 +859,11 @@ export default function Relatorios() {
                         className="h-9 text-xs bg-slate-50/50"
                       />
                     </div>
+                    {customStartDate && customEndDate && customStartDate > customEndDate && (
+                      <p role="alert" className="col-span-2 text-sm font-medium text-red-700">
+                        A data de início é depois da data de fim. Troque as datas para ver os números.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>

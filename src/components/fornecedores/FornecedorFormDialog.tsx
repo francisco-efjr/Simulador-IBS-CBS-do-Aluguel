@@ -22,6 +22,7 @@ import { TIPO_FORNECEDOR_LABELS } from '@/lib/format'
 import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
 import { fornecedorSchema, validarFormulario } from '@/lib/validacao/esquemas'
 import { toast } from 'sonner'
+import { formularioDoRegistro } from '@/lib/formulario'
 
 const EMPTY = {
   nome: '',
@@ -57,12 +58,7 @@ export function FornecedorFormDialog({
     if (!open) return
     setErrors({})
     if (editing) {
-      setForm({
-        ...EMPTY,
-        ...Object.fromEntries(
-          Object.entries(editing).map(([k, v]) => [k, v == null ? '' : String(v)]),
-        ),
-      })
+      setForm(formularioDoRegistro(EMPTY, editing))
     } else {
       setForm(EMPTY)
     }

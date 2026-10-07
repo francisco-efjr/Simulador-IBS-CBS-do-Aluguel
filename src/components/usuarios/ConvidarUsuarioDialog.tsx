@@ -70,7 +70,8 @@ export function ConvidarUsuarioDialog({
         onInviteSent()
       }
     } catch (err: any) {
-      const msg = err?.data?.message || err?.message || 'Não foi possível enviar o convite. Tente novamente.'
+      const msg =
+        err?.data?.message || err?.message || 'Não foi possível enviar o convite. Tente novamente.'
       toast.error(msg)
     } finally {
       setSubmitting(false)
@@ -207,9 +208,9 @@ export function ConvidarUsuarioDialog({
                   <SelectItem value="usuario" className="py-2.5">
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-slate-500" />
-                      <div>
-                        <div className="font-semibold text-slate-900 text-xs">Usuário Padrão</div>
-                        <div className="text-xs text-slate-500">
+                      <div className="min-w-0 whitespace-normal">
+                        <div className="font-semibold text-slate-900 text-sm">Usuário Padrão</div>
+                        <div className="text-sm text-slate-600">
                           Acesso aos módulos operacionais (imóveis, contratos, receitas, etc.)
                         </div>
                       </div>
@@ -218,9 +219,9 @@ export function ConvidarUsuarioDialog({
                   <SelectItem value="administrador" className="py-2.5">
                     <div className="flex items-center gap-2">
                       <Shield className="h-4 w-4 text-gold-600" />
-                      <div>
-                        <div className="font-semibold text-slate-900 text-xs">Administrador</div>
-                        <div className="text-xs text-slate-500">
+                      <div className="min-w-0 whitespace-normal">
+                        <div className="font-semibold text-slate-900 text-sm">Administrador</div>
+                        <div className="text-sm text-slate-600">
                           Acesso total + gestão de usuários e configurações
                         </div>
                       </div>

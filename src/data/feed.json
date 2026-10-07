@@ -1,5 +1,23 @@
 [
   {
+    "data": "2026-10-07",
+    "titulo": "Rodada de testes: dinheiro, contratos e relatórios corrigidos",
+    "texto": "Uma rodada completa de testes passou pelo sistema inteiro, no celular e no computador, e encontrou falhas que já foram corrigidas. Editar contrato, receita, despesa e IPTU voltou a gravar. Valores digitados como 1.234,56 ou 1234.56 agora são lidos sempre do mesmo jeito (antes podiam virar R$ 1,23 ou R$ 123.456). Pagamentos parciais passaram a contar nos painéis, no Início e nos relatórios. Os relatórios em PDF voltaram a ser gerados. A minuta segue a garantia escolhida (fiador, caução…) e imprime só o contrato, com as assinaturas. Extratos com acento são lidos certo, e as linhas que o sistema não entende aparecem com o motivo, em vez de sumirem. Excluir agora pede confirmação. A busca acha nomes mesmo sem acento.",
+    "tipo": "correcao"
+  },
+  {
+    "data": "2026-10-07",
+    "titulo": "Mais proteção para dados pessoais e para quem entra no sistema",
+    "texto": "Cadastro novo só ganha acesso com convite válido; sem convite, a conta fica aguardando a liberação de quem administra. Anexos de cada módulo só aparecem para quem tem acesso àquele módulo. O histórico de atividades deixou de guardar CPF, dados bancários e outros dados pessoais por extenso. O sistema também não deixa ficar sem nenhum administrador, nem aceita contrato com unidade de outro imóvel ou lançamento com categoria trocada. Dois contratos podem valer ao mesmo tempo em unidades diferentes do mesmo prédio.",
+    "tipo": "seguranca"
+  },
+  {
+    "data": "2026-10-07",
+    "titulo": "Mais leve no celular e mais fácil de usar",
+    "texto": "O sistema abre bem mais rápido no celular: a tela de entrada caiu de cerca de 10 segundos para menos de 2, porque cada tela agora carrega só quando é aberta e as imagens ganharam o tamanho certo. O menu lateral rola por dentro e todos os itens ficam ao alcance, em qualquer tela. As tabelas não estouram mais a largura do tablet, os botões ficaram maiores e com nome para leitores de tela, as cores ganharam mais contraste e, ao fechar uma janela, o cursor volta para onde a pessoa estava.",
+    "tipo": "entrega"
+  },
+  {
     "data": "2026-10-06",
     "titulo": "Águia Systems: Estrutura de Unidades, Locadores, Fiadores e Minutas de Contrato",
     "texto": "O sistema agora organiza os imóveis em dois níveis: o imóvel macro (prédio, condomínio ou terreno) e as unidades filhas (apartamentos ou salas), cada uma com seus códigos de energia, água, taxa de condomínio e taxas extras (como poço artesiano). Foi adicionado o menu lateral exclusivo para Locadores, cadastro de Fiadores com outorga conjugal, atualização de inquilinos com RG opcional e endereço secundário, indicador da cota gratuita de até 3 imóveis, e emissão de contratos com 6 minutas padrão em PDF com e-mails das partes para assinatura digital.",

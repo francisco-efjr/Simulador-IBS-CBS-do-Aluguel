@@ -18,9 +18,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { extractFieldErrors } from '@/lib/dados/erros'
+import { extractFieldErrors, mensagemDeAutenticacao } from '@/lib/dados/erros'
 import { validarConviteToken } from '@/services/convites'
-import darkLogo from '@/assets/chatgpt-image-aug-7-2026-061737-pm-5-f38c6.png'
+import darkLogo from '@/assets/logo-holding-aguiar.jpg'
 import { toast } from 'sonner'
 
 export default function Signup() {
@@ -37,6 +37,8 @@ export default function Signup() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [generalError, setGeneralError] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  // Cadastro feito sem convite válido: a conta existe, mas espera um administrador liberar.
+  const [aguardaLiberacao, setAguardaLiberacao] = useState(false)
 
   // Convite validation state
   const [validatingToken, setValidatingToken] = useState(false)
@@ -99,8 +101,11 @@ export default function Signup() {
       return
     }
 
+    // Só segue o token que a verificação aprovou; o banco confere de novo.
+    const conviteToken = inviteStatus?.valid ? token.trim() : undefined
+
     setIsSubmitting(true)
-    const { error } = await signUp(email.trim().toLowerCase(), password, name.trim())
+    const { error } = await signUp(email.trim().toLowerCase(), password, name.trim(), conviteToken)
     setIsSubmitting(false)
 
     if (error) {
@@ -108,16 +113,47 @@ export default function Signup() {
       if (Object.keys(extracted).length > 0) {
         setFieldErrors(extracted)
       } else {
-        const errorMsg =
-          error?.data?.message ||
-          error?.message ||
-          'Ocorreu um erro ao criar a conta. Verifique se o e-mail já está em uso.'
+        const errorMsg = mensagemDeAutenticacao(
+          error,
+          'Ocorreu um erro ao criar a conta. Verifique se o e-mail já está em uso.',
+        )
         setGeneralError(errorMsg)
       }
+    } else if (!conviteToken) {
+      // Sem convite a conta nasce inativa: nada de entrar no sistema agora.
+      setAguardaLiberacao(true)
     } else {
       toast.success('Conta ativada com sucesso. Boas-vindas à Holding Aguiar.')
       navigate('/inicio', { replace: true })
     }
+  }
+
+  if (aguardaLiberacao) {
+    return (
+      <div className="relative flex min-h-screen items-center justify-center bg-navy-950 px-4 py-8 overflow-hidden">
+        <div className="w-full max-w-md animate-fade-in-up z-10">
+          <Card className="border border-navy-700/80 bg-navy-800/95 text-slate-100 shadow-2xl backdrop-blur-xl">
+            <CardHeader className="space-y-1.5 pb-4 text-center">
+              <CardTitle as="h1" className="text-2xl font-bold tracking-tight text-white">
+                Conta criada, aguardando liberação
+              </CardTitle>
+              <CardDescription className="text-slate-200 text-sm sm:text-base">
+                Seu cadastro foi feito sem um convite válido. Um administrador do Controle de
+                Imóveis precisa liberar o seu acesso antes do primeiro login.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Link
+                to="/login"
+                className="font-semibold text-gold-400 hover:text-gold-300 hover:underline"
+              >
+                Ir para o login
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -131,6 +167,8 @@ export default function Signup() {
           <img
             src={darkLogo}
             alt="Holding Aguiar"
+            width={80}
+            height={80}
             className="h-20 w-auto object-contain mb-2 drop-shadow-md"
           />
           <p className="text-xs font-semibold tracking-widest text-gold-400 uppercase">
@@ -146,7 +184,7 @@ export default function Signup() {
             <CardDescription className="text-slate-200 text-sm sm:text-base">
               {inviteStatus?.valid
                 ? 'Defina seu nome e senha para acessar o sistema da Holding Aguiar'
-                : 'Defina suas credenciais para acessar o sistema'}
+                : 'Defina suas credenciais. Sem convite, a conta fica aguardando a liberação de um administrador.'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -377,7 +415,7 @@ export default function Signup() {
                 Já possui uma conta ativa?{' '}
                 <Link
                   to="/login"
-                  className="font-semibold text-gold-400 hover:text-gold-300 hover:underline"
+                  className="inline-flex min-h-[44px] items-center px-1 font-semibold text-gold-400 hover:text-gold-300 hover:underline"
                 >
                   Fazer login
                 </Link>

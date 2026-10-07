@@ -222,7 +222,7 @@
       {
         "codigo": "2",
         "titulo": "Fechar o cadastro aberto",
-        "detalhe": "O Supabase aceita cadastro de qualquer pessoa pela API. A conta nasce sem permissão e não vê nada, mas existe. Para um sistema interno, o certo é desligar o cadastro público e entrar só por convite."
+        "detalhe": "Desde 07/10 a conta criada sem convite válido nasce inativa e sem permissão, aguardando a liberação de quem administra. Falta só desligar o cadastro público no painel do Supabase (Authentication → Sign In / Providers → Allow new users to sign up), para nem a conta inativa poder ser criada."
       },
       {
         "codigo": "3",

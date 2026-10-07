@@ -225,13 +225,13 @@ describe('trilha das mudanças de privilégio', () => {
 })
 
 describe('perfil nasce junto do login (auth.users)', () => {
-  it('cria o perfil como usuario ativo, sem permissão, com o nome do metadado', async () => {
+  it('sem convite, cria o perfil como usuario INATIVO, sem permissão, com o nome do metadado', async () => {
     await banco.desfazendo(async (q) => {
       const { rows } = await q.query<{ id: string }>(
         `insert into auth.users (email, raw_user_meta_data) values ('ana@teste.local', '{"name":"Ana Lima"}') returning id`,
       )
       const perfil = await q.query(`select email, name, perfil, ativo from public.users where id = $1`, [rows[0].id])
-      expect(perfil.rows[0]).toEqual({ email: 'ana@teste.local', name: 'Ana Lima', perfil: 'usuario', ativo: true })
+      expect(perfil.rows[0]).toEqual({ email: 'ana@teste.local', name: 'Ana Lima', perfil: 'usuario', ativo: false })
       const permissoes = await q.query(`select 1 from public.permissoes where usuario = $1`, [rows[0].id])
       expect(permissoes.rows).toHaveLength(0)
     })
@@ -247,33 +247,41 @@ describe('perfil nasce junto do login (auth.users)', () => {
     })
   })
 
-  it('quem entra por convite pendente nasce com o perfil do convite, e o convite vira aceito', async () => {
+  it('quem entra com o token do convite pendente nasce ativo, com o perfil do convite, e o convite vira aceito', async () => {
     await banco.desfazendo(async (q) => {
       await q.query(
         `insert into public.convites (email, token, perfil, data_expiracao)
          values ('Chefe@Teste.local', 'tok-1', 'administrador', now() + interval '2 days')`,
       )
       const { rows } = await q.query<{ id: string }>(
-        `insert into auth.users (email) values ('chefe@teste.local') returning id`,
+        `insert into auth.users (email, raw_user_meta_data)
+         values ('chefe@teste.local', '{"convite_token":"tok-1"}') returning id`,
       )
-      const perfil = await q.query<{ perfil: string }>(`select perfil from public.users where id = $1`, [rows[0].id])
-      expect(perfil.rows[0].perfil).toBe('administrador')
+      const perfil = await q.query<{ perfil: string; ativo: boolean }>(
+        `select perfil, ativo from public.users where id = $1`,
+        [rows[0].id],
+      )
+      expect(perfil.rows[0]).toEqual({ perfil: 'administrador', ativo: true })
       const convite = await q.query<{ status: string }>(`select status from public.convites where token = 'tok-1'`)
       expect(convite.rows[0].status).toBe('aceito')
     })
   })
 
-  it('convite vencido não vale: nasce como usuario', async () => {
+  it('convite vencido não vale, nem com o token certo: nasce como usuario inativo', async () => {
     await banco.desfazendo(async (q) => {
       await q.query(
         `insert into public.convites (email, token, perfil, data_expiracao)
          values ('atrasado@teste.local', 'tok-2', 'administrador', now() - interval '1 day')`,
       )
       const { rows } = await q.query<{ id: string }>(
-        `insert into auth.users (email) values ('atrasado@teste.local') returning id`,
+        `insert into auth.users (email, raw_user_meta_data)
+         values ('atrasado@teste.local', '{"convite_token":"tok-2"}') returning id`,
       )
-      const perfil = await q.query<{ perfil: string }>(`select perfil from public.users where id = $1`, [rows[0].id])
-      expect(perfil.rows[0].perfil).toBe('usuario')
+      const perfil = await q.query<{ perfil: string; ativo: boolean }>(
+        `select perfil, ativo from public.users where id = $1`,
+        [rows[0].id],
+      )
+      expect(perfil.rows[0]).toEqual({ perfil: 'usuario', ativo: false })
     })
   })
 

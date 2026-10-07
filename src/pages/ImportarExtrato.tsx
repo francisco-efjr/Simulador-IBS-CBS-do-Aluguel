@@ -29,11 +29,15 @@ import { getErrorMessage } from '@/lib/dados/erros'
 import { getImoveis } from '@/services/imoveis'
 import { getCategoriasFinanceiras } from '@/services/categorias-financeiras'
 import {
-  parseCSV,
-  parseOFX,
+  lerCSV,
+  lerOFX,
+  decodificarArquivo,
   checkDuplicates,
   generateSuggestion,
+  TAMANHO_MAXIMO_EXTRATO_BYTES,
+  type LinhaRejeitada,
   type ParsedTransaction,
+  type ResultadoLeitura,
 } from '@/lib/extratos-engine'
 import { ContasBancariasManagerDialog } from '@/components/extratos/ContasBancariasManagerDialog'
 import { ContaBancariaFormDialog } from '@/components/extratos/ContaBancariaFormDialog'
@@ -91,6 +95,9 @@ export default function ImportarExtrato() {
   const [transactions, setTransactions] = useState<ParsedTransaction[]>([])
   const [duplicateCount, setDuplicateCount] = useState(0)
   const [duplicateModalOpen, setDuplicateModalOpen] = useState(false)
+  // Linhas do arquivo que não viraram transação (com o motivo): nada some em silêncio.
+  const [rejeitadas, setRejeitadas] = useState<LinhaRejeitada[]>([])
+  const [semCabecalho, setSemCabecalho] = useState(false)
 
   // Modals for Bank Accounts
   const [managerOpen, setManagerOpen] = useState(false)
@@ -136,16 +143,16 @@ export default function ImportarExtrato() {
   const processFileContent = (content: string, fileName: string, format: 'csv' | 'ofx') => {
     setParsing(true)
     try {
-      let rawTxs: ParsedTransaction[] = []
-      if (format === 'ofx') {
-        rawTxs = parseOFX(content)
-      } else {
-        rawTxs = parseCSV(content)
-      }
+      const leitura: ResultadoLeitura = format === 'ofx' ? lerOFX(content) : lerCSV(content)
+      const rawTxs: ParsedTransaction[] = leitura.transacoes
+      setRejeitadas(leitura.rejeitadas)
+      setSemCabecalho(leitura.semCabecalho)
 
       if (rawTxs.length === 0) {
         toast.error(
-          `Não foi possível ler as transações do arquivo ${fileName}. Confira se o formato é .CSV ou .OFX.`,
+          leitura.rejeitadas.length > 0
+            ? `Nenhuma transação válida em ${fileName}: ${leitura.rejeitadas.length} linha(s) foram ignoradas. Veja o motivo abaixo.`
+            : `Não foi possível ler as transações do arquivo ${fileName}. Confira se o formato é .CSV ou .OFX.`,
         )
         setTransactions([])
         setParsing(false)
@@ -187,7 +194,13 @@ export default function ImportarExtrato() {
       if (dupCount > 0) {
         setDuplicateModalOpen(true)
       } else {
-        toast.success(processed.length === 1 ? '1 transação encontrada no arquivo.' : `${processed.length} transações encontradas no arquivo.`)
+        const ignoradas =
+          leitura.rejeitadas.length > 0
+            ? ` ${leitura.rejeitadas.length} linha(s) foram ignoradas: veja o motivo abaixo.`
+            : ''
+        toast.success(
+          `${processed.length === 1 ? '1 transação encontrada no arquivo.' : `${processed.length} transações encontradas no arquivo.`}${ignoradas}`,
+        )
       }
     } catch (err) {
       console.error(err)
@@ -197,27 +210,43 @@ export default function ImportarExtrato() {
     }
   }
 
-  // Handle file selection
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    if (!selectedFile) return
-
+  // Valida (formato e tamanho), lê os bytes e decodifica (UTF-8; se não for, windows-1252).
+  const aceitarArquivo = (selectedFile: File, mensagemFormato: string) => {
     const ext = selectedFile.name.split('.').pop()?.toLowerCase()
     if (ext !== 'csv' && ext !== 'ofx') {
-      toast.error('Formato não aceito. Envie um arquivo .CSV ou .OFX.')
+      toast.error(mensagemFormato)
+      return
+    }
+    if (selectedFile.size > TAMANHO_MAXIMO_EXTRATO_BYTES) {
+      const mb = (selectedFile.size / (1024 * 1024)).toFixed(1).replace('.', ',')
+      toast.error(
+        `O arquivo tem ${mb} MB e o limite é de 5 MB. Exporte um período menor no banco e tente de novo.`,
+      )
       return
     }
 
     const fmt = ext === 'ofx' ? 'ofx' : 'csv'
     setFile(selectedFile)
     setFileFormat(fmt)
+    setRejeitadas([])
+    setSemCabecalho(false)
 
     const reader = new FileReader()
     reader.onload = (event) => {
-      const content = event.target?.result as string
+      const content = decodificarArquivo(event.target?.result as ArrayBuffer)
       processFileContent(content, selectedFile.name, fmt)
     }
-    reader.readAsText(selectedFile, 'ISO-8859-1') // Handles Brazilian bank encodings (Latin1 / UTF-8)
+    reader.onerror = () => {
+      toast.error('Não foi possível ler o arquivo. Tente de novo.')
+    }
+    reader.readAsArrayBuffer(selectedFile)
+  }
+
+  // Handle file selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0]
+    if (!selectedFile) return
+    aceitarArquivo(selectedFile, 'Formato não aceito. Envie um arquivo .CSV ou .OFX.')
   }
 
   // Drag & drop handlers
@@ -236,23 +265,7 @@ export default function ImportarExtrato() {
     setIsDragging(false)
     const droppedFile = e.dataTransfer.files?.[0]
     if (!droppedFile) return
-
-    const ext = droppedFile.name.split('.').pop()?.toLowerCase()
-    if (ext !== 'csv' && ext !== 'ofx') {
-      toast.error('Só são aceitos arquivos .CSV e .OFX.')
-      return
-    }
-
-    const fmt = ext === 'ofx' ? 'ofx' : 'csv'
-    setFile(droppedFile)
-    setFileFormat(fmt)
-
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const content = event.target?.result as string
-      processFileContent(content, droppedFile.name, fmt)
-    }
-    reader.readAsText(droppedFile, 'ISO-8859-1')
+    aceitarArquivo(droppedFile, 'Só são aceitos arquivos .CSV e .OFX.')
   }
 
   // Toggle selection of all transactions
@@ -386,7 +399,7 @@ export default function ImportarExtrato() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             onClick={() => setManagerOpen(true)}
@@ -545,7 +558,7 @@ export default function ImportarExtrato() {
                     <p className="font-semibold text-slate-800 text-sm">
                       Clique para escolher ou arraste o arquivo até aqui
                     </p>
-                    <p className="text-xs text-slate-600">Suporta arquivos .OFX e .CSV</p>
+                    <p className="text-xs text-slate-600">Suporta arquivos .OFX e .CSV de até 5 MB</p>
                   </div>
                   <div className="flex items-center gap-2 pt-1">
                     <Badge variant="secondary" className="text-xs bg-slate-100 font-medium">
@@ -561,6 +574,54 @@ export default function ImportarExtrato() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Linhas ignoradas e arquivo sem cabeçalho */}
+      {(rejeitadas.length > 0 || (semCabecalho && transactions.length > 0)) && (
+        <Alert
+          role="status"
+          className="border-amber-300 bg-amber-50/90 text-amber-900 shadow-sm"
+          data-testid="alerta-linhas-ignoradas"
+        >
+          <AlertTriangle className="h-5 w-5 text-amber-700" />
+          <div className="ml-2 flex-1">
+            {semCabecalho && transactions.length > 0 && (
+              <AlertDescription className="text-sm text-amber-900">
+                O arquivo não tem linha de títulos. Foram assumidas as colunas Data, Descrição e
+                Valor, nessa ordem. Confira a prévia abaixo.
+              </AlertDescription>
+            )}
+            {rejeitadas.length > 0 && (
+              <>
+                <AlertTitle className="font-bold text-amber-950">
+                  {rejeitadas.length === 1
+                    ? '1 linha do arquivo foi ignorada'
+                    : `${rejeitadas.length} linhas do arquivo foram ignoradas`}
+                </AlertTitle>
+                <AlertDescription className="text-sm text-amber-900 mt-1">
+                  <p>
+                    Elas não viraram transação e não serão importadas. Corrija o arquivo, se
+                    precisar delas.
+                  </p>
+                  <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto">
+                    {rejeitadas.slice(0, 50).map((l, i) => (
+                      <li key={`${l.linha}-${i}`} className="break-words">
+                        <strong>
+                          {fileFormat === 'ofx' ? 'Transação' : 'Linha'} {l.linha}:
+                        </strong>{' '}
+                        {l.motivo}
+                        {l.conteudo ? ` — ${l.conteudo}` : ''}
+                      </li>
+                    ))}
+                  </ul>
+                  {rejeitadas.length > 50 && (
+                    <p className="mt-1">… e mais {rejeitadas.length - 50} linha(s).</p>
+                  )}
+                </AlertDescription>
+              </>
+            )}
+          </div>
+        </Alert>
+      )}
 
       {/* Duplicate Alert if detected */}
       {transactions.length > 0 && duplicateCount > 0 && (

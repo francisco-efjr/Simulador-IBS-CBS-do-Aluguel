@@ -8,6 +8,8 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DinheiroInput } from '@/components/shared/DinheiroInput'
+import { formularioDoRegistro, textoParaNumero } from '@/lib/formulario'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
@@ -43,6 +45,7 @@ const EMPTY = {
   observacoes: '',
 }
 const NUM_FIELDS = ['valor', 'valor_previsto', 'valor_pago']
+const CAMPOS_DE_DINHEIRO = ['valor', 'valor_previsto', 'valor_pago']
 
 export function DespesaFormDialog({
   open,
@@ -67,12 +70,7 @@ export function DespesaFormDialog({
     if (!open) return
     setErrors({})
     if (editing) {
-      setForm({
-        ...EMPTY,
-        ...Object.fromEntries(
-          Object.entries(editing).map(([k, v]) => [k, v == null ? '' : String(v)]),
-        ),
-      })
+      setForm(formularioDoRegistro(EMPTY, editing, CAMPOS_DE_DINHEIRO))
     } else {
       setForm(EMPTY)
     }
@@ -96,7 +94,7 @@ export function DespesaFormDialog({
     const data: Record<string, any> = { status: 'ativo' }
     for (const [k, v] of Object.entries(form)) {
       if (v === '' || v == null) continue
-      data[k] = NUM_FIELDS.includes(k) ? Number(v) : v
+      data[k] = NUM_FIELDS.includes(k) ? textoParaNumero(k, v, CAMPOS_DE_DINHEIRO) : v
     }
     setSubmitting(true)
     try {
@@ -178,11 +176,9 @@ export function DespesaFormDialog({
           </Field>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Field label="Valor (R$)" error={errors.valor}>
-              <Input
-                type="number"
-                step="0.01"
+              <DinheiroInput
                 value={form.valor}
-                onChange={(e) => upd('valor', e.target.value)}
+                onValueChange={(v) => upd('valor', v)}
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
@@ -213,11 +209,9 @@ export function DespesaFormDialog({
               />
             </Field>
             <Field label="Valor previsto (R$)" error={errors.valor_previsto}>
-              <Input
-                type="number"
-                step="0.01"
+              <DinheiroInput
                 value={form.valor_previsto}
-                onChange={(e) => upd('valor_previsto', e.target.value)}
+                onValueChange={(v) => upd('valor_previsto', v)}
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
@@ -241,11 +235,9 @@ export function DespesaFormDialog({
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Field label="Valor pago (R$)" error={errors.valor_pago}>
-              <Input
-                type="number"
-                step="0.01"
+              <DinheiroInput
                 value={form.valor_pago}
-                onChange={(e) => upd('valor_pago', e.target.value)}
+                onValueChange={(v) => upd('valor_pago', v)}
                 className="bg-slate-50/50 min-h-[44px]"
               />
             </Field>
@@ -280,7 +272,7 @@ export function DespesaFormDialog({
               className="bg-slate-50/50"
             />
           </Field>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-600">
             O status financeiro é recalculado automaticamente conforme valores e datas.
           </p>
           <DialogFooter className="flex-col sm:flex-row gap-2 pt-2">

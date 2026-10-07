@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DinheiroInput } from '@/components/shared/DinheiroInput'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
@@ -22,6 +23,7 @@ import { TIPO_IMOVEL_LABELS, STATUS_IMOVEL_LABELS } from '@/lib/format'
 import { extractFieldErrors, type FieldErrors } from '@/lib/dados/erros'
 import { imovelSchema, validarFormulario } from '@/lib/validacao/esquemas'
 import { toast } from 'sonner'
+import { formularioDoRegistro, textoParaNumero } from '@/lib/formulario'
 
 const EMPTY = {
   codigo: '',
@@ -48,6 +50,7 @@ const EMPTY = {
   observacoes: '',
 }
 
+const CAMPOS_DE_DINHEIRO = ['valor_estimado', 'valor_imovel']
 const NUM_FIELDS = [
   'area',
   'quartos',
@@ -81,13 +84,7 @@ export function ImovelFormDialog({
         ? editing.iptus.join(', ')
         : (editing.iptus || '')
 
-      setForm({
-        ...EMPTY,
-        ...Object.fromEntries(
-          Object.entries(editing).map(([k, v]) => [k, v == null ? '' : String(v)]),
-        ),
-        iptus: iptusFormatado,
-      })
+      setForm({ ...formularioDoRegistro(EMPTY, editing, CAMPOS_DE_DINHEIRO), iptus: iptusFormatado })
     } else {
       setForm(EMPTY)
     }
@@ -116,7 +113,7 @@ export function ImovelFormDialog({
         continue
       }
       if (v === '' || v == null) continue
-      data[k] = NUM_FIELDS.includes(k) ? Number(v) : v
+      data[k] = NUM_FIELDS.includes(k) ? textoParaNumero(k, v, CAMPOS_DE_DINHEIRO) : v
     }
 
     setSubmitting(true)
@@ -195,11 +192,9 @@ export function ImovelFormDialog({
               </Select>
             </Field>
             <Field label="Valor estimado aluguel (R$)" error={errors.valor_estimado}>
-              <Input
-                type="number"
-                step="0.01"
+              <DinheiroInput
                 value={form.valor_estimado}
-                onChange={(e) => upd('valor_estimado', e.target.value)}
+                onValueChange={(v) => upd('valor_estimado', v)}
                 placeholder="0,00"
                 className="bg-slate-50/50 min-h-[44px]"
               />
@@ -295,11 +290,9 @@ export function ImovelFormDialog({
                 />
               </Field>
               <Field label="Valor do Imóvel (R$)" error={errors.valor_imovel}>
-                <Input
-                  type="number"
-                  step="0.01"
+                <DinheiroInput
                   value={form.valor_imovel}
-                  onChange={(e) => upd('valor_imovel', e.target.value)}
+                  onValueChange={(v) => upd('valor_imovel', v)}
                   placeholder="Valor patrimonial"
                   className="bg-white min-h-[44px]"
                 />

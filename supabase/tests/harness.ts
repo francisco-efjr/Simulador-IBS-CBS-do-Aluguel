@@ -309,16 +309,16 @@ export async function criarBancoDeTeste(): Promise<BancoDeTeste> {
         // Perfil e situação são protegidos por tg_proteger_privilegio, que só
         // aceita a mudança vinda de um administrador logado. Aqui é preparação
         // de cenário, não o que está sob teste: desligamos os gatilhos só
-        // nesta transação.
-        if (perfil !== 'usuario' || !ativo) {
-          await tx.exec(`set local session_replication_role = replica`)
-          await tx.query(`update public.users set perfil = $2, ativo = $3 where id = $1`, [
-            id,
-            perfil,
-            ativo,
-          ])
-          await tx.exec(`set local session_replication_role = origin`)
-        }
+        // nesta transação. Sempre se grava os dois: quem se cadastra sem
+        // convite nasce inativo (20261006120002), e o cenário pede o que
+        // `ativo` disser (padrão: ativo), seja qual for o gatilho de criação.
+        await tx.exec(`set local session_replication_role = replica`)
+        await tx.query(`update public.users set perfil = $2, ativo = $3 where id = $1`, [
+          id,
+          perfil,
+          ativo,
+        ])
+        await tx.exec(`set local session_replication_role = origin`)
         for (const [modulo, nivel] of Object.entries(permissoes)) {
           await tx.query(`insert into public.permissoes (usuario, modulo, nivel) values ($1, $2, $3)`, [
             id,

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { semAcento, termoDeBusca } from '@/lib/busca'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import {
   ListChecks,
@@ -19,6 +20,9 @@ import {
   Search,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useAuth } from '@/hooks/use-auth'
+import { getErrorMessage } from '@/lib/dados/erros'
+import { COLUNA_ACOES_CABECALHO, COLUNA_ACOES_CELULA } from '@/lib/tabela'
 import {
   getTransacoesImportadas,
   updateTransacaoImportada,
@@ -62,6 +66,10 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 
 export default function ClassificarTransacoes() {
+  // Quem só consulta vê a fila, mas não aceita, ajusta nem ignora: o banco
+  // negaria a gravação, e a tela ficava muda.
+  const { canEditModule } = useAuth()
+  const canEdit = canEditModule('classificar_transacoes')
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const importacaoIdParam = searchParams.get('importacao') || 'all'
@@ -150,7 +158,7 @@ export default function ClassificarTransacoes() {
 
   // Filtered transactions
   const filteredTransacoes = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = termoDeBusca(search)
     return transacoes.filter((t) => {
       // Status filter
       if (statusFilter === 'pendentes' && (t.classificada || t.ignorada)) return false
@@ -162,13 +170,11 @@ export default function ClassificarTransacoes() {
 
       // Text search
       if (q) {
-        const descMatch = t.descricao.toLowerCase().includes(q)
-        const catMatch = (t.sugestao_categoria || t.categoria_classificada || '')
-          .toLowerCase()
-          .includes(q)
-        const imovMatch = (t.sugestao_imovel || t.imovel_classificado || '')
-          .toLowerCase()
-          .includes(q)
+        const descMatch = semAcento(t.descricao).includes(q)
+        const catMatch = semAcento(t.sugestao_categoria || t.categoria_classificada || '').includes(
+          q,
+        )
+        const imovMatch = semAcento(t.sugestao_imovel || t.imovel_classificado || '').includes(q)
         if (!descMatch && !catMatch && !imovMatch) return false
       }
 
@@ -261,15 +267,14 @@ export default function ClassificarTransacoes() {
 
       // Mark transaction as classified
       const catObj = categorias.find((c) => c.id === catId)
-      const imovObj = imoveis.find((im) => im.id === imovId)
 
       await updateTransacaoImportada(t.id, {
         classificada: true,
         ignorada: false,
-        categoria_classificada: catObj?.nome || t.sugestao_categoria,
-        imovel_classificado: imovObj?.nome || imovObj?.endereco || t.sugestao_imovel,
-        receita_gerada: isReceita ? createdId : '',
-        despesa_gerada: !isReceita ? createdId : '',
+        categoria_classificada: catId,
+        imovel_classificado: imovId,
+        receita_gerada: isReceita ? createdId : null,
+        despesa_gerada: !isReceita ? createdId : null,
       })
 
       toast.success(
@@ -325,69 +330,72 @@ export default function ClassificarTransacoes() {
     observacoes?: string
     descricao: string
   }) => {
-    if (!dialogItem) return
+    try {
+      if (!dialogItem) return
 
-    const t = dialogItem
-    const isReceita = data.tipo === 'receita'
+      const t = dialogItem
+      const isReceita = data.tipo === 'receita'
 
-    let createdId = ''
-    if (isReceita) {
-      const rec = await createReceita({
-        imovel: data.imovel,
-        contrato: data.contrato || '',
-        inquilino: data.inquilino || '',
-        categoria: data.categoria,
-        descricao: data.descricao || t.descricao,
-        data: data.data,
-        data_vencimento: data.data,
-        data_recebimento: data.data,
-        valor: data.valor,
-        valor_previsto: data.valor,
-        valor_recebido: data.valor,
-        competencia: data.competencia,
-        status_financeiro: 'recebido',
-        forma_recebimento: data.forma,
-        status: 'ativo',
-        transacao_importada_id: t.id,
-        observacoes: data.observacoes || '',
+      let createdId = ''
+      if (isReceita) {
+        const rec = await createReceita({
+          imovel: data.imovel,
+          contrato: data.contrato || null,
+          inquilino: data.inquilino || null,
+          categoria: data.categoria,
+          descricao: data.descricao || t.descricao,
+          data: data.data,
+          data_vencimento: data.data,
+          data_recebimento: data.data,
+          valor: data.valor,
+          valor_previsto: data.valor,
+          valor_recebido: data.valor,
+          competencia: data.competencia,
+          status_financeiro: 'recebido',
+          forma_recebimento: data.forma,
+          status: 'ativo',
+          transacao_importada_id: t.id,
+          observacoes: data.observacoes || '',
+        })
+        createdId = rec.id
+      } else {
+        const desp = await createDespesa({
+          imovel: data.imovel,
+          fornecedor: data.fornecedor || null,
+          categoria: data.categoria,
+          descricao: data.descricao || t.descricao,
+          data: data.data,
+          data_vencimento: data.data,
+          data_pagamento: data.data,
+          valor: data.valor,
+          valor_previsto: data.valor,
+          valor_pago: data.valor,
+          competencia: data.competencia,
+          status_financeiro: 'pago',
+          forma_pagamento: data.forma,
+          status: 'ativo',
+          transacao_importada_id: t.id,
+          observacoes: data.observacoes || '',
+        })
+        createdId = desp.id
+      }
+
+      await updateTransacaoImportada(t.id, {
+        classificada: true,
+        ignorada: false,
+        categoria_classificada: data.categoria || null,
+        imovel_classificado: data.imovel || null,
+        receita_gerada: isReceita ? createdId : null,
+        despesa_gerada: !isReceita ? createdId : null,
       })
-      createdId = rec.id
-    } else {
-      const desp = await createDespesa({
-        imovel: data.imovel,
-        fornecedor: data.fornecedor || '',
-        categoria: data.categoria,
-        descricao: data.descricao || t.descricao,
-        data: data.data,
-        data_vencimento: data.data,
-        data_pagamento: data.data,
-        valor: data.valor,
-        valor_previsto: data.valor,
-        valor_pago: data.valor,
-        competencia: data.competencia,
-        status_financeiro: 'pago',
-        forma_pagamento: data.forma,
-        status: 'ativo',
-        transacao_importada_id: t.id,
-        observacoes: data.observacoes || '',
-      })
-      createdId = desp.id
+
+      toast.success(`Lançamento registrado com sucesso como ${isReceita ? 'receita' : 'despesa'}.`)
+      loadData()
+    } catch (err) {
+      // O diálogo continua aberto para a pessoa corrigir ou desistir.
+      toast.error(`Não foi possível registrar o lançamento. ${getErrorMessage(err)}`)
+      throw err
     }
-
-    const catObj = categorias.find((c) => c.id === data.categoria)
-    const imovObj = imoveis.find((im) => im.id === data.imovel)
-
-    await updateTransacaoImportada(t.id, {
-      classificada: true,
-      ignorada: false,
-      categoria_classificada: catObj?.nome || '',
-      imovel_classificado: imovObj?.nome || imovObj?.endereco || '',
-      receita_gerada: isReceita ? createdId : '',
-      despesa_gerada: !isReceita ? createdId : '',
-    })
-
-    toast.success(`Lançamento registrado com sucesso como ${isReceita ? 'receita' : 'despesa'}.`)
-    loadData()
   }
 
   // Batch Classification Confirm
@@ -400,8 +408,6 @@ export default function ClassificarTransacoes() {
     competencia?: string
   }) => {
     const isReceita = data.tipo === 'receita'
-    const catObj = categorias.find((c) => c.id === data.categoria)
-    const imovObj = imoveis.find((im) => im.id === data.imovel)
 
     const selectedTransactions = transacoes.filter((t) => selectedIds.includes(t.id))
 
@@ -435,7 +441,7 @@ export default function ClassificarTransacoes() {
           const desp = await createDespesa({
             imovel: data.imovel,
             categoria: data.categoria,
-            fornecedor: data.fornecedor || '',
+            fornecedor: data.fornecedor || null,
             descricao: t.descricao,
             data: dataStr,
             data_vencimento: dataStr,
@@ -456,10 +462,10 @@ export default function ClassificarTransacoes() {
         await updateTransacaoImportada(t.id, {
           classificada: true,
           ignorada: false,
-          categoria_classificada: catObj?.nome || '',
-          imovel_classificado: imovObj?.nome || imovObj?.endereco || '',
-          receita_gerada: isReceita ? createdId : '',
-          despesa_gerada: !isReceita ? createdId : '',
+          categoria_classificada: data.categoria || null,
+          imovel_classificado: data.imovel || null,
+          receita_gerada: isReceita ? createdId : null,
+          despesa_gerada: !isReceita ? createdId : null,
         })
 
         successCount++
@@ -468,7 +474,22 @@ export default function ClassificarTransacoes() {
       }
     }
 
-    toast.success(successCount === 1 ? '1 transação classificada com sucesso.' : `${successCount} transações classificadas com sucesso.`)
+    const falhas = selectedTransactions.length - successCount
+    if (successCount === 0) {
+      toast.error(
+        'Nenhuma transação foi classificada. Confira se você tem permissão para editar e tente de novo.',
+      )
+      return
+    }
+    if (falhas > 0) {
+      toast.warning(`${successCount} classificada(s); ${falhas} não puderam ser gravadas.`)
+    } else {
+      toast.success(
+        successCount === 1
+          ? '1 transação classificada com sucesso.'
+          : `${successCount} transações classificadas com sucesso.`,
+      )
+    }
     setSelectedIds([])
     loadData()
   }
@@ -497,7 +518,11 @@ export default function ClassificarTransacoes() {
         for (const id of selectedIds) {
           await updateTransacaoImportada(id, { ignorada: true, classificada: false })
         }
-        toast.info(selectedIds.length === 1 ? '1 transação foi ignorada.' : `${selectedIds.length} transações foram ignoradas.`)
+        toast.info(
+          selectedIds.length === 1
+            ? '1 transação foi ignorada.'
+            : `${selectedIds.length} transações foram ignoradas.`,
+        )
         setSelectedIds([])
         loadData()
       } catch {
@@ -525,7 +550,7 @@ export default function ClassificarTransacoes() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             onClick={() => navigate('/historico-importacoes')}
@@ -579,7 +604,11 @@ export default function ClassificarTransacoes() {
             </div>
           </div>
 
-          <Progress value={progressoPercent} className="h-2.5 bg-slate-200" />
+          <Progress
+            value={progressoPercent}
+            aria-label="Progresso da classificação das transações"
+            className="h-2.5 bg-slate-200"
+          />
         </CardContent>
       </Card>
 
@@ -615,11 +644,11 @@ export default function ClassificarTransacoes() {
           </Select>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2 w-full">
+        <div className="flex flex-col gap-2 w-full min-w-0 xl:flex-row">
           <Select value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)}>
             <SelectTrigger
               aria-label="Status"
-              className="bg-slate-50/70 border-slate-300 w-full sm:flex-1"
+              className="bg-slate-50/70 border-slate-300 w-full xl:flex-1"
             >
               <SelectValue placeholder="Status" />
             </SelectTrigger>
@@ -634,7 +663,7 @@ export default function ClassificarTransacoes() {
           <Select value={tipoFilter} onValueChange={(v: any) => setTipoFilter(v)}>
             <SelectTrigger
               aria-label="Tipo"
-              className="bg-slate-50/70 border-slate-300 w-full sm:w-[110px]"
+              className="bg-slate-50/70 border-slate-300 w-full xl:w-[110px]"
             >
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
@@ -721,14 +750,16 @@ export default function ClassificarTransacoes() {
                 <TableHeader>
                   <TableRow className="bg-slate-50/80">
                     <TableHead className="w-[44px] text-center">
-                      <Checkbox
-                        checked={
-                          selectedIds.length === filteredTransacoes.length &&
-                          filteredTransacoes.length > 0
-                        }
-                        onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
-                        aria-label="Selecionar todas"
-                      />
+                      {canEdit && (
+                        <Checkbox
+                          checked={
+                            selectedIds.length === filteredTransacoes.length &&
+                            filteredTransacoes.length > 0
+                          }
+                          onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
+                          aria-label="Selecionar todas"
+                        />
+                      )}
                     </TableHead>
                     <TableHead className="w-[105px]">Data</TableHead>
                     <TableHead className="min-w-[220px]">Descrição no Extrato</TableHead>
@@ -737,7 +768,9 @@ export default function ClassificarTransacoes() {
                       Sugestão Automática / Classificação
                     </TableHead>
                     <TableHead className="w-[120px] text-center">Status</TableHead>
-                    <TableHead className="w-[180px] text-right">Ações</TableHead>
+                    <TableHead className={`w-[180px] text-right ${COLUNA_ACOES_CABECALHO}`}>
+                      Ações
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -756,11 +789,13 @@ export default function ClassificarTransacoes() {
                       >
                         {/* Checkbox */}
                         <TableCell className="text-center">
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={(checked) => handleSelectOne(t.id, Boolean(checked))}
-                            aria-label={`Selecionar ${t.descricao}`}
-                          />
+                          {canEdit && (
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={(checked) => handleSelectOne(t.id, Boolean(checked))}
+                              aria-label={`Selecionar ${t.descricao}`}
+                            />
+                          )}
                         </TableCell>
 
                         {/* Date */}
@@ -889,14 +924,18 @@ export default function ClassificarTransacoes() {
                         </TableCell>
 
                         {/* Actions */}
-                        <TableCell className="text-right whitespace-nowrap">
-                          {!t.classificada && !t.ignorada ? (
+                        <TableCell
+                          className={`text-right whitespace-nowrap ${COLUNA_ACOES_CELULA}`}
+                        >
+                          {!canEdit ? (
+                            <span className="text-sm text-slate-600">Somente consulta</span>
+                          ) : !t.classificada && !t.ignorada ? (
                             <div className="flex items-center justify-end gap-1.5">
                               {/* Quick Accept button */}
                               <Button
                                 size="sm"
                                 onClick={() => handleAcceptSuggestion(t)}
-                                className="h-8 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-2.5 shadow-xs"
+                                className="h-8 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs px-2.5 shadow-xs"
                                 title="Aceitar sugestão e criar lançamento"
                               >
                                 <Check className="h-3.5 w-3.5 mr-1" /> Aceitar

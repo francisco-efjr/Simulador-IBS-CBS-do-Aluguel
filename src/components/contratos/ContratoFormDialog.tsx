@@ -35,6 +35,9 @@ import { contratoSchema, validarFormulario } from '@/lib/validacao/esquemas'
 import { FiadorFormDialog } from '@/components/fiadores/FiadorFormDialog'
 import { OPCOES_MINUTA_PADRAO } from '@/components/contratos/MinutaContratoDialog'
 import { toast } from 'sonner'
+import { DinheiroInput } from '@/components/shared/DinheiroInput'
+import { formularioDoRegistro, textoParaNumero } from '@/lib/formulario'
+import { paraNumeroEmReais, valorParaCampo } from '@/lib/dinheiro'
 
 const EMPTY = {
   numero: '',
@@ -58,6 +61,7 @@ const EMPTY = {
 }
 
 const NUM_FIELDS = ['valor_aluguel', 'dia_vencimento', 'valor_garantia']
+const CAMPOS_DE_DINHEIRO = ['valor_aluguel', 'valor_garantia']
 
 export function ContratoFormDialog({
   open,
@@ -84,6 +88,7 @@ export function ContratoFormDialog({
 
   // Modal de cadastro rápido de fiador
   const [fiadorModalOpen, setFiadorModalOpen] = useState(false)
+  const [fiadorPendente, setFiadorPendente] = useState<string | null>(null)
 
   const upd = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }))
 
@@ -99,23 +104,15 @@ export function ContratoFormDialog({
       getLocadores(),
       getFiadores(),
     ]).then(([ims, iqs, locs, fiads]) => {
-      setImoveis(ims)
+      // Imóvel inativo não recebe contrato novo; na edição, o imóvel atual continua na lista.
+      setImoveis(ims.filter((im) => im.status !== 'inativo' || im.id === editing?.imovel))
       setInquilinos(iqs)
       setLocadores(locs)
       setFiadores(fiads)
     })
 
     if (editing) {
-      setForm({
-        ...EMPTY,
-        ...Object.fromEntries(
-          Object.entries(editing).map(([k, v]) => [k, v == null ? '' : String(v)]),
-        ),
-        imovel: editing.imovel || '',
-        unidade_id: editing.unidade_id || '',
-        locador_id: editing.locador_id || '',
-        fiador_id: editing.fiador_id || '',
-      })
+      setForm(formularioDoRegistro(EMPTY, editing as unknown as Record<string, unknown>, CAMPOS_DE_DINHEIRO))
     } else {
       setForm(EMPTY)
       // Carrega sugestão de número sequencial do contrato
@@ -124,6 +121,14 @@ export function ContratoFormDialog({
       })
     }
   }, [open, editing])
+
+  // Seleciona o fiador recém-cadastrado depois que ele já está na lista (CAD-05).
+  useEffect(() => {
+    if (fiadorPendente && fiadores.some((f) => f.id === fiadorPendente)) {
+      setForm((p) => ({ ...p, fiador_id: fiadorPendente }))
+      setFiadorPendente(null)
+    }
+  }, [fiadores, fiadorPendente])
 
   // Atualiza as unidades quando o imóvel selecionado mudar
   useEffect(() => {
@@ -144,9 +149,9 @@ export function ContratoFormDialog({
     } else if (minutaId.endsWith('caucao')) {
       upd('tipo_garantia', 'caução')
       if (form.valor_aluguel && !form.valor_garantia) {
-        const aluguelNum = Number(form.valor_aluguel.replace(',', '.'))
-        if (!isNaN(aluguelNum) && aluguelNum > 0) {
-          upd('valor_garantia', String(aluguelNum * 3))
+        const aluguelNum = paraNumeroEmReais(form.valor_aluguel)
+        if (Number.isFinite(aluguelNum) && aluguelNum > 0) {
+          upd('valor_garantia', valorParaCampo(Math.round(aluguelNum * 300) / 100))
         }
       }
     } else if (minutaId.endsWith('sem_garantia')) {
@@ -165,31 +170,38 @@ export function ContratoFormDialog({
       return
     }
 
-    const formatarValor = (k: string, v: string) => {
-      if (NUM_FIELDS.includes(k)) {
-        return Number(v.replace(/\./g, '').replace(',', '.'))
-      }
-      return v
-    }
+    const formatarValor = (k: string, v: string) =>
+      NUM_FIELDS.includes(k) ? textoParaNumero(k, v, CAMPOS_DE_DINHEIRO) : v
+
+    // O que a garantia escolhida não usa não vai ao banco (CAD-04): o campo some da
+    // tela, mas o valor digitado antes da troca continuaria no formulário.
+    const usaFiador = form.tipo_garantia === 'fiador'
+    const usaValor = form.tipo_garantia !== 'fiador' && form.tipo_garantia !== 'sem garantia'
+    const naoUsados: string[] = []
+    if (!usaFiador) naoUsados.push('fiador_id')
+    if (!usaValor) naoUsados.push('valor_garantia')
 
     let payload: Record<string, any> | FormData
     if (file) {
       const fd = new FormData()
       for (const [k, v] of Object.entries(form)) {
-        if (k === 'status' || k === 'minuta_padrao') continue
+        if (k === 'status' || k === 'minuta_padrao' || naoUsados.includes(k)) continue
         if (v === '' || v == null) continue
         fd.append(k, NUM_FIELDS.includes(k) ? String(formatarValor(k, v)) : v)
       }
+      // Texto vazio no FormData grava nulo: é como o envio com arquivo limpa a coluna.
+      for (const k of naoUsados) fd.append(k, '')
       fd.append('status', form.status)
       fd.append('documento', file)
       payload = fd
     } else {
       payload = { status: form.status }
       for (const [k, v] of Object.entries(form)) {
-        if (k === 'status' || k === 'minuta_padrao') continue
+        if (k === 'status' || k === 'minuta_padrao' || naoUsados.includes(k)) continue
         if (v === '' || v == null) continue
         payload[k] = formatarValor(k, v)
       }
+      for (const k of naoUsados) payload[k] = null
     }
 
     setSubmitting(true)
@@ -376,11 +388,9 @@ export function ContratoFormDialog({
               </Field>
 
               <Field label="Valor do aluguel (R$)" error={errors.valor_aluguel}>
-                <Input
-                  type="text"
+                <DinheiroInput
                   value={form.valor_aluguel}
-                  onChange={(e) => upd('valor_aluguel', e.target.value)}
-                  placeholder="0,00"
+                  onValueChange={(v) => upd('valor_aluguel', v)}
                   className="bg-slate-50/50 min-h-[44px]"
                 />
               </Field>
@@ -435,6 +445,7 @@ export function ContratoFormDialog({
                   onValueChange={(v) => {
                     upd('tipo_garantia', v)
                     if (v !== 'fiador') upd('fiador_id', '')
+                    if (v === 'fiador' || v === 'sem garantia') upd('valor_garantia', '')
                   }}
                 >
                   <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
@@ -452,11 +463,9 @@ export function ContratoFormDialog({
 
               {form.tipo_garantia !== 'fiador' && (
                 <Field label="Valor da garantia (R$)" error={errors.valor_garantia}>
-                  <Input
-                    type="text"
+                  <DinheiroInput
                     value={form.valor_garantia}
-                    onChange={(e) => upd('valor_garantia', e.target.value)}
-                    placeholder="0,00"
+                    onValueChange={(v) => upd('valor_garantia', v)}
                     className="bg-slate-50/50 min-h-[44px]"
                   />
                 </Field>
@@ -465,33 +474,29 @@ export function ContratoFormDialog({
               {/* Se garantia for Fiador, exibe seleção de fiador */}
               {form.tipo_garantia === 'fiador' && (
                 <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-slate-700">Fiador vinculado</span>
-                    <Button
-                      type="button"
-                      variant="link"
-                      size="sm"
-                      onClick={() => setFiadorModalOpen(true)}
-                      className="text-xs text-indigo-600 p-0 h-auto font-medium"
-                    >
-                      <Plus className="h-3 w-3 mr-0.5" /> Novo Fiador
-                    </Button>
-                  </div>
-                  <Select
-                    value={form.fiador_id}
-                    onValueChange={(v) => upd('fiador_id', v)}
+                  <Field label="Fiador vinculado" error={errors.fiador_id}>
+                    <Select value={form.fiador_id} onValueChange={(v) => upd('fiador_id', v)}>
+                      <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
+                        <SelectValue placeholder="Selecione o fiador cadastrado..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {fiadores.map((f) => (
+                          <SelectItem key={f.id} value={f.id}>
+                            {f.nome} {f.cpf ? `(${f.cpf})` : ''}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    onClick={() => setFiadorModalOpen(true)}
+                    className="text-sm text-indigo-700 p-0 h-auto min-h-[44px] font-medium"
                   >
-                    <SelectTrigger className="bg-slate-50/50 min-h-[44px]">
-                      <SelectValue placeholder="Selecione o fiador cadastrado..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {fiadores.map((f) => (
-                        <SelectItem key={f.id} value={f.id}>
-                          {f.nome} {f.cpf ? `(${f.cpf})` : ''}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <Plus className="h-4 w-4 mr-1" /> Cadastrar novo fiador
+                  </Button>
                 </div>
               )}
             </div>
@@ -543,7 +548,9 @@ export function ContratoFormDialog({
         onSaved={(novoFiador) => {
           if (novoFiador) {
             setFiadores((prev) => [...prev, novoFiador])
-            upd('fiador_id', novoFiador.id)
+            // Selecionar já neste lote faria o Select receber um valor que ainda não
+            // tem item na lista e zerá-lo; o efeito abaixo espera a lista atualizar.
+            setFiadorPendente(novoFiador.id)
           }
         }}
       />

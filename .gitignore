@@ -23,6 +23,9 @@ coverage/
 # pocketbase/migrations). Não vai para o repositório.
 pb_data/
 
+# Senhas das contas de teste do Supabase local (geradas no boot do servidor)
+supabase/local/.contas-locais.json
+
 # Sobras atômicas de build do pods-manager
 *.bak-*
 *.legacy-bak-*

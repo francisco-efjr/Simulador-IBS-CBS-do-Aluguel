@@ -325,3 +325,56 @@
     }
   }
 }
+
+/*
+ * Impressão da minuta contratual (CAD-07).
+ *
+ * "Imprimir / PDF" é a impressão do navegador. Sem estas regras ela saía com uma
+ * página só, cortada na altura da janela, com o menu e o cabeçalho do sistema ao
+ * fundo e sem as assinaturas. Enquanto o diálogo da minuta está aberto, o resto
+ * da página não entra na impressão, e o texto corre em quantas páginas precisar.
+ */
+@page {
+  margin: 18mm 16mm;
+}
+
+@media print {
+  html:has(.minuta-dialogo),
+  body:has(.minuta-dialogo) {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  /* Some o app, o fundo escuro do diálogo, os avisos e qualquer outro portal. */
+  body:has(.minuta-dialogo) > *:not(.minuta-dialogo) {
+    display: none !important;
+  }
+
+  body:has(.minuta-dialogo) > .minuta-dialogo {
+    position: static !important;
+    display: block !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    animation: none !important;
+  }
+
+  /* O botão de fechar do diálogo não faz parte do contrato. */
+  .minuta-dialogo > button {
+    display: none !important;
+  }
+
+  .minuta-dialogo .minuta-conteudo {
+    overflow: visible !important;
+    max-height: none !important;
+    font-size: 11.5pt;
+  }
+}
