@@ -1,24 +1,27 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { semAcento, termoDeBusca } from '@/lib/busca'
-import { Users, Plus, Search, Eye, Pencil, Ban, AlertCircle } from 'lucide-react'
+import { AlertCircle, Phone, Plus, Search, SearchX, Users, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { getInquilinos, updateInquilino } from '@/services/inquilinos'
+import { getContratos } from '@/services/contratos'
 import { useRealtime } from '@/hooks/use-realtime'
-import { TIPO_PESSOA_LABELS } from '@/lib/format'
+import { formatarCpfCnpj, formatarTelefone } from '@/lib/format'
+import {
+  contratosPorInquilino,
+  ehFiltroContratoDoInquilino,
+  FILTROS_DE_CONTRATO_DO_INQUILINO,
+  situacaoDoInquilino,
+  type FiltroContratoDoInquilino,
+  type SituacaoDoInquilino,
+} from '@/lib/contrato-do-inquilino'
 import { InquilinoFormDialog } from '@/components/inquilinos/InquilinoFormDialog'
 import { InquilinoDetailDialog } from '@/components/inquilinos/InquilinoDetailDialog'
-import { StatusBadge } from '@/components/shared/StatusBadge'
-import { Button } from '@/components/ui/button'
-import { ConfirmarAcao } from '@/components/shared/ConfirmarAcao'
+import { EstadoVazio, FiltroChips } from '@/components/organico'
+import { Badge } from '@/components/ui/badge'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent } from '@/components/ui/card'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Card, cantoOrganico } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -27,31 +30,85 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { cn } from '@/lib/utils'
-import { COLUNA_ACOES_CABECALHO, COLUNA_ACOES_CELULA } from '@/lib/tabela'
 import { Skeleton } from '@/components/ui/skeleton'
-
+import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/use-auth'
+
+/** Depois de tantos inquilinos a lista pede "Mostrar mais" (desenho, seção 12). */
+const LIMITE_INICIAL = 5
+
+/**
+ * "Se não cabe, vira cartão": a tabela só entra quando a área da lista tem esta
+ * largura (em `em`, então cresce junto com o tamanho da letra escolhido). Abaixo
+ * disso a lista é de cartões, com o botão de ligar.
+ */
+const MOSTRA_NA_TABELA = '[@container(min-width:52em)]:block'
+const ESCONDE_NA_TABELA = '[@container(min-width:52em)]:hidden'
+
+const SEM_SITUACAO: SituacaoDoInquilino = {
+  temContrato: false,
+  rotulo: '—',
+  tom: 'neutral',
+  unidade: '—',
+}
+
+const documentoDe = (iq: any) => (iq.tipo_pessoa === 'pj' ? iq.cnpj : iq.cpf)
+const rotuloDoDocumento = (iq: any) => (iq.tipo_pessoa === 'pj' ? 'CNPJ' : 'CPF')
+const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`
+
+interface Linha {
+  iq: any
+  situacao: SituacaoDoInquilino
+}
 
 export default function Inquilinos() {
   const { canEditModule } = useAuth()
   const canEdit = canEditModule('inquilinos')
   const [inquilinos, setInquilinos] = useState<any[]>([])
+  const [contratos, setContratos] = useState<any[]>([])
+  // Sem permissão de contratos, a lista segue sem a unidade e sem a pílula.
+  const [contratosDisponiveis, setContratosDisponiveis] = useState(true)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [fTipo, setFTipo] = useState('all')
-  const [fStatus, setFStatus] = useState('all')
+  const [mostrarTodos, setMostrarTodos] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
   const [editing, setEditing] = useState<any | null>(null)
   const [selected, setSelected] = useState<any | null>(null)
 
+  // Filtro de contrato na URL (?contrato=com): o "voltar" e o link compartilhado mantêm.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const contratoNaUrl = searchParams.get('contrato')
+  const filtro: FiltroContratoDoInquilino = ehFiltroContratoDoInquilino(contratoNaUrl)
+    ? contratoNaUrl
+    : 'todos'
+  const escolherFiltro = (valor: FiltroContratoDoInquilino) => {
+    setMostrarTodos(false)
+    setSearchParams(
+      (atual) => {
+        const params = new URLSearchParams(atual)
+        if (valor === 'todos') params.delete('contrato')
+        else params.set('contrato', valor)
+        return params
+      },
+      { preventScrollReset: true },
+    )
+  }
+
   const load = useCallback(async () => {
     try {
       setError(null)
-      const data = await getInquilinos()
+      const [data, contratosData] = await Promise.all([
+        getInquilinos(),
+        getContratos().then(
+          (lista) => ({ lista, ok: true }),
+          () => ({ lista: [], ok: false }),
+        ),
+      ])
       setInquilinos(data)
+      setContratos(contratosData.lista)
+      setContratosDisponiveis(contratosData.ok)
       setSelected((prev) => (prev ? (data.find((iq) => iq.id === prev.id) ?? null) : null))
     } catch {
       setError('Erro ao carregar inquilinos. Verifique sua conexão.')
@@ -66,19 +123,46 @@ export default function Inquilinos() {
   useRealtime('inquilinos', () => {
     load()
   })
+  useRealtime('contratos', () => {
+    load()
+  })
 
-  const filtered = useMemo(() => {
+  // Busca primeiro; os chips mostram quantos sobram em cada grupo.
+  const buscados = useMemo<Linha[]>(() => {
+    const porInquilino = contratosPorInquilino(contratos)
     const q = termoDeBusca(search)
-    return inquilinos.filter((iq) => {
-      const doc = iq.tipo_pessoa === 'pj' ? iq.cnpj : iq.cpf
-      const ms = !q || [iq.nome, doc, iq.email].some((v) => semAcento(v || '').includes(q))
-      return (
-        ms &&
-        (fTipo === 'all' || iq.tipo_pessoa === fTipo) &&
-        (fStatus === 'all' || iq.status === fStatus)
+    return inquilinos
+      .filter((iq) =>
+        !q ? true : [iq.nome, iq.cpf, iq.cnpj].some((v) => semAcento(v || '').includes(q)),
       )
-    })
-  }, [inquilinos, search, fTipo, fStatus])
+      .map((iq) => ({
+        iq,
+        situacao: contratosDisponiveis
+          ? situacaoDoInquilino(porInquilino.get(iq.id) ?? [])
+          : SEM_SITUACAO,
+      }))
+  }, [inquilinos, contratos, contratosDisponiveis, search])
+
+  const contagem = useMemo(() => {
+    const com = buscados.filter((l) => l.situacao.temContrato).length
+    return { todos: buscados.length, com, sem: buscados.length - com }
+  }, [buscados])
+
+  const totais = useMemo(() => {
+    const todosOsContratos = contratosPorInquilino(contratos)
+    const com = inquilinos.filter((iq) => situacaoDoInquilino(todosOsContratos.get(iq.id) ?? []).temContrato)
+    return { todos: inquilinos.length, com: com.length }
+  }, [inquilinos, contratos])
+
+  const filtradas = useMemo(
+    () =>
+      !contratosDisponiveis || filtro === 'todos'
+        ? buscados
+        : buscados.filter((l) => l.situacao.temContrato === (filtro === 'com')),
+    [buscados, filtro, contratosDisponiveis],
+  )
+  const visiveis = mostrarTodos ? filtradas : filtradas.slice(0, LIMITE_INICIAL)
+  const restantes = filtradas.length - LIMITE_INICIAL
 
   const handleNew = () => {
     setEditing(null)
@@ -97,266 +181,270 @@ export default function Inquilinos() {
     try {
       await updateInquilino(iq.id, { status: 'inativo' })
       toast.success('Inquilino marcado como inativo.')
+      setDetailOpen(false)
       load()
     } catch {
       toast.error('Não foi possível inativar o inquilino. Tente novamente.')
     }
   }
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 shrink-0">
-            <Users className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-              Inquilinos
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-              Cadastro de locatários, históricos de ocupação e dados de contato
-            </p>
-          </div>
-        </div>
-        {canEdit && (
-          <Button
-            onClick={handleNew}
-            className="bg-indigo-600 hover:bg-indigo-700 w-full sm:w-auto min-h-[44px]"
-          >
-            <Plus className="h-4 w-4 mr-1" /> Novo Inquilino
-          </Button>
-        )}
-      </div>
+  const buscando = termoDeBusca(search) !== ''
+  const resumo = contratosDisponiveis
+    ? `${plural(totais.todos, 'inquilino', 'inquilinos')} · ${totais.com} com contrato`
+    : plural(totais.todos, 'inquilino', 'inquilinos')
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        <div className="relative sm:col-span-2 lg:col-span-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
-          <Input
-            aria-label="Buscar por nome, CPF/CNPJ ou e-mail"
-            placeholder="Buscar por nome, CPF/CNPJ ou e-mail..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-slate-50/50 min-h-[44px]"
-          />
+  const botaoNovo = canEdit && (
+    <Button onClick={handleNew} className="w-full sm:w-auto">
+      <Plus aria-hidden="true" /> Novo inquilino
+    </Button>
+  )
+
+  return (
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-wrap items-end gap-4">
+        <div className="flex min-w-[min(100%,280px)] flex-1 flex-col gap-1 px-2 lg:px-0">
+          <p className="text-sm text-accent-foreground">Cadastros</p>
+          <h1 className="text-3xl lg:text-5xl">Inquilinos</h1>
+          {!loading && !error && inquilinos.length > 0 && (
+            <p className="text-base text-accent-foreground">{resumo}</p>
+          )}
         </div>
-        <Select value={fTipo} onValueChange={setFTipo}>
-          <SelectTrigger aria-label="Tipo" className="w-full bg-slate-50/50 min-h-[44px]">
-            <SelectValue placeholder="Tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os tipos</SelectItem>
-            {Object.entries(TIPO_PESSOA_LABELS).map(([v, l]) => (
-              <SelectItem key={v} value={v}>
-                {l}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={fStatus} onValueChange={setFStatus}>
-          <SelectTrigger aria-label="Status" className="w-full bg-slate-50/50 min-h-[44px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os status</SelectItem>
-            <SelectItem value="ativo">Ativo</SelectItem>
-            <SelectItem value="inativo">Inativo</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+        {inquilinos.length > 0 && (
+          <div className="relative order-last w-full xl:order-none xl:w-[340px]">
+            <Search
+              className="absolute left-5 top-1/2 h-[22px] w-[22px] -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <Input
+              type="search"
+              aria-label="Buscar por nome, CPF ou CNPJ"
+              placeholder="Buscar por nome, CPF ou CNPJ"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value)
+                setMostrarTodos(false)
+              }}
+              className="min-h-14 pl-14"
+            />
+          </div>
+        )}
+        {botaoNovo}
+      </header>
+
+      {!loading && !error && inquilinos.length > 0 && contratosDisponiveis && (
+        <FiltroChips
+          rotulo="Contrato do inquilino"
+          opcoes={FILTROS_DE_CONTRATO_DO_INQUILINO.map((f) => ({
+            ...f,
+            contagem: contagem[f.valor],
+          }))}
+          valor={filtro}
+          onChange={escolherFiltro}
+        />
+      )}
 
       {loading ? (
-        <div className="space-y-3">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-14 w-full rounded-lg" />
-          ))}
-        </div>
+        <CarregandoInquilinos />
       ) : error ? (
-        <Card className="border-red-200 bg-red-50/50">
-          <CardContent className="flex items-center gap-3 py-6">
-            <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
-            <p className="text-sm text-red-700">{error}</p>
-          </CardContent>
+        <div
+          role="alert"
+          className="flex items-center gap-3 rounded-3xl bg-destructive/15 px-5 py-4 text-red-800"
+        >
+          <AlertCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
+          <p className="text-base font-bold">{error}</p>
+        </div>
+      ) : inquilinos.length === 0 ? (
+        <Card className="overflow-hidden">
+          <EstadoVazio
+            icone={Users}
+            titulo="Ainda não há inquilinos"
+            descricao="Cadastre o primeiro inquilino para ligar a um contrato e acompanhar os recebimentos."
+            acoes={
+              canEdit ? (
+                <Button onClick={handleNew}>
+                  <Plus aria-hidden="true" /> Cadastrar inquilino
+                </Button>
+              ) : undefined
+            }
+          />
         </Card>
-      ) : filtered.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center py-12 text-center">
-            <Users className="h-10 w-10 text-slate-300 mb-3" />
-            <p className="text-sm text-slate-600">Nenhum inquilino encontrado.</p>
-          </CardContent>
-        </Card>
+      ) : filtradas.length === 0 ? (
+        <>
+          <p role="status" className="px-2 text-base text-accent-foreground lg:px-0">
+            {buscando
+              ? `Nenhum resultado para “${search.trim()}”.`
+              : filtro === 'com'
+                ? 'Nenhum inquilino com contrato.'
+                : 'Nenhum inquilino sem contrato.'}
+          </p>
+          <Card className="overflow-hidden">
+            <EstadoVazio
+              icone={SearchX}
+              titulo={buscando ? 'Nenhum inquilino com esse nome' : 'Nenhum inquilino neste grupo'}
+              descricao={
+                buscando
+                  ? 'Confira a escrita ou busque pelo CPF ou CNPJ.'
+                  : 'Troque o filtro para ver os outros inquilinos.'
+              }
+              acoes={
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearch('')
+                      if (filtro !== 'todos') escolherFiltro('todos')
+                    }}
+                  >
+                    <X aria-hidden="true" /> {buscando ? 'Limpar busca' : 'Ver todos'}
+                  </Button>
+                  {canEdit && (
+                    <Button onClick={handleNew} className="hidden sm:inline-flex">
+                      <Plus aria-hidden="true" /> Cadastrar inquilino
+                    </Button>
+                  )}
+                </>
+              }
+            />
+          </Card>
+        </>
       ) : (
         <>
-          <p className="text-sm text-slate-600">{filtered.length} inquilino(s)</p>
-          <div className="hidden xl:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <Table className="min-w-[650px]">
-              <TableHeader>
-                <TableRow className="bg-slate-50/80">
-                  <TableHead className="w-[220px]">Nome</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>CPF/CNPJ</TableHead>
-                  <TableHead>Contato</TableHead>
-                  <TableHead className={cn('w-[120px] text-right', COLUNA_ACOES_CABECALHO)}>
-                    Ações
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((iq) => (
-                  <TableRow
-                    key={iq.id}
-                    className="cursor-pointer hover:bg-slate-50/50"
-                    onClick={() => handleView(iq)}
-                  >
-                    <TableCell className="font-medium">
-                      {iq.nome || '—'}
-                      {iq.email && <span className="block text-xs text-slate-600">{iq.email}</span>}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {TIPO_PESSOA_LABELS[iq.tipo_pessoa] || '—'}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge type="geral" status={iq.status} />
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-600">
-                      {iq.tipo_pessoa === 'pj' ? iq.cnpj : iq.cpf || '—'}
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-600">{iq.telefone || '—'}</TableCell>
-                    <TableCell
-                      className={cn('text-right', COLUNA_ACOES_CELULA)}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Ver detalhes"
-                          title="Ver detalhes"
-                          className="h-11 w-11 min-h-[44px] min-w-[44px]"
-                          onClick={() => handleView(iq)}
-                        >
-                          <Eye className="h-4 w-4 text-slate-600" />
-                        </Button>
-                        {canEdit && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              aria-label="Editar"
-                              title="Editar"
-                              className="h-11 w-11 min-h-[44px] min-w-[44px]"
-                              onClick={() => handleEdit(iq)}
-                            >
-                              <Pencil className="h-4 w-4 text-slate-600" />
-                            </Button>
-                            {iq.status !== 'inativo' && (
-                              <ConfirmarAcao
-                                titulo="Inativar este inquilino?"
-                                descricao="O inquilino sai das listas ativas e deixa de aparecer para novos contratos. O histórico continua guardado e o status pode ser revertido pela edição."
-                                rotuloConfirmar="Sim, inativar o inquilino"
-                                onConfirmar={() => handleInactivate(iq)}
-                              >
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  aria-label="Inativar"
-                                  title="Inativar"
-                                  className="h-11 w-11 min-h-[44px] min-w-[44px]"
-                                >
-                                  <Ban className="h-4 w-4 text-red-600" />
-                                </Button>
-                              </ConfirmarAcao>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
+          <p className="sr-only" role="status">
+            {plural(filtradas.length, 'inquilino', 'inquilinos')}
+            {filtro !== 'todos' || buscando ? ' na lista' : ''}
+          </p>
+
+          <div className="[container-type:inline-size]">
+            {/* Computador: tabela num cartão. */}
+            <Card className={cn('hidden overflow-hidden', MOSTRA_NA_TABELA)}>
+              <Table className="[&_td]:px-4 [&_td]:py-4 [&_th]:px-4 [&_td:not(:nth-child(3))]:whitespace-nowrap">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Inquilino</TableHead>
+                    <TableHead>Telefone</TableHead>
+                    <TableHead>Unidade</TableHead>
+                    <TableHead>Contrato</TableHead>
+                    <TableHead>
+                      <span className="sr-only">Ações</span>
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <div className="xl:hidden grid grid-cols-1 gap-3 md:grid-cols-2">
-            {filtered.map((iq) => (
-              <Card
-                key={iq.id}
-                className="cursor-pointer hover:shadow-md transition-shadow active:bg-slate-50"
-                onClick={() => handleView(iq)}
-              >
-                <CardContent className="p-4 space-y-2.5">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-slate-900 text-sm truncate">
-                        {iq.nome || '—'}
-                      </p>
-                      <p className="text-xs text-slate-600">
-                        {TIPO_PESSOA_LABELS[iq.tipo_pessoa] || '—'}
-                      </p>
-                    </div>
-                    <StatusBadge type="geral" status={iq.status} />
-                  </div>
-                  <div className="text-xs text-slate-600 space-y-1">
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">CPF/CNPJ:</span>
-                      <span className="font-medium">
-                        {iq.tipo_pessoa === 'pj' ? iq.cnpj : iq.cpf || '—'}
-                      </span>
-                    </div>
-                    {iq.email && (
-                      <div className="flex justify-between truncate">
-                        <span className="text-slate-600">E-mail:</span>
-                        <span className="truncate ml-2">{iq.email}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                    <span className="text-xs text-slate-600">{iq.telefone || 'Sem telefone'}</span>
-                    <div className="flex gap-1.5" onClick={(e) => e.stopPropagation()}>
-                      {canEdit ? (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-11 px-3 min-h-[44px] text-sm"
-                            onClick={() => handleEdit(iq)}
-                          >
-                            <Pencil className="h-3.5 w-3.5 mr-1 text-slate-600" /> Editar
-                          </Button>
-                          {iq.status !== 'inativo' && (
-                            <ConfirmarAcao
-                              titulo="Inativar este inquilino?"
-                              descricao="O inquilino sai das listas ativas e deixa de aparecer para novos contratos. O histórico continua guardado e o status pode ser revertido pela edição."
-                              rotuloConfirmar="Sim, inativar o inquilino"
-                              onConfirmar={() => handleInactivate(iq)}
-                            >
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-11 min-h-[44px] min-w-[44px] px-3 text-red-600 hover:bg-red-50 border-red-200"
-                                aria-label={`Inativar ${iq.nome}`}
-                              >
-                                <Ban className="h-3.5 w-3.5" aria-hidden="true" />
-                              </Button>
-                            </ConfirmarAcao>
-                          )}
-                        </>
-                      ) : (
+                </TableHeader>
+                <TableBody>
+                  {visiveis.map(({ iq, situacao }) => (
+                    <TableRow key={iq.id} className="cursor-pointer" onClick={() => handleView(iq)}>
+                      <TableCell>
+                        <strong className="block">{iq.nome || '—'}</strong>
+                        <span className="numero text-sm text-accent-foreground">
+                          {rotuloDoDocumento(iq)} {formatarCpfCnpj(documentoDe(iq))}
+                        </span>
+                        {iq.status === 'inativo' && (
+                          <Badge variant="neutral" className="ml-2">
+                            Inativo
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="numero">{formatarTelefone(iq.telefone)}</TableCell>
+                      <TableCell>{situacao.unidade}</TableCell>
+                      <TableCell>
+                        {contratosDisponiveis ? (
+                          <Badge variant={situacao.tom}>{situacao.rotulo}</Badge>
+                        ) : (
+                          '—'
+                        )}
+                      </TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-11 px-3 min-h-[44px] text-sm"
+                          className="w-full"
+                          aria-label={`Ver ficha de ${iq.nome}`}
                           onClick={() => handleView(iq)}
                         >
-                          <Eye className="h-3.5 w-3.5 mr-1 text-slate-600" /> Detalhes
+                          Ver ficha
                         </Button>
-                      )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+
+            {/* Celular, tablet e computador estreito: um cartão por inquilino. */}
+            <ul
+              className={cn(
+                'grid grid-cols-[repeat(auto-fill,minmax(min(100%,340px),1fr))] gap-3 md:gap-4',
+                ESCONDE_NA_TABELA,
+              )}
+            >
+              {visiveis.map(({ iq, situacao }, indice) => (
+                <li key={iq.id}>
+                  <Card canto={cantoOrganico(indice)} className="flex h-full flex-col gap-3 p-5">
+                    <div className="flex items-start gap-2.5">
+                      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <strong className="font-serif text-xl font-bold leading-tight">
+                          {iq.nome || '—'}
+                        </strong>
+                        <span className="numero text-sm text-accent-foreground">
+                          {rotuloDoDocumento(iq)} {formatarCpfCnpj(documentoDe(iq))}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        {contratosDisponiveis && (
+                          <Badge variant={situacao.tom}>{situacao.rotulo}</Badge>
+                        )}
+                        {iq.status === 'inativo' && <Badge variant="neutral">Inativo</Badge>}
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <dl className="flex flex-col gap-2 rounded-[18px] bg-sunken px-3.5 py-3">
+                      <div className="flex flex-col">
+                        <dt className="text-sm text-accent-foreground">Unidade</dt>
+                        <dd className="text-base font-bold">{situacao.unidade}</dd>
+                      </div>
+                      <div className="flex flex-col">
+                        <dt className="text-sm text-accent-foreground">Telefone</dt>
+                        <dd className="numero text-base font-bold">
+                          {formatarTelefone(iq.telefone)}
+                        </dd>
+                      </div>
+                    </dl>
+                    <div
+                      className={cn(
+                        'mt-auto grid gap-2',
+                        iq.telefone ? 'grid-cols-2' : 'grid-cols-1',
+                      )}
+                    >
+                      {iq.telefone && (
+                        <a
+                          href={`tel:${String(iq.telefone).replace(/[^\d+]/g, '')}`}
+                          aria-label={`Ligar para ${iq.nome}`}
+                          className={buttonVariants({ variant: 'outline' })}
+                        >
+                          <Phone aria-hidden="true" /> Ligar
+                        </a>
+                      )}
+                      <Button
+                        aria-label={`Ver ficha de ${iq.nome}`}
+                        onClick={() => handleView(iq)}
+                      >
+                        Ver ficha
+                      </Button>
+                    </div>
+                  </Card>
+                </li>
+              ))}
+            </ul>
           </div>
+
+          {restantes > 0 && (
+            <Button
+              variant="secondary"
+              className="self-center border-[1.5px] border-border bg-transparent hover:bg-primary/10"
+              aria-expanded={mostrarTodos}
+              onClick={() => setMostrarTodos((v) => !v)}
+            >
+              {mostrarTodos ? 'Mostrar menos' : `Mostrar mais ${restantes}`}
+            </Button>
+          )}
         </>
       )}
 
@@ -371,8 +459,63 @@ export default function Inquilinos() {
         open={detailOpen}
         onOpenChange={setDetailOpen}
         onEdit={() => handleEdit(selected)}
+        onInativar={() => handleInactivate(selected)}
         canEdit={canEdit}
       />
+    </div>
+  )
+}
+
+/**
+ * Carregando (seção 15): blocos com pulso no formato do que vai aparecer —
+ * cartões no celular, linhas da tabela no computador. Para leitor de tela, só o
+ * texto "Carregando inquilinos…".
+ */
+function CarregandoInquilinos() {
+  return (
+    <div aria-busy="true" className="[container-type:inline-size]">
+      <span role="status" className="sr-only">
+        Carregando inquilinos…
+      </span>
+      <div aria-hidden="true" className={cn('flex flex-col gap-3', ESCONDE_NA_TABELA)}>
+        {[0, 1, 2].map((i) => (
+          <Card key={i} canto={cantoOrganico(i)} className="flex flex-col gap-3 p-5">
+            <div className="flex justify-between gap-3">
+              <Skeleton className="h-6 w-[55%]" />
+              <Skeleton className="h-7 w-24 rounded-full" />
+            </div>
+            <Skeleton className="h-4 w-[45%]" />
+            <Skeleton className="h-[88px] w-full rounded-[18px]" />
+            <div className="grid grid-cols-2 gap-2">
+              <Skeleton className="h-12 rounded-full" />
+              <Skeleton className="h-12 rounded-full" />
+            </div>
+          </Card>
+        ))}
+      </div>
+      <Card aria-hidden="true" className={cn('hidden overflow-hidden', MOSTRA_NA_TABELA)}>
+        <div className="grid grid-cols-[1.7fr_1fr_1.6fr_1fr_130px] gap-4 bg-muted/60 px-7 py-[18px]">
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-4 w-3/5 rounded-lg" />
+          ))}
+          <span />
+        </div>
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className="grid grid-cols-[1.7fr_1fr_1.6fr_1fr_130px] items-center gap-4 border-t border-border/60 px-7 py-5"
+          >
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-[18px] w-4/5" />
+              <Skeleton className="h-3.5 w-[45%]" />
+            </div>
+            <Skeleton className="h-[18px] w-3/4" />
+            <Skeleton className="h-[18px] w-3/5" />
+            <Skeleton className="h-7 w-[110px] rounded-full" />
+            <Skeleton className="h-11 w-full rounded-full" />
+          </div>
+        ))}
+      </Card>
     </div>
   )
 }

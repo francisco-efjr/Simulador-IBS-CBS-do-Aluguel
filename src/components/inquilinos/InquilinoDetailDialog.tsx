@@ -1,4 +1,4 @@
-import { Pencil } from 'lucide-react'
+import { Ban, Pencil } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -7,6 +7,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { ConfirmarAcao } from '@/components/shared/ConfirmarAcao'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { DocumentUpload } from '@/components/shared/DocumentUpload'
 import { formatDate, TIPO_PESSOA_LABELS } from '@/lib/format'
@@ -14,8 +15,8 @@ import { formatDate, TIPO_PESSOA_LABELS } from '@/lib/format'
 function InfoItem({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="space-y-0.5">
-      <p className="text-xs text-slate-400">{label}</p>
-      <p className="text-sm font-medium text-slate-700">{value || '—'}</p>
+      <p className="text-sm text-accent-foreground">{label}</p>
+      <p className="text-base font-bold">{value || '—'}</p>
     </div>
   )
 }
@@ -25,12 +26,15 @@ export function InquilinoDetailDialog({
   open,
   onOpenChange,
   onEdit,
+  onInativar,
   canEdit = true,
 }: {
   inquilino: any
   open: boolean
   onOpenChange: (v: boolean) => void
   onEdit: () => void
+  /** Inativa o inquilino; o botão só aparece para quem pode editar e se ele ainda está ativo. */
+  onInativar?: () => void
   canEdit?: boolean
 }) {
   if (!inquilino) return null
@@ -68,31 +72,36 @@ export function InquilinoDetailDialog({
           </div>
           {inquilino.observacoes && (
             <div>
-              <p className="text-xs text-slate-400 mb-0.5">Observações</p>
-              <p className="text-sm text-slate-600">{inquilino.observacoes}</p>
+              <p className="mb-0.5 text-sm text-accent-foreground">Observações</p>
+              <p className="text-base">{inquilino.observacoes}</p>
             </div>
           )}
           <div>
-            <p className="text-xs text-slate-400 mb-1.5">Documentos</p>
+            <p className="mb-1.5 text-sm text-accent-foreground">Documentos</p>
             <DocumentUpload entidadeTipo="inquilino" entidadeId={inquilino.id} />
           </div>
         </div>
-        <DialogFooter className="flex-col sm:flex-row gap-2 pt-2">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            className="w-full sm:w-auto min-h-[44px]"
-          >
+        <DialogFooter className="flex-col gap-2 pt-2 sm:flex-row">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
             Fechar
           </Button>
-          {canEdit && (
-            <Button
-              onClick={onEdit}
-              className="w-full sm:w-auto min-h-[44px] bg-indigo-600 hover:bg-indigo-700"
+          {canEdit && onInativar && inquilino.status !== 'inativo' && (
+            <ConfirmarAcao
+              titulo="Inativar este inquilino?"
+              descricao="O inquilino sai das listas ativas e deixa de aparecer para novos contratos. O histórico continua guardado e o status pode ser revertido pela edição."
+              rotuloConfirmar="Sim, inativar o inquilino"
+              onConfirmar={onInativar}
             >
-              <Pencil className="h-4 w-4 mr-1" /> Editar
+              <Button variant="ghost" className="w-full text-red-800 hover:bg-destructive/10 sm:w-auto">
+                <Ban aria-hidden="true" /> Inativar
+              </Button>
+            </ConfirmarAcao>
+          )}
+          {canEdit && (
+            <Button onClick={onEdit} className="w-full sm:w-auto">
+              <Pencil aria-hidden="true" /> Editar
             </Button>
-          )}{' '}
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
