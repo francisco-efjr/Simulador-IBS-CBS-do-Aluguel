@@ -156,7 +156,7 @@ export function SidebarContent({ emGaveta = false, onItemClick }: SidebarContent
         </Link>
       </div>
 
-      {emGaveta && <ControleDeFonte className="self-start" />}
+      {emGaveta && <ControleDeFonte className="self-start md:hidden" />}
 
       <nav
         aria-label="Menu principal"

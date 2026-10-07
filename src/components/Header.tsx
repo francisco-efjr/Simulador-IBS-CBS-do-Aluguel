@@ -165,7 +165,9 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
             </span>
           )}
         </button>
-        <p className="min-w-0 flex-1 truncate font-serif text-lg font-bold">{pageTitle}</p>
+        <p className="min-w-0 flex-1 truncate font-serif text-lg font-bold md:text-xl">{pageTitle}</p>
+        {/* A partir de 768px o controle de letra cabe na pílula; abaixo disso fica na gaveta. */}
+        <ControleDeFonte className="hidden md:inline-flex" />
         {menuDaConta('h-11 w-11')}
       </header>
 
