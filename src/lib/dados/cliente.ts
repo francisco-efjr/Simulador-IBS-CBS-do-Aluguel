@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { ARQUIVOS, RELACOES, chaveEstrangeira } from './esquema'
+import { ARQUIVOS, RELACOES, chaveEstrangeira, pastaDoAnexo } from './esquema'
 import { enviarArquivo } from './arquivos'
 
 /**
@@ -178,6 +178,10 @@ async function prepararDados(
   const campos = ARQUIVOS[tabela] ?? {}
   const saida: Record<string, unknown> = {}
   const multiplos: Record<string, unknown[]> = {}
+  // Anexo vai para a pasta da entidade a que pertence: é o que a política de
+  // storage lê para exigir a permissão do módulo certo. Lido antes do laço
+  // porque o arquivo pode vir antes do tipo no FormData.
+  const pasta = tabela === 'documentos_anexos' ? pastaDoAnexo(dados.get('entidade_tipo')) : undefined
 
   for (const [chave, valor] of dados.entries()) {
     const config = campos[chave]
@@ -186,13 +190,13 @@ async function prepararDados(
       const lista = (multiplos[chave] ??= [])
       // Texto aqui é caminho de arquivo que já está no bucket: a tela reenvia
       // a lista inteira para dizer quais ficam.
-      lista.push(valor instanceof File ? await enviarArquivo(config.bucket, valor) : valor)
+      lista.push(valor instanceof File ? await enviarArquivo(config.bucket, valor, pasta) : valor)
       continue
     }
 
     if (valor instanceof File) {
       if (!config) continue
-      saida[chave] = await enviarArquivo(config.bucket, valor)
+      saida[chave] = await enviarArquivo(config.bucket, valor, pasta)
       continue
     }
 

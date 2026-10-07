@@ -542,7 +542,7 @@ await item(
     const { data, error } = await novo.auth.signUp({
       email: 'convidado@teste.local',
       password: 'Senha-Inicial-1',
-      options: { data: { name: 'Pessoa Convidada' } },
+      options: { data: { name: 'Pessoa Convidada', convite_token: 'convite-local-0001' } },
     })
     afirmar(!error && data.session, error?.message ?? 'sem sessão')
     const { data: perfil } = await novo
@@ -584,6 +584,38 @@ await item(
       'mesma senha',
     )
     afirmar(!(await novo.auth.signOut()).error, 'signOut')
+  },
+)
+await item(
+  'signUp sem o token do convite (ou com token de outro e-mail): a conta nasce inativa e sem permissão',
+  async () => {
+    // O e-mail do convite pendente é de outra pessoa; quem não sabe o token não o herda.
+    await admin.from('convites').insert({
+      email: 'pendente@teste.local',
+      token: 'convite-local-0002',
+      perfil: 'administrador',
+      data_expiracao: new Date(Date.now() + 86_400_000).toISOString(),
+    })
+    for (const [email, token] of [
+      ['pendente@teste.local', undefined],
+      ['intruso@teste.local', 'convite-local-0002'],
+    ] as const) {
+      const novo = novoCliente()
+      const { data, error } = await novo.auth.signUp({
+        email,
+        password: 'Senha-Inicial-1',
+        options: { data: token ? { convite_token: token } : {} },
+      })
+      afirmar(!error && data.user, error?.message ?? 'sem usuário')
+      const { data: perfil } = await novo.from('users').select('perfil, ativo').eq('id', data.user!.id).single()
+      igual(perfil!.perfil, 'usuario', `perfil de ${email}`)
+      igual(perfil!.ativo, false, `inativo: ${email}`)
+      // Conta inativa não lê nem o vocabulário compartilhado.
+      const { data: categorias } = await novo.from('categorias_financeiras').select('id')
+      igual(categorias!.length, 0, `categorias lidas por ${email}`)
+    }
+    const { data: convite } = await admin.from('convites').select('status').eq('token', 'convite-local-0002').single()
+    igual(convite!.status, 'pendente', 'convite continua pendente')
   },
 )
 await item(

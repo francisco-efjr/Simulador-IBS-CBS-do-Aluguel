@@ -32,7 +32,9 @@ sempre iguais, e ficam em `supabase/local/.contas-locais.json` (fora do git):
 | `inativo@teste.local`  | `ativo = false`: entra no Auth, mas o perfil inativo derruba a sessão |
 
 Também há um convite pendente para `convidado@teste.local` (token `convite-local-0001`): cadastrar
-esse e-mail em `/signup` aceita o convite pelo gatilho.
+esse e-mail em `/signup` com `?token=convite-local-0001` aceita o convite pelo gatilho. O token é
+obrigatório: cadastro sem ele (ou com o token de outro e-mail) nasce inativo e sem permissão, e um
+administrador libera em `/usuarios` (migração `20261006120002`).
 
 A semente (`semente.ts`) traz 3 locadores, 2 fiadores, 4 inquilinos (um PJ com CNPJ alfanumérico),
 3 imóveis (o Edifício Aguiar Centro com 3 unidades), 2 contratos ativos e 1 encerrado, 1 conta

@@ -53,6 +53,32 @@ export const ARQUIVOS: Record<string, Record<string, { bucket: string; varios?: 
 }
 
 /**
+ * Tipos de entidade que recebem anexo (o mesmo enum `entidade_anexo` do banco).
+ *
+ * O anexo sobe para `<tipo>/<uuid>-<nome>` no bucket `documentos-anexos`: a
+ * política de storage deduz da primeira pasta a quem o arquivo pertence e
+ * exige a permissão do módulo certo (migração 20261006120001). Caminho sem essa
+ * pasta só o administrador alcança.
+ */
+export const ENTIDADES_DE_ANEXO = [
+  'imovel',
+  'inquilino',
+  'contrato',
+  'fornecedor',
+  'despesa',
+  'receita',
+  'iptu_taxas',
+] as const
+
+/** Pasta do anexo para o tipo informado; recusa o que o banco também recusaria. */
+export function pastaDoAnexo(tipo: unknown): string {
+  if (typeof tipo === 'string' && (ENTIDADES_DE_ANEXO as readonly string[]).includes(tipo)) {
+    return tipo
+  }
+  throw new Error('Tipo de anexo inválido.')
+}
+
+/**
  * Nome da chave estrangeira. O Postgres batiza toda FK declarada na coluna
  * como <tabela>_<coluna>_fkey, então o nome é dedutível e não precisa de
  * consulta ao catálogo.

@@ -20,9 +20,14 @@ function nomeSeguro(nome: string): string {
     .slice(-80)
 }
 
-/** Sobe o arquivo e devolve o caminho a gravar na coluna. */
-export async function enviarArquivo(bucket: string, arquivo: File): Promise<string> {
-  const caminho = `${crypto.randomUUID()}-${nomeSeguro(arquivo.name)}`
+/**
+ * Sobe o arquivo e devolve o caminho a gravar na coluna.
+ *
+ * `pasta` é a primeira pasta do caminho. Nos anexos (`documentos-anexos`) ela é
+ * o tipo da entidade, e é por ela que o storage decide quem pode ler e gravar.
+ */
+export async function enviarArquivo(bucket: string, arquivo: File, pasta?: string): Promise<string> {
+  const caminho = `${pasta ? `${pasta}/` : ''}${crypto.randomUUID()}-${nomeSeguro(arquivo.name)}`
 
   const { error } = await supabase.storage.from(bucket).upload(caminho, arquivo, {
     contentType: arquivo.type || undefined,

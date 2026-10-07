@@ -12,6 +12,7 @@ const COLUNA_POR_INDICE: Record<string, string> = {
   categorias_financeiras_nome_tipo_key: 'nome',
   // Regras de negócio (migração 20260919120001).
   contratos_um_ativo_por_imovel: 'imovel',
+  contratos_um_ativo_por_unidade: 'unidade_id',
   contratos_reajuste_coerente: 'proxima_data_reajuste',
   contratos_vigencia_coerente: 'data_fim',
   inquilinos_cpf_valido: 'cpf',
@@ -47,6 +48,7 @@ const MENSAGEM_POR_INDICE: Record<string, string> = {
   users_email_uidx: 'Este e-mail já está cadastrado.',
   categorias_financeiras_nome_tipo_key: 'Já existe uma categoria com este nome.',
   contratos_um_ativo_por_imovel: 'Este imóvel já tem um contrato ativo nesse período.',
+  contratos_um_ativo_por_unidade: 'Esta unidade já tem um contrato ativo nesse período.',
   contratos_reajuste_coerente: 'O reajuste não pode ser antes do início do contrato.',
   contratos_vigencia_coerente: 'A data de fim não pode ser antes da data de início.',
   inquilinos_cpf_valido: 'CPF inválido. Confira os números digitados.',
@@ -80,12 +82,20 @@ const DATA_IMPLAUSIVEL =
   /check constraint "(?:receitas|despesas|iptu_taxas|contratos)_(\w+)_plausivel"/
 
 /**
- * Recusas levantadas pelos gatilhos do banco (errcode HA001 / HA003). A mensagem já sai
+ * Recusas levantadas pelos gatilhos do banco (errcode HA001 a HA009). A mensagem já sai
  * pronta para o usuário; aqui só se tira o prefixo técnico que o cliente põe
  * na frente ("Falha ao salvar em imoveis: …") e se escolhe o campo.
  */
 const RECUSA_DO_GATILHO =
-  /(Est[ea] (?:imóvel|inquilino|unidade) tem contrato ativo e não pode ser [^.]+\.[^\n]*|Limite de até 3 imóveis atingido[^\n]*|Só uma pessoa que entrou no sistema leva a história[^\n]*|A história só vai para Concluído[^\n]*)/
+  /(Est[ea] (?:imóvel|inquilino|unidade) tem contrato ativo e não pode ser [^.]+\.[^\n]*|Limite de até 3 imóveis atingido[^\n]*|Só uma pessoa que entrou no sistema leva a história[^\n]*|A história só vai para Concluído[^\n]*|Esta unidade não pertence ao imóvel do contrato\.|Esta categoria é de (?:despesa|receita) e não pode ser usada em (?:receitas|despesas)\.|Este contrato é de outro imóvel\.[^\n]*|O inquilino da receita é diferente do inquilino do contrato\.|Você não pode rebaixar, desativar nem remover a si mesmo\.|Este é o último administrador ativo[^\n]*)/
+
+/** Recusas do banco que cabem embaixo de um campo do formulário: início da mensagem → campo. */
+const CAMPO_DA_RECUSA: [string, string][] = [
+  ['Esta unidade não pertence', 'unidade_id'],
+  ['Esta categoria é de', 'categoria'],
+  ['Este contrato é de outro imóvel', 'contrato'],
+  ['O inquilino da receita', 'inquilino'],
+]
 
 function textoDoErro(error: unknown): string {
   if (!error) return ''
@@ -117,6 +127,10 @@ export function extractFieldErrors(error: unknown): FieldErrors {
   // Só a inativação vira erro de campo; a exclusão não tem formulário.
   const recusa = texto.match(RECUSA_DO_GATILHO)
   if (recusa && recusa[1].includes('inativado')) return { status: recusa[1] }
+
+  // Unidade fora do imóvel, categoria de tipo errado, contrato/inquilino que não combinam.
+  const campo = recusa && CAMPO_DA_RECUSA.find(([inicio]) => recusa[1].startsWith(inicio))
+  if (campo) return { [campo[1]]: recusa![1] }
 
   // "null value in column "endereco" of relation "imoveis" violates not-null"
   const obrigatorio = texto.match(/null value in column "([^"]+)"/)

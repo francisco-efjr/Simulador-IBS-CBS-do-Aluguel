@@ -103,7 +103,7 @@ export function DocumentUpload({ entidadeTipo, entidadeId }: DocumentUploadProps
                 caminho={doc.arquivo}
                 className="text-xs font-medium text-indigo-600 hover:underline truncate flex-1"
               >
-                {doc.descricao || doc.arquivo}
+                {doc.descricao || String(doc.arquivo).split('/').pop()}
               </LinkDeArquivo>
               <Button
                 variant="ghost"
