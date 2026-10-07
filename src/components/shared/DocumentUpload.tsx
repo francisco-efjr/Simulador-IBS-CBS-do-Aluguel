@@ -82,9 +82,11 @@ export function DocumentUpload({ entidadeTipo, entidadeId }: DocumentUploadProps
           size="sm"
           onClick={handleUpload}
           disabled={!file || uploading}
-          className="bg-indigo-600 hover:bg-indigo-700 shrink-0"
+          aria-label="Anexar o documento escolhido"
+          title="Anexar documento"
+          className="bg-indigo-600 hover:bg-indigo-700 shrink-0 h-11 w-11 min-h-[44px] min-w-[44px]"
         >
-          <Upload className="h-4 w-4" />
+          <Upload className="h-4 w-4" aria-hidden="true" />
         </Button>
       </div>
       {docs.length === 0 ? (
@@ -108,10 +110,12 @@ export function DocumentUpload({ entidadeTipo, entidadeId }: DocumentUploadProps
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-slate-400 hover:text-red-600 hover:bg-red-50 shrink-0"
+                aria-label={`Remover documento ${doc.descricao || String(doc.arquivo).split('/').pop()}`}
+                title="Remover documento"
+                className="h-11 w-11 min-h-[44px] min-w-[44px] text-slate-600 hover:text-red-600 hover:bg-red-50 shrink-0"
                 onClick={() => handleDelete(doc.id)}
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
               </Button>
             </div>
           ))}

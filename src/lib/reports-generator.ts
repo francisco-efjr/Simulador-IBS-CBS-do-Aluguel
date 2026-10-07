@@ -164,7 +164,7 @@ export interface RelatorioFinanceiroParams {
 
 export async function exportarRelatorioFinanceiroPDF(data: RelatorioFinanceiroParams) {
   const { jsPDF, autoTable } = await carregarPdf()
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true })
 
   await addPdfHeader(
     doc,
@@ -359,7 +359,7 @@ export interface RelatorioImoveisParams {
 
 export async function exportarRelatorioImoveisPDF(data: RelatorioImoveisParams) {
   const { jsPDF, autoTable } = await carregarPdf()
-  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true })
 
   await addPdfHeader(
     doc,
@@ -578,7 +578,7 @@ export interface RelatorioContratosParams {
 
 export async function exportarRelatorioContratosPDF(data: RelatorioContratosParams) {
   const { jsPDF, autoTable } = await carregarPdf()
-  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true })
 
   await addPdfHeader(
     doc,
@@ -731,7 +731,7 @@ export interface RelatorioInadimplenciaParams {
 
 export async function exportarRelatorioInadimplenciaPDF(data: RelatorioInadimplenciaParams) {
   const { jsPDF, autoTable } = await carregarPdf()
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true })
 
   await addPdfHeader(
     doc,
