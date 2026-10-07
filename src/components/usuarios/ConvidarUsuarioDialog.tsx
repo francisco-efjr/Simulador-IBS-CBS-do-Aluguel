@@ -246,18 +246,8 @@ export function ConvidarUsuarioDialog({
               >
                 Cancelar
               </Button>
-              <Button
-                type="submit"
-                disabled={submitting}
-                className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold shadow-md shadow-gold-500/20"
-              >
-                {submitting ? (
-                  'Enviando convite...'
-                ) : (
-                  <>
-                    <Send className="mr-2 h-4 w-4" /> Enviar Convite
-                  </>
-                )}
+              <Button type="submit" carregando={submitting} textoCarregando="Enviando convite…">
+                <Send aria-hidden="true" /> Enviar Convite
               </Button>
             </DialogFooter>
           </form>

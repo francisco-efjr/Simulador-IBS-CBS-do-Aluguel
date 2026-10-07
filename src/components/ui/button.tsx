@@ -1,5 +1,6 @@
 /* Botão (shadcn/ui) no visual orgânico: pílula, musgo, sombra tingida (exposes Button, buttonVariants) */
 import * as React from 'react'
+import { Loader2 } from 'lucide-react'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 
@@ -8,7 +9,7 @@ import { cn } from '@/lib/utils'
 // Sem `whitespace-nowrap`: com a letra no maior tamanho, um rótulo longo quebra
 // dentro da pílula em vez de estourar a largura da tela.
 const buttonVariants = cva(
-  'inline-flex max-w-full items-center justify-center gap-2 text-center rounded-full font-extrabold ring-offset-background transition-all duration-300 ease-organic focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
+  'inline-flex max-w-full items-center justify-center gap-2 text-center rounded-full font-extrabold transition-all duration-300 ease-organic disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
@@ -43,13 +44,95 @@ const buttonVariants = cva(
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  /**
+   * Estado "carregando" do guia de estilo: mantém a largura do botão, troca o
+   * conteúdo por um ícone girando e o texto, marca `aria-busy` e ignora um
+   * segundo toque. Não usa `disabled`: o botão continua com o foco do teclado.
+   */
+  carregando?: boolean
+  /** Texto durante o carregamento: "Aguarde…" ou a ação ("Entrando…"). */
+  textoCarregando?: string
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button'
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      carregando = false,
+      textoCarregando = 'Aguarde…',
+      children,
+      onClick,
+      style,
+      ...props
+    },
+    ref,
+  ) => {
+    const interno = React.useRef<HTMLButtonElement | null>(null)
+    // Largura medida antes de carregar, para o botão não encolher com o texto novo.
+    const [largura, setLargura] = React.useState<number>()
+
+    const juntarRefs = React.useCallback(
+      (no: HTMLButtonElement | null) => {
+        interno.current = no
+        if (typeof ref === 'function') ref(no)
+        else if (ref) ref.current = no
+      },
+      [ref],
+    )
+
+    React.useLayoutEffect(() => {
+      if (carregando) return
+      const no = interno.current
+      if (no) setLargura(no.getBoundingClientRect().width)
+    }, [carregando, children])
+
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          style={style}
+          onClick={onClick}
+          {...props}
+        >
+          {children}
+        </Slot>
+      )
+    }
+
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <button
+        className={cn(
+          buttonVariants({ variant, size, className }),
+          carregando &&
+            'cursor-progress hover:scale-100 hover:shadow-soft active:scale-100 disabled:opacity-100',
+        )}
+        ref={juntarRefs}
+        aria-busy={carregando || undefined}
+        aria-disabled={carregando || props['aria-disabled']}
+        style={carregando && largura ? { minWidth: largura, ...style } : style}
+        onClick={(evento) => {
+          if (carregando) {
+            // Segundo toque durante o envio: não repete a ação nem reenvia o formulário.
+            evento.preventDefault()
+            return
+          }
+          onClick?.(evento)
+        }}
+        {...props}
+      >
+        {carregando ? (
+          <>
+            <Loader2 className="animate-spin" aria-hidden="true" />
+            {textoCarregando}
+          </>
+        ) : (
+          children
+        )}
+      </button>
     )
   },
 )

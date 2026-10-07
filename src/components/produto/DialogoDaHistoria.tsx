@@ -613,8 +613,14 @@ export function DialogoDaHistoria({
               Descartar alterações
             </Button>
           )}
-          <Button type="submit" disabled={salvando || (!nova && !alterado)} className="min-h-11">
-            {salvando ? 'Salvando…' : nova ? 'Criar história' : 'Salvar alterações'}
+          <Button
+            type="submit"
+            carregando={salvando}
+            textoCarregando="Salvando…"
+            disabled={!salvando && !nova && !alterado}
+            className="min-h-11"
+          >
+            {nova ? 'Criar história' : 'Salvar alterações'}
           </Button>
         </div>
       </div>

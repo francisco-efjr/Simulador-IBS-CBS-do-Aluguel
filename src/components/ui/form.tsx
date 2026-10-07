@@ -12,6 +12,7 @@ import {
 } from 'react-hook-form'
 
 import { cn } from '@/lib/utils'
+import { CircleAlert } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 
 const Form = FormProvider
@@ -147,10 +148,11 @@ const FormMessage = React.forwardRef<
     <p
       ref={ref}
       id={formMessageId}
-      className={cn('text-sm font-medium text-destructive', className)}
+      className={cn('flex items-start gap-2 text-sm font-bold text-destructive', className)}
       {...props}
     >
-      {body}
+      {error && <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />}
+      <span>{body}</span>
     </p>
   )
 })
