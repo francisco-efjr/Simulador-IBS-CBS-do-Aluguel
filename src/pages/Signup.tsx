@@ -212,7 +212,7 @@ export default function Signup() {
       {inviteStatus && !inviteStatus.valid && (
         <div
           role="alert"
-          className="flex items-start gap-3 rounded-3xl bg-destructive/10 px-5 py-4 text-base text-destructive"
+          className="flex items-start gap-3 rounded-3xl bg-destructive/10 px-5 py-4 text-base text-red-800"
         >
           <CircleAlert className="mt-0.5 h-6 w-6 shrink-0" aria-hidden="true" />
           <div className="flex flex-col gap-1">
@@ -226,7 +226,7 @@ export default function Signup() {
         {generalError && !(inviteStatus && !inviteStatus.valid) && (
           <div
             role="alert"
-            className="flex items-start gap-2 rounded-3xl bg-destructive/10 px-5 py-3 text-sm font-bold text-destructive"
+            className="flex items-start gap-2 rounded-3xl bg-destructive/10 px-5 py-3 text-sm font-bold text-red-800"
           >
             <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
             <span>{generalError}</span>

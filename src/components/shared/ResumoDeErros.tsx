@@ -69,7 +69,7 @@ export function ResumoDeErros({ erros, tentativa, className = '' }: ResumoDeErro
                   evento.preventDefault()
                   irParaCampo(erro.campo)
                 }}
-                className="inline-flex min-h-11 items-center text-base font-bold text-destructive underline"
+                className="inline-flex min-h-11 items-center text-base font-bold text-red-800 underline"
               >
                 {erro.rotulo ? `${erro.rotulo}: ${erro.mensagem}` : erro.mensagem}
               </a>

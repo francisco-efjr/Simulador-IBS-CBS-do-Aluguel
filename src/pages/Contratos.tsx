@@ -372,7 +372,7 @@ export default function Contratos() {
               return (
                 <li key={c.id}>
                   <Card canto={cantoOrganico(indice)} className="flex h-full flex-col gap-3 p-5">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="numero flex-1 text-sm font-bold text-accent-foreground">
                         {c.numero || 'Sem número'}
                       </span>
