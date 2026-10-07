@@ -33,7 +33,7 @@ export const TransitionYearSelector: React.FC<TransitionYearSelectorProps> = ({
   )
 
   return (
-    <section className="bg-surface border border-sim-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] space-y-5">
+    <section className="bg-surface border border-sim-border rounded-organic-tr p-5 sm:p-6 shadow-soft space-y-5">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-sim-border pb-4">
         <h2 className="flex items-center gap-3 text-lg sm:text-xl font-semibold text-text-primary tracking-tight">
           <span className="p-2.5 bg-surface-muted border border-sim-border text-text-primary rounded-full shrink-0">

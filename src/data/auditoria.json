@@ -1,6 +1,6 @@
 {
-  "geradoEm": "2026-10-06T13:41:48.712Z",
-  "commit": "a068e2a",
+  "geradoEm": "2026-10-07T16:02:34.320Z",
+  "commit": "f315e2f",
   "verificacoes": [
     {
       "id": "tipos",
@@ -14,14 +14,14 @@
       "nome": "Testes automáticos",
       "descricao": "Roda a bateria de testes que confere os cálculos e o comportamento das telas.",
       "situacao": "ok",
-      "detalhe": "Todos os 526 testes automáticos passaram."
+      "detalhe": "Todos os 767 testes automáticos passaram."
     },
     {
       "id": "lint",
       "nome": "Boas práticas de escrita",
       "descricao": "Revisa o código contra as regras de escrita do projeto (oxlint). Erro reprova; avisos acima do teto de 90 pedem atenção.",
       "situacao": "ok",
-      "detalhe": "Nenhum erro. Há 90 pontos de melhoria anotados para arrumar com calma, e esse número não pode crescer."
+      "detalhe": "Nenhum erro. Há 85 pontos de melhoria anotados para arrumar com calma, e esse número não pode crescer."
     },
     {
       "id": "camadas",
@@ -70,7 +70,7 @@
       "nome": "Lista de novidades em dia",
       "descricao": "A seção \"Últimas atualizações\" não ficou para trás: a entrega (feat) ou correção (fix) mais recente do histórico não é mais nova que a última entrada de src/data/feed.json.",
       "situacao": "ok",
-      "detalhe": "A lista de novidades acompanha o código. Última novidade: 06/10/2026."
+      "detalhe": "A lista de novidades acompanha o código. Última novidade: 07/10/2026."
     }
   ]
 }

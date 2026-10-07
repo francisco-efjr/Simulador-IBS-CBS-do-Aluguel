@@ -307,14 +307,14 @@ export default function LogsAtividade() {
   if (!isAdministrador) {
     return (
       <div className="space-y-6">
-        <div className="rounded-xl border border-gold-500/30 bg-gradient-to-r from-navy-950 to-navy-900 p-6 text-white shadow-lg">
+        <div className="relative overflow-hidden rounded-destaque bg-primary p-6 text-primary-foreground shadow-hero">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gold-500/20 text-gold-400">
+            <div className="flex h-12 w-12 items-center justify-center blob-1 bg-primary-foreground/15 text-primary-foreground">
               <ShieldAlert className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">Log de Atividades e Auditoria</h2>
-              <p className="text-xs sm:text-sm text-slate-300">
+              <h2 className="text-2xl text-primary-foreground">Log de Atividades e Auditoria</h2>
+              <p className="text-sm text-primary-foreground">
                 Acesso restrito: somente administradores do sistema têm permissão para visualizar o
                 log de auditoria.
               </p>
@@ -328,18 +328,18 @@ export default function LogsAtividade() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Top Banner Holding Aguiar */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-xl bg-gradient-to-r from-navy-950 via-navy-900 to-navy-800 p-6 text-white shadow-xl border border-navy-700/80">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between relative overflow-hidden rounded-destaque bg-primary p-6 text-primary-foreground shadow-hero">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold uppercase tracking-widest text-gold-400 flex items-center gap-1.5">
-              <Shield className="h-3.5 w-3.5 text-gold-400" /> Holding Aguiar &bull; Governança &
+            <span className="text-xs font-extrabold uppercase tracking-[0.08em] text-primary-foreground flex items-center gap-1.5">
+              <Shield className="h-4 w-4" aria-hidden="true" /> Holding Aguiar &bull; Governança &
               Auditoria
             </span>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            <History className="h-6 w-6 text-gold-400" /> Registro de Atividades do Sistema
+          <h2 className="text-2xl text-primary-foreground flex items-center gap-2.5">
+            <History className="h-6 w-6" aria-hidden="true" /> Registro de Atividades do Sistema
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300">
+          <p className="text-sm text-primary-foreground">
             Rastreabilidade completa de todas as criações, alterações, exclusões e acessos efetuados
             no sistema.
           </p>
@@ -350,19 +350,17 @@ export default function LogsAtividade() {
             variant="outline"
             onClick={fetchLogs}
             disabled={loading}
-            className="border-navy-600 bg-navy-900/90 text-white hover:bg-navy-800 hover:text-gold-300 text-xs h-9"
+            className="border-primary-foreground/70 text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground"
           >
-            <RefreshCw
-              className={`mr-1.5 h-3.5 w-3.5 ${loading ? 'animate-spin text-gold-400' : ''}`}
-            />
+            <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
             Atualizar
           </Button>
 
           <Button
             onClick={handleExportCsv}
-            className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold text-xs h-9 shadow-lg shadow-gold-500/20 active:scale-[0.98] transition-all"
+            className="bg-primary-foreground text-primary hover:bg-primary-foreground"
           >
-            <Download className="mr-1.5 h-3.5 w-3.5 text-navy-950" /> Exportar CSV
+            <Download aria-hidden="true" /> Exportar CSV
           </Button>
         </div>
       </div>
@@ -722,7 +720,7 @@ export default function LogsAtividade() {
                       onClick={() => setPage(pageNum)}
                       className={`h-8 w-8 p-0 text-xs ${
                         page === pageNum
-                          ? 'bg-navy-900 text-gold-400 font-bold hover:bg-navy-800'
+                          ? 'bg-primary text-primary-foreground font-extrabold hover:bg-primary/90'
                           : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                       }`}
                     >

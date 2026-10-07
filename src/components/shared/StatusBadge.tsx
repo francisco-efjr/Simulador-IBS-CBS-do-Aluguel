@@ -1,49 +1,40 @@
-import { Badge } from '@/components/ui/badge'
+import { Badge, type BadgeProps } from '@/components/ui/badge'
 
-const CONFIG: Record<string, Record<string, { label: string; className: string }>> = {
+type Tom = NonNullable<BadgeProps['variant']>
+
+/** Pílulas de situação (StatusPill do handoff): sempre texto e cor juntos. */
+const CONFIG: Record<string, Record<string, { label: string; tom: Tom }>> = {
   imovel: {
-    vago: { label: 'Vago', className: 'bg-blue-100 text-blue-700 hover:bg-blue-100' },
-    alugado: {
-      label: 'Alugado',
-      className: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100',
-    },
-    em_manutencao: {
-      label: 'Em manutenção',
-      className: 'bg-amber-100 text-amber-700 hover:bg-amber-100',
-    },
-    inativo: { label: 'Inativo', className: 'bg-slate-200 text-slate-700 hover:bg-slate-100' },
+    vago: { label: 'Vago', tom: 'warn' },
+    alugado: { label: 'Alugado', tom: 'ok' },
+    em_manutencao: { label: 'Em manutenção', tom: 'neutral' },
+    inativo: { label: 'Inativo', tom: 'neutral' },
   },
   geral: {
-    ativo: { label: 'Ativo', className: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100' },
-    inativo: { label: 'Inativo', className: 'bg-slate-200 text-slate-700 hover:bg-slate-100' },
+    ativo: { label: 'Ativo', tom: 'ok' },
+    inativo: { label: 'Inativo', tom: 'neutral' },
   },
   contrato: {
-    ativo: { label: 'Ativo', className: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100' },
-    encerrado: { label: 'Encerrado', className: 'bg-slate-200 text-slate-700 hover:bg-slate-100' },
-    cancelado: { label: 'Cancelado', className: 'bg-red-100 text-red-700 hover:bg-red-100' },
+    ativo: { label: 'Ativo', tom: 'ok' },
+    encerrado: { label: 'Encerrado', tom: 'neutral' },
+    cancelado: { label: 'Cancelado', tom: 'danger' },
   },
   iptu_taxas: {
-    pago: { label: 'Pago', className: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100' },
-    pendente: {
-      label: 'Pendente',
-      className: 'bg-amber-100 text-amber-700 hover:bg-amber-100',
-    },
-    vencido: { label: 'Vencido', className: 'bg-red-100 text-red-700 hover:bg-red-100' },
+    pago: { label: 'Pago', tom: 'ok' },
+    pendente: { label: 'Pendente', tom: 'warn' },
+    vencido: { label: 'Vencido', tom: 'danger' },
   },
   receita: {
-    previsto: { label: 'Previsto', className: 'bg-blue-100 text-blue-700 hover:bg-blue-100' },
-    recebido: {
-      label: 'Recebido',
-      className: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100',
-    },
-    em_atraso: { label: 'Em atraso', className: 'bg-red-100 text-red-700 hover:bg-red-100' },
-    parcial: { label: 'Parcial', className: 'bg-amber-100 text-amber-700 hover:bg-amber-100' },
+    previsto: { label: 'Previsto', tom: 'neutral' },
+    recebido: { label: 'Recebido', tom: 'ok' },
+    em_atraso: { label: 'Em atraso', tom: 'danger' },
+    parcial: { label: 'Parcial', tom: 'warn' },
   },
   despesa: {
-    previsto: { label: 'Previsto', className: 'bg-blue-100 text-blue-700 hover:bg-blue-100' },
-    pago: { label: 'Pago', className: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100' },
-    em_atraso: { label: 'Em atraso', className: 'bg-red-100 text-red-700 hover:bg-red-100' },
-    parcial: { label: 'Parcial', className: 'bg-amber-100 text-amber-700 hover:bg-amber-100' },
+    previsto: { label: 'Previsto', tom: 'neutral' },
+    pago: { label: 'Pago', tom: 'ok' },
+    em_atraso: { label: 'Em atraso', tom: 'danger' },
+    parcial: { label: 'Parcial', tom: 'warn' },
   },
 }
 
@@ -54,6 +45,6 @@ export function StatusBadge({
   type: 'imovel' | 'geral' | 'contrato' | 'iptu_taxas' | 'receita' | 'despesa'
   status: string
 }) {
-  const cfg = CONFIG[type]?.[status] || { label: status, className: 'bg-slate-200 text-slate-700' }
-  return <Badge className={cfg.className}>{cfg.label}</Badge>
+  const cfg = CONFIG[type]?.[status] || { label: status, tom: 'neutral' as Tom }
+  return <Badge variant={cfg.tom}>{cfg.label}</Badge>
 }

@@ -146,16 +146,16 @@ const MONTH_NAMES_SHORT = [
 ]
 
 const PIE_COLORS = [
-  '#0284c7', // Sky
-  '#d97706', // Amber / Gold
-  '#10b981', // Emerald
-  '#6366f1', // Indigo
-  '#ec4899', // Pink
-  '#8b5cf6', // Violet
-  '#f97316', // Orange
-  '#14b8a6', // Teal
-  '#e11d48', // Rose
-  '#64748b', // Slate
+  '#5D7052', // musgo
+  '#A97447', // argila escura (a clara não chega a 3:1 sobre o papel)
+  '#4F7A86', // lagoa
+  '#A85448', // siena
+  '#7E9C6E', // sálvia
+  '#6E5A4A', // casca
+  '#B8875A', // areia queimada
+  '#5E8C7E', // eucalipto
+  '#8C7B5E', // palha
+  '#6B6B5F', // pedra
 ]
 
 export default function DashboardFinanceiro() {
@@ -1028,16 +1028,16 @@ export default function DashboardFinanceiro() {
                   initialDimension={{ width: 320, height: 240 }}
                 >
                   <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0EBE5" />
                     <XAxis
                       dataKey="label"
-                      tick={{ fontSize: 12, fill: '#64748b' }}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      tick={{ fontSize: 14, fill: '#6B6B5F' }}
+                      axisLine={{ stroke: '#DED8CF' }}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fontSize: 12, fill: '#64748b' }}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      tick={{ fontSize: 14, fill: '#6B6B5F' }}
+                      axisLine={{ stroke: '#DED8CF' }}
                       tickLine={false}
                       tickFormatter={(val) =>
                         `R$ ${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`
@@ -1045,10 +1045,10 @@ export default function DashboardFinanceiro() {
                     />
                     <RechartsTooltip
                       formatter={formatTooltipCurrency}
-                      labelStyle={{ fontWeight: 600, color: '#0f172a' }}
+                      labelStyle={{ fontWeight: 600, color: '#2C2C24' }}
                       contentStyle={{
-                        backgroundColor: '#ffffff',
-                        borderColor: '#e2e8f0',
+                        backgroundColor: '#FEFEFA',
+                        borderColor: '#DED8CF',
                         borderRadius: '0.5rem',
                         fontSize: '12px',
                         boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
@@ -1063,14 +1063,14 @@ export default function DashboardFinanceiro() {
                     <Bar
                       name="Receitas Realizadas"
                       dataKey="receitas"
-                      fill="#0284c7"
+                      fill="#5D7052"
                       radius={[4, 4, 0, 0]}
                       maxBarSize={40}
                     />
                     <Bar
                       name="Despesas Pagas"
                       dataKey="despesas"
-                      fill="#e11d48"
+                      fill="#A97447"
                       radius={[4, 4, 0, 0]}
                       maxBarSize={40}
                     />
@@ -1112,16 +1112,16 @@ export default function DashboardFinanceiro() {
                     data={monthlyData}
                     margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0EBE5" />
                     <XAxis
                       dataKey="label"
-                      tick={{ fontSize: 12, fill: '#64748b' }}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      tick={{ fontSize: 14, fill: '#6B6B5F' }}
+                      axisLine={{ stroke: '#DED8CF' }}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fontSize: 12, fill: '#64748b' }}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      tick={{ fontSize: 14, fill: '#6B6B5F' }}
+                      axisLine={{ stroke: '#DED8CF' }}
                       tickLine={false}
                       tickFormatter={(val) =>
                         `R$ ${val >= 1000 || val <= -1000 ? `${(val / 1000).toFixed(0)}k` : val}`
@@ -1129,10 +1129,10 @@ export default function DashboardFinanceiro() {
                     />
                     <RechartsTooltip
                       formatter={formatTooltipCurrency}
-                      labelStyle={{ fontWeight: 600, color: '#0f172a' }}
+                      labelStyle={{ fontWeight: 600, color: '#2C2C24' }}
                       contentStyle={{
-                        backgroundColor: '#ffffff',
-                        borderColor: '#e2e8f0',
+                        backgroundColor: '#FEFEFA',
+                        borderColor: '#DED8CF',
                         borderRadius: '0.5rem',
                         fontSize: '12px',
                         boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
@@ -1148,9 +1148,9 @@ export default function DashboardFinanceiro() {
                       name="Resultado Líquido"
                       type="monotone"
                       dataKey="resultado"
-                      stroke="#10b981"
+                      stroke="#5D7052"
                       strokeWidth={2.5}
-                      dot={{ r: 4, fill: '#10b981' }}
+                      dot={{ r: 4, fill: '#5D7052' }}
                       activeDot={{ r: 6 }}
                     />
                   </LineChart>
@@ -1190,11 +1190,11 @@ export default function DashboardFinanceiro() {
                     data={receitasPorImovelData}
                     margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F0EBE5" />
                     <XAxis
                       type="number"
-                      tick={{ fontSize: 12, fill: '#64748b' }}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      tick={{ fontSize: 14, fill: '#6B6B5F' }}
+                      axisLine={{ stroke: '#DED8CF' }}
                       tickFormatter={(val) =>
                         `R$ ${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`
                       }
@@ -1202,16 +1202,16 @@ export default function DashboardFinanceiro() {
                     <YAxis
                       dataKey="name"
                       type="category"
-                      tick={{ fontSize: 12, fill: '#334155' }}
+                      tick={{ fontSize: 14, fill: '#4A4A40' }}
                       width={120}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      axisLine={{ stroke: '#DED8CF' }}
                       tickLine={false}
                     />
                     <RechartsTooltip
                       formatter={formatTooltipCurrency}
                       contentStyle={{
-                        backgroundColor: '#ffffff',
-                        borderColor: '#e2e8f0',
+                        backgroundColor: '#FEFEFA',
+                        borderColor: '#DED8CF',
                         borderRadius: '0.5rem',
                         fontSize: '12px',
                       }}
@@ -1219,7 +1219,7 @@ export default function DashboardFinanceiro() {
                     <Bar
                       name="Receita Recebida"
                       dataKey="valor"
-                      fill="#0284c7"
+                      fill="#5D7052"
                       radius={[0, 4, 4, 0]}
                     />
                   </BarChart>
@@ -1259,11 +1259,11 @@ export default function DashboardFinanceiro() {
                     data={despesasPorImovelData}
                     margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F0EBE5" />
                     <XAxis
                       type="number"
-                      tick={{ fontSize: 12, fill: '#64748b' }}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      tick={{ fontSize: 14, fill: '#6B6B5F' }}
+                      axisLine={{ stroke: '#DED8CF' }}
                       tickFormatter={(val) =>
                         `R$ ${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`
                       }
@@ -1271,21 +1271,21 @@ export default function DashboardFinanceiro() {
                     <YAxis
                       dataKey="name"
                       type="category"
-                      tick={{ fontSize: 12, fill: '#334155' }}
+                      tick={{ fontSize: 14, fill: '#4A4A40' }}
                       width={120}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      axisLine={{ stroke: '#DED8CF' }}
                       tickLine={false}
                     />
                     <RechartsTooltip
                       formatter={formatTooltipCurrency}
                       contentStyle={{
-                        backgroundColor: '#ffffff',
-                        borderColor: '#e2e8f0',
+                        backgroundColor: '#FEFEFA',
+                        borderColor: '#DED8CF',
                         borderRadius: '0.5rem',
                         fontSize: '12px',
                       }}
                     />
-                    <Bar name="Despesa Paga" dataKey="valor" fill="#e11d48" radius={[0, 4, 4, 0]} />
+                    <Bar name="Despesa Paga" dataKey="valor" fill="#A97447" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -1345,8 +1345,8 @@ export default function DashboardFinanceiro() {
                           name,
                         ]}
                         contentStyle={{
-                          backgroundColor: '#ffffff',
-                          borderColor: '#e2e8f0',
+                          backgroundColor: '#FEFEFA',
+                          borderColor: '#DED8CF',
                           borderRadius: '0.5rem',
                           fontSize: '12px',
                         }}

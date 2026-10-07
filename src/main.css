@@ -1,7 +1,7 @@
-/* Global styles - Theme, font, utilities, animations and global components */
-
-/* CHANGE THE FONT BELOW TO WHATEVER YOU WANT */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+/* Estilos globais do Gestão de Imóveis — visual "Orgânico / Natural".
+   Tokens em HSL sem hsl() (padrão shadcn/ui), contrastes conferidos para
+   WCAG 2.2 AA sobre --background. Fontes self-host em src/main.tsx
+   (Fraunces nos títulos, Nunito no corpo). */
 
 @tailwind base;
 @tailwind components;
@@ -10,104 +10,138 @@
 @layer base {
   :root {
     /**
-     * Escala de leitura ajustável pelo usuário (controle A-/A/A+ no cabeçalho).
+     * Escala de leitura ajustável pelo usuário (controle de tamanho da letra).
      * Tudo no sistema está em `rem`, então mudar esta raiz aumenta texto,
      * espaçamentos e alvos de toque juntos — sem quebrar o layout.
      */
     font-size: var(--escala-leitura, 100%);
 
-    --background: 218 30% 98%;
-    --foreground: 218 64% 11%;
+    --background: 48 56% 98%; /* #FDFCF8 papel de arroz */
+    --foreground: 60 10% 16%; /* #2C2C24 terra escura 14.5:1 */
+    --card: 60 67% 99%; /* #FEFEFA */
+    --card-foreground: 60 10% 16%;
+    --popover: 60 67% 99%;
+    --popover-foreground: 60 10% 16%;
+    --primary: 98 15% 38%; /* #5D7052 musgo 5.2:1 */
+    --primary-foreground: 80 12% 95%; /* #F3F4F1 4.6:1 sobre musgo */
+    --secondary: 28 45% 56%; /* #C18C5D argila — SÓ decorativo */
+    --secondary-foreground: 60 10% 16%;
+    --secondary-ink: 28 43% 39%; /* #8F6139 argila escura — texto, botão outline 4.5:1 */
+    --accent: 36 33% 85%; /* #E6DCCD areia */
+    --accent-foreground: 60 7% 27%; /* #4A4A40 casca 9:1 */
+    --muted: 33 27% 92%; /* #F0EBE5 pedra */
+    --muted-foreground: 60 6% 40%; /* #6B6B5F 5.2:1 — só rótulos curtos */
+    --surface-sunken: 36 33% 95%; /* #F6F2EC menu lateral, unidades */
+    --border: 36 18% 84%; /* #DED8CF madeira crua */
+    --input: 36 18% 84%;
+    --ring: 98 15% 38%;
+    --destructive: 7 40% 47%; /* #A85448 siena 5.0:1 */
+    --destructive-foreground: 0 0% 100%;
+    --success-ink: 98 21% 27%; /* #3F5236 pílula Ocupada/Vigente */
+    --warning-ink: 27 48% 32%; /* #7A4F2B pílula Vaga/Vencendo */
 
-    --card: 0 0% 100%;
-    --card-foreground: 218 64% 11%;
+    --radius: 1.5rem;
+    --shadow-soft: 0 4px 20px -2px rgba(93, 112, 82, 0.15);
+    --shadow-float: 0 10px 40px -10px rgba(193, 140, 93, 0.3);
+    --shadow-lift: 0 20px 40px -10px rgba(93, 112, 82, 0.2);
+    --shadow-hero: 0 18px 40px -14px rgba(93, 112, 82, 0.55);
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 218 64% 11%;
+    /* Menu lateral (componente ui/sidebar) no mesmo papel do AppShell */
+    --sidebar-background: 36 33% 95%;
+    --sidebar-foreground: 60 10% 16%;
+    --sidebar-primary: 98 15% 38%;
+    --sidebar-primary-foreground: 80 12% 95%;
+    --sidebar-accent: 98 15% 38% / 0.1;
+    --sidebar-accent-foreground: 60 10% 16%;
+    --sidebar-border: 36 18% 84%;
+    --sidebar-ring: 98 15% 38%;
 
-    /* Navy Blue Primary */
-    --primary: 218 64% 11%;
-    --primary-foreground: 40 53% 95%;
-
-    --secondary: 218 25% 94%;
-    --secondary-foreground: 218 64% 11%;
-
-    --muted: 218 15% 93%;
-    --muted-foreground: 218 20% 45%;
-
-    /* Gold Accent */
-    --accent: 40 53% 55%;
-    --accent-foreground: 218 64% 11%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 218 20% 88%;
-    --input: 218 20% 88%;
-    --ring: 40 53% 55%;
-
-    --radius: 0.5rem;
-
-    /* Sidebar - Deep Navy Blue */
-    --sidebar-background: 218 64% 11%;
-    --sidebar-foreground: 218 20% 92%;
-    --sidebar-primary: 40 53% 55%;
-    --sidebar-primary-foreground: 218 64% 11%;
-    --sidebar-accent: 218 50% 16%;
-    --sidebar-accent-foreground: 40 53% 65%;
-    --sidebar-border: 218 50% 18%;
-    --sidebar-ring: 40 53% 55%;
-
-    --chart-1: 40 53% 55%;
-    --chart-2: 218 64% 20%;
-    --chart-3: 209 100% 32%;
-    --chart-4: 42 100% 50%;
-    --chart-5: 33 100% 50%;
+    /* Gráficos: musgo (receita), argila (despesa), areia escura (previsto) */
+    --chart-1: 98 15% 38%;
+    --chart-2: 28 45% 56%;
+    --chart-3: 36 22% 66%;
+    --chart-4: 7 40% 47%;
+    --chart-5: 195 22% 40%;
   }
 
+  /* Tema escuro "floresta à noite" — fase 5 do handoff, sem telas de referência */
   .dark {
-    --background: 218 68% 7%;
-    --foreground: 218 20% 95%;
+    --background: 80 11% 11%;
+    --foreground: 40 24% 90%;
+    --card: 84 10% 14%;
+    --card-foreground: 40 24% 90%;
+    --popover: 84 10% 14%;
+    --popover-foreground: 40 24% 90%;
+    --primary: 97 22% 63%;
+    --primary-foreground: 80 11% 11%;
+    --secondary: 28 56% 66%;
+    --secondary-foreground: 80 11% 11%;
+    --secondary-ink: 28 56% 70%;
+    --accent: 80 8% 22%;
+    --accent-foreground: 40 24% 90%;
+    --muted: 84 9% 16%;
+    --muted-foreground: 43 9% 68%;
+    --surface-sunken: 84 10% 13%;
+    --border: 75 8% 22%;
+    --input: 75 8% 22%;
+    --ring: 97 22% 63%;
+    --destructive: 7 55% 62%;
+    --destructive-foreground: 80 11% 11%;
+    --success-ink: 97 30% 72%;
+    --warning-ink: 28 60% 74%;
+    --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
+    --shadow-float: 0 10px 40px -10px rgba(0, 0, 0, 0.45);
+    --shadow-lift: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+    --shadow-hero: 0 18px 40px -14px rgba(0, 0, 0, 0.6);
 
-    --card: 218 64% 11%;
-    --card-foreground: 218 20% 95%;
+    --sidebar-background: 84 10% 13%;
+    --sidebar-foreground: 40 24% 90%;
+    --sidebar-primary: 97 22% 63%;
+    --sidebar-primary-foreground: 80 11% 11%;
+    --sidebar-accent: 80 8% 22%;
+    --sidebar-accent-foreground: 40 24% 90%;
+    --sidebar-border: 75 8% 22%;
+    --sidebar-ring: 97 22% 63%;
+  }
 
-    --popover: 218 64% 11%;
-    --popover-foreground: 218 20% 95%;
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    font-size: 1.0625rem;
+    line-height: 1.55;
+  }
 
-    --primary: 40 53% 55%;
-    --primary-foreground: 218 68% 7%;
+  h1,
+  h2,
+  h3 {
+    @apply font-serif font-bold;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
 
-    --secondary: 218 50% 16%;
-    --secondary-foreground: 218 20% 95%;
+  p {
+    text-wrap: pretty;
+  }
 
-    --muted: 218 50% 16%;
-    --muted-foreground: 218 20% 65%;
+  a {
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
 
-    --accent: 40 53% 55%;
-    --accent-foreground: 218 68% 7%;
+  /* Granulação de papel — parte do estilo, decorativa e sem eventos. */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.04;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 218 20% 95%;
-
-    --border: 218 50% 18%;
-    --input: 218 50% 18%;
-    --ring: 40 53% 55%;
-
-    --sidebar-background: 218 68% 7%;
-    --sidebar-foreground: 218 20% 92%;
-    --sidebar-primary: 40 53% 55%;
-    --sidebar-primary-foreground: 218 68% 7%;
-    --sidebar-accent: 218 50% 16%;
-    --sidebar-accent-foreground: 40 53% 65%;
-    --sidebar-border: 218 50% 18%;
-    --sidebar-ring: 40 53% 55%;
-
-    --chart-1: 40 53% 55%;
-    --chart-2: 218 64% 30%;
-    --chart-3: 43 100% 32%;
-    --chart-4: 340 100% 50%;
-    --chart-5: 10 100% 50%;
+  .dark body::after {
+    mix-blend-mode: overlay;
+    opacity: 0.06;
   }
 
   /* NEVER REMOVE THIS */
@@ -289,6 +323,40 @@
   .animate-spotlight {
     animation: spotlight 2s ease forwards;
   }
+
+  /* Formas orgânicas: ícones, avatares e manchas de fundo. */
+  .blob-1 {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  .blob-2 {
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  }
+  .blob-3 {
+    border-radius: 50% 50% 30% 70% / 40% 60% 40% 60%;
+  }
+  .blob-4 {
+    border-radius: 70% 30% 50% 50% / 30% 50% 50% 70%;
+  }
+  .rotate-organico {
+    transform: rotate(-1deg);
+  }
+  .rotate-organico-r {
+    transform: rotate(1deg);
+  }
+
+  /* Números e valores nunca quebram no meio. */
+  .numero {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Rolagem horizontal sem barra visível (chips de filtro no celular). */
+  .sem-barra {
+    scrollbar-width: none;
+  }
+  .sem-barra::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {
@@ -299,9 +367,11 @@
    * 1.4.11) e usa `:focus-visible`, então não aparece no clique de mouse.
    */
   :focus-visible {
-    outline: 3px solid #b07d2b;
+    outline: 3px solid transparent;
     outline-offset: 2px;
-    border-radius: 4px;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 5px hsl(var(--ring) / 0.75);
   }
 
   /* Alvo de toque mínimo recomendado para o público do sistema: 44px.
@@ -322,6 +392,13 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
+    }
+
+    /* Sem rotações decorativas para quem pediu menos movimento. */
+    .rotate-organico,
+    .rotate-organico-r,
+    .gira-no-hover:hover {
+      transform: none !important;
     }
   }
 }

@@ -1,4 +1,7 @@
 import { Link } from 'react-router-dom'
+import { buttonVariants } from '@/components/ui/button'
+import { Blob, CreditoAguia, LogoSistema } from '@/components/organico'
+import { CLIENTE, NOME_DO_SISTEMA } from '@/lib/marca'
 import { AlertTriangle, ArrowRight, Calculator, LogIn, ShieldAlert } from 'lucide-react'
 import {
   ANDAMENTO,
@@ -193,17 +196,17 @@ export default function StatusDesenvolvimento() {
   const saude = resumoDaSaude()
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="relative min-h-screen overflow-x-hidden bg-background">
       <a
         href="#quadro"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-navy-950 focus:px-5 focus:py-3 focus:text-base focus:font-bold focus:text-white"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-primary focus:px-6 focus:py-3 focus:text-base focus:font-extrabold focus:text-primary-foreground"
       >
         Ir para o andamento
       </a>
 
       {/* Faixa de aviso: quem chega aqui precisa saber, na primeira linha, que
           está diante de um sistema em construção e não de um produto publicado. */}
-      <div className="bg-amber-400 text-navy-950">
+      <div className="bg-secondary/25 text-warning-ink">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 sm:px-6">
           <AlertTriangle className="h-5 w-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-bold">
@@ -213,15 +216,29 @@ export default function StatusDesenvolvimento() {
         </div>
       </div>
 
-      <header className="bg-gradient-to-br from-navy-950 via-indigo-900 to-navy-900 text-white">
-        <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
-          <p className="text-sm font-semibold uppercase tracking-wide text-indigo-200">
-            Holding Aguiar
-          </p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            Controle de Imóveis — andamento da construção
+      <header className="relative">
+        <Blob
+          forma={1}
+          cor="primary"
+          className="-left-28 -top-10 h-[420px] w-[480px] opacity-[0.16] blur-[80px]"
+        />
+        <Blob
+          forma={2}
+          cor="secondary"
+          className="-right-32 top-24 h-[380px] w-[440px] opacity-[0.18] blur-[80px]"
+        />
+        <div className="relative mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+          <div className="flex items-center gap-3">
+            <LogoSistema />
+            <p className="flex flex-col leading-tight">
+              <span className="font-serif text-xl font-bold">{NOME_DO_SISTEMA}</span>
+              <span className="text-sm font-bold text-accent-foreground">{CLIENTE}</span>
+            </p>
+          </div>
+          <h1 className="mt-6 text-[2.125rem] leading-[1.1] sm:text-5xl">
+            Andamento da construção
           </h1>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-indigo-100">
+          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-accent-foreground">
             Gestão do patrimônio, dos contratos e do caixa da holding, com conciliação do extrato
             bancário e o simulador do IBS/CBS da Reforma Tributária. Abaixo, o que já funciona e o
             que ainda está sendo feito.
@@ -229,32 +246,23 @@ export default function StatusDesenvolvimento() {
 
           <div className="mt-8 flex flex-wrap gap-3">
             {isAuthenticated ? (
-              <Link
-                to="/inicio"
-                className="inline-flex items-center gap-2 rounded-lg bg-gold-500 px-6 py-3 text-base font-bold text-navy-950 transition-colors hover:bg-gold-400 focus:outline-none focus-visible:ring-4 focus-visible:ring-gold-300"
-              >
+              <Link to="/inicio" className={buttonVariants({ size: 'lg' })}>
                 Ir para o painel
                 <ArrowRight className="h-5 w-5" aria-hidden="true" />
               </Link>
             ) : (
-              <Link
-                to="/login"
-                className="inline-flex items-center gap-2 rounded-lg bg-gold-500 px-6 py-3 text-base font-bold text-navy-950 transition-colors hover:bg-gold-400 focus:outline-none focus-visible:ring-4 focus-visible:ring-gold-300"
-              >
+              <Link to="/login" className={buttonVariants({ size: 'lg' })}>
                 <LogIn className="h-5 w-5" aria-hidden="true" />
                 Entrar no sistema
               </Link>
             )}
-            <Link
-              to="/simulador"
-              className="inline-flex items-center gap-2 rounded-lg border-2 border-white/40 px-6 py-3 text-base font-bold text-white transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-4 focus-visible:ring-white/50"
-            >
+            <Link to="/simulador" className={buttonVariants({ variant: 'outline', size: 'lg' })}>
               <Calculator className="h-5 w-5" aria-hidden="true" />
               Abrir o Simulador IBS/CBS
             </Link>
           </div>
 
-          <div className="mt-6 space-y-1 text-sm text-indigo-200">
+          <div className="mt-6 space-y-1 text-sm text-accent-foreground">
             {atualizadoEm && (
               <p>
                 Quadro atualizado em{' '}
@@ -266,7 +274,7 @@ export default function StatusDesenvolvimento() {
                 {saude.frase}{' '}
                 <a
                   href="#saude"
-                  className="font-semibold text-white underline underline-offset-4 hover:text-indigo-100 focus:outline-none focus-visible:ring-4 focus-visible:ring-white/50"
+                  className="font-bold text-primary underline underline-offset-4 hover:text-foreground"
                 >
                   Ver a saúde do sistema
                 </a>
@@ -369,12 +377,13 @@ export default function StatusDesenvolvimento() {
         </section>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto max-w-5xl px-4 py-8 text-sm text-slate-600 sm:px-6">
+      <footer className="relative">
+        <div className="mx-auto flex max-w-5xl flex-col gap-1 border-t border-dashed border-border px-4 py-8 text-sm text-accent-foreground sm:px-6">
           <p>
-            Holding Aguiar · Controle de Imóveis. Página de acompanhamento interno, temporária, sem
-            dados de clientes.
+            {NOME_DO_SISTEMA} · {CLIENTE}. Página de acompanhamento interno, temporária, sem dados
+            de clientes.
           </p>
+          <CreditoAguia />
         </div>
       </footer>
     </div>

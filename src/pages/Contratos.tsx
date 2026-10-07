@@ -1,23 +1,36 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { semAcento, termoDeBusca } from '@/lib/busca'
-import { FileText, Plus, Search, Eye, Pencil, Ban, Check, AlertCircle, Printer } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import {
+  FileText,
+  FileDown,
+  Plus,
+  Search,
+  Eye,
+  Pencil,
+  Ban,
+  Check,
+  AlertCircle,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { getContratos, updateContrato } from '@/services/contratos'
 import { useRealtime } from '@/hooks/use-realtime'
+import { formatCurrency, formatDate, TIPO_GARANTIA_LABELS } from '@/lib/format'
 import {
-  formatCurrency,
-  formatDate,
-  STATUS_CONTRATO_LABELS,
-  TIPO_GARANTIA_LABELS,
-} from '@/lib/format'
+  ehFiltroSituacao,
+  FILTROS_DE_SITUACAO,
+  situacaoDoContrato,
+  type FiltroSituacao,
+} from '@/lib/situacao-contrato'
 import { ContratoFormDialog } from '@/components/contratos/ContratoFormDialog'
 import { ContratoDetailDialog } from '@/components/contratos/ContratoDetailDialog'
 import { MinutaContratoDialog } from '@/components/contratos/MinutaContratoDialog'
-import { StatusBadge } from '@/components/shared/StatusBadge'
+import { Badge } from '@/components/ui/badge'
+import { FiltroChips, IconeTile } from '@/components/organico'
 import { Button } from '@/components/ui/button'
 import { ConfirmarAcao } from '@/components/shared/ConfirmarAcao'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, cantoOrganico } from '@/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -46,7 +59,20 @@ export default function Contratos() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [fStatus, setFStatus] = useState('all')
+  // Filtro de situação na URL (?situacao=vencendo): o "voltar" e o link compartilhado mantêm.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const situacaoNaUrl = searchParams.get('situacao')
+  const situacao: FiltroSituacao = ehFiltroSituacao(situacaoNaUrl) ? situacaoNaUrl : 'todos'
+  const escolherSituacao = (valor: FiltroSituacao) =>
+    setSearchParams(
+      (atual) => {
+        const params = new URLSearchParams(atual)
+        if (valor === 'todos') params.delete('situacao')
+        else params.set('situacao', valor)
+        return params
+      },
+      { preventScrollReset: true },
+    )
   const [fGarantia, setFGarantia] = useState('all')
   const [formOpen, setFormOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
@@ -80,20 +106,36 @@ export default function Contratos() {
     load()
   })
 
-  const filtered = useMemo(() => {
+  // Busca e garantia filtram primeiro; os chips mostram quantos sobram em cada situação.
+  const buscados = useMemo(() => {
     const q = termoDeBusca(search)
     return contratos.filter((c) => {
       const imovelNome = c.expand?.imovel?.nome || c.expand?.imovel?.endereco || ''
       const inquilinoNome = c.expand?.inquilino?.nome || ''
       const ms =
         !q || [c.numero, imovelNome, inquilinoNome].some((v) => semAcento(v || '').includes(q))
-      return (
-        ms &&
-        (fStatus === 'all' || c.status === fStatus) &&
-        (fGarantia === 'all' || c.tipo_garantia === fGarantia)
-      )
+      return ms && (fGarantia === 'all' || c.tipo_garantia === fGarantia)
     })
-  }, [contratos, search, fStatus, fGarantia])
+  }, [contratos, search, fGarantia])
+
+  const contagem = useMemo(() => {
+    const total: Record<FiltroSituacao, number> = {
+      todos: buscados.length,
+      vigentes: 0,
+      vencendo: 0,
+      encerrados: 0,
+    }
+    for (const c of buscados) total[situacaoDoContrato(c).grupo]++
+    return total
+  }, [buscados])
+
+  const filtered = useMemo(
+    () =>
+      situacao === 'todos'
+        ? buscados
+        : buscados.filter((c) => situacaoDoContrato(c).grupo === situacao),
+    [buscados, situacao],
+  )
 
   const handleNew = () => {
     setEditing(null)
@@ -127,58 +169,103 @@ export default function Contratos() {
     }
   }
 
+  const unidadeDe = (c: any) => {
+    const imovel = c.expand?.imovel?.nome || c.expand?.imovel?.endereco || ''
+    const unidade = c.expand?.unidade_id?.identificador
+    return [unidade, imovel].filter(Boolean).join(' · ') || '—'
+  }
+
+  const acoesDeEdicao = (c: any, compacto: boolean) =>
+    canEdit && (
+      <>
+        <Button
+          variant="ghost"
+          size={compacto ? 'icon' : 'sm'}
+          aria-label={`Editar contrato ${c.numero ?? ''}`.trim()}
+          title="Editar"
+          onClick={() => handleEdit(c)}
+        >
+          <Pencil aria-hidden="true" />
+          {!compacto && 'Editar'}
+        </Button>
+        {c.status === 'ativo' && (
+          <>
+            <ConfirmarAcao
+              titulo="Encerrar este contrato?"
+              descricao="O contrato passa para encerrado e para de gerar cobranças e alertas de vencimento. O histórico de receitas já lançadas permanece."
+              rotuloConfirmar="Sim, encerrar o contrato"
+              onConfirmar={() => handleEncerrar(c)}
+            >
+              <Button
+                variant="ghost"
+                size={compacto ? 'icon' : 'sm'}
+                aria-label={`Encerrar contrato ${c.numero ?? ''}`.trim()}
+                title="Encerrar contrato"
+              >
+                <Check aria-hidden="true" />
+                {!compacto && 'Encerrar'}
+              </Button>
+            </ConfirmarAcao>
+            <ConfirmarAcao
+              titulo="Cancelar este contrato?"
+              descricao="O contrato passa para cancelado e sai dos alertas e das cobranças futuras. O histórico já lançado permanece."
+              rotuloConfirmar="Sim, cancelar o contrato"
+              onConfirmar={() => handleCancelar(c)}
+            >
+              <Button
+                variant="ghost"
+                size={compacto ? 'icon' : 'sm'}
+                className="text-red-800 hover:bg-destructive/10"
+                aria-label={`Cancelar contrato ${c.numero ?? ''}`.trim()}
+                title="Cancelar contrato"
+              >
+                <Ban aria-hidden="true" />
+                {!compacto && 'Cancelar'}
+              </Button>
+            </ConfirmarAcao>
+          </>
+        )}
+      </>
+    )
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 shrink-0">
-            <FileText className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-              Contratos
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-              Contratos de locação, reajustes e prazos
-            </p>
-          </div>
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-wrap items-end gap-4">
+        <div className="flex min-w-[min(100%,280px)] flex-1 flex-col gap-1 px-2 lg:px-0">
+          <p className="text-sm text-accent-foreground">Cadastros</p>
+          <h1 className="text-3xl lg:text-5xl">Contratos</h1>
         </div>
         {canEdit && (
-          <Button
-            onClick={handleNew}
-            className="bg-indigo-600 hover:bg-indigo-700 w-full sm:w-auto min-h-[44px]"
-          >
-            <Plus className="h-4 w-4 mr-1" /> Novo Contrato
+          <Button onClick={handleNew} className="w-full sm:w-auto">
+            <Plus aria-hidden="true" /> Novo contrato
           </Button>
         )}
-      </div>
+      </header>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        <div className="relative sm:col-span-2 lg:col-span-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
+      <FiltroChips
+        rotulo="Situação do contrato"
+        opcoes={FILTROS_DE_SITUACAO.map((f) => ({ ...f, contagem: contagem[f.valor] }))}
+        valor={situacao}
+        onChange={escolherSituacao}
+      />
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1.6fr)_1fr]">
+        <div className="relative">
+          <Search
+            className="absolute left-5 top-1/2 h-[22px] w-[22px] -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
           <Input
+            type="search"
             aria-label="Buscar por número, imóvel ou inquilino"
-            placeholder="Buscar por número, imóvel ou inquilino..."
+            placeholder="Buscar por número, imóvel ou inquilino"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-slate-50/50 min-h-[44px]"
+            className="min-h-14 pl-14"
           />
         </div>
-        <Select value={fStatus} onValueChange={setFStatus}>
-          <SelectTrigger aria-label="Status" className="w-full bg-slate-50/50 min-h-[44px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os status</SelectItem>
-            {Object.entries(STATUS_CONTRATO_LABELS).map(([v, l]) => (
-              <SelectItem key={v} value={v}>
-                {l}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
         <Select value={fGarantia} onValueChange={setFGarantia}>
-          <SelectTrigger aria-label="Garantia" className="w-full bg-slate-50/50 min-h-[44px]">
+          <SelectTrigger aria-label="Garantia" className="min-h-14">
             <SelectValue placeholder="Garantia" />
           </SelectTrigger>
           <SelectContent>
@@ -193,279 +280,147 @@ export default function Contratos() {
       </div>
 
       {loading ? (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-14 w-full rounded-lg" />
+            <Skeleton key={i} className="h-16 w-full" />
           ))}
         </div>
       ) : error ? (
-        <Card className="border-red-200 bg-red-50/50">
-          <CardContent className="flex items-center gap-3 py-6">
-            <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
-            <p className="text-sm text-red-700">{error}</p>
-          </CardContent>
-        </Card>
+        <div
+          role="alert"
+          className="flex items-center gap-3 rounded-3xl bg-destructive/15 px-5 py-4 text-red-800"
+        >
+          <AlertCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
+          <p className="text-base font-bold">{error}</p>
+        </div>
       ) : filtered.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center py-12 text-center">
-            <FileText className="h-10 w-10 text-slate-300 mb-3" />
-            <p className="text-sm text-slate-600">Nenhum contrato encontrado.</p>
-          </CardContent>
+        <Card className="flex flex-col items-center gap-3 border-dashed px-6 py-12 text-center">
+          <IconeTile icone={FileText} blob={3} />
+          <p className="text-base text-accent-foreground">Nenhum contrato encontrado.</p>
         </Card>
       ) : (
         <>
-          <p className="text-sm text-slate-600">{filtered.length} contrato(s)</p>
-          <div className="hidden min-[1320px]:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <Table className="min-w-[750px]">
+          <p className="px-2 text-sm text-accent-foreground lg:px-0" role="status">
+            {filtered.length} {filtered.length === 1 ? 'contrato' : 'contratos'}
+          </p>
+
+          {/* Computador largo: tabela num cartão. */}
+          <Card className="hidden overflow-hidden min-[1500px]:block">
+            <Table className="[&_td]:py-[18px] [&_th]:px-5 [&_td]:px-5">
               <TableHeader>
-                <TableRow className="bg-slate-50/80">
-                  <TableHead className="w-[160px]">Número</TableHead>
-                  <TableHead>Imóvel</TableHead>
+                <TableRow>
                   <TableHead>Inquilino</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Vigência</TableHead>
-                  <TableHead className="text-right">Valor</TableHead>
-                  <TableHead className={cn('w-[140px] text-right', COLUNA_ACOES_CABECALHO)}>
-                    Ações
+                  <TableHead>Unidade</TableHead>
+                  <TableHead>Aluguel</TableHead>
+                  <TableHead>Vigência até</TableHead>
+                  <TableHead>Situação</TableHead>
+                  <TableHead className={cn('text-right', COLUNA_ACOES_CABECALHO)}>
+                    <span className="sr-only">Ações</span>
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((c) => (
-                  <TableRow
-                    key={c.id}
-                    className="cursor-pointer hover:bg-slate-50/50"
-                    onClick={() => handleView(c)}
-                  >
-                    <TableCell className="font-medium">
-                      {c.numero || '—'}
-                      {c.dia_vencimento && (
-                        <span className="block text-xs text-slate-600">
-                          Venc. dia {c.dia_vencimento}
+                {filtered.map((c) => {
+                  const sit = situacaoDoContrato(c)
+                  return (
+                    <TableRow key={c.id} className="cursor-pointer" onClick={() => handleView(c)}>
+                      <TableCell>
+                        <strong className="block">{c.expand?.inquilino?.nome || '—'}</strong>
+                        <span className="numero text-sm text-accent-foreground">
+                          {c.numero || 'Sem número'}
                         </span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-600">
-                      <div>{c.expand?.imovel?.nome || c.expand?.imovel?.endereco || '—'}</div>
-                      {c.expand?.unidade_id && (
-                        <div className="text-xs text-indigo-700 font-medium">
-                          Unidade: {c.expand.unidade_id.identificador}
-                          {c.expand.unidade_id.complemento
-                            ? ` (${c.expand.unidade_id.complemento})`
-                            : ''}
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-600">
-                      {c.expand?.inquilino?.nome || '—'}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge type="contrato" status={c.status} />
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-600">
-                      {formatDate(c.data_inicio)} → {formatDate(c.data_fim)}
-                    </TableCell>
-                    <TableCell className="text-right text-sm font-medium">
-                      {formatCurrency(c.valor_aluguel)}
-                    </TableCell>
-                    <TableCell
-                      className={cn('text-right', COLUNA_ACOES_CELULA)}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Gerar minuta contratual"
-                          title="Gerar Minuta de Contrato (PDF)"
-                          className="h-11 w-11 min-h-[44px] min-w-[44px] text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50"
-                          onClick={() => handleMinuta(c)}
-                        >
-                          <Printer className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Ver detalhes"
-                          title="Ver detalhes"
-                          className="h-11 w-11 min-h-[44px] min-w-[44px]"
-                          onClick={() => handleView(c)}
-                        >
-                          <Eye className="h-4 w-4 text-slate-600" />
-                        </Button>
-                        {canEdit && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              aria-label="Editar"
-                              title="Editar"
-                              className="h-11 w-11 min-h-[44px] min-w-[44px]"
-                              onClick={() => handleEdit(c)}
-                            >
-                              <Pencil className="h-4 w-4 text-slate-600" />
-                            </Button>
-                            {c.status === 'ativo' && (
-                              <>
-                                <ConfirmarAcao
-                                  titulo="Encerrar este contrato?"
-                                  descricao="O contrato passa para encerrado e para de gerar cobranças e alertas de vencimento. O histórico de receitas já lançadas permanece."
-                                  rotuloConfirmar="Sim, encerrar o contrato"
-                                  onConfirmar={() => handleEncerrar(c)}
-                                >
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    aria-label="Encerrar contrato"
-                                    title="Encerrar contrato"
-                                    className="h-11 w-11 min-h-[44px] min-w-[44px]"
-                                  >
-                                    <Check className="h-4 w-4 text-emerald-700" />
-                                  </Button>
-                                </ConfirmarAcao>
-                                <ConfirmarAcao
-                                  titulo="Cancelar este contrato?"
-                                  descricao="O contrato passa para cancelado e sai dos alertas e das cobranças futuras. O histórico já lançado permanece."
-                                  rotuloConfirmar="Sim, cancelar o contrato"
-                                  onConfirmar={() => handleCancelar(c)}
-                                >
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    aria-label="Cancelar contrato"
-                                    title="Cancelar contrato"
-                                    className="h-11 w-11 min-h-[44px] min-w-[44px]"
-                                  >
-                                    <Ban className="h-4 w-4 text-red-600" />
-                                  </Button>
-                                </ConfirmarAcao>
-                              </>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <div className="min-[1320px]:hidden grid grid-cols-1 gap-3 md:grid-cols-2">
-            {filtered.map((c) => (
-              <Card
-                key={c.id}
-                className="cursor-pointer hover:shadow-md transition-shadow active:bg-slate-50"
-                onClick={() => handleView(c)}
-              >
-                <CardContent className="p-4 space-y-2.5">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-slate-900 text-sm truncate">
-                        {c.numero || 'Sem número'}
-                      </p>
-                      <p className="text-xs text-slate-600 truncate">
-                        {c.expand?.imovel?.nome || c.expand?.imovel?.endereco || '—'}
-                        {c.expand?.unidade_id && (
-                          <span className="text-indigo-600 font-medium ml-1">
-                            • {c.expand.unidade_id.identificador}
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                    <StatusBadge type="contrato" status={c.status} />
-                  </div>
-                  <div className="text-xs text-slate-600 space-y-1">
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Inquilino:</span>
-                      <span className="font-medium truncate max-w-[180px]">
-                        {c.expand?.inquilino?.nome || '—'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Vigência:</span>
-                      <span>
-                        {formatDate(c.data_inicio)} → {formatDate(c.data_fim)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
-                    <span className="text-sm font-bold text-slate-900">
-                      {formatCurrency(c.valor_aluguel)}/mês
-                    </span>
-                    <div className="flex flex-wrap gap-1.5" onClick={(e) => e.stopPropagation()}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-11 px-2.5 min-h-[44px] text-xs text-indigo-600 border-indigo-200 hover:bg-indigo-50"
-                        onClick={() => handleMinuta(c)}
-                        aria-label="Gerar Minuta de Contrato"
-                        title="Gerar Minuta de Contrato"
+                      </TableCell>
+                      <TableCell>{unidadeDe(c)}</TableCell>
+                      <TableCell>
+                        <strong className="numero">{formatCurrency(c.valor_aluguel)}</strong>
+                      </TableCell>
+                      <TableCell className="numero">{formatDate(c.data_fim)}</TableCell>
+                      <TableCell>
+                        <Badge variant={sit.tom}>{sit.rotulo}</Badge>
+                      </TableCell>
+                      <TableCell
+                        className={cn('text-right', COLUNA_ACOES_CELULA)}
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <Printer className="h-3.5 w-3.5 mr-1" /> Minuta
-                      </Button>
-                      {canEdit ? (
-                        <>
+                        <div className="flex items-center justify-end gap-1">
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-11 px-3 min-h-[44px] text-sm"
-                            onClick={() => handleEdit(c)}
+                            aria-label={`Gerar minuta do contrato ${c.numero ?? ''}`.trim()}
+                            onClick={() => handleMinuta(c)}
                           >
-                            <Pencil className="h-3.5 w-3.5 mr-1 text-slate-600" /> Editar
+                            <FileDown aria-hidden="true" /> Minuta
                           </Button>
-                          {c.status === 'ativo' && (
-                            <>
-                              <ConfirmarAcao
-                                titulo="Encerrar este contrato?"
-                                descricao="O contrato passa para encerrado e para de gerar cobranças e alertas de vencimento. O histórico de receitas já lançadas permanece."
-                                rotuloConfirmar="Sim, encerrar o contrato"
-                                onConfirmar={() => handleEncerrar(c)}
-                              >
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-11 min-h-[44px] min-w-[44px] px-3 text-emerald-700 hover:bg-emerald-50 border-emerald-200"
-                                  aria-label={`Encerrar contrato ${c.numero ?? ''}`.trim()}
-                                  title="Encerrar contrato"
-                                >
-                                  <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                                </Button>
-                              </ConfirmarAcao>
-                              <ConfirmarAcao
-                                titulo="Cancelar este contrato?"
-                                descricao="O contrato passa para cancelado e sai dos alertas e das cobranças futuras. O histórico já lançado permanece."
-                                rotuloConfirmar="Sim, cancelar o contrato"
-                                onConfirmar={() => handleCancelar(c)}
-                              >
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-11 min-h-[44px] min-w-[44px] px-3 text-red-600 hover:bg-red-50 border-red-200"
-                                  aria-label={`Cancelar contrato ${c.numero ?? ''}`.trim()}
-                                  title="Cancelar contrato"
-                                >
-                                  <Ban className="h-3.5 w-3.5" aria-hidden="true" />
-                                </Button>
-                              </ConfirmarAcao>
-                            </>
-                          )}
-                        </>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-11 px-3 min-h-[44px] text-sm"
-                          onClick={() => handleView(c)}
-                        >
-                          <Eye className="h-3.5 w-3.5 mr-1 text-slate-600" /> Detalhes
-                        </Button>
-                      )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Ver detalhes do contrato ${c.numero ?? ''}`.trim()}
+                            title="Ver detalhes"
+                            onClick={() => handleView(c)}
+                          >
+                            <Eye aria-hidden="true" />
+                          </Button>
+                          {acoesDeEdicao(c, true)}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </Card>
+
+          {/* Celular, tablet e computador estreito: um cartão por contrato. */}
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,340px),1fr))] gap-3 min-[1500px]:hidden md:gap-4">
+            {filtered.map((c, indice) => {
+              const sit = situacaoDoContrato(c)
+              return (
+                <li key={c.id}>
+                  <Card canto={cantoOrganico(indice)} className="flex h-full flex-col gap-3 p-5">
+                    <div className="flex items-center gap-2">
+                      <span className="numero flex-1 text-sm font-bold text-accent-foreground">
+                        {c.numero || 'Sem número'}
+                      </span>
+                      <Badge variant={sit.tom}>{sit.rotulo}</Badge>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    <div className="flex flex-col gap-0.5">
+                      <button
+                        type="button"
+                        onClick={() => handleView(c)}
+                        className="self-start text-left font-serif text-xl font-bold leading-tight underline-offset-4 hover:underline"
+                      >
+                        {c.expand?.inquilino?.nome || 'Inquilino não informado'}
+                      </button>
+                      <span className="text-sm text-accent-foreground">{unidadeDe(c)}</span>
+                    </div>
+                    <dl className="grid grid-cols-2 gap-2 rounded-[18px] bg-sunken px-3.5 py-3">
+                      <div className="flex flex-col">
+                        <dt className="text-xs text-accent-foreground">Aluguel</dt>
+                        <dd className="numero text-base font-bold">
+                          {formatCurrency(c.valor_aluguel)}
+                        </dd>
+                      </div>
+                      <div className="flex flex-col">
+                        <dt className="text-xs text-accent-foreground">Vigência até</dt>
+                        <dd className="numero text-base font-bold">{formatDate(c.data_fim)}</dd>
+                      </div>
+                    </dl>
+                    <Button
+                      variant="outline"
+                      className="mt-auto w-full"
+                      aria-label={`Minuta em PDF do contrato ${c.numero ?? ''}`.trim()}
+                      onClick={() => handleMinuta(c)}
+                    >
+                      <FileDown aria-hidden="true" /> Minuta em PDF
+                    </Button>
+                    {canEdit && (
+                      <div className="flex flex-wrap gap-1">{acoesDeEdicao(c, false)}</div>
+                    )}
+                  </Card>
+                </li>
+              )
+            })}
+          </ul>
         </>
       )}
 

@@ -40,7 +40,7 @@ export const ComparativeAnalysisTab: React.FC<ComparativeAnalysisTabProps> = ({ 
 
   return (
     <div className="space-y-6">
-      <section className="bg-surface border border-sim-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+      <section className="bg-surface border border-sim-border rounded-organic-tr p-5 sm:p-6 shadow-soft">
         <h2 className="flex items-center gap-3 text-lg sm:text-xl font-semibold text-text-primary tracking-tight border-b border-sim-border pb-4 mb-5">
           <Scale className="w-6 h-6 shrink-0" aria-hidden="true" />
           Antes e depois da reforma
@@ -104,13 +104,13 @@ export const ComparativeAnalysisTab: React.FC<ComparativeAnalysisTabProps> = ({ 
 
       <div aria-live="polite">
         {rent === 0 ? (
-          <p className="p-8 border-2 border-dashed border-sim-border-strong rounded-2xl sm:rounded-3xl text-center text-lg font-medium text-text-secondary bg-surface-muted">
+          <p className="p-8 border-2 border-dashed border-sim-border-strong rounded-organic-tr text-center text-lg font-medium text-text-secondary bg-surface-muted">
             Informe o aluguel mensal para ver a comparação.
           </p>
         ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <section className="bg-surface border border-sim-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-4">
+              <section className="bg-surface border border-sim-border rounded-organic-tr p-5 sm:p-6 space-y-4">
                 <div className="border-b border-sim-border pb-3">
                   <p className="text-sm font-semibold uppercase tracking-wider text-text-muted">
                     Hoje
@@ -136,7 +136,7 @@ export const ComparativeAnalysisTab: React.FC<ComparativeAnalysisTabProps> = ({ 
                 </dl>
               </section>
 
-              <section className="bg-surface border-2 border-accent-bg rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-4">
+              <section className="bg-surface border-2 border-accent-bg rounded-organic-tr p-5 sm:p-6 space-y-4">
                 <div className="border-b border-sim-border pb-3">
                   <p className="text-sm font-semibold uppercase tracking-wider text-positive-text">
                     Em {comparison.transitionYear}
@@ -164,7 +164,7 @@ export const ComparativeAnalysisTab: React.FC<ComparativeAnalysisTabProps> = ({ 
             </div>
 
             <section
-              className={`rounded-2xl sm:rounded-3xl p-6 border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+              className={`rounded-organic-tr p-6 border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                 isIncrease
                   ? 'bg-warning-bg border-warning-border'
                   : 'bg-positive-bg border-positive-border'

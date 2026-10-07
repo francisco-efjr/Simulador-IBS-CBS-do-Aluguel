@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Building2, ChevronUp, ShieldCheck } from 'lucide-react'
+import { ChevronUp, ShieldCheck } from 'lucide-react'
+import { CreditoAguia, LogoSistema } from '@/components/organico'
 import { ActiveTab } from './Navbar.tsx'
 
 interface FooterProps {
@@ -36,16 +37,14 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab, isProfessional = fa
   }
 
   return (
-    <footer className="bg-surface border-t border-sim-border py-10 px-4 sm:px-6 lg:px-8 mt-auto relative transition-colors">
-      <div className="max-w-7xl mx-auto">
+    <footer className="relative mt-auto px-4 py-10 transition-colors sm:px-6 lg:px-16">
+      <div className="mx-auto max-w-7xl border-t border-dashed border-sim-border pt-8">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-sim-border">
           <div className="space-y-1.5 max-w-lg">
             <div className="flex items-center gap-2.5">
-              <div className="p-1.5 bg-accent-bg text-accent-fg rounded-lg flex items-center justify-center">
-                <Building2 className="w-4 h-4" />
-              </div>
-              <span className="font-serif font-semibold text-base text-text-primary tracking-tight">
-                Plataforma Tributária Imobiliária
+              <LogoSistema tamanho="sm" />
+              <span className="font-serif text-lg font-bold text-text-primary">
+                Simulador IBS/CBS
               </span>
             </div>
             <p className="text-sm text-text-secondary leading-relaxed">
@@ -102,11 +101,14 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab, isProfessional = fa
         </div>
 
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-text-muted">
-          <p className="text-center sm:text-left">
-            &copy; 2026 &bull; Apuração Determinística &bull; Precisão Centesimal
-          </p>
-          <div className="flex items-center gap-1.5 text-[11px] font-sim-mono">
-            <ShieldCheck className="w-3.5 h-3.5 text-positive-text" />
+          <div className="flex flex-col gap-1 text-center sm:text-left">
+            <p className="text-text-secondary">
+              Estimativa para orientação. Confirme o enquadramento com a sua contabilidade.
+            </p>
+            <CreditoAguia className="text-text-secondary" />
+          </div>
+          <div className="flex items-center gap-1.5 text-xs font-bold">
+            <ShieldCheck className="h-4 w-4 text-positive-text" aria-hidden="true" />
             <span>Conformidade LC 214/2025</span>
           </div>
         </div>
@@ -116,9 +118,9 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab, isProfessional = fa
         <button
           onClick={scrollToTop}
           aria-label="Voltar ao topo"
-          className="fixed bottom-6 right-6 p-2.5 rounded-full bg-accent-bg text-accent-fg shadow-md hover:bg-accent-bg/90 transition-all z-40 active:scale-95"
+          className="fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-accent-bg text-accent-fg shadow-soft transition-all hover:scale-105 active:scale-95"
         >
-          <ChevronUp className="w-4 h-4" />
+          <ChevronUp className="h-5 w-5" aria-hidden="true" />
         </button>
       )}
     </footer>

@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
-import { Eye, EyeOff, Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react'
+import { Eye, EyeOff, ShieldCheck } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AvisoDeAcesso, LayoutDeAcesso } from '@/components/organico'
 import { extractFieldErrors, mensagemDeAutenticacao } from '@/lib/dados/erros'
 import { lerAvisoDeLogin } from '@/lib/dados/sessao'
 import { toast } from 'sonner'
-import darkLogo from '@/assets/logo-holding-aguiar.jpg'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -69,173 +68,125 @@ export default function Login() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-navy-950 px-4 py-8 overflow-hidden">
-      {/* Background glow accents */}
-      <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-navy-700/30 blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-gold-500/10 blur-3xl pointer-events-none" />
-
-      <div className="w-full max-w-md animate-fade-in-up z-10">
-        <div className="mb-6 flex flex-col items-center text-center">
-          <img
-            src={darkLogo}
-            alt="Holding Aguiar"
-            width={96}
-            height={96}
-            fetchPriority="high"
-            className="h-24 w-auto object-contain mb-2 drop-shadow-md"
-          />
-          <p className="text-xs font-semibold tracking-widest text-gold-400 uppercase">
-            Sistema de Gestão de Imóveis
+    <LayoutDeAcesso
+      titulo="Que bom ver você de novo"
+      subtitulo="Entre com seu e-mail e senha para acompanhar os imóveis e as contas."
+      rodape={
+        <AvisoDeAcesso icone={<ShieldCheck aria-hidden="true" />}>
+          <p>O acesso é feito por convite. Se ainda não recebeu o seu, fale com a administração.</p>
+          <p className="mt-1">
+            Recebeu um convite?{' '}
+            <Link
+              to="/signup"
+              className="inline-flex min-h-11 items-center font-bold text-primary underline"
+            >
+              Criar conta
+            </Link>
           </p>
+        </AvisoDeAcesso>
+      }
+    >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        {aviso && !generalError && (
+          <div
+            role="status"
+            className="rounded-3xl bg-secondary/20 px-5 py-3 text-sm font-bold text-warning-ink"
+          >
+            {aviso}
+          </div>
+        )}
+
+        {generalError && (
+          <div
+            role="alert"
+            className="rounded-3xl bg-destructive/15 px-5 py-3 text-sm font-bold text-red-800"
+          >
+            {generalError}
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="email" className="text-sm font-bold">
+            E-mail
+          </Label>
+          <Input
+            id="email"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            autoCapitalize="none"
+            spellCheck={false}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            aria-invalid={Boolean(fieldErrors.email) || undefined}
+            aria-describedby={fieldErrors.email ? 'email-erro' : undefined}
+            className="min-h-14"
+          />
+          {fieldErrors.email && (
+            <p id="email-erro" role="alert" className="px-2 text-sm font-bold text-red-800">
+              {fieldErrors.email}
+            </p>
+          )}
         </div>
 
-        <Card className="border border-navy-700/80 bg-navy-800/90 text-slate-100 shadow-2xl backdrop-blur-xl">
-          <CardHeader className="space-y-1.5 pb-4 text-center">
-            <CardTitle as="h1" className="text-2xl font-bold tracking-tight text-white">
-              Acesse sua conta
-            </CardTitle>
-            <CardDescription className="text-slate-200 text-sm sm:text-base">
-              Digite suas credenciais de acesso ao painel Holding Aguiar.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {aviso && !generalError && (
-                <div
-                  role="status"
-                  className="rounded-lg bg-amber-950/70 p-3 text-sm font-semibold text-amber-100 border border-amber-700/60"
-                >
-                  {aviso}
-                </div>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="password" className="text-sm font-bold">
+            Senha
+          </Label>
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              aria-invalid={Boolean(fieldErrors.password) || undefined}
+              aria-describedby={fieldErrors.password ? 'password-erro' : undefined}
+              className="min-h-14 pr-16"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+              aria-pressed={showPassword}
+              className="absolute right-1.5 top-1.5 flex h-11 w-11 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/10"
+            >
+              {showPassword ? (
+                <EyeOff className="h-[22px] w-[22px]" aria-hidden="true" />
+              ) : (
+                <Eye className="h-[22px] w-[22px]" aria-hidden="true" />
               )}
-
-              {generalError && (
-                <div
-                  role="alert"
-                  className="rounded-lg bg-red-950/80 p-3 text-sm font-semibold text-red-200 border border-red-800/60"
-                >
-                  {generalError}
-                </div>
-              )}
-
-              <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-slate-100 font-semibold text-sm">
-                  E-mail institucional
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gold-400" />
-                  <Input
-                    id="email"
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    placeholder="seu.email@holdingaguiar.com.br"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    aria-invalid={Boolean(fieldErrors.email) || undefined}
-                    aria-describedby={fieldErrors.email ? 'email-erro' : undefined}
-                    className="pl-9 min-h-[48px] text-base bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-300 focus:border-gold-500 focus:ring-gold-500"
-                  />
-                </div>
-                {fieldErrors.email && (
-                  <p id="email-erro" role="alert" className="text-sm font-semibold text-red-300">
-                    {fieldErrors.email}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-slate-100 font-semibold text-sm">
-                  Senha de acesso
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-gold-400" />
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="current-password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    aria-invalid={Boolean(fieldErrors.password) || undefined}
-                    aria-describedby={fieldErrors.password ? 'password-erro' : undefined}
-                    className="pl-9 pr-14 min-h-[48px] text-base bg-navy-900/90 border-navy-700 text-white placeholder:text-slate-300 focus:border-gold-500 focus:ring-gold-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                    aria-pressed={showPassword}
-                    className="absolute right-0 top-0 flex h-full min-h-[48px] w-12 items-center justify-center rounded-r-md text-slate-300 hover:text-gold-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" aria-hidden="true" />
-                    ) : (
-                      <Eye className="h-5 w-5" aria-hidden="true" />
-                    )}
-                  </button>
-                </div>
-                {fieldErrors.password && (
-                  <p id="password-erro" role="alert" className="text-sm font-semibold text-red-300">
-                    {fieldErrors.password}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between pt-1">
-                <div className="flex min-h-[44px] items-center space-x-3">
-                  <Checkbox
-                    id="remember"
-                    checked={rememberMe}
-                    onCheckedChange={(checked) => setRememberMe(!!checked)}
-                    className="border-navy-600 data-[state=checked]:bg-gold-500 data-[state=checked]:text-navy-950"
-                  />
-                  <label
-                    htmlFor="remember"
-                    className="flex min-h-[44px] items-center text-sm font-medium text-slate-200 cursor-pointer"
-                  >
-                    Lembrar de mim
-                  </label>
-                </div>
-                <Link
-                  to="/recuperar-senha"
-                  className="inline-flex min-h-[44px] items-center text-sm font-semibold text-gold-300 underline underline-offset-4 hover:text-gold-200 transition-colors"
-                >
-                  Esqueci minha senha
-                </Link>
-              </div>
-
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full min-h-[52px] text-base bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-600 hover:to-gold-500 text-navy-950 font-bold shadow-lg shadow-gold-500/20 transition-all active:scale-[0.98]"
-              >
-                {isSubmitting ? 'Entrando...' : 'Entrar no sistema'}
-                {!isSubmitting && <ArrowRight className="ml-2 h-4 w-4 text-navy-950" />}
-              </Button>
-            </form>
-
-            <div className="mt-6 border-t border-navy-700/80 pt-4 text-center">
-              <p className="text-sm text-slate-300">
-                Ainda não tem acesso?{' '}
-                <Link
-                  to="/signup"
-                  className="inline-flex min-h-[44px] items-center font-semibold text-gold-300 underline underline-offset-4 hover:text-gold-200"
-                >
-                  Criar conta
-                </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="mt-6 flex items-center justify-center gap-2 text-slate-300 text-sm font-medium">
-          <ShieldCheck className="h-4 w-4 text-gold-400" />
-          <span>Ambiente Seguro &bull; Holding Aguiar © 2026</span>
+            </button>
+          </div>
+          {fieldErrors.password && (
+            <p id="password-erro" role="alert" className="px-2 text-sm font-bold text-red-800">
+              {fieldErrors.password}
+            </p>
+          )}
         </div>
-      </div>
-    </div>
+
+        <div className="flex min-h-11 items-center gap-3 px-1">
+          <Checkbox
+            id="remember"
+            checked={rememberMe}
+            onCheckedChange={(checked) => setRememberMe(!!checked)}
+          />
+          <label htmlFor="remember" className="flex min-h-11 cursor-pointer items-center text-base">
+            Lembrar de mim
+          </label>
+        </div>
+
+        <Button type="submit" size="lg" disabled={isSubmitting} className="mt-1 w-full">
+          {isSubmitting ? 'Entrando...' : 'Entrar'}
+        </Button>
+
+        <Link
+          to="/recuperar-senha"
+          className="self-center px-2.5 py-2.5 text-base font-bold text-primary underline hover:text-foreground"
+        >
+          Esqueci minha senha
+        </Link>
+      </form>
+    </LayoutDeAcesso>
   )
 }

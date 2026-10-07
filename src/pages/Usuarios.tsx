@@ -295,14 +295,14 @@ export default function Usuarios() {
   if (!isAdministrador) {
     return (
       <div className="space-y-6">
-        <div className="rounded-xl border border-gold-500/30 bg-gradient-to-r from-navy-950 to-navy-900 p-6 text-white shadow-lg">
+        <div className="relative overflow-hidden rounded-destaque bg-primary p-6 text-primary-foreground shadow-hero">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gold-500/20 text-gold-400">
+            <div className="flex h-12 w-12 items-center justify-center blob-1 bg-primary-foreground/15 text-primary-foreground">
               <ShieldAlert className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">Gestão de Usuários</h2>
-              <p className="text-xs sm:text-sm text-slate-300">
+              <h2 className="text-2xl text-primary-foreground">Gestão de Usuários</h2>
+              <p className="text-sm text-primary-foreground">
                 Apenas administradores podem convidar novos usuários ou alterar permissões de
                 acesso.
               </p>
@@ -344,17 +344,17 @@ export default function Usuarios() {
   return (
     <div className="space-y-6">
       {/* Top Banner Holding Aguiar */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-xl bg-gradient-to-r from-navy-950 via-navy-900 to-navy-800 p-6 text-white shadow-xl border border-navy-700/80">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between relative overflow-hidden rounded-destaque bg-primary p-6 text-primary-foreground shadow-hero">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold uppercase tracking-widest text-gold-400">
+            <span className="text-xs font-extrabold uppercase tracking-[0.08em] text-primary-foreground">
               Holding Aguiar &bull; Governança
             </span>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h2 className="text-2xl text-primary-foreground flex items-center gap-2">
             Gestão de Usuários e Acessos
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300">
+          <p className="text-sm text-primary-foreground">
             Convide colaboradores, defina permissões de administrador e controle o acesso à
             plataforma.
           </p>
@@ -363,9 +363,9 @@ export default function Usuarios() {
         <div className="flex items-center gap-2">
           <Button
             onClick={() => setInviteModalOpen(true)}
-            className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold shadow-lg shadow-gold-500/20 active:scale-[0.98] transition-all"
+            className="bg-primary-foreground text-primary hover:bg-primary-foreground"
           >
-            <UserPlus className="mr-2 h-4 w-4 text-navy-950" /> Convidar Usuário
+            <UserPlus aria-hidden="true" /> Convidar Usuário
           </Button>
         </div>
       </div>
@@ -782,7 +782,7 @@ export default function Usuarios() {
             <AlertDialogAction
               onClick={handleConfirmCancelInvite}
               disabled={actionLoading}
-              className="bg-amber-600 hover:bg-amber-700 text-white font-medium"
+              className="bg-secondary-ink hover:bg-secondary-ink/90 text-white"
             >
               {actionLoading ? 'Cancelando...' : 'Cancelar Convite'}
             </AlertDialogAction>

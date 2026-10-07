@@ -45,7 +45,7 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ report }) => {
 
       {/* Resumo Executivo */}
       <div className="bg-surface-muted p-4 rounded-2xl border border-sim-border text-xs text-text-secondary leading-relaxed">
-        <span className="font-semibold text-text-primary block mb-1 uppercase tracking-wider text-[10px]">
+        <span className="font-semibold text-text-primary block mb-1 uppercase tracking-wider text-xs">
           Síntese do Laudo Técnico
         </span>
         {report.executiveSummary}
@@ -53,7 +53,7 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ report }) => {
 
       {/* Tabela de Checkpoints Auditados */}
       <div className="space-y-2.5">
-        <span className="text-[11px] font-semibold text-text-primary uppercase tracking-wider block">
+        <span className="text-xs font-semibold text-text-primary uppercase tracking-wider block">
           Checkpoints Normativos Auditados:
         </span>
         <div className="grid grid-cols-1 gap-2.5 text-xs">
@@ -75,14 +75,12 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ report }) => {
                     {item.ruleName}
                   </div>
                   <div>
-                    <span className="inline-block text-[10px] text-text-muted font-sim-mono bg-surface px-2.5 py-0.5 rounded-md border border-sim-border shadow-sm break-words max-w-full">
+                    <span className="inline-block text-xs text-text-muted font-sim-mono bg-surface px-2.5 py-0.5 rounded-md border border-sim-border shadow-sm break-words max-w-full">
                       {item.articleReference}
                     </span>
                   </div>
                 </div>
-                <p className="text-text-secondary text-[11px] leading-relaxed pt-0.5">
-                  {item.message}
-                </p>
+                <p className="text-text-secondary text-xs leading-relaxed pt-0.5">{item.message}</p>
               </div>
             </div>
           ))}
@@ -90,7 +88,7 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ report }) => {
       </div>
 
       {/* Base Legal Citada */}
-      <div className="pt-3 border-t border-sim-border space-y-2 text-[11px] text-text-muted">
+      <div className="pt-3 border-t border-sim-border space-y-2 text-xs text-text-muted">
         <div className="flex items-center gap-2 font-medium text-text-primary">
           <Landmark className="w-3.5 h-3.5 text-text-primary shrink-0" />
           <span>Bases regulatórias e estatutárias auditadas:</span>
@@ -99,7 +97,7 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ report }) => {
           {report.legalBasis.map((basis, idx) => (
             <span
               key={idx}
-              className="bg-surface-muted border border-sim-border px-2.5 py-0.5 rounded-full text-[10px] font-sim-mono text-text-secondary"
+              className="bg-surface-muted border border-sim-border px-2.5 py-0.5 rounded-full text-xs font-sim-mono text-text-secondary"
             >
               {basis}
             </span>

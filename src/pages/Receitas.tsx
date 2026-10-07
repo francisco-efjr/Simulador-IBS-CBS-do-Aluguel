@@ -306,7 +306,7 @@ export default function Receitas() {
                       Inquilino: {r.expand.inquilino.nome}
                     </p>
                   )}
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
                     <div className="space-y-0.5">
                       <span className="text-sm font-bold text-slate-900 block">
                         {formatCurrency(r.valor_previsto)}

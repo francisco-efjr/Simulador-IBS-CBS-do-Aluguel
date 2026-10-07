@@ -1,17 +1,35 @@
-/* Card Component primitives - A component that displays a card - from shadcn/ui (exposes Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent) */
+/* Cartão (shadcn/ui) no visual orgânico: 32px com um canto de 64px (exposes Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, cantoOrganico) */
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('rounded-lg border bg-card text-card-foreground shadow-sm', className)}
-      {...props}
-    />
-  ),
-)
+const CANTOS = {
+  tr: 'rounded-organic-tr',
+  tl: 'rounded-organic-tl',
+  br: 'rounded-organic-br',
+  bl: 'rounded-organic-bl',
+} as const
+
+export type CantoOrganico = keyof typeof CANTOS
+
+/** Canto de 64px que gira por índice, para listas de cartões não ficarem iguais. */
+export const cantoOrganico = (indice: number): CantoOrganico =>
+  (['tr', 'tl', 'br', 'bl'] as const)[((indice % 4) + 4) % 4]
+
+const Card = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & { canto?: CantoOrganico }
+>(({ className, canto = 'tr', ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'border border-border/60 bg-card text-card-foreground shadow-soft',
+      CANTOS[canto],
+      className,
+    )}
+    {...props}
+  />
+))
 Card.displayName = 'Card'
 
 const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -35,7 +53,7 @@ const CardTitle = React.forwardRef<
 >(({ className, as: Tag = 'h3', ...props }, ref) => (
   <Tag
     ref={ref}
-    className={cn('text-2xl font-semibold leading-none tracking-tight', className)}
+    className={cn('font-serif text-xl font-bold leading-tight', className)}
     {...props}
   />
 ))
@@ -43,7 +61,7 @@ CardTitle.displayName = 'CardTitle'
 
 const CardDescription = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('text-sm text-muted-foreground', className)} {...props} />
+    <div ref={ref} className={cn('text-sm text-accent-foreground', className)} {...props} />
   ),
 )
 CardDescription.displayName = 'CardDescription'

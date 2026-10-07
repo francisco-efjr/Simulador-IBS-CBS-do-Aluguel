@@ -112,7 +112,7 @@ const addPdfFooter = (doc: JsPdfDocumento) => {
     doc.setFontSize(7.5)
     doc.setTextColor(148, 163, 184)
     doc.text(
-      'Holding Aguiar — Sistema Controle de Imóveis • Relatório Oficial Confidencial',
+      'Holding Aguiar — Gestão de imóveis • Relatório Oficial Confidencial',
       14,
       pageHeight - 7,
     )

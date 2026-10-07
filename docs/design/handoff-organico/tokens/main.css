@@ -1,0 +1,118 @@
+/* Holding Aguiar — tokens "Orgânico / Natural"
+   Substitui as variáveis de src/main.css. Valores em HSL sem hsl() (padrão shadcn/ui).
+   Contrastes conferidos para WCAG 2.2 AA sobre --background. */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..800&family=Nunito:wght@400;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 48 56% 98%;          /* #FDFCF8 papel de arroz */
+    --foreground: 60 10% 16%;          /* #2C2C24 terra escura  14.5:1 */
+    --card: 60 67% 99%;                /* #FEFEFA */
+    --card-foreground: 60 10% 16%;
+    --popover: 60 67% 99%;
+    --popover-foreground: 60 10% 16%;
+    --primary: 98 15% 38%;             /* #5D7052 musgo  5.2:1 */
+    --primary-foreground: 80 12% 95%;  /* #F3F4F1  4.6:1 sobre musgo */
+    --secondary: 28 45% 56%;           /* #C18C5D argila — SÓ decorativo (blobs, bordas) */
+    --secondary-foreground: 0 0% 100%;
+    --secondary-ink: 28 43% 39%;       /* #8F6139 argila escura — texto, botão outline  4.5:1 */
+    --accent: 36 33% 85%;              /* #E6DCCD areia */
+    --accent-foreground: 60 7% 27%;    /* #4A4A40 casca */
+    --muted: 33 27% 92%;               /* #F0EBE5 pedra */
+    --muted-foreground: 60 6% 40%;     /* #6B6B5F capim seco  5.2:1 (o #78786C original dá 4.3:1 e reprova) */
+    --surface-sunken: 36 33% 95%;      /* #F6F2EC menu lateral, linhas internas */
+    --border: 36 18% 84%;              /* #DED8CF madeira crua */
+    --input: 36 18% 84%;
+    --ring: 98 15% 38%;
+    --destructive: 7 40% 47%;          /* #A85448 siena queimada  5.0:1 */
+    --destructive-foreground: 0 0% 100%;
+    --success-ink: 98 21% 27%;         /* #3F5236 texto de pílula "Ocupada/Vigente" */
+    --warning-ink: 27 48% 32%;         /* #7A4F2B texto de pílula "Vaga/Vencendo" */
+
+    --radius: 1.5rem;
+    --shadow-soft: 0 4px 20px -2px rgba(93, 112, 82, 0.15);
+    --shadow-float: 0 10px 40px -10px rgba(193, 140, 93, 0.3);
+    --shadow-lift: 0 20px 40px -10px rgba(93, 112, 82, 0.2);
+    --shadow-hero: 0 18px 40px -14px rgba(93, 112, 82, 0.55);
+
+    /* Escala de fonte controlada pelo A− / A / A+ (mantém a lógica atual) */
+    --font-scale: 1;
+  }
+
+  /* Tema escuro "floresta à noite" — fase 5, sem telas de referência ainda */
+  .dark {
+    --background: 80 11% 11%;          /* #1C1E18 */
+    --foreground: 40 24% 90%;          /* #ECE8DF */
+    --card: 84 10% 14%;                /* #23261F */
+    --card-foreground: 40 24% 90%;
+    --popover: 84 10% 14%;
+    --popover-foreground: 40 24% 90%;
+    --primary: 97 22% 63%;             /* #9DB38E musgo claro */
+    --primary-foreground: 80 11% 11%;
+    --secondary: 28 56% 66%;           /* #D9A577 */
+    --secondary-foreground: 80 11% 11%;
+    --secondary-ink: 28 56% 70%;
+    --accent: 80 8% 22%;
+    --accent-foreground: 40 24% 90%;
+    --muted: 84 9% 16%;
+    --muted-foreground: 43 9% 68%;     /* #B5B0A3 */
+    --surface-sunken: 84 10% 13%;
+    --border: 75 8% 22%;
+    --input: 75 8% 22%;
+    --ring: 97 22% 63%;
+    --destructive: 7 55% 62%;
+    --destructive-foreground: 80 11% 11%;
+    --success-ink: 97 30% 72%;
+    --warning-ink: 28 60% 74%;
+    --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
+    --shadow-float: 0 10px 40px -10px rgba(0, 0, 0, 0.45);
+    --shadow-lift: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+    --shadow-hero: 0 18px 40px -14px rgba(0, 0, 0, 0.6);
+  }
+
+  html { font-size: calc(106.25% * var(--font-scale)); } /* 17px base */
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+  h1, h2, h3, h4 { @apply font-serif font-bold tracking-tight; text-wrap: balance; }
+  p { text-wrap: pretty; }
+
+  /* Granulação de papel — obrigatória no estilo */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.04;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .dark body::after { mix-blend-mode: overlay; opacity: 0.06; }
+
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring) / 0.6);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    .rotate-organic, .rotate-organic-r { transform: none !important; }
+  }
+}
+
+@layer utilities {
+  .blob-1 { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  .blob-2 { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+  .blob-3 { border-radius: 50% 50% 30% 70% / 40% 60% 40% 60%; }
+  .blob-4 { border-radius: 70% 30% 50% 50% / 30% 50% 50% 70%; }
+  .rotate-organic { transform: rotate(-1deg); }
+  .rotate-organic-r { transform: rotate(1deg); }
+}

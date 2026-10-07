@@ -296,7 +296,7 @@ export default function IptuTaxas() {
                     </div>
                     <StatusBadge type="iptu_taxas" status={c.status} />
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
                     <div>
                       <span className="text-sm font-bold text-slate-900 block">
                         {formatCurrency(c.valor)}
