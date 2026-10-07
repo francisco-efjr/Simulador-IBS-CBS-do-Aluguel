@@ -62,7 +62,9 @@ interface Linha {
 }
 
 export default function Inquilinos() {
-  const { canEditModule } = useAuth()
+  const { canEditModule, canViewModule } = useAuth()
+  // Sem permissão de contratos o banco devolve lista vazia (RLS), não erro: nem busca.
+  const veContratos = canViewModule('contratos')
   const canEdit = canEditModule('inquilinos')
   const [inquilinos, setInquilinos] = useState<any[]>([])
   const [contratos, setContratos] = useState<any[]>([])
@@ -101,10 +103,12 @@ export default function Inquilinos() {
       setError(null)
       const [data, contratosData] = await Promise.all([
         getInquilinos(),
-        getContratos().then(
-          (lista) => ({ lista, ok: true }),
-          () => ({ lista: [], ok: false }),
-        ),
+        veContratos
+          ? getContratos().then(
+              (lista) => ({ lista, ok: true }),
+              () => ({ lista: [], ok: false }),
+            )
+          : Promise.resolve({ lista: [], ok: false }),
       ])
       setInquilinos(data)
       setContratos(contratosData.lista)
@@ -115,7 +119,7 @@ export default function Inquilinos() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [veContratos])
 
   useEffect(() => {
     load()
@@ -150,7 +154,9 @@ export default function Inquilinos() {
 
   const totais = useMemo(() => {
     const todosOsContratos = contratosPorInquilino(contratos)
-    const com = inquilinos.filter((iq) => situacaoDoInquilino(todosOsContratos.get(iq.id) ?? []).temContrato)
+    const com = inquilinos.filter(
+      (iq) => situacaoDoInquilino(todosOsContratos.get(iq.id) ?? []).temContrato,
+    )
     return { todos: inquilinos.length, com: com.length }
   }, [inquilinos, contratos])
 
@@ -422,10 +428,7 @@ export default function Inquilinos() {
                           <Phone aria-hidden="true" /> Ligar
                         </a>
                       )}
-                      <Button
-                        aria-label={`Ver ficha de ${iq.nome}`}
-                        onClick={() => handleView(iq)}
-                      >
+                      <Button aria-label={`Ver ficha de ${iq.nome}`} onClick={() => handleView(iq)}>
                         Ver ficha
                       </Button>
                     </div>

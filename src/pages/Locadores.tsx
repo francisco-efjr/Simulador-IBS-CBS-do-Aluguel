@@ -41,7 +41,9 @@ const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um :
 const rotuloDoDocumento = (loc: Locador) => (loc.tipo_pessoa === 'pj' ? 'CNPJ' : 'CPF')
 
 export default function Locadores() {
-  const { canEditModule } = useAuth()
+  const { canEditModule, canViewModule } = useAuth()
+  // Sem permissão de contratos o banco devolve lista vazia (RLS), não erro: nem busca.
+  const veContratos = canViewModule('contratos')
   const canEdit = canEditModule('locadores')
   // O fiador é cadastrado e guardado junto com o contrato: a permissão é a de contratos.
   const podeAdicionarFiador = canEditModule('contratos')
@@ -84,10 +86,12 @@ export default function Locadores() {
       setError(null)
       const [data, contratosData] = await Promise.all([
         getLocadores(),
-        getContratos().then(
-          (lista) => ({ lista, ok: true }),
-          () => ({ lista: [], ok: false }),
-        ),
+        veContratos
+          ? getContratos().then(
+              (lista) => ({ lista, ok: true }),
+              () => ({ lista: [], ok: false }),
+            )
+          : Promise.resolve({ lista: [], ok: false }),
       ])
       setLocadores(data)
       setContratos(contratosData.lista)
@@ -97,7 +101,7 @@ export default function Locadores() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [veContratos])
 
   useEffect(() => {
     load()
@@ -126,7 +130,11 @@ export default function Locadores() {
   }, [locadores, search])
 
   const nFiadores = useMemo(
-    () => totalDeFiadores(resumos, locadores.map((l) => l.id)),
+    () =>
+      totalDeFiadores(
+        resumos,
+        locadores.map((l) => l.id),
+      ),
     [resumos, locadores],
   )
 
@@ -245,168 +253,170 @@ export default function Locadores() {
             {buscando ? ' na busca' : ''}
           </p>
           <div className="[container-type:inline-size]">
-          <ul className="flex flex-col gap-4">
-            {filtered.map((loc, indice) => {
-              const aberto = abertos.has(loc.id)
-              const idConteudo = `fiadores-${loc.id}`
-              const { imoveis, fiadores } = resumoDoLocador(resumos, loc.id)
-              const fiadoresTxt = plural(fiadores.length, 'fiador', 'fiadores')
-              const imoveisTxt = plural(imoveis, 'imóvel', 'imóveis')
-              const documento = loc.cpf_cnpj
-                ? `${rotuloDoDocumento(loc)} ${formatarCpfCnpj(loc.cpf_cnpj)}`
-                : 'Sem documento'
-              return (
-                <li key={loc.id}>
-                  <Card canto={cantoOrganico(indice)} className="group overflow-hidden">
-                    <button
-                      type="button"
-                      onClick={() => alternar(loc.id)}
-                      aria-expanded={aberto}
-                      aria-controls={idConteudo}
-                      className={cn(
-                        'flex w-full items-center gap-3.5 p-[18px] text-left',
-                        contratosDisponiveis
-                          ? '[@container(min-width:50em)]:grid [@container(min-width:50em)]:grid-cols-[56px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_40px]'
-                          : '[@container(min-width:50em)]:grid [@container(min-width:50em)]:grid-cols-[56px_minmax(0,1fr)_40px]',
-                        '[@container(min-width:50em)]:gap-5 [@container(min-width:50em)]:px-6',
-                      )}
-                    >
-                      <IconeTile
-                        icone={loc.tipo_pessoa === 'pj' ? Building2 : UserRound}
-                        blob={(indice % 2 ? 2 : 1) as 1 | 2}
-                        tamanho="sm"
-                        className="group-hover:bg-primary group-hover:text-primary-foreground [@container(min-width:50em)]:h-14 [@container(min-width:50em)]:w-14"
-                      />
-                      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                        <span className="flex flex-wrap items-center gap-2">
-                          <strong className="font-serif text-lg font-bold leading-tight [@container(min-width:50em)]:text-[1.3125rem]">
-                            {loc.nome_razao_social}
-                          </strong>
-                          {loc.status === 'inativo' && (
-                            <span className={badgeVariants({ variant: 'neutral' })}>Inativo</span>
-                          )}
-                        </span>
-                        {contratosDisponiveis && (
-                          <span className="text-sm text-accent-foreground [@container(min-width:50em)]:hidden">
-                            {imoveisTxt} · {fiadoresTxt}
-                          </span>
-                        )}
-                        <span className="numero hidden text-base text-accent-foreground [@container(min-width:50em)]:block">
-                          {documento}
-                        </span>
-                      </span>
-                      {contratosDisponiveis && (
-                        <>
-                          <span className="hidden flex-col [@container(min-width:50em)]:flex">
-                            <span className="text-sm text-accent-foreground">Imóveis</span>
-                            <strong className="whitespace-nowrap text-lg">{imoveisTxt}</strong>
-                          </span>
-                          <span className="hidden flex-col [@container(min-width:50em)]:flex">
-                            <span className="text-sm text-accent-foreground">Fiadores</span>
-                            <strong className="whitespace-nowrap text-lg">{fiadoresTxt}</strong>
-                          </span>
-                        </>
-                      )}
-                      <ChevronDown
-                        aria-hidden="true"
+            <ul className="flex flex-col gap-4">
+              {filtered.map((loc, indice) => {
+                const aberto = abertos.has(loc.id)
+                const idConteudo = `fiadores-${loc.id}`
+                const { imoveis, fiadores } = resumoDoLocador(resumos, loc.id)
+                const fiadoresTxt = plural(fiadores.length, 'fiador', 'fiadores')
+                const imoveisTxt = plural(imoveis, 'imóvel', 'imóveis')
+                const documento = loc.cpf_cnpj
+                  ? `${rotuloDoDocumento(loc)} ${formatarCpfCnpj(loc.cpf_cnpj)}`
+                  : 'Sem documento'
+                return (
+                  <li key={loc.id}>
+                    <Card canto={cantoOrganico(indice)} className="group overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => alternar(loc.id)}
+                        aria-expanded={aberto}
+                        aria-controls={idConteudo}
                         className={cn(
-                          'h-6 w-6 shrink-0 text-primary transition-transform duration-400 ease-organic [@container(min-width:50em)]:h-[26px] [@container(min-width:50em)]:w-[26px]',
-                          aberto && 'rotate-180',
+                          'flex w-full items-center gap-3.5 p-[18px] text-left',
+                          contratosDisponiveis
+                            ? '[@container(min-width:50em)]:grid [@container(min-width:50em)]:grid-cols-[56px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_40px]'
+                            : '[@container(min-width:50em)]:grid [@container(min-width:50em)]:grid-cols-[56px_minmax(0,1fr)_40px]',
+                          '[@container(min-width:50em)]:gap-5 [@container(min-width:50em)]:px-6',
                         )}
-                      />
-                    </button>
-
-                    {aberto && (
-                      <div
-                        id={idConteudo}
-                        className="flex flex-col gap-3 px-3.5 pb-4 [@container(min-width:50em)]:pb-5 [@container(min-width:50em)]:pl-[100px] [@container(min-width:50em)]:pr-6"
                       >
-                        <p className="numero px-1 text-base text-accent-foreground [@container(min-width:50em)]:hidden">
-                          {documento}
-                        </p>
-                        {(loc.email || loc.telefone || loc.dados_bancarios) && (
-                          <dl className="grid gap-x-6 gap-y-2 px-1 text-base sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
-                            {loc.email && (
-                              <div>
-                                <dt className="text-sm text-accent-foreground">E-mail</dt>
-                                <dd className="break-words font-bold">{loc.email}</dd>
-                              </div>
+                        <IconeTile
+                          icone={loc.tipo_pessoa === 'pj' ? Building2 : UserRound}
+                          blob={(indice % 2 ? 2 : 1) as 1 | 2}
+                          tamanho="sm"
+                          className="group-hover:bg-primary group-hover:text-primary-foreground [@container(min-width:50em)]:h-14 [@container(min-width:50em)]:w-14"
+                        />
+                        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                          <span className="flex flex-wrap items-center gap-2">
+                            <strong className="font-serif text-lg font-bold leading-tight [@container(min-width:50em)]:text-[1.3125rem]">
+                              {loc.nome_razao_social}
+                            </strong>
+                            {loc.status === 'inativo' && (
+                              <span className={badgeVariants({ variant: 'neutral' })}>Inativo</span>
                             )}
-                            {loc.telefone && (
-                              <div>
-                                <dt className="text-sm text-accent-foreground">Telefone</dt>
-                                <dd className="numero font-bold">
-                                  {formatarTelefone(loc.telefone)}
-                                </dd>
-                              </div>
-                            )}
-                            {loc.dados_bancarios && (
-                              <div>
-                                <dt className="text-sm text-accent-foreground">Dados bancários</dt>
-                                <dd className="break-words font-bold">{loc.dados_bancarios}</dd>
-                              </div>
-                            )}
-                          </dl>
-                        )}
-                        {canEdit && (
-                          <div className="flex flex-wrap items-center gap-2">
-                            <Button variant="outline" size="sm" onClick={() => handleEdit(loc)}>
-                              <Pencil aria-hidden="true" /> Editar
-                            </Button>
-                            {loc.status !== 'inativo' && (
-                              <ConfirmarAcao
-                                titulo="Inativar este locador?"
-                                descricao="O locador será marcado como inativo. O histórico contratual e financeiro será preservado e é possível reativá-lo a qualquer momento."
-                                rotuloConfirmar="Sim, inativar locador"
-                                onConfirmar={() => handleInactivate(loc)}
-                              >
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-red-800 hover:bg-destructive/10"
-                                  aria-label={`Inativar ${loc.nome_razao_social}`}
-                                >
-                                  <Ban aria-hidden="true" /> Inativar
-                                </Button>
-                              </ConfirmarAcao>
-                            )}
-                          </div>
-                        )}
-
+                          </span>
+                          {contratosDisponiveis && (
+                            <span className="text-sm text-accent-foreground [@container(min-width:50em)]:hidden">
+                              {imoveisTxt} · {fiadoresTxt}
+                            </span>
+                          )}
+                          <span className="numero hidden text-base text-accent-foreground [@container(min-width:50em)]:block">
+                            {documento}
+                          </span>
+                        </span>
                         {contratosDisponiveis && (
                           <>
-                            <h2 className="px-1 pt-1.5 font-sans text-sm font-extrabold uppercase tracking-[.08em] text-muted-foreground">
-                              Fiadores
-                            </h2>
-                            {fiadores.length === 0 ? (
-                              <p className="px-1 text-base text-accent-foreground">
-                                Nenhum fiador nos contratos ativos deste locador.
-                              </p>
-                            ) : (
-                              <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-3">
-                                {fiadores.map((f) => (
-                                  <CartaoDoFiador key={f.chave} fiador={f} />
-                                ))}
-                              </ul>
-                            )}
-                            {podeAdicionarFiador && (
-                              <Button
-                                variant="ghost"
-                                className="-ml-3 self-start"
-                                onClick={() => setFiadorOpen(true)}
-                              >
-                                <UserPlus aria-hidden="true" /> Adicionar fiador
-                              </Button>
-                            )}
+                            <span className="hidden flex-col [@container(min-width:50em)]:flex">
+                              <span className="text-sm text-accent-foreground">Imóveis</span>
+                              <strong className="whitespace-nowrap text-lg">{imoveisTxt}</strong>
+                            </span>
+                            <span className="hidden flex-col [@container(min-width:50em)]:flex">
+                              <span className="text-sm text-accent-foreground">Fiadores</span>
+                              <strong className="whitespace-nowrap text-lg">{fiadoresTxt}</strong>
+                            </span>
                           </>
                         )}
-                      </div>
-                    )}
-                  </Card>
-                </li>
-              )
-            })}
-          </ul>
+                        <ChevronDown
+                          aria-hidden="true"
+                          className={cn(
+                            'h-6 w-6 shrink-0 text-primary transition-transform duration-400 ease-organic [@container(min-width:50em)]:h-[26px] [@container(min-width:50em)]:w-[26px]',
+                            aberto && 'rotate-180',
+                          )}
+                        />
+                      </button>
+
+                      {aberto && (
+                        <div
+                          id={idConteudo}
+                          className="flex flex-col gap-3 px-3.5 pb-4 [@container(min-width:50em)]:pb-5 [@container(min-width:50em)]:pl-[100px] [@container(min-width:50em)]:pr-6"
+                        >
+                          <p className="numero px-1 text-base text-accent-foreground [@container(min-width:50em)]:hidden">
+                            {documento}
+                          </p>
+                          {(loc.email || loc.telefone || loc.dados_bancarios) && (
+                            <dl className="grid gap-x-6 gap-y-2 px-1 text-base sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
+                              {loc.email && (
+                                <div>
+                                  <dt className="text-sm text-accent-foreground">E-mail</dt>
+                                  <dd className="break-words font-bold">{loc.email}</dd>
+                                </div>
+                              )}
+                              {loc.telefone && (
+                                <div>
+                                  <dt className="text-sm text-accent-foreground">Telefone</dt>
+                                  <dd className="numero font-bold">
+                                    {formatarTelefone(loc.telefone)}
+                                  </dd>
+                                </div>
+                              )}
+                              {loc.dados_bancarios && (
+                                <div>
+                                  <dt className="text-sm text-accent-foreground">
+                                    Dados bancários
+                                  </dt>
+                                  <dd className="break-words font-bold">{loc.dados_bancarios}</dd>
+                                </div>
+                              )}
+                            </dl>
+                          )}
+                          {canEdit && (
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Button variant="outline" size="sm" onClick={() => handleEdit(loc)}>
+                                <Pencil aria-hidden="true" /> Editar
+                              </Button>
+                              {loc.status !== 'inativo' && (
+                                <ConfirmarAcao
+                                  titulo="Inativar este locador?"
+                                  descricao="O locador será marcado como inativo. O histórico contratual e financeiro será preservado e é possível reativá-lo a qualquer momento."
+                                  rotuloConfirmar="Sim, inativar locador"
+                                  onConfirmar={() => handleInactivate(loc)}
+                                >
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-red-800 hover:bg-destructive/10"
+                                    aria-label={`Inativar ${loc.nome_razao_social}`}
+                                  >
+                                    <Ban aria-hidden="true" /> Inativar
+                                  </Button>
+                                </ConfirmarAcao>
+                              )}
+                            </div>
+                          )}
+
+                          {contratosDisponiveis && (
+                            <>
+                              <h2 className="px-1 pt-1.5 font-sans text-sm font-extrabold uppercase tracking-[.08em] text-muted-foreground">
+                                Fiadores
+                              </h2>
+                              {fiadores.length === 0 ? (
+                                <p className="px-1 text-base text-accent-foreground">
+                                  Nenhum fiador nos contratos ativos deste locador.
+                                </p>
+                              ) : (
+                                <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-3">
+                                  {fiadores.map((f) => (
+                                    <CartaoDoFiador key={f.chave} fiador={f} />
+                                  ))}
+                                </ul>
+                              )}
+                              {podeAdicionarFiador && (
+                                <Button
+                                  variant="ghost"
+                                  className="-ml-3 self-start"
+                                  onClick={() => setFiadorOpen(true)}
+                                >
+                                  <UserPlus aria-hidden="true" /> Adicionar fiador
+                                </Button>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </Card>
+                  </li>
+                )
+              })}
+            </ul>
           </div>
         </>
       )}
@@ -461,7 +471,10 @@ function CarregandoLocadores() {
       <ul aria-hidden="true" className="flex flex-col gap-4">
         {[0, 1, 2].map((i) => (
           <li key={i}>
-            <Card canto={cantoOrganico(i)} className="flex items-center gap-3.5 p-[18px] [@container(min-width:50em)]:px-6">
+            <Card
+              canto={cantoOrganico(i)}
+              className="flex items-center gap-3.5 p-[18px] [@container(min-width:50em)]:px-6"
+            >
               <Skeleton className="blob-1 h-12 w-12 shrink-0 rounded-none [@container(min-width:50em)]:h-14 [@container(min-width:50em)]:w-14" />
               <div className="flex flex-1 flex-col gap-2">
                 <Skeleton className="h-5 w-3/5" />
