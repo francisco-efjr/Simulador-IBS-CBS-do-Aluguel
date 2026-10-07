@@ -415,11 +415,15 @@
   }
 
   /* Alvo de toque mínimo recomendado para o público do sistema: 44px.
-     A regra vale para controles que não definem a própria altura. */
-  button:not([role='checkbox']):not([role='radio']):not([role='switch']),
-  [role='button'],
-  a[href].botao,
-  summary {
+     A regra vale para controles que não definem a própria altura. O `:where`
+     zera a especificidade: sem ele, esta regra vencia `min-h-12`/`min-h-14` dos
+     componentes e todo botão ficava em 44px, abaixo dos 48/56px do desenho. */
+  :where(
+      button:not([role='checkbox']):not([role='radio']):not([role='switch']),
+      [role='button'],
+      a[href].botao,
+      summary
+    ) {
     min-height: 44px;
   }
 

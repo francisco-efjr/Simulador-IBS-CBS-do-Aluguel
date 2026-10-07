@@ -36,7 +36,7 @@ function pareceControle(node: ReactElement): 'nativo' | 'combobox' | null {
     (node.type as { displayName?: string; name?: string })?.displayName ||
     (node.type as { name?: string })?.name ||
     ''
-  if (/Trigger/i.test(nome)) return 'combobox'
+  if (/Trigger|Combobox/i.test(nome)) return 'combobox'
   // `Select` sozinho é a raiz do Radix, que não vira nada no DOM: parar nela
   // deixaria o gatilho sem nome. Quem responde pelo campo é o Trigger.
   if (/(Input|Textarea)$/i.test(nome)) return 'nativo'

@@ -25,6 +25,7 @@ const Imoveis = lazy(() => import('@/pages/Imoveis'))
 const Inquilinos = lazy(() => import('@/pages/Inquilinos'))
 const Locadores = lazy(() => import('@/pages/Locadores'))
 const Contratos = lazy(() => import('@/pages/Contratos'))
+const ContratoFormulario = lazy(() => import('@/pages/ContratoFormulario'))
 const Receitas = lazy(() => import('@/pages/Receitas'))
 const Despesas = lazy(() => import('@/pages/Despesas'))
 const IptuTaxas = lazy(() => import('@/pages/IptuTaxas'))
@@ -96,6 +97,8 @@ const App = () => (
 
                   <Route element={<ProtectedRoute modulo="contratos" />}>
                     <Route path="/contratos" element={<Contratos />} />
+                    <Route path="/contratos/novo" element={<ContratoFormulario />} />
+                    <Route path="/contratos/:id/editar" element={<ContratoFormulario />} />
                   </Route>
 
                   <Route element={<ProtectedRoute modulo="receitas" />}>

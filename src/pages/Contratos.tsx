@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { semAcento, termoDeBusca } from '@/lib/busca'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   FileText,
   FileDown,
@@ -22,7 +22,6 @@ import {
   situacaoDoContrato,
   type FiltroSituacao,
 } from '@/lib/situacao-contrato'
-import { ContratoFormDialog } from '@/components/contratos/ContratoFormDialog'
 import { ContratoDetailDialog } from '@/components/contratos/ContratoDetailDialog'
 import { MinutaContratoDialog } from '@/components/contratos/MinutaContratoDialog'
 import { Badge } from '@/components/ui/badge'
@@ -48,7 +47,7 @@ import {
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import { COLUNA_ACOES_CABECALHO, COLUNA_ACOES_CELULA } from '@/lib/tabela'
-import { Skeleton } from '@/components/ui/skeleton'
+import { CarregandoContratos } from '@/components/contratos/CarregandoContratos'
 
 import { useAuth } from '@/hooks/use-auth'
 
@@ -74,9 +73,8 @@ export default function Contratos() {
       { preventScrollReset: true },
     )
   const [fGarantia, setFGarantia] = useState('all')
-  const [formOpen, setFormOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
-  const [editing, setEditing] = useState<any | null>(null)
+  const navigate = useNavigate()
   const [selected, setSelected] = useState<any | null>(null)
   const [minutaOpen, setMinutaOpen] = useState(false)
   const [minutaContrato, setMinutaContrato] = useState<any | null>(null)
@@ -137,14 +135,10 @@ export default function Contratos() {
     [buscados, situacao],
   )
 
-  const handleNew = () => {
-    setEditing(null)
-    setFormOpen(true)
-  }
+  // Novo contrato e edição são uma página (seção 14 do handoff), não mais um diálogo.
   const handleEdit = (c: any) => {
-    setEditing(c)
     setDetailOpen(false)
-    setFormOpen(true)
+    navigate(`/contratos/${c.id}/editar`)
   }
   const handleView = (c: any) => {
     setSelected(c)
@@ -191,6 +185,8 @@ export default function Contratos() {
         {c.status === 'ativo' && (
           <>
             <ConfirmarAcao
+              icone={Check}
+              perigoso={false}
               titulo="Encerrar este contrato?"
               descricao="O contrato passa para encerrado e para de gerar cobranças e alertas de vencimento. O histórico de receitas já lançadas permanece."
               rotuloConfirmar="Sim, encerrar o contrato"
@@ -207,6 +203,7 @@ export default function Contratos() {
               </Button>
             </ConfirmarAcao>
             <ConfirmarAcao
+              icone={Ban}
               titulo="Cancelar este contrato?"
               descricao="O contrato passa para cancelado e sai dos alertas e das cobranças futuras. O histórico já lançado permanece."
               rotuloConfirmar="Sim, cancelar o contrato"
@@ -236,8 +233,10 @@ export default function Contratos() {
           <h1 className="text-3xl lg:text-5xl">Contratos</h1>
         </div>
         {canEdit && (
-          <Button onClick={handleNew} className="w-full sm:w-auto">
-            <Plus aria-hidden="true" /> Novo contrato
+          <Button asChild className="w-full sm:w-auto">
+            <Link to="/contratos/novo">
+              <Plus aria-hidden="true" /> Novo contrato
+            </Link>
           </Button>
         )}
       </header>
@@ -280,11 +279,7 @@ export default function Contratos() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col gap-3">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-16 w-full" />
-          ))}
-        </div>
+        <CarregandoContratos />
       ) : error ? (
         <div
           role="alert"
@@ -424,12 +419,6 @@ export default function Contratos() {
         </>
       )}
 
-      <ContratoFormDialog
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        editing={editing}
-        onSaved={load}
-      />
       <ContratoDetailDialog
         contrato={selected}
         open={detailOpen}

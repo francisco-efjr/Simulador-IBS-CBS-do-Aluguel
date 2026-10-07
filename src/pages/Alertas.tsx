@@ -37,7 +37,6 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { ContratoDetailDialog } from '@/components/contratos/ContratoDetailDialog'
-import { ContratoFormDialog } from '@/components/contratos/ContratoFormDialog'
 import { ReceitaDetailDialog } from '@/components/receitas/ReceitaDetailDialog'
 import { ReceitaFormDialog } from '@/components/receitas/ReceitaFormDialog'
 import { DespesaDetailDialog } from '@/components/despesas/DespesaDetailDialog'
@@ -97,9 +96,7 @@ export default function Alertas() {
 
   // Dialog details state
   const [selectedContrato, setSelectedContrato] = useState<any | null>(null)
-  const [editingContrato, setEditingContrato] = useState<any | null>(null)
   const [showContratoDetail, setShowContratoDetail] = useState(false)
-  const [showContratoForm, setShowContratoForm] = useState(false)
 
   const [selectedReceita, setSelectedReceita] = useState<any | null>(null)
   const [editingReceita, setEditingReceita] = useState<any | null>(null)
@@ -974,18 +971,12 @@ export default function Alertas() {
           open={showContratoDetail}
           onOpenChange={setShowContratoDetail}
           onEdit={() => {
-            setEditingContrato(selectedContrato)
+            // A edição de contrato é uma página (/contratos/:id/editar).
             setShowContratoDetail(false)
-            setShowContratoForm(true)
+            navigate(`/contratos/${selectedContrato.id}/editar`)
           }}
         />
       )}
-      <ContratoFormDialog
-        open={showContratoForm}
-        onOpenChange={setShowContratoForm}
-        editing={editingContrato}
-        onSaved={loadData}
-      />
 
       {/* Receita Detail & Edit */}
       {selectedReceita && (
