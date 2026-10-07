@@ -556,7 +556,7 @@ export default function Alertas() {
             <Bell className="h-6 w-6 animate-pulse" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5">
+            <div className="flex flex-wrap items-center gap-2.5">
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">
                 Central de Alertas & Vencimentos
               </h1>

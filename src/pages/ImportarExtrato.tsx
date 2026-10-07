@@ -411,9 +411,9 @@ export default function ImportarExtrato() {
           <Button
             variant="outline"
             onClick={() => setManagerOpen(true)}
-            className="border-slate-300 text-slate-700 hover:bg-slate-50"
+            className="max-w-full whitespace-normal"
           >
-            <Landmark className="h-4 w-4 mr-1.5 text-navy-800" /> Gerenciar Contas Bancárias
+            <Landmark aria-hidden="true" /> Gerenciar contas bancárias
           </Button>
           <Button
             variant="secondary"

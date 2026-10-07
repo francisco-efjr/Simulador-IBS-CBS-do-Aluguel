@@ -207,6 +207,11 @@
           "titulo": "Aplicativo para celular",
           "detalhe": "As telas funcionam no navegador do celular; um aplicativo próprio é etapa futura.",
           "situacao": "pendente"
+        },
+        {
+          "titulo": "Visual novo (Gestão de imóveis)",
+          "detalhe": "Cores, letras, menu em gaveta no celular e as telas de acesso, Início, Imóveis, Contratos e Simulador no estilo novo. As demais telas já usam as cores novas e aguardam o desenho detalhado.",
+          "situacao": "andamento"
         }
       ]
     }

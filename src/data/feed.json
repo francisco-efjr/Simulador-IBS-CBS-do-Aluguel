@@ -1,6 +1,12 @@
 [
   {
     "data": "2026-10-07",
+    "titulo": "Cara nova: o sistema agora se chama Gestão de imóveis",
+    "texto": "O sistema ganhou um visual novo, mais calmo e mais fácil de ler: fundo cor de papel, verde musgo nos botões, letra maior nos títulos e cartões com cantos arredondados. No celular, o menu abre como uma gaveta pelo botão verde no alto. O Início mostra primeiro, em destaque, quanto o último mês rendeu (receitas menos despesas), depois a ocupação, o que há a receber, o que pede atenção e os próximos recebimentos. Imóveis abrem um a um para mostrar as unidades, com inquilino e aluguel. Contratos têm botões para ver só os vigentes, os que vencem em breve ou os encerrados. O simulador do IBS/CBS ganhou a mesma cara do sistema. O tamanho da letra continua ajustável (A, A+ e A++). Desenvolvido por Aguia Solutions LTDA.",
+    "tipo": "entrega"
+  },
+  {
+    "data": "2026-10-07",
     "titulo": "Rodada de testes: dinheiro, contratos e relatórios corrigidos",
     "texto": "Uma rodada completa de testes passou pelo sistema inteiro, no celular e no computador, e encontrou falhas que já foram corrigidas. Editar contrato, receita, despesa e IPTU voltou a gravar. Valores digitados como 1.234,56 ou 1234.56 agora são lidos sempre do mesmo jeito (antes podiam virar R$ 1,23 ou R$ 123.456). Pagamentos parciais passaram a contar nos painéis, no Início e nos relatórios. Os relatórios em PDF voltaram a ser gerados. A minuta segue a garantia escolhida (fiador, caução…) e imprime só o contrato, com as assinaturas. Extratos com acento são lidos certo, e as linhas que o sistema não entende aparecem com o motivo, em vez de sumirem. Excluir agora pede confirmação. A busca acha nomes mesmo sem acento.",
     "tipo": "correcao"

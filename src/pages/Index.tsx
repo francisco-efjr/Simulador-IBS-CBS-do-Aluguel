@@ -186,7 +186,7 @@ export default function Index() {
 
       <section
         aria-label="Resumo do mês"
-        className="grid grid-cols-2 gap-3 lg:grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] lg:gap-6"
+        className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,150px),1fr))] gap-3 lg:grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] lg:gap-6"
       >
         <CartaoDestaque tom={noVermelho ? 'alerta' : 'musgo'} className="col-span-full">
           <h2 className="font-sans text-base font-bold lg:text-lg">
@@ -301,7 +301,7 @@ export default function Index() {
                   >
                     <span className="w-14 shrink-0 text-center font-serif text-[1.375rem] font-bold leading-none">
                       {data.getDate()}
-                      <span className="block font-sans text-xs font-bold text-muted-foreground">
+                      <span className="block font-sans text-xs font-bold text-accent-foreground">
                         {data.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}
                       </span>
                     </span>

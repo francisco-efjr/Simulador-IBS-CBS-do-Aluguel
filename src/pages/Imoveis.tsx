@@ -272,7 +272,7 @@ export default function Imoveis() {
           {ativosCount !== null && (
             <Badge
               variant={ativosCount >= 3 ? 'warn' : 'ok'}
-              className="mt-1 self-start"
+              className="mt-1 self-start whitespace-normal"
               title="Controle comercial da cota de até 3 imóveis ativos"
             >
               {ativosCount} de 3 imóveis cadastrados

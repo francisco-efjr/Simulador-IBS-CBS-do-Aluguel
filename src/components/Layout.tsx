@@ -65,11 +65,17 @@ export default function Layout({ children }: LayoutProps) {
         >
           <Header onOpenMobileSidebar={() => setMobileOpen(true)} />
           {/* Mancha de fundo, uma por tela interna (decorativa). */}
-          <Blob
-            forma={1}
-            cor="secondary"
-            className="-right-24 top-10 h-[400px] w-[460px] opacity-[0.14] blur-[70px]"
-          />
+          {/* A moldura recorta a mancha: sem ela a largura rolável do <main> cresce. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 h-[560px] overflow-hidden"
+          >
+            <Blob
+              forma={1}
+              cor="secondary"
+              className="-right-24 top-10 h-[400px] w-[460px] opacity-[0.14] blur-[70px]"
+            />
+          </div>
           {/* Em monitor largo o conteúdo fica numa faixa central de 1.280px. */}
           <div className="relative mx-auto w-full max-w-[1376px] px-4 pb-14 pt-5 lg:px-12 lg:pt-4">
             <Suspense fallback={<TelaCarregando variante="conteudo" />}>
