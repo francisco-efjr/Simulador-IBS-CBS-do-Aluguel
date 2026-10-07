@@ -931,6 +931,14 @@ export default function DashboardFinanceiro() {
                     className="h-9 text-xs bg-slate-50/50"
                   />
                 </div>
+                {customStartDate && customEndDate && customStartDate > customEndDate && (
+                  <p
+                    role="alert"
+                    className="sm:col-span-2 lg:col-span-4 text-sm font-medium text-red-700"
+                  >
+                    A data de início é depois da data de fim. Troque as datas para ver os números.
+                  </p>
+                )}
               </>
             )}
 

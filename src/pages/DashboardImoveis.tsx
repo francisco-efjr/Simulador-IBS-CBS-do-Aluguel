@@ -1100,6 +1100,11 @@ export default function DashboardImoveis() {
                     className="h-9 text-xs bg-slate-50/50"
                   />
                 </div>
+                {customStartDate && customEndDate && customStartDate > customEndDate && (
+                  <p role="alert" className="sm:col-span-2 lg:col-span-4 text-sm font-medium text-red-700">
+                    A data de início é depois da data de fim. Troque as datas para ver os números.
+                  </p>
+                )}
               </>
             ) : (
               <div className="sm:col-span-2 flex items-center justify-end text-xs text-slate-600 pt-5">

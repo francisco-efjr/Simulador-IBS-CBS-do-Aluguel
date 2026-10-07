@@ -859,6 +859,11 @@ export default function Relatorios() {
                         className="h-9 text-xs bg-slate-50/50"
                       />
                     </div>
+                    {customStartDate && customEndDate && customStartDate > customEndDate && (
+                      <p role="alert" className="col-span-2 text-sm font-medium text-red-700">
+                        A data de início é depois da data de fim. Troque as datas para ver os números.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>

@@ -48,6 +48,7 @@ import { deleteReceita } from '@/services/receitas'
 import { deleteDespesa } from '@/services/despesas'
 import { deleteIptuTaxa } from '@/services/iptu-taxas'
 import { toast } from 'sonner'
+import { saldoEmAberto } from '@/lib/indicadores-financeiros'
 
 export type AlertType =
   | 'contrato_termino'
@@ -269,7 +270,8 @@ export default function Alertas() {
 
     // 4. Receitas a vencer (previsto) e Vencidas (em_atraso ou dias < 0)
     receitas.forEach((rec) => {
-      if (rec.status_financeiro === 'recebido') return
+      const saldoRec = saldoEmAberto(rec, 'receita')
+      if (saldoRec <= 0) return
       const dt = rec.data_vencimento || rec.data
       if (!dt) return
       const dias = calcDaysDiff(dt)
@@ -289,7 +291,8 @@ export default function Alertas() {
         dataVencimento: dt,
         diasRestantes: dias,
         isVencido,
-        valor: rec.valor_previsto || rec.valor,
+        // Parcial mostra o que falta receber, não o valor cheio.
+        valor: saldoRec,
         rawRecord: rec,
         linkRota: '/receitas',
       })
@@ -297,7 +300,8 @@ export default function Alertas() {
 
     // 5. Despesas a vencer (previsto) e Vencidas (em_atraso ou dias < 0)
     despesas.forEach((desp) => {
-      if (desp.status_financeiro === 'pago') return
+      const saldoDesp = saldoEmAberto(desp, 'despesa')
+      if (saldoDesp <= 0) return
       const dt = desp.data_vencimento || desp.data
       if (!dt) return
       const dias = calcDaysDiff(dt)
@@ -317,7 +321,7 @@ export default function Alertas() {
         dataVencimento: dt,
         diasRestantes: dias,
         isVencido,
-        valor: desp.valor_previsto || desp.valor,
+        valor: saldoDesp,
         rawRecord: desp,
         linkRota: '/despesas',
       })
@@ -335,6 +339,7 @@ export default function Alertas() {
     let vencidos = 0
     let aVencer7d = 0
     let aVencer30d = 0
+    let adiante = 0
 
     allAlerts.forEach((a) => {
       total++
@@ -344,10 +349,12 @@ export default function Alertas() {
         aVencer7d++
       } else if (a.diasRestantes <= 30) {
         aVencer30d++
+      } else {
+        adiante++
       }
     })
 
-    return { total, vencidos, aVencer7d, aVencer30d }
+    return { total, vencidos, aVencer7d, aVencer30d, adiante }
   }, [allAlerts])
 
   // Filtered alerts list based on active filters
@@ -605,7 +612,10 @@ export default function Alertas() {
                   {summaryKpis.total}
                 </p>
                 <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600">
-                  <Bell className="h-3 w-3 text-gold-500 shrink-0" /> Todas as pendências
+                  <Bell className="h-3 w-3 text-gold-500 shrink-0" />{' '}
+                  {summaryKpis.adiante > 0
+                    ? `Inclui ${summaryKpis.adiante} além de 30 dias`
+                    : 'Todas as pendências'}
                 </span>
               </div>
               <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-navy-800 text-gold-400 border border-gold-500/30 shrink-0">
