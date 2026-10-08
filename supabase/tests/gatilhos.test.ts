@@ -16,16 +16,8 @@ let inquilino: string
 beforeAll(async () => {
   banco = await criarBancoDeTeste()
   admin = await banco.criarUsuario({ perfil: 'administrador' })
-  editor = await banco.criarUsuario({
-    permissoes: {
-      imoveis: 'edicao',
-      inquilinos: 'edicao',
-      contratos: 'edicao',
-      receitas: 'edicao',
-      despesas: 'edicao',
-      iptu_taxas: 'edicao',
-    },
-  })
+  // Receitas, despesas e IPTU são só do administrador (20261008120001).
+  editor = await banco.criarUsuario({ perfil: 'administrador' })
   imovel = (
     await banco.db.query<{ id: string }>(
       `insert into public.imoveis (nome, endereco) values ('Apto 12', 'Rua das Flores, 12') returning id`,
@@ -202,8 +194,8 @@ describe('imóvel segue o contrato', () => {
     })
   })
 
-  it('usuário com edição só em contratos ainda move o imóvel (o gatilho é security definer)', async () => {
-    const soContratos = await banco.criarUsuario({ permissoes: { contratos: 'edicao' } })
+  it('o perfil gratuito cria contrato e o imóvel acompanha (o gatilho é security definer)', async () => {
+    const soContratos = await banco.criarUsuario({ perfil: 'gratuito' })
     await banco.comoUsuario(soContratos, async (q) => {
       await q.query(`insert into public.contratos (imovel, inquilino) values ($1, $2)`, [imovel, inquilino])
     })

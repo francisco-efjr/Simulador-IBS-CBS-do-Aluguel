@@ -28,9 +28,11 @@ const TOTAL_DA_CARGA = 59
 beforeAll(async () => {
   banco = await criarBancoDeTeste()
   admin = await banco.criarUsuario({ perfil: 'administrador' })
-  editor = await banco.criarUsuario({ permissoes: { quadro: 'edicao' } })
-  leitor = await banco.criarUsuario({ permissoes: { quadro: 'visualizacao' } })
-  semAcesso = await banco.criarUsuario({ permissoes: { imoveis: 'edicao' } })
+  // Editar o quadro é só do administrador; o gratuito não tem o módulo
+  // (20261008120001), mas a leitura do quadro é aberta (20260923120005).
+  editor = await banco.criarUsuario({ perfil: 'administrador' })
+  leitor = await banco.criarUsuario({ perfil: 'gratuito' })
+  semAcesso = await banco.criarUsuario({ perfil: 'gratuito' })
 }, 60_000)
 
 afterAll(async () => {
@@ -261,7 +263,7 @@ describe('homologação é coisa de gente (RN-QDR-01, RN-QDR-02)', () => {
 })
 
 describe('quem vê e quem edita (RN-QDR-03)', () => {
-  it('quem não tem o módulo lê o quadro inteiro, mas não altera nada', async () => {
+  it('o perfil gratuito lê o quadro inteiro, mas não altera nada', async () => {
     await banco.comoUsuario(semAcesso, async (q) => {
       const { rows } = await q.query<{ total: number }>(`select count(*)::int as total from public.historias`)
       const atividades = await q.query(`select 1 from public.historias_atividades`)
@@ -298,7 +300,7 @@ describe('quem vê e quem edita (RN-QDR-03)', () => {
     expect(erro.code).toBe('42501')
   })
 
-  it('com visualização, vê tudo, mas não cria nem altera', async () => {
+  it('o perfil gratuito também não cria história', async () => {
     await banco.comoUsuario(leitor, async (q) => {
       const { rows } = await q.query<{ total: number }>(`select count(*)::int as total from public.historias`)
       expect(rows[0].total).toBe(TOTAL_DA_CARGA)

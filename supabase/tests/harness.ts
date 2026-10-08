@@ -233,13 +233,16 @@ export interface BancoDeTeste {
   comoAnonimo<T>(fn: (q: Consulta) => Promise<T>): Promise<T>
   /** Roda `fn` como `postgres` (fora da RLS), numa transação desfeita ao final. */
   desfazendo<T>(fn: (q: Consulta) => Promise<T>): Promise<T>
-  /** Cria login em auth.users (o gatilho cria o perfil) e grava perfil e permissões. */
+  /**
+   * Cria login em auth.users (o gatilho cria o perfil) e grava perfil e
+   * situação. O acesso vem só do perfil (20261008120001): não há permissão por
+   * módulo a conceder.
+   */
   criarUsuario(opcoes?: {
     email?: string
     nome?: string
-    perfil?: 'administrador' | 'usuario'
+    perfil?: 'administrador' | 'gratuito'
     ativo?: boolean
-    permissoes?: Partial<Record<Modulo, Nivel>>
   }): Promise<string>
   fechar(): Promise<void>
 }
@@ -297,7 +300,7 @@ export async function criarBancoDeTeste(): Promise<BancoDeTeste> {
       return emTransacao('', fn)
     },
 
-    async criarUsuario({ email, nome, perfil = 'usuario', ativo = true, permissoes = {} } = {}) {
+    async criarUsuario({ email, nome, perfil = 'gratuito', ativo = true } = {}) {
       const id = randomUUID()
       const endereco = email ?? `pessoa${++sequencia}-${id.slice(0, 8)}@teste.local`
 
@@ -319,13 +322,6 @@ export async function criarBancoDeTeste(): Promise<BancoDeTeste> {
           ativo,
         ])
         await tx.exec(`set local session_replication_role = origin`)
-        for (const [modulo, nivel] of Object.entries(permissoes)) {
-          await tx.query(`insert into public.permissoes (usuario, modulo, nivel) values ($1, $2, $3)`, [
-            id,
-            modulo,
-            nivel,
-          ])
-        }
       })
 
       return id

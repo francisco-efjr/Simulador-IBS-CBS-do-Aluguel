@@ -13,36 +13,15 @@ import { capturarErro, criarBancoDeTeste, type BancoDeTeste } from './harness'
 
 let banco: BancoDeTeste
 let admin: string
-let usuarioComum: string
-let editorGeral: string
-let leitorLocadores: string
-let usuarioSemAcesso: string
+let gratuito: string
+let inativo: string
 
 beforeAll(async () => {
   banco = await criarBancoDeTeste()
 
   admin = await banco.criarUsuario({ perfil: 'administrador' })
-  usuarioSemAcesso = await banco.criarUsuario({ permissoes: {} })
-  usuarioComum = await banco.criarUsuario({
-    permissoes: {
-      imoveis: 'edicao',
-      contratos: 'edicao',
-      locadores: 'edicao',
-    },
-  })
-  editorGeral = await banco.criarUsuario({
-    permissoes: {
-      imoveis: 'edicao',
-      inquilinos: 'edicao',
-      contratos: 'edicao',
-      locadores: 'edicao',
-    },
-  })
-  leitorLocadores = await banco.criarUsuario({
-    permissoes: {
-      locadores: 'visualizacao',
-    },
-  })
+  gratuito = await banco.criarUsuario({ perfil: 'gratuito' })
+  inativo = await banco.criarUsuario({ ativo: false })
 }, 60_000)
 
 afterAll(async () => {
@@ -51,7 +30,7 @@ afterAll(async () => {
 
 describe('Árvore hierárquica e novas entidades', () => {
   it('cria locador com documento válido e gera autoria/auditoria', async () => {
-    await banco.comoUsuario(editorGeral, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const { rows } = await q.query<{ id: string; nome_razao_social: string; created_by: string }>(
         `insert into public.locadores (nome_razao_social, tipo_pessoa, cpf_cnpj, email)
          values ('Holding Familiar Aguiar LTDA', 'pj', '12.345.678/0001-95', 'contato@aguiar.com')
@@ -59,12 +38,12 @@ describe('Árvore hierárquica e novas entidades', () => {
       )
       expect(rows).toHaveLength(1)
       expect(rows[0].nome_razao_social).toBe('Holding Familiar Aguiar LTDA')
-      expect(rows[0].created_by).toBe(editorGeral)
+      expect(rows[0].created_by).toBe(gratuito)
     })
   })
 
   it('cria fiador com cônjuge e vínculo ao módulo de contratos', async () => {
-    await banco.comoUsuario(editorGeral, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const { rows } = await q.query<{ id: string; nome: string }>(
         `insert into public.fiadores (nome, cpf, estado_civil, conjuge_nome, email)
          values ('Carlos Santos', '123.456.789-09', 'casado', 'Mariana Santos', 'carlos@teste.com')
@@ -76,7 +55,7 @@ describe('Árvore hierárquica e novas entidades', () => {
   })
 
   it('cria unidades vinculadas ao imóvel macro com códigos de concessionárias e taxas', async () => {
-    await banco.comoUsuario(editorGeral, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const imovel = (
         await q.query<{ id: string }>(
           `insert into public.imoveis (nome, endereco) values ('Edifício Central', 'Av. Principal, 100') returning id`,
@@ -103,10 +82,8 @@ describe('Árvore hierárquica e novas entidades', () => {
 })
 
 describe('Validação de limite comercial de até 3 imóveis', () => {
-  it('usuário sem privilégio especial pode criar até 3 imóveis, mas o 4º é bloqueado (HA003)', async () => {
-    const usuarioLimite = await banco.criarUsuario({
-      permissoes: { imoveis: 'edicao' },
-    })
+  it('o perfil gratuito pode criar até 3 imóveis, mas o 4º é bloqueado (HA003)', async () => {
+    const usuarioLimite = await banco.criarUsuario({ perfil: 'gratuito' })
 
     await banco.comoUsuario(usuarioLimite, async (q) => {
       // 1º imóvel
@@ -143,7 +120,7 @@ describe('Validação de limite comercial de até 3 imóveis', () => {
 
 describe('Gerador de número sequencial de contratos', () => {
   it('gera número sequencial automaticamente no formato NNN/AAAA quando omitido', async () => {
-    await banco.comoUsuario(editorGeral, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const imovel = (
         await q.query<{ id: string }>(
           `insert into public.imoveis (nome, endereco) values ('Casa Teste Contrato', 'Rua das Palmeiras, 10') returning id`,
@@ -175,7 +152,7 @@ describe('Gerador de número sequencial de contratos', () => {
 
 describe('Sincronismo de ocupação da unidade com contratos', () => {
   it('contrato ativo aluga a unidade e preenche inquilino_atual; encerramento desocupa', async () => {
-    await banco.comoUsuario(editorGeral, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const imovel = (
         await q.query<{ id: string }>(
           `insert into public.imoveis (nome, endereco) values ('Residencial Alvorada', 'Rua A, 50') returning id`,
@@ -229,7 +206,7 @@ describe('Sincronismo de ocupação da unidade com contratos', () => {
 
 describe('Proteção contra inativação com contrato ativo (HA001)', () => {
   it('impede inativação de unidade com contrato ativo', async () => {
-    await banco.comoUsuario(editorGeral, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const imovel = (
         await q.query<{ id: string }>(
           `insert into public.imoveis (nome, endereco) values ('Centro Comercial', 'Rua C, 10') returning id`,
@@ -264,8 +241,8 @@ describe('Proteção contra inativação com contrato ativo (HA001)', () => {
 })
 
 describe('RLS dos novos módulos (locadores, fiadores, imovel_unidades)', () => {
-  it('usuário sem permissão não lê nem insere em public.locadores', async () => {
-    await banco.comoUsuario(usuarioSemAcesso, async (q) => {
+  it('conta inativa não lê nem insere em public.locadores', async () => {
+    await banco.comoUsuario(inativo, async (q) => {
       const { rows } = await q.query<{ total: number }>(
         `select count(*)::int as total from public.locadores`,
       )
@@ -281,8 +258,8 @@ describe('RLS dos novos módulos (locadores, fiadores, imovel_unidades)', () => 
     })
   })
 
-  it('usuário sem permissão não lê nem insere em public.fiadores', async () => {
-    await banco.comoUsuario(usuarioSemAcesso, async (q) => {
+  it('conta inativa não lê nem insere em public.fiadores', async () => {
+    await banco.comoUsuario(inativo, async (q) => {
       const { rows } = await q.query<{ total: number }>(
         `select count(*)::int as total from public.fiadores`,
       )
@@ -298,8 +275,8 @@ describe('RLS dos novos módulos (locadores, fiadores, imovel_unidades)', () => 
     })
   })
 
-  it('usuário sem permissão não lê nem insere em public.imovel_unidades', async () => {
-    await banco.comoUsuario(usuarioSemAcesso, async (q) => {
+  it('conta inativa não lê nem insere em public.imovel_unidades', async () => {
+    await banco.comoUsuario(inativo, async (q) => {
       const { rows } = await q.query<{ total: number }>(
         `select count(*)::int as total from public.imovel_unidades`,
       )
@@ -315,35 +292,36 @@ describe('RLS dos novos módulos (locadores, fiadores, imovel_unidades)', () => 
     })
   })
 
-  it('usuário com apenas visualização de locadores lê mas não pode inserir', async () => {
-    // 1. Cria locador no banco direto para leitura
+  it('o perfil gratuito lê e cadastra locador, fiador e unidade', async () => {
     await banco.db.query(
       `insert into public.locadores (nome_razao_social, tipo_pessoa, email)
        values ('Locador Para Leitura', 'pf', 'leitura@teste.com')`,
     )
 
-    // 2. Leitor lê
-    await banco.comoUsuario(leitorLocadores, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const { rows } = await q.query<{ total: number }>(
         `select count(*)::int as total from public.locadores where nome_razao_social = 'Locador Para Leitura'`,
       )
       expect(rows[0].total).toBe(1)
 
-      // 3. Mas não pode criar
-      const erro = await capturarErro(
-        q.query(
-          `insert into public.locadores (nome_razao_social, tipo_pessoa, email)
-           values ('Locador Bloqueado', 'pf', 'bloqueado@teste.com')`,
-        ),
+      await q.query(
+        `insert into public.locadores (nome_razao_social, tipo_pessoa, email)
+         values ('Locador Novo', 'pf', 'novo@teste.com')`,
       )
-      expect(erro.code).toBe('42501')
+      await q.query(`insert into public.fiadores (nome, email) values ('Fiador Novo', 'fiador@teste.com')`)
+      const imovel = (
+        await q.query<{ id: string }>(
+          `insert into public.imoveis (nome, endereco) values ('Prédio do gratuito', 'Rua 9') returning id`,
+        )
+      ).rows[0].id
+      await q.query(`insert into public.imovel_unidades (imovel_id, identificador) values ($1, 'Sala 1')`, [imovel])
     })
   })
 })
 
 describe('Restrição de vigência contratual por unidade', () => {
   it('impede contrato para a unidade com data_fim anterior à data_inicio (contratos_vigencia_coerente)', async () => {
-    await banco.comoUsuario(editorGeral, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const imovel = (
         await q.query<{ id: string }>(
           `insert into public.imoveis (nome, endereco) values ('Residencial Vigência', 'Rua V, 20') returning id`,
@@ -374,7 +352,7 @@ describe('Restrição de vigência contratual por unidade', () => {
   })
 
   it('permite vigência coerente e sincroniza a unidade para alugada', async () => {
-    await banco.comoUsuario(editorGeral, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const imovel = (
         await q.query<{ id: string }>(
           `insert into public.imoveis (nome, endereco) values ('Edifício Prazo', 'Rua P, 30') returning id`,

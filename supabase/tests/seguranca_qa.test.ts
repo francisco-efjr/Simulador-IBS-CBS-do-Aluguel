@@ -23,11 +23,8 @@ let banco: BancoDeTeste
 
 let admin: string
 let admin2: string
-let leitorContratos: string
-let editorContratos: string
-let editorDespesas: string
-let editorReceitas: string
-let editorPartes: string
+let gratuito: string
+let financeiro: string
 let editorLimite: string
 let semAcesso: string
 
@@ -52,14 +49,12 @@ beforeAll(async () => {
   admin = await banco.criarUsuario({ perfil: 'administrador', nome: 'Admin QA' })
   admin2 = await banco.criarUsuario({ perfil: 'administrador', nome: 'Admin QA 2' })
   semAcesso = await banco.criarUsuario({})
-  leitorContratos = await banco.criarUsuario({ permissoes: { contratos: 'visualizacao' } })
-  editorContratos = await banco.criarUsuario({ permissoes: { contratos: 'edicao' } })
-  editorDespesas = await banco.criarUsuario({ permissoes: { despesas: 'edicao' } })
-  editorReceitas = await banco.criarUsuario({ permissoes: { receitas: 'edicao' } })
-  editorPartes = await banco.criarUsuario({
-    permissoes: { locadores: 'edicao', contratos: 'edicao', inquilinos: 'edicao', imoveis: 'edicao' },
-  })
-  editorLimite = await banco.criarUsuario({ permissoes: { imoveis: 'edicao' } })
+  // Perfil gratuito (20261008120001): Imóveis, Inquilinos, Locadores e
+  // fiadores, Contratos. Receitas e despesas são só do administrador; quem as
+  // lança aqui é o segundo administrador (um terceiro mudaria a conta do FIN-15).
+  gratuito = await banco.criarUsuario({ perfil: 'gratuito' })
+  financeiro = admin2
+  editorLimite = await banco.criarUsuario({ perfil: 'gratuito' })
 
   // Cenário comum, gravado como dono do banco (fora da RLS e sem sessão).
   imovelA = await id(`insert into public.imoveis (nome, endereco) values ('Edifício QA', 'Rua A, 1') returning id`)
@@ -141,37 +136,37 @@ describe('SEG-01 — anexos: a permissão vem do módulo dono do arquivo', () =>
       )
     ).rows.map((r) => r.name)
 
-  it('quem só lê contratos não lista anexo de inquilino nem de despesa', async () => {
-    await banco.comoUsuario(leitorContratos, async (q) => {
-      expect(await nomes(q)).toEqual(['contrato/cccc-assinado.pdf'])
+  it('o perfil gratuito lista anexo de contrato e de inquilino, não o de despesa', async () => {
+    await banco.comoUsuario(gratuito, async (q) => {
+      expect(await nomes(q)).toEqual(['contrato/cccc-assinado.pdf', 'inquilino/aaaa-rg.pdf'])
     })
   })
 
-  it('quem edita contratos não apaga anexo de outro módulo, só o do contrato', async () => {
-    await banco.comoUsuario(editorContratos, async (q) => {
-      const inquilino = await q.query(`delete from storage.objects where name = 'inquilino/aaaa-rg.pdf'`)
-      expect(inquilino.affectedRows).toBe(0)
+  it('o perfil gratuito não apaga anexo de despesa, só os dos módulos dele', async () => {
+    await banco.comoUsuario(gratuito, async (q) => {
+      const despesa = await q.query(`delete from storage.objects where name = 'despesa/bbbb-recibo.pdf'`)
+      expect(despesa.affectedRows).toBe(0)
       const contrato = await q.query(`delete from storage.objects where name = 'contrato/cccc-assinado.pdf'`)
       expect(contrato.affectedRows).toBe(1)
     })
   })
 
   it('não dá para "mudar" um anexo de módulo trocando o nome', async () => {
-    await banco.comoUsuario(editorContratos, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const erro = await capturarErro(
-        q.query(`update storage.objects set name = 'inquilino/cccc.pdf' where name = 'contrato/cccc-assinado.pdf'`),
+        q.query(`update storage.objects set name = 'despesa/cccc.pdf' where name = 'contrato/cccc-assinado.pdf'`),
       )
       expect(erro.code).toBe('42501')
     })
   })
 
-  it('quem edita despesas anexa em despesa/, e só nela', async () => {
-    await banco.comoUsuario(editorDespesas, async (q) => {
-      await q.query(`insert into storage.objects (bucket_id, name) values ('documentos-anexos', 'despesa/novo.pdf')`)
-      expect(await nomes(q)).toEqual(['despesa/bbbb-recibo.pdf', 'despesa/novo.pdf'])
+  it('o perfil gratuito anexa em inquilino/, mas não em despesa/ nem fora de pasta', async () => {
+    await banco.comoUsuario(gratuito, async (q) => {
+      await q.query(`insert into storage.objects (bucket_id, name) values ('documentos-anexos', 'inquilino/novo.pdf')`)
+      expect(await nomes(q)).toEqual(['contrato/cccc-assinado.pdf', 'inquilino/aaaa-rg.pdf', 'inquilino/novo.pdf'])
       const outro = await recusado(
         q,
-        `insert into storage.objects (bucket_id, name) values ('documentos-anexos', 'inquilino/x.pdf')`,
+        `insert into storage.objects (bucket_id, name) values ('documentos-anexos', 'despesa/x.pdf')`,
       )
       expect(outro.code).toBe('42501')
       const semPasta = await recusado(
@@ -183,7 +178,7 @@ describe('SEG-01 — anexos: a permissão vem do módulo dono do arquivo', () =>
   })
 
   it('objeto sem pasta (anterior à correção) fica só com o administrador; ele vê tudo', async () => {
-    await banco.comoUsuario(leitorContratos, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       expect(await nomes(q)).not.toContain('eeee-legado.pdf')
     })
     await banco.comoUsuario(admin, async (q) => {
@@ -246,11 +241,11 @@ describe('SEG-02 e PRD-02 — cadastro só vale com o token do convite', () => {
   const statusDe = async (q: Consulta, token: string) =>
     (await q.query<{ status: string }>(`select status from public.convites where token = $1`, [token])).rows[0].status
 
-  it('quem sabe o e-mail convidado, mas não o token, nasce usuario inativo (pré-sequestro)', async () => {
+  it('quem sabe o e-mail convidado, mas não o token, nasce gratuito inativo (pré-sequestro)', async () => {
     await banco.desfazendo(async (q) => {
       await convidar(q, 'diretor@holding.test', 'tok-secreto')
       const conta = await cadastrar(q, 'Diretor@Holding.test')
-      expect(conta).toMatchObject({ perfil: 'usuario', ativo: false })
+      expect(conta).toMatchObject({ perfil: 'gratuito', ativo: false })
       expect(await statusDe(q, 'tok-secreto')).toBe('pendente')
     })
   })
@@ -258,9 +253,9 @@ describe('SEG-02 e PRD-02 — cadastro só vale com o token do convite', () => {
   it('token de outro convite não vale', async () => {
     await banco.desfazendo(async (q) => {
       await convidar(q, 'diretor@holding.test', 'tok-do-diretor')
-      await convidar(q, 'outra@holding.test', 'tok-da-outra', 'usuario')
+      await convidar(q, 'outra@holding.test', 'tok-da-outra', 'gratuito')
       const conta = await cadastrar(q, 'diretor@holding.test', 'tok-da-outra')
-      expect(conta).toMatchObject({ perfil: 'usuario', ativo: false })
+      expect(conta).toMatchObject({ perfil: 'gratuito', ativo: false })
       expect(await statusDe(q, 'tok-do-diretor')).toBe('pendente')
       expect(await statusDe(q, 'tok-da-outra')).toBe('pendente')
     })
@@ -270,7 +265,7 @@ describe('SEG-02 e PRD-02 — cadastro só vale com o token do convite', () => {
     await banco.desfazendo(async (q) => {
       await convidar(q, 'diretor@holding.test', 'tok-do-diretor')
       const conta = await cadastrar(q, 'intruso@holding.test', 'tok-do-diretor')
-      expect(conta).toMatchObject({ perfil: 'usuario', ativo: false })
+      expect(conta).toMatchObject({ perfil: 'gratuito', ativo: false })
       expect(await statusDe(q, 'tok-do-diretor')).toBe('pendente')
     })
   })
@@ -280,14 +275,14 @@ describe('SEG-02 e PRD-02 — cadastro só vale com o token do convite', () => {
       await convidar(q, 'diretor@holding.test', 'tok-usado')
       await q.query(`update public.convites set status = 'aceito' where token = 'tok-usado'`)
       const conta = await cadastrar(q, 'diretor@holding.test', 'tok-usado')
-      expect(conta).toMatchObject({ perfil: 'usuario', ativo: false })
+      expect(conta).toMatchObject({ perfil: 'gratuito', ativo: false })
     })
   })
 
   it('token certo e e-mail certo (maiúsculas à parte): perfil do convite, conta ativa, só esse convite aceito', async () => {
     await banco.desfazendo(async (q) => {
       await convidar(q, 'Diretor@Holding.test', 'tok-certo')
-      await convidar(q, 'diretor@holding.test', 'tok-outro-pendente', 'usuario')
+      await convidar(q, 'diretor@holding.test', 'tok-outro-pendente', 'gratuito')
       const conta = await cadastrar(q, 'diretor@holding.test', 'tok-certo')
       expect(conta).toMatchObject({ perfil: 'administrador', ativo: true })
       expect(await statusDe(q, 'tok-certo')).toBe('aceito')
@@ -400,7 +395,7 @@ describe('CAD-03 — um contrato ativo por unidade, não por imóvel', () => {
 // ---------------------------------------------------------------------------
 describe('SEG-08 — o contrato só aceita unidade do próprio imóvel (HA004)', () => {
   it('recusa unidade de outro imóvel e não mexe na unidade alheia', async () => {
-    await banco.comoUsuario(editorContratos, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const erro = await recusado(q, `insert into public.contratos (imovel, unidade_id, inquilino, status)
         values ($1, $2, $3, 'ativo')`, [imovelA, unidadeB1, inquilino1])
       expect(erro.code).toBe('HA004')
@@ -427,9 +422,8 @@ describe('SEG-08 — o contrato só aceita unidade do próprio imóvel (HA004)',
     })
   })
 
-  it('quem só tem o módulo contratos (não vê unidades) grava contrato com unidade do próprio imóvel', async () => {
-    await banco.comoUsuario(editorContratos, async (q) => {
-      expect((await q.query(`select 1 from public.imovel_unidades`)).rows).toHaveLength(0)
+  it('o perfil gratuito grava contrato com unidade do próprio imóvel', async () => {
+    await banco.comoUsuario(gratuito, async (q) => {
       await q.query(
         `insert into public.contratos (imovel, unidade_id, inquilino, status) values ($1, $2, $3, 'ativo')`,
         [imovelA, unidadeA1, inquilino1],
@@ -444,34 +438,20 @@ describe('SEG-08 — o contrato só aceita unidade do próprio imóvel (HA004)',
 
 // ---------------------------------------------------------------------------
 describe('SEG-05 — categoria financeira: quem escreve é o dono do tipo', () => {
-  it('quem edita só despesas não renomeia, não apaga nem cria categoria de receita', async () => {
-    await banco.comoUsuario(editorDespesas, async (q) => {
-      const renomeou = await q.query(`update public.categorias_financeiras set nome = 'HACK' where id = $1`, [categoriaReceita])
-      expect(renomeou.affectedRows).toBe(0)
-      const apagou = await q.query(`delete from public.categorias_financeiras where id = $1`, [categoriaReceita])
-      expect(apagou.affectedRows).toBe(0)
-      const criou = await recusado(q, `insert into public.categorias_financeiras (nome, tipo) values ('Nova', 'receita')`)
-      expect(criou.code).toBe('42501')
-      // Nem passando a categoria de despesa para receita.
-      const trocou = await recusado(q, `update public.categorias_financeiras set tipo = 'receita' where id = $1`, [categoriaDespesa])
-      expect(trocou.code).toBe('42501')
-    })
-  })
-
-  it('quem edita só despesas continua mexendo nas categorias de despesa', async () => {
-    await banco.comoUsuario(editorDespesas, async (q) => {
-      await q.query(`insert into public.categorias_financeiras (nome, tipo) values ('Nova despesa', 'despesa')`)
-      const renomeou = await q.query(`update public.categorias_financeiras set nome = 'Renomeada' where id = $1`, [categoriaDespesa])
-      expect(renomeou.affectedRows).toBe(1)
-    })
-  })
-
-  it('quem edita só receitas não toca nas de despesa, e o contrário vale', async () => {
-    await banco.comoUsuario(editorReceitas, async (q) => {
-      const despesa = await q.query(`update public.categorias_financeiras set nome = 'HACK' where id = $1`, [categoriaDespesa])
-      expect(despesa.affectedRows).toBe(0)
-      const receita = await q.query(`update public.categorias_financeiras set nome = 'Ok' where id = $1`, [categoriaReceita])
-      expect(receita.affectedRows).toBe(1)
+  it('o perfil gratuito lê as categorias, mas não renomeia, não apaga nem cria nenhuma', async () => {
+    await banco.comoUsuario(gratuito, async (q) => {
+      const { rows } = await q.query(`select 1 from public.categorias_financeiras`)
+      expect(rows.length).toBeGreaterThan(0)
+      for (const categoria of [categoriaReceita, categoriaDespesa]) {
+        const renomeou = await q.query(`update public.categorias_financeiras set nome = 'HACK' where id = $1`, [categoria])
+        expect(renomeou.affectedRows).toBe(0)
+        const apagou = await q.query(`delete from public.categorias_financeiras where id = $1`, [categoria])
+        expect(apagou.affectedRows).toBe(0)
+      }
+      for (const tipo of ['receita', 'despesa']) {
+        const criou = await recusado(q, `insert into public.categorias_financeiras (nome, tipo) values ('Nova', $1)`, [tipo])
+        expect(criou.code).toBe('42501')
+      }
     })
   })
 
@@ -501,7 +481,7 @@ describe('SEG-04 — a trilha de auditoria não guarda dado pessoal em claro', (
   }
 
   it('locador: documento e dados bancários viram "alterado"; o nome segue com de/para', async () => {
-    await banco.comoUsuario(editorPartes, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const locador = (
         await q.query<{ id: string }>(
           `insert into public.locadores (nome_razao_social, tipo_pessoa, cpf_cnpj, dados_bancarios)
@@ -527,7 +507,7 @@ describe('SEG-04 — a trilha de auditoria não guarda dado pessoal em claro', (
   })
 
   it('fiador: RG, CPF e endereço viram "alterado"', async () => {
-    await banco.comoUsuario(editorPartes, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const fiador = (
         await q.query<{ id: string }>(
           `insert into public.fiadores (nome, cpf, rg, endereco_completo)
@@ -549,7 +529,7 @@ describe('SEG-04 — a trilha de auditoria não guarda dado pessoal em claro', (
   })
 
   it('inquilino: telefone, e-mail e endereço viram "alterado"', async () => {
-    await banco.comoUsuario(editorPartes, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const inquilino = (
         await q.query<{ id: string }>(
           `insert into public.inquilinos (nome, telefone, email, endereco)
@@ -575,7 +555,7 @@ describe('SEG-04 — a trilha de auditoria não guarda dado pessoal em claro', (
       const convite = (
         await q.query<{ id: string }>(
           `insert into public.convites (email, token, perfil, data_expiracao)
-           values ('alguem@teste.local', 'tok-antigo-0001', 'usuario', now() + interval '1 day') returning id`,
+           values ('alguem@teste.local', 'tok-antigo-0001', 'gratuito', now() + interval '1 day') returning id`,
         )
       ).rows[0].id
       await q.query(`update public.convites set token = 'tok-novo-0002' where id = $1`, [convite])
@@ -707,7 +687,7 @@ describe('SEG-10 — privilégios mínimos nas tabelas e nas funções', () => {
   })
 
   it('quem está logado segue validando CPF (as CHECK rodam com o privilégio de quem grava)', async () => {
-    await banco.comoUsuario(editorPartes, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       await q.query(`insert into public.inquilinos (nome, cpf) values ('CPF Valido', '529.982.247-25')`)
       const erro = await capturarErro(q.query(`insert into public.inquilinos (nome, cpf) values ('CPF Ruim', '111.111.111-11')`))
       expect(erro.message).toContain('inquilinos_cpf_valido')
@@ -718,7 +698,7 @@ describe('SEG-10 — privilégios mínimos nas tabelas e nas funções', () => {
 // ---------------------------------------------------------------------------
 describe('FIN-14 — receita e despesa só aceitam categoria, contrato e inquilino coerentes', () => {
   it('receita com categoria de despesa é recusada (HA007); com categoria de receita passa', async () => {
-    await banco.comoUsuario(editorReceitas, async (q) => {
+    await banco.comoUsuario(financeiro, async (q) => {
       const erro = await recusado(q, `insert into public.receitas (imovel, categoria) values ($1, $2)`, [imovelA, categoriaDespesa])
       expect(erro.code).toBe('HA007')
       expect(erro.message).toBe('Esta categoria é de despesa e não pode ser usada em receitas.')
@@ -727,7 +707,7 @@ describe('FIN-14 — receita e despesa só aceitam categoria, contrato e inquili
   })
 
   it('despesa com categoria de receita é recusada (HA007); com categoria de despesa passa', async () => {
-    await banco.comoUsuario(editorDespesas, async (q) => {
+    await banco.comoUsuario(financeiro, async (q) => {
       const erro = await recusado(q, `insert into public.despesas (imovel, categoria) values ($1, $2)`, [imovelA, categoriaReceita])
       expect(erro.code).toBe('HA007')
       expect(erro.message).toBe('Esta categoria é de receita e não pode ser usada em despesas.')
@@ -736,9 +716,7 @@ describe('FIN-14 — receita e despesa só aceitam categoria, contrato e inquili
   })
 
   it('receita com contrato de outro imóvel é recusada (HA008)', async () => {
-    // Quem lança receita não precisa enxergar contratos: o gatilho confere por conta própria.
-    await banco.comoUsuario(editorReceitas, async (q) => {
-      expect((await q.query(`select 1 from public.contratos`)).rows).toHaveLength(0)
+    await banco.comoUsuario(financeiro, async (q) => {
       const erro = await recusado(q, `insert into public.receitas (imovel, contrato) values ($1, $2)`, [imovelA, contratoC])
       expect(erro.code).toBe('HA008')
       expect(erro.message).toMatch(/^Este contrato é de outro imóvel\./)
@@ -746,7 +724,7 @@ describe('FIN-14 — receita e despesa só aceitam categoria, contrato e inquili
   })
 
   it('receita com inquilino diferente do contrato é recusada (HA009); o do contrato, ou nenhum, passa', async () => {
-    await banco.comoUsuario(editorReceitas, async (q) => {
+    await banco.comoUsuario(financeiro, async (q) => {
       const erro = await recusado(q, `insert into public.receitas (imovel, contrato, inquilino) values ($1, $2, $3)`, [
         imovelC,
         contratoC,
@@ -759,7 +737,7 @@ describe('FIN-14 — receita e despesa só aceitam categoria, contrato e inquili
   })
 
   it('trocar o imóvel de uma receita que já tem contrato também é conferido', async () => {
-    await banco.comoUsuario(editorReceitas, async (q) => {
+    await banco.comoUsuario(financeiro, async (q) => {
       const receita = (
         await q.query<{ id: string }>(`insert into public.receitas (imovel, contrato) values ($1, $2) returning id`, [imovelC, contratoC])
       ).rows[0].id
@@ -792,7 +770,7 @@ describe('FIN-15 — o sistema nunca fica sem administrador ativo (HA005, HA006)
 
   it('o administrador não rebaixa, não desativa e não remove a si mesmo (HA005)', async () => {
     await comoAdmin(admin, async (q) => {
-      const rebaixar = await recusado(q, `update public.users set perfil = 'usuario' where id = $1`, [admin])
+      const rebaixar = await recusado(q, `update public.users set perfil = 'gratuito' where id = $1`, [admin])
       expect(rebaixar.code).toBe('HA005')
       expect(rebaixar.message).toBe('Você não pode rebaixar, desativar nem remover a si mesmo.')
       const desativar = await recusado(q, `update public.users set ativo = false where id = $1`, [admin])
@@ -814,14 +792,14 @@ describe('FIN-15 — o sistema nunca fica sem administrador ativo (HA005, HA006)
       // Dois administradores ativos: um rebaixa o outro (como administrador logado).
       await q.exec('set local role authenticated')
       await q.query(`select set_config('request.jwt.claim.sub', $1, true), set_config('request.jwt.claim.role', 'authenticated', true)`, [admin])
-      const r = await q.query(`update public.users set perfil = 'usuario' where id = $1`, [admin2])
+      const r = await q.query(`update public.users set perfil = 'gratuito' where id = $1`, [admin2])
       expect(r.affectedRows).toBe(1)
       // Volta a ser o dono do banco, sem sessão (o `set local` da sessão vale até o fim da transação).
       await q.exec('reset role')
       await q.exec(`select set_config('request.jwt.claim.sub', '', true), set_config('request.jwt.claim.role', '', true)`)
 
       // Sobrou só `admin`: nem o SQL Editor (sem sessão) o rebaixa, desativa ou remove.
-      const rebaixar = await recusado(q, `update public.users set perfil = 'usuario' where id = $1`, [admin])
+      const rebaixar = await recusado(q, `update public.users set perfil = 'gratuito' where id = $1`, [admin])
       expect(rebaixar.code).toBe('HA006')
       expect(rebaixar.message).toMatch(/^Este é o último administrador ativo/)
       const desativar = await recusado(q, `update public.users set ativo = false where id = $1`, [admin])
@@ -832,13 +810,13 @@ describe('FIN-15 — o sistema nunca fica sem administrador ativo (HA005, HA006)
 
       // Promovido outro, o antigo pode sair.
       await q.query(`update public.users set perfil = 'administrador' where id = $1`, [admin2])
-      await q.query(`update public.users set perfil = 'usuario' where id = $1`, [admin])
+      await q.query(`update public.users set perfil = 'gratuito' where id = $1`, [admin])
     })
   })
 
   it('administrador já inativo ou usuário comum não entram na regra', async () => {
     await banco.desfazendo(async (q) => {
-      const comum = await id(`select id from public.users where id = $1`, [leitorContratos])
+      const comum = await id(`select id from public.users where id = $1`, [gratuito])
       await q.query(`update public.users set ativo = false where id = $1`, [comum])
       await q.query(`delete from public.users where id = $1`, [comum])
     })
