@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/lucide-static@0.460.0/font/lucide.css">
+<style>
+body{margin:0;background:#EAE4DA;font-family:'Nunito',system-ui,sans-serif;color:#2C2C24;font-size:17px;-webkit-font-smoothing:antialiased}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.04;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+a{color:#5D7052;text-decoration-thickness:2px;text-underline-offset:3px}a:hover{color:#2C2C24}
+h1,h2,h3{font-family:'Fraunces',Georgia,serif;margin:0;letter-spacing:-.01em}
+p{margin:0;text-wrap:pretty}
+*{box-sizing:border-box}
+:focus-visible{outline:3px solid #5D7052;outline-offset:3px}
+a:active{color:#3F5236}
+input::placeholder{color:#6B6B5F;opacity:1}
+button:disabled,input:disabled{cursor:not-allowed}
+@keyframes aguiaSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0s!important;transition-duration:0s!important}}
+</style>
+</helmet>
+
+<div style="padding:72px 80px 120px;display:flex;flex-direction:column;gap:112px">
+
+<header style="display:flex;flex-direction:column;gap:12px;max-width:880px">
+  <div style="font-size:14px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#5D7052">Holding Aguiar · Controle de Imóveis · Redesign orgânico</div>
+  <h1 style="font-size:56px;font-weight:700;line-height:1.05">Telas de referência para o Claude Code</h1>
+  <p style="font-size:19px;color:#4A4A40;line-height:1.55">Cinco telas em celular (390px) e computador (1280px). Tokens, componentes e o plano em fases estão em <strong>design_handoff_organico/README.md</strong>. Rodadas de QA 1 a 3 aplicadas (ver <strong>QA-RELATORIO.md</strong>); a rodada 3 segue o Front-End Design Checklist e acrescenta as seções 06 a 09. Software desenvolvido por <strong>Aguia</strong>.</p>
+</header>
+
+<!-- ============ 1 LOGIN ============ -->
+<section id="login" data-screen-label="01 Login" style="display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;align-items:baseline;gap:16px"><span style="font-size:15px;font-weight:800;background:#5D7052;color:#F3F4F1;padding:6px 14px;border-radius:999px">01</span><h2 style="font-size:36px;font-weight:700">Login</h2></div>
+  <div style="display:flex;gap:64px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Celular · 390</div>
+    <div style="width:390px;min-height:844px;background:#FDFCF8;border-radius:44px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);position:relative;overflow:hidden;display:flex;flex-direction:column;padding:72px 24px 40px;gap:36px">
+      <sc-if value="{{ showBlobs }}" hint-placeholder-val="{{ true }}">
+        <div aria-hidden="true" style="position:absolute;top:-90px;right:-110px;width:320px;height:300px;background:#5D7052;opacity:.22;filter:blur(48px);border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"></div>
+        <div aria-hidden="true" style="position:absolute;top:220px;left:-120px;width:260px;height:240px;background:#C18C5D;opacity:.2;filter:blur(52px);border-radius:30% 70% 70% 30% / 30% 30% 70% 70%"></div>
+      </sc-if>
+      <div style="position:relative;display:flex;flex-direction:column;gap:20px">
+        <div style="width:72px;height:72px;background:#5D7052;color:#F3F4F1;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%;transform:rotate(-6deg);box-shadow:0 10px 30px -8px rgba(93,112,82,.45)"><i aria-hidden="true" class="icon-sprout" style="font-size:32px"></i></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <h1 style="font-size:34px;font-weight:700;line-height:1.1">Que bom ver você de novo</h1>
+          <p style="font-size:17px;color:#4A4A40;line-height:1.5">Entre para acompanhar os imóveis e as contas da Holding Aguiar.</p>
+        </div>
+      </div>
+      <form style="position:relative;display:flex;flex-direction:column;gap:20px">
+        <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:16px;font-weight:700">E-mail</span>
+          <input type="email" autocomplete="email" required value="helena@holdingaguiar.com.br" style="height:56px;border-radius:999px;border:1.5px solid #DED8CF;background:rgba(255,255,255,.6);padding:0 24px;font:inherit;font-size:17px;color:#2C2C24"></label>
+        <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:16px;font-weight:700">Senha</span>
+          <div style="position:relative"><input type="{{ pwType }}" autocomplete="current-password" required value="senhasegura" style="width:100%;height:56px;border-radius:999px;border:1.5px solid #DED8CF;background:rgba(255,255,255,.6);padding:0 64px 0 24px;font:inherit;font-size:17px"><button type="button" aria-label="Mostrar senha" aria-pressed="{{ showPw }}" onClick="{{ togglePw }}" style="position:absolute;right:6px;top:6px;width:44px;height:44px;border-radius:999px;border:0;background:transparent;color:#5D7052;cursor:pointer"><i aria-hidden="true" class="icon-eye" style="font-size:22px"></i></button></div></label>
+        <button type="button" style="height:56px;border-radius:999px;border:0;background:#5D7052;color:#F3F4F1;font:inherit;font-size:18px;font-weight:800;box-shadow:0 4px 20px -2px rgba(93,112,82,.35);cursor:pointer;transition:all .3s ease;margin-top:8px" style-hover="transform:scale(1.03);box-shadow:0 8px 28px -4px rgba(93,112,82,.45)" style-active="transform:scale(.97)">Entrar</button>
+        <a href="#" style="align-self:center;font-size:17px;font-weight:700;padding:10px">Esqueci minha senha</a>
+      </form>
+      <div style="position:relative;margin-top:auto;background:#F0EBE5;border-radius:24px 40px 24px 24px;padding:18px 20px;display:flex;gap:14px;align-items:flex-start"><i aria-hidden="true" class="icon-shield-check" style="font-size:24px;color:#5D7052"></i><p style="font-size:15px;line-height:1.5;color:#4A4A40">O acesso é feito por convite. Se ainda não recebeu o seu, fale com a administração.</p></div>
+      <div style="position:relative;text-align:center;font-size:14px;color:#4A4A40">Desenvolvido por <strong>Aguia</strong></div>
+    </div></div>
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Computador · 1280</div>
+    <div style="width:1280px;height:800px;background:#FDFCF8;border-radius:28px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);overflow:hidden;display:grid;grid-template-columns:1.1fr 1fr">
+      <div style="background:#5D7052;position:relative;overflow:hidden;padding:56px;display:flex;flex-direction:column;justify-content:space-between;color:#F3F4F1">
+        <sc-if value="{{ showBlobs }}" hint-placeholder-val="{{ true }}">
+          <div aria-hidden="true" style="position:absolute;bottom:-160px;right:-120px;width:520px;height:480px;background:#C18C5D;opacity:.45;filter:blur(70px);border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"></div>
+          <div aria-hidden="true" style="position:absolute;top:-120px;left:-80px;width:380px;height:360px;background:#E6DCCD;opacity:.18;filter:blur(60px);border-radius:30% 70% 70% 30% / 30% 30% 70% 70%"></div>
+        </sc-if>
+        <div style="position:relative;display:flex;align-items:center;gap:14px"><div style="width:52px;height:52px;background:#F3F4F1;color:#5D7052;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"><i aria-hidden="true" class="icon-sprout" style="font-size:26px"></i></div><span style="font-family:'Fraunces',serif;font-size:22px;font-weight:700">Holding Aguiar</span></div>
+        <div style="position:relative;display:flex;flex-direction:column;gap:20px;max-width:500px">
+          <h1 style="font-size:56px;font-weight:700;line-height:1.05">O patrimônio da família, cuidado com calma.</h1>
+          <p style="font-size:19px;line-height:1.55;color:#F3F4F1">Imóveis, contratos, receitas e despesas no mesmo lugar, do jeito que a família precisa ver.</p>
+        </div>
+        <div style="position:relative;width:220px;height:150px;border:4px solid #FDFCF8;border-radius:28px;transform:rotate(-3deg);background:repeating-linear-gradient(135deg,rgba(243,244,241,.14) 0 10px,rgba(243,244,241,.04) 10px 20px);display:flex;align-items:center;justify-content:center;font-family:ui-monospace,monospace;font-size:14px;color:#F3F4F1">foto do edifício</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;padding:56px">
+        <form style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:22px">
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:8px"><h2 style="font-size:40px;font-weight:700">Que bom ver você de novo</h2><p style="font-size:18px;color:#4A4A40">Entre com seu e-mail e senha.</p></div>
+          <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:16px;font-weight:700">E-mail</span><input type="email" autocomplete="email" required value="helena@holdingaguiar.com.br" style="height:56px;border-radius:999px;border:1.5px solid #DED8CF;background:rgba(255,255,255,.6);padding:0 24px;font:inherit;font-size:17px"></label>
+          <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:16px;font-weight:700">Senha</span><input type="password" autocomplete="current-password" required value="senhasegura" style="height:56px;border-radius:999px;border:1.5px solid #DED8CF;background:rgba(255,255,255,.6);padding:0 24px;font:inherit;font-size:17px"></label>
+          <button type="button" style="height:56px;border-radius:999px;border:0;background:#5D7052;color:#F3F4F1;font:inherit;font-size:18px;font-weight:800;box-shadow:0 4px 20px -2px rgba(93,112,82,.35);cursor:pointer;transition:all .3s ease" style-hover="transform:scale(1.03);box-shadow:0 8px 28px -4px rgba(93,112,82,.45)" style-active="transform:scale(.97)">Entrar</button>
+          <a href="#" style="align-self:center;font-size:17px;font-weight:700;padding:10px">Esqueci minha senha</a>
+          <div style="text-align:center;margin-top:24px;font-size:14px;color:#4A4A40">Desenvolvido por <strong>Aguia</strong></div>
+        </form>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+<!-- ============ 2 INÍCIO ============ -->
+<section id="inicio" data-screen-label="02 Início" style="display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;align-items:baseline;gap:16px"><span style="font-size:15px;font-weight:800;background:#5D7052;color:#F3F4F1;padding:6px 14px;border-radius:999px">02</span><h2 style="font-size:36px;font-weight:700">Início · painel</h2></div>
+  <div style="display:flex;gap:64px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Celular · 390</div>
+    <div style="width:390px;background:#FDFCF8;border-radius:44px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);position:relative;overflow:hidden;padding:20px 16px 40px;display:flex;flex-direction:column;gap:24px">
+      <sc-if value="{{ showBlobs }}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="position:absolute;top:60px;right:-100px;width:260px;height:240px;background:#C18C5D;opacity:.16;filter:blur(50px);border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"></div></sc-if>
+      <div style="position:sticky;top:12px;z-index:2;display:flex;align-items:center;gap:10px;padding:6px;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);border:1px solid rgba(222,216,207,.6);border-radius:999px;box-shadow:0 4px 20px -2px rgba(93,112,82,.15)">
+        <button aria-label="Abrir menu" style="width:48px;height:48px;border-radius:999px;border:0;background:#5D7052;color:#F3F4F1;display:flex;align-items:center;justify-content:center"><i aria-hidden="true" class="icon-menu" style="font-size:24px"></i></button>
+        <span style="font-family:'Fraunces',serif;font-size:19px;font-weight:700;flex:1">Início</span>
+        <button aria-label="Minha conta: Helena Aguiar" style="border:0;font:inherit;cursor:pointer;width:44px;height:44px;background:#E6DCCD;color:#4A4A40;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%">HA</button>
+      </div>
+      <div style="position:relative;display:flex;flex-direction:column;gap:6px;padding:0 8px"><p style="font-size:17px;color:#4A4A40">Bom dia, Helena</p><h1 style="font-size:32px;font-weight:700;line-height:1.1">Setembro fechou no azul</h1></div>
+      <div style="position:relative;background:#5D7052;color:#F3F4F1;border-radius:2rem 4rem 2rem 2rem;padding:28px 24px;container-type:inline-size;box-shadow:12px 12px 0 -2px #E6DCCD,0 18px 40px -14px rgba(93,112,82,.55);overflow:hidden">
+        <div aria-hidden="true" style="position:absolute;bottom:-60px;right:-40px;width:180px;height:160px;background:#C18C5D;opacity:.4;filter:blur(30px);border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"></div>
+        <div style="position:relative;font-size:16px;font-weight:700">Resultado de setembro</div>
+        <div style="position:relative;white-space:nowrap;font-family:'Fraunces',serif;font-size:clamp(30px,13cqw,44px);font-weight:700;line-height:1.1;margin:6px 0 10px">R$ 48.320</div>
+        <div style="position:relative;font-size:16px;white-space:nowrap">Receitas R$ 61.950</div><div style="position:relative;font-size:16px;white-space:nowrap">Despesas R$ 13.630</div>
+      </div>
+      <div style="position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:12px">
+        <div style="background:#FEFEFA;border:1px solid rgba(222,216,207,.6);container-type:inline-size;border-radius:2rem 2rem 2rem 3.5rem;padding:20px;box-shadow:0 4px 20px -2px rgba(93,112,82,.12)"><div style="font-size:15px;color:#6B6B5F;font-weight:700">Ocupação</div><div style="white-space:nowrap;font-family:'Fraunces',serif;font-size:clamp(26px,9cqw,32px);font-weight:700">83%</div><div style="font-size:15px;color:#4A4A40">10 de 12 unidades</div></div>
+        <div style="background:#FEFEFA;border:1px solid rgba(222,216,207,.6);container-type:inline-size;border-radius:3.5rem 2rem 2rem 2rem;padding:20px;box-shadow:0 4px 20px -2px rgba(93,112,82,.12)"><div style="font-size:15px;color:#6B6B5F;font-weight:700">A receber</div><div style="white-space:nowrap;font-family:'Fraunces',serif;font-size:clamp(26px,9cqw,32px);font-weight:700">R$ 5.050</div><div style="font-size:15px;color:#4A4A40">2 aluguéis em aberto</div></div>
+      </div>
+      <div style="position:relative;display:flex;flex-direction:column;gap:12px">
+        <h2 style="font-size:24px;font-weight:700;padding:0 8px">Pede atenção</h2>
+        <sc-for list="{{ alertas }}" as="a" hint-placeholder-count="3">
+          <a href="#" style="display:flex;gap:14px;align-items:center;text-decoration:none;color:#2C2C24;background:#FEFEFA;border:1px solid rgba(222,216,207,.6);border-radius:24px;padding:16px;min-height:72px;transition:all .3s ease" style-hover="transform:translateY(-2px) rotate(.5deg);box-shadow:0 12px 30px -10px rgba(93,112,82,.25)">
+            <span style="flex:none;width:48px;height:48px;border-radius:16px;background:{{ a.tint }};color:{{ a.ink }};display:flex;align-items:center;justify-content:center"><i aria-hidden="true" class="{{ a.icon }}" style="font-size:22px"></i></span>
+            <span style="flex:1;display:flex;flex-direction:column;gap:2px"><strong style="font-size:17px;line-height:1.3">{{ a.titulo }}</strong><span style="font-size:15px;color:#4A4A40">{{ a.sub }}</span></span>
+            <i aria-hidden="true" class="icon-chevron-right" style="font-size:22px;color:#6B6B5F"></i>
+          </a>
+        </sc-for>
+      </div>
+    </div></div>
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Menu aberto (gaveta) · 390</div>
+    <div style="width:390px;height:844px;background:#FDFCF8;border-radius:44px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);position:relative;overflow:hidden">
+      <div aria-hidden="true" style="position:absolute;inset:0;background:rgba(44,44,36,.4)"></div>
+      <nav role="dialog" aria-modal="true" aria-label="Menu principal" style="position:absolute;top:0;left:0;bottom:0;width:330px;background:#FDFCF8;border-radius:0 2.5rem 2.5rem 0;padding:24px 16px;display:flex;flex-direction:column;gap:18px;overflow:hidden;box-shadow:0 10px 40px -10px rgba(193,140,93,.35)">
+        <div style="display:flex;align-items:center;gap:12px;padding:0 4px"><div style="width:48px;height:48px;background:#5D7052;color:#F3F4F1;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"><i aria-hidden="true" class="icon-sprout" style="font-size:24px"></i></div><span style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;flex:1">Holding Aguiar</span><button aria-label="Fechar menu" style="width:48px;height:48px;border-radius:999px;border:1.5px solid #DED8CF;background:transparent;color:#2C2C24;display:flex;align-items:center;justify-content:center"><i aria-hidden="true" class="icon-x" style="font-size:22px"></i></button></div>
+        <div role="group" aria-label="Tamanho da letra" style="display:flex;gap:4px;background:#F0EBE5;border-radius:999px;padding:4px;align-self:flex-start"><sc-for list="{{ escalas }}" as="fs" hint-placeholder-count="3"><button onClick="{{ fs.pick }}" aria-pressed="{{ fs.on }}" aria-label="{{ fs.aria }}" style="min-width:48px;height:44px;padding:0 12px;border:0;border-radius:999px;font:inherit;font-weight:800;cursor:pointer;color:#2C2C24;transition:all .3s ease;font-size:{{ fs.size }};background:{{ fs.bg }};box-shadow:{{ fs.sh }}">{{ fs.label }}</button></sc-for></div>
+        <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:14px;overflow-y:auto;padding-bottom:8px">
+          <sc-for list="{{ navInicio }}" as="g" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <div style="font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6B5F;padding:0 14px 4px">{{ g.label }}</div>
+              <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+                <a href="#" aria-current="{{ it.current }}" style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;border-radius:999px;text-decoration:none;font-size:17px;font-weight:{{ it.weight }};background:{{ it.bg }};color:{{ it.fg }}"><i aria-hidden="true" class="{{ it.icon }}" style="font-size:20px"></i>{{ it.label }}</a>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+        <div style="padding:12px 14px 0;border-top:1px dashed #DED8CF;font-size:14px;color:#4A4A40">Desenvolvido por <strong>Aguia</strong></div>
+      </nav>
+    </div></div>
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Computador · 1280</div>
+    <div style="width:1280px;background:#FDFCF8;border-radius:28px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);overflow:hidden;display:flex;position:relative">
+      <nav aria-label="Menu principal" style="width:288px;flex:none;padding:28px 16px;display:flex;flex-direction:column;gap:20px;background:#F6F2EC;border-right:1px solid rgba(222,216,207,.6)">
+        <div style="display:flex;align-items:center;gap:12px;padding:0 8px"><div style="width:48px;height:48px;background:#5D7052;color:#F3F4F1;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"><i aria-hidden="true" class="icon-sprout" style="font-size:24px"></i></div><span style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Holding Aguiar</span></div>
+        <sc-for list="{{ navInicio }}" as="g" hint-placeholder-count="4">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <div style="font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6B5F;padding:0 14px 4px">{{ g.label }}</div>
+            <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+              <a href="#" aria-current="{{ it.current }}" style="display:flex;align-items:center;gap:12px;min-height:44px;padding:0 14px;border-radius:999px;text-decoration:none;font-size:16px;font-weight:{{ it.weight }};background:{{ it.bg }};color:{{ it.fg }};transition:background .3s ease" style-hover="background:rgba(93,112,82,.1)"><i aria-hidden="true" class="{{ it.icon }}" style="font-size:20px"></i>{{ it.label }}</a>
+            </sc-for>
+          </div>
+        </sc-for>
+        <div style="margin-top:auto;padding:16px 14px 0;border-top:1px dashed #DED8CF;font-size:14px;color:#4A4A40">Desenvolvido por <strong>Aguia</strong></div>
+      </nav>
+      <main style="flex:1;min-width:0;padding:32px 48px 56px;display:flex;flex-direction:column;gap:32px;position:relative;overflow:hidden">
+        <sc-if value="{{ showBlobs }}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="position:absolute;top:-80px;right:-60px;width:460px;height:400px;background:#C18C5D;opacity:.14;filter:blur(70px);border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"></div></sc-if>
+        <div style="position:relative;display:flex;align-items:center;gap:16px">
+          <div style="flex:1;display:flex;flex-direction:column;gap:4px"><p style="font-size:17px;color:#4A4A40">Bom dia, Helena · terça, 7 de outubro</p><h1 style="font-size:44px;font-weight:700">Setembro fechou no azul</h1></div>
+          <div role="group" aria-label="Tamanho da letra" style="display:flex;gap:4px;background:#F0EBE5;border-radius:999px;padding:4px"><sc-for list="{{ escalas }}" as="fs" hint-placeholder-count="3"><button onClick="{{ fs.pick }}" aria-pressed="{{ fs.on }}" aria-label="{{ fs.aria }}" style="min-width:48px;height:44px;padding:0 12px;border:0;border-radius:999px;font:inherit;font-weight:800;cursor:pointer;color:#2C2C24;transition:all .3s ease;font-size:{{ fs.size }};background:{{ fs.bg }};box-shadow:{{ fs.sh }}">{{ fs.label }}</button></sc-for></div>
+          <button aria-label="Minha conta: Helena Aguiar" style="border:0;font:inherit;cursor:pointer;width:48px;height:48px;background:#E6DCCD;color:#4A4A40;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%">HA</button>
+        </div>
+        <div style="position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:24px;align-items:stretch">
+          <div style="grid-column:1/-1;background:#5D7052;color:#F3F4F1;border-radius:2rem 5rem 2rem 2rem;padding:32px;container-type:inline-size;box-shadow:12px 12px 0 -2px #E6DCCD,0 18px 40px -14px rgba(93,112,82,.55);position:relative;overflow:hidden">
+            <div aria-hidden="true" style="position:absolute;bottom:-80px;right:-40px;width:260px;height:220px;background:#C18C5D;opacity:.4;filter:blur(36px);border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"></div>
+            <div style="position:relative;font-size:17px;font-weight:700">Resultado de setembro</div>
+            <div style="position:relative;white-space:nowrap;font-family:'Fraunces',serif;font-size:clamp(40px,16cqw,60px);font-weight:700;line-height:1.05;margin:8px 0 12px">R$ 48.320</div>
+            <div style="position:relative;font-size:17px">Receitas menos despesas · 12% acima de agosto</div>
+          </div>
+          <div style="background:#FEFEFA;border:1px solid rgba(222,216,207,.6);container-type:inline-size;border-radius:2rem 2rem 2rem 4rem;padding:28px;box-shadow:0 4px 20px -2px rgba(93,112,82,.12);display:flex;flex-direction:column;gap:6px;transition:all .3s ease" style-hover="transform:translateY(-4px);box-shadow:0 20px 40px -10px rgba(93,112,82,.2)"><div style="font-size:16px;color:#6B6B5F;font-weight:700">Receitas</div><div style="white-space:nowrap;font-family:'Fraunces',serif;font-size:clamp(28px,11cqw,36px);font-weight:700">R$ 61.950</div><div style="font-size:16px;color:#4A4A40">Despesas R$ 13.630</div></div>
+          <div style="background:#FEFEFA;border:1px solid rgba(222,216,207,.6);container-type:inline-size;border-radius:4rem 2rem 2rem 2rem;padding:28px;box-shadow:0 4px 20px -2px rgba(93,112,82,.12);display:flex;flex-direction:column;gap:6px;transition:all .3s ease" style-hover="transform:translateY(-4px);box-shadow:0 20px 40px -10px rgba(93,112,82,.2)"><div style="font-size:16px;color:#6B6B5F;font-weight:700">Ocupação</div><div style="white-space:nowrap;font-family:'Fraunces',serif;font-size:clamp(28px,11cqw,36px);font-weight:700">83%</div><div style="font-size:16px;color:#4A4A40">10 de 12 unidades</div></div>
+        </div>
+        <div style="position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:24px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <h2 style="font-size:26px;font-weight:700">Pede atenção</h2>
+            <sc-for list="{{ alertas }}" as="a" hint-placeholder-count="3">
+              <a href="#" style="display:flex;gap:16px;align-items:center;text-decoration:none;color:#2C2C24;background:#FEFEFA;border:1px solid rgba(222,216,207,.6);border-radius:24px;padding:16px 20px;min-height:76px;transition:all .3s ease" style-hover="transform:translateY(-2px) rotate(.4deg);box-shadow:0 12px 30px -10px rgba(93,112,82,.25)">
+                <span style="flex:none;width:52px;height:52px;border-radius:18px;background:{{ a.tint }};color:{{ a.ink }};display:flex;align-items:center;justify-content:center"><i aria-hidden="true" class="{{ a.icon }}" style="font-size:24px"></i></span>
+                <span style="flex:1;display:flex;flex-direction:column;gap:2px"><strong style="font-size:17px">{{ a.titulo }}</strong><span style="font-size:16px;color:#4A4A40">{{ a.sub }}</span></span>
+                <i aria-hidden="true" class="icon-chevron-right" style="font-size:22px;color:#6B6B5F"></i>
+              </a>
+            </sc-for>
+          </div>
+          <div style="background:#F0EBE5;border-radius:2rem 2rem 4rem 2rem;padding:28px;display:flex;flex-direction:column;gap:16px">
+            <h2 style="font-size:26px;font-weight:700">Próximos recebimentos</h2>
+            <sc-for list="{{ recebimentos }}" as="r" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed #DED8CF"><span style="flex:none;width:56px;text-align:center;font-family:'Fraunces',serif;font-size:22px;font-weight:700;line-height:1">{{ r.dia }}<span style="display:block;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:#6B6B5F">out</span></span><span style="flex:1;font-size:17px">{{ r.quem }}</span><strong style="font-size:17px;white-space:nowrap">{{ r.valor }}</strong></div>
+            </sc-for>
+          </div>
+        </div>
+      </main>
+    </div></div>
+  </div>
+</section>
+
+<!-- ============ 3 IMÓVEIS ============ -->
+<section id="imoveis" data-screen-label="03 Imóveis" style="display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;align-items:baseline;gap:16px"><span style="font-size:15px;font-weight:800;background:#5D7052;color:#F3F4F1;padding:6px 14px;border-radius:999px">03</span><h2 style="font-size:36px;font-weight:700">Imóveis · macro → unidades</h2><span style="font-size:16px;color:#4A4A40">Toque num imóvel para abrir ou fechar as unidades.</span></div>
+  <div style="display:flex;gap:64px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Celular · 390</div>
+    <div style="width:390px;background:#FDFCF8;border-radius:44px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);position:relative;overflow:hidden;padding:20px 16px 40px;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:center;gap:10px;padding:6px;background:rgba(255,255,255,.75);border:1px solid rgba(222,216,207,.6);border-radius:999px;box-shadow:0 4px 20px -2px rgba(93,112,82,.15)">
+        <button aria-label="Abrir menu" style="width:48px;height:48px;border-radius:999px;border:0;background:#5D7052;color:#F3F4F1;display:flex;align-items:center;justify-content:center"><i aria-hidden="true" class="icon-menu" style="font-size:24px"></i></button>
+        <span style="font-family:'Fraunces',serif;font-size:19px;font-weight:700;flex:1">Imóveis</span>
+        <button aria-label="Novo imóvel" style="width:48px;height:48px;border-radius:999px;border:2px solid #8F6139;background:transparent;color:#8F6139;display:flex;align-items:center;justify-content:center"><i aria-hidden="true" class="icon-plus" style="font-size:22px"></i></button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;padding:0 8px"><h1 style="font-size:32px;font-weight:700">4 imóveis</h1><p style="font-size:17px;color:#4A4A40">12 unidades · 10 ocupadas · 2 vagas</p></div>
+      <div style="position:relative"><i aria-hidden="true" class="icon-search" style="position:absolute;left:20px;top:16px;font-size:22px;color:#6B6B5F"></i><input type="search" aria-label="Buscar imóvel por nome ou endereço" placeholder="Buscar por nome ou endereço" style="width:100%;height:56px;border-radius:999px;border:1.5px solid #DED8CF;background:rgba(255,255,255,.6);padding:0 20px 0 54px;font:inherit;font-size:17px"></div>
+      <sc-for list="{{ imoveis }}" as="m" hint-placeholder-count="4">
+        <div style="background:#FEFEFA;border:1px solid rgba(222,216,207,.6);border-radius:{{ m.radius }};box-shadow:0 4px 20px -2px rgba(93,112,82,.12);overflow:hidden">
+          <button onClick="{{ m.toggle }}" aria-expanded="{{ m.open }}" style="width:100%;display:flex;gap:14px;align-items:center;text-align:left;padding:18px;border:0;background:transparent;font:inherit;color:#2C2C24;cursor:pointer">
+            <span style="flex:none;width:52px;height:52px;background:rgba(93,112,82,.1);color:#5D7052;display:flex;align-items:center;justify-content:center;border-radius:{{ m.blob }}"><i aria-hidden="true" class="{{ m.icon }}" style="font-size:24px"></i></span>
+            <span style="flex:1;display:flex;flex-direction:column;gap:2px"><strong style="font-family:'Fraunces',serif;font-size:19px;font-weight:700;line-height:1.2">{{ m.nome }}</strong><span style="font-size:15px;color:#4A4A40">{{ m.resumo }}</span></span>
+            <i aria-hidden="true" class="icon-chevron-down" style="font-size:24px;color:#5D7052;transition:transform .4s ease;transform:{{ m.chev }}"></i>
+          </button>
+          <sc-if value="{{ m.open }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:0 14px 14px;display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ m.unidades }}" as="u" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:10px;background:#F6F2EC;border-radius:18px;padding:12px 14px;min-height:60px">
+                  <span style="flex:1;display:flex;flex-direction:column"><strong style="font-size:16px">{{ u.nome }}</strong><span style="font-size:15px;color:#4A4A40">{{ u.inq }}</span></span>
+                  <span style="font-size:14px;font-weight:800;padding:6px 12px;border-radius:999px;white-space:nowrap;background:{{ u.pillBg }};color:{{ u.pillFg }}">{{ u.status }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div></div>
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Computador · 1280</div>
+    <div style="width:1280px;background:#FDFCF8;border-radius:28px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);overflow:hidden;display:flex">
+      <nav aria-label="Menu principal" style="width:288px;flex:none;padding:28px 16px;display:flex;flex-direction:column;gap:20px;background:#F6F2EC;border-right:1px solid rgba(222,216,207,.6)">
+        <div style="display:flex;align-items:center;gap:12px;padding:0 8px"><div style="width:48px;height:48px;background:#5D7052;color:#F3F4F1;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"><i aria-hidden="true" class="icon-sprout" style="font-size:24px"></i></div><span style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Holding Aguiar</span></div>
+        <sc-for list="{{ navImoveis }}" as="g" hint-placeholder-count="4">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <div style="font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6B5F;padding:0 14px 4px">{{ g.label }}</div>
+            <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+              <a href="#" aria-current="{{ it.current }}" style="display:flex;align-items:center;gap:12px;min-height:44px;padding:0 14px;border-radius:999px;text-decoration:none;font-size:16px;font-weight:{{ it.weight }};background:{{ it.bg }};color:{{ it.fg }}" style-hover="background:rgba(93,112,82,.1)"><i aria-hidden="true" class="{{ it.icon }}" style="font-size:20px"></i>{{ it.label }}</a>
+            </sc-for>
+          </div>
+        </sc-for>
+        <div style="margin-top:auto;padding:16px 14px 0;border-top:1px dashed #DED8CF;font-size:14px;color:#4A4A40">Desenvolvido por <strong>Aguia</strong></div>
+      </nav>
+      <main style="flex:1;min-width:0;padding:32px 48px 56px;display:flex;flex-direction:column;gap:28px;position:relative;overflow:hidden">
+        <sc-if value="{{ showBlobs }}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="position:absolute;bottom:-120px;left:-80px;width:420px;height:380px;background:#5D7052;opacity:.12;filter:blur(70px);border-radius:30% 70% 70% 30% / 30% 30% 70% 70%"></div></sc-if>
+        <div style="position:relative;display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
+          <div style="flex:1;display:flex;flex-direction:column;gap:4px"><p style="font-size:16px;color:#4A4A40">Cadastros</p><h1 style="font-size:44px;font-weight:700">Imóveis</h1><p style="font-size:17px;color:#4A4A40">4 imóveis, 12 unidades · 10 ocupadas, 2 vagas</p></div>
+          <div style="position:relative;width:320px"><i aria-hidden="true" class="icon-search" style="position:absolute;left:20px;top:14px;font-size:22px;color:#6B6B5F"></i><input type="search" aria-label="Buscar imóvel por nome ou endereço" placeholder="Buscar por nome ou endereço" style="width:100%;height:52px;border-radius:999px;border:1.5px solid #DED8CF;background:rgba(255,255,255,.6);padding:0 20px 0 54px;font:inherit;font-size:16px"></div>
+          <button style="height:52px;padding:0 28px;border-radius:999px;border:0;background:#5D7052;color:#F3F4F1;font:inherit;font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px -2px rgba(93,112,82,.3);cursor:pointer;transition:all .3s ease" style-hover="transform:scale(1.05)" style-active="transform:scale(.95)"><i aria-hidden="true" class="icon-plus" style="font-size:20px"></i>Novo imóvel</button>
+        </div>
+        <div style="position:relative;display:flex;flex-direction:column;gap:16px">
+          <sc-for list="{{ imoveis }}" as="m" hint-placeholder-count="4">
+            <div style="background:#FEFEFA;border:1px solid rgba(222,216,207,.6);border-radius:{{ m.radius }};box-shadow:0 4px 20px -2px rgba(93,112,82,.12);overflow:hidden">
+              <button onClick="{{ m.toggle }}" aria-expanded="{{ m.open }}" style="width:100%;display:grid;grid-template-columns:56px 1.6fr 1fr 1fr 40px;gap:20px;align-items:center;text-align:left;padding:18px 24px;border:0;background:transparent;font:inherit;color:#2C2C24;cursor:pointer">
+                <span style="width:56px;height:56px;background:rgba(93,112,82,.1);color:#5D7052;display:flex;align-items:center;justify-content:center;border-radius:{{ m.blob }}"><i aria-hidden="true" class="{{ m.icon }}" style="font-size:26px"></i></span>
+                <span style="display:flex;flex-direction:column;gap:2px"><strong style="font-family:'Fraunces',serif;font-size:21px;font-weight:700">{{ m.nome }}</strong><span style="font-size:16px;color:#4A4A40">{{ m.endereco }}</span></span>
+                <span style="display:flex;flex-direction:column;gap:6px"><span style="font-size:15px;color:#4A4A40">{{ m.ocup }}</span><span style="height:10px;border-radius:999px;background:#F0EBE5;overflow:hidden"><span style="display:block;height:100%;border-radius:999px;background:#5D7052;width:{{ m.pct }}"></span></span></span>
+                <span style="display:flex;flex-direction:column"><span style="font-size:15px;color:#4A4A40">Aluguel mensal</span><strong style="font-size:18px;white-space:nowrap">{{ m.receita }}</strong></span>
+                <i aria-hidden="true" class="icon-chevron-down" style="font-size:26px;color:#5D7052;transition:transform .4s ease;transform:{{ m.chev }}"></i>
+              </button>
+              <sc-if value="{{ m.open }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:0 24px 20px 100px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px">
+                  <sc-for list="{{ m.unidades }}" as="u" hint-placeholder-count="3">
+                    <div style="display:flex;flex-direction:column;gap:8px;background:#F6F2EC;border-radius:20px 28px 20px 20px;padding:16px">
+                      <div style="display:flex;align-items:center;gap:8px"><strong style="flex:1;font-size:17px">{{ u.nome }}</strong><span style="font-size:14px;font-weight:800;padding:5px 12px;border-radius:999px;white-space:nowrap;background:{{ u.pillBg }};color:{{ u.pillFg }}">{{ u.status }}</span></div>
+                      <span style="font-size:15px;color:#4A4A40">{{ u.inq }}</span><strong style="font-size:16px;white-space:nowrap">{{ u.valor }}</strong>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </main>
+    </div></div>
+  </div>
+</section>
+
+<!-- ============ 4 CONTRATOS ============ -->
+<section id="contratos" data-screen-label="04 Contratos" style="display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;align-items:baseline;gap:16px"><span style="font-size:15px;font-weight:800;background:#5D7052;color:#F3F4F1;padding:6px 14px;border-radius:999px">04</span><h2 style="font-size:36px;font-weight:700">Contratos</h2><span style="font-size:16px;color:#4A4A40">Tabela no computador; cartões no celular.</span></div>
+  <div style="display:flex;gap:64px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Celular · 390</div>
+    <div style="width:390px;background:#FDFCF8;border-radius:44px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);overflow:hidden;padding:20px 16px 40px;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:center;gap:10px;padding:6px;background:rgba(255,255,255,.75);border:1px solid rgba(222,216,207,.6);border-radius:999px;box-shadow:0 4px 20px -2px rgba(93,112,82,.15)">
+        <button aria-label="Abrir menu" style="width:48px;height:48px;border-radius:999px;border:0;background:#5D7052;color:#F3F4F1;display:flex;align-items:center;justify-content:center"><i aria-hidden="true" class="icon-menu" style="font-size:24px"></i></button>
+        <span style="font-family:'Fraunces',serif;font-size:19px;font-weight:700;flex:1">Contratos</span>
+        <button aria-label="Novo contrato" style="width:48px;height:48px;border-radius:999px;border:2px solid #8F6139;background:transparent;color:#8F6139;display:flex;align-items:center;justify-content:center"><i aria-hidden="true" class="icon-plus" style="font-size:22px"></i></button>
+      </div>
+      <h1 style="font-size:32px;font-weight:700;padding:0 8px">{{ totalContratos }}</h1>
+      <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 4px 6px">
+        <sc-for list="{{ filtros }}" as="f" hint-placeholder-count="4">
+          <button onClick="{{ f.pick }}" aria-pressed="{{ f.on }}" style="flex:none;height:44px;padding:0 18px;border-radius:999px;font:inherit;font-size:16px;font-weight:800;cursor:pointer;white-space:nowrap;border:1.5px solid {{ f.bd }};background:{{ f.bg }};color:{{ f.fg }}">{{ f.label }}</button>
+        </sc-for>
+      </div>
+      <sc-for list="{{ contratosVis }}" as="c" hint-placeholder-count="3">
+        <article style="background:#FEFEFA;border:1px solid rgba(222,216,207,.6);border-radius:{{ c.radius }};padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 20px -2px rgba(93,112,82,.12)">
+          <div style="display:flex;align-items:center;gap:8px"><span style="font-size:14px;font-weight:700;color:#4A4A40;flex:1;white-space:nowrap">{{ c.cod }}</span><span style="font-size:14px;font-weight:800;padding:6px 12px;border-radius:999px;white-space:nowrap;background:{{ c.pillBg }};color:{{ c.pillFg }}">{{ c.status }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><strong style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">{{ c.inquilino }}</strong><span style="font-size:16px;color:#4A4A40">{{ c.unidade }}</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#F6F2EC;border-radius:18px;padding:12px 14px"><span style="display:flex;flex-direction:column"><span style="font-size:14px;color:#4A4A40">Aluguel</span><strong style="font-size:17px;white-space:nowrap">{{ c.valor }}</strong></span><span style="display:flex;flex-direction:column"><span style="font-size:14px;color:#4A4A40">Vigência até</span><strong style="font-size:17px">{{ c.fim }}</strong></span></div>
+          <button aria-label="Baixar minuta em PDF do contrato {{ c.cod }}" style="height:48px;border-radius:999px;border:2px solid #8F6139;background:transparent;color:#8F6139;font:inherit;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer"><i aria-hidden="true" class="icon-file-down" style="font-size:20px"></i>Minuta em PDF</button>
+        </article>
+      </sc-for>
+    </div></div>
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Computador · 1280</div>
+    <div style="width:1280px;background:#FDFCF8;border-radius:28px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);overflow:hidden;display:flex">
+      <nav aria-label="Menu principal" style="width:288px;flex:none;padding:28px 16px;display:flex;flex-direction:column;gap:20px;background:#F6F2EC;border-right:1px solid rgba(222,216,207,.6)">
+        <div style="display:flex;align-items:center;gap:12px;padding:0 8px"><div style="width:48px;height:48px;background:#5D7052;color:#F3F4F1;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"><i aria-hidden="true" class="icon-sprout" style="font-size:24px"></i></div><span style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Holding Aguiar</span></div>
+        <sc-for list="{{ navContratos }}" as="g" hint-placeholder-count="4">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <div style="font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6B5F;padding:0 14px 4px">{{ g.label }}</div>
+            <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+              <a href="#" aria-current="{{ it.current }}" style="display:flex;align-items:center;gap:12px;min-height:44px;padding:0 14px;border-radius:999px;text-decoration:none;font-size:16px;font-weight:{{ it.weight }};background:{{ it.bg }};color:{{ it.fg }}" style-hover="background:rgba(93,112,82,.1)"><i aria-hidden="true" class="{{ it.icon }}" style="font-size:20px"></i>{{ it.label }}</a>
+            </sc-for>
+          </div>
+        </sc-for>
+        <div style="margin-top:auto;padding:16px 14px 0;border-top:1px dashed #DED8CF;font-size:14px;color:#4A4A40">Desenvolvido por <strong>Aguia</strong></div>
+      </nav>
+      <main style="flex:1;min-width:0;padding:32px 48px 56px;display:flex;flex-direction:column;gap:24px;position:relative;overflow:hidden">
+        <sc-if value="{{ showBlobs }}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="position:absolute;top:-100px;right:-80px;width:420px;height:360px;background:#5D7052;opacity:.12;filter:blur(70px);border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"></div></sc-if>
+        <div style="position:relative;display:flex;align-items:flex-end;gap:16px">
+          <div style="flex:1;display:flex;flex-direction:column;gap:4px"><p style="font-size:16px;color:#4A4A40">Cadastros</p><h1 style="font-size:44px;font-weight:700">Contratos</h1></div>
+          <button style="height:52px;padding:0 28px;border-radius:999px;border:0;background:#5D7052;color:#F3F4F1;font:inherit;font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px -2px rgba(93,112,82,.3);cursor:pointer;transition:all .3s ease" style-hover="transform:scale(1.05)" style-active="transform:scale(.95)"><i aria-hidden="true" class="icon-plus" style="font-size:20px"></i>Novo contrato</button>
+        </div>
+        <div style="position:relative;display:flex;gap:8px">
+          <sc-for list="{{ filtros }}" as="f" hint-placeholder-count="4">
+            <button onClick="{{ f.pick }}" aria-pressed="{{ f.on }}" style="height:44px;padding:0 20px;border-radius:999px;font:inherit;font-size:16px;font-weight:800;cursor:pointer;transition:all .3s ease;white-space:nowrap;border:1.5px solid {{ f.bd }};background:{{ f.bg }};color:{{ f.fg }}">{{ f.label }}</button>
+          </sc-for>
+        </div>
+        <div role="table" aria-label="Contratos" style="position:relative;background:#FEFEFA;border:1px solid rgba(222,216,207,.6);border-radius:2rem 4rem 2rem 2rem;box-shadow:0 4px 20px -2px rgba(93,112,82,.12);overflow:hidden">
+          <div role="row" style="display:grid;grid-template-columns:1.6fr 1.3fr 1fr 1fr 1fr 150px;gap:16px;padding:16px 28px;background:#F0EBE5;font-size:15px;font-weight:800;color:#4A4A40"><span role="columnheader">Inquilino</span><span role="columnheader">Unidade</span><span role="columnheader">Aluguel</span><span role="columnheader">Vigência até</span><span role="columnheader">Situação</span><span role="columnheader"><span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Ações</span></span></div>
+          <sc-for list="{{ contratosVis }}" as="c" hint-placeholder-count="4">
+            <div role="row" style="display:grid;grid-template-columns:1.6fr 1.3fr 1fr 1fr 1fr 150px;gap:16px;padding:18px 28px;align-items:center;border-top:1px solid rgba(222,216,207,.6);font-size:17px;transition:background .3s ease" style-hover="background:rgba(93,112,82,.05)">
+              <span role="cell" style="display:flex;flex-direction:column"><strong>{{ c.inquilino }}</strong><span style="font-size:15px;color:#4A4A40;white-space:nowrap">{{ c.cod }}</span></span>
+              <span role="cell">{{ c.unidade }}</span><span role="cell"><strong>{{ c.valor }}</strong></span><span role="cell">{{ c.fim }}</span>
+              <span role="cell"><span style="font-size:14px;font-weight:800;padding:6px 12px;border-radius:999px;white-space:nowrap;background:{{ c.pillBg }};color:{{ c.pillFg }}">{{ c.status }}</span></span>
+              <span role="cell"><button aria-label="Baixar minuta do contrato {{ c.cod }}" style="width:100%;height:44px;border-radius:999px;border:2px solid #8F6139;background:transparent;color:#8F6139;font:inherit;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:all .3s ease" style-hover="background:#8F6139;color:#FFFFFF"><i aria-hidden="true" class="icon-file-down" style="font-size:18px"></i>Minuta</button></span>
+            </div>
+          </sc-for>
+        </div>
+      </main>
+    </div></div>
+  </div>
+</section>
+
+<!-- ============ 5 SIMULADOR ============ -->
+<section id="simulador" data-screen-label="05 Simulador" style="display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;align-items:baseline;gap:16px"><span style="font-size:15px;font-weight:800;background:#5D7052;color:#F3F4F1;padding:6px 14px;border-radius:999px">05</span><h2 style="font-size:36px;font-weight:700">Simulador IBS/CBS · público</h2><span style="font-size:16px;color:#4A4A40">Os campos funcionam.</span></div>
+  <div style="display:flex;gap:64px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Celular · 390</div>
+    <div style="width:390px;background:#FDFCF8;border-radius:44px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);position:relative;overflow:hidden;padding:20px 16px 40px;display:flex;flex-direction:column;gap:24px">
+      <sc-if value="{{ showBlobs }}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="position:absolute;top:40px;left:-90px;width:280px;height:260px;background:#5D7052;opacity:.18;filter:blur(50px);border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"></div></sc-if>
+      <div style="position:relative;display:flex;align-items:center;gap:10px;padding:6px 6px 6px 10px;background:rgba(255,255,255,.75);border:1px solid rgba(222,216,207,.6);border-radius:999px;box-shadow:0 4px 20px -2px rgba(93,112,82,.15)">
+        <div style="width:40px;height:40px;background:#5D7052;color:#F3F4F1;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"><i aria-hidden="true" class="icon-sprout" style="font-size:20px"></i></div>
+        <span style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;flex:1">Simulador</span>
+        <a href="#" style="height:44px;padding:0 18px;border-radius:999px;background:#5D7052;color:#F3F4F1;text-decoration:none;font-weight:800;font-size:16px;display:flex;align-items:center">Entrar</a>
+      </div>
+      <div style="position:relative;display:flex;flex-direction:column;gap:10px;padding:0 8px"><h1 style="font-size:34px;font-weight:700;line-height:1.1">Quanto a reforma tributária pesa no seu aluguel?</h1><p style="font-size:17px;color:#4A4A40;line-height:1.5">Informe o valor mensal e veja uma estimativa do IBS e da CBS na locação.</p></div>
+      <div role="form" aria-label="Dados da simulação" style="position:relative;background:#FEFEFA;border:1px solid rgba(222,216,207,.6);border-radius:2rem 4rem 2rem 2rem;padding:22px;display:flex;flex-direction:column;gap:18px;box-shadow:0 10px 40px -10px rgba(193,140,93,.3)">
+        <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:16px;font-weight:700">Aluguel mensal (R$)</span><input type="text" inputmode="decimal" autocomplete="off" value="{{ aluguel }}" onInput="{{ setAluguel }}" style="height:56px;border-radius:999px;border:1.5px solid #DED8CF;background:rgba(255,255,255,.6);padding:0 24px;font:inherit;font-size:20px;font-weight:700"></label>
+        <fieldset style="border:0;margin:0;padding:0;min-width:0"><legend style="font-size:16px;font-weight:700;padding:0;margin-bottom:8px">Quem aluga</legend>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#F0EBE5;border-radius:999px;padding:4px">
+            <sc-for list="{{ perfis }}" as="p" hint-placeholder-count="2"><button onClick="{{ p.pick }}" aria-pressed="{{ p.on }}" style="height:44px;border-radius:999px;border:0;font:inherit;font-size:15px;font-weight:800;white-space:nowrap;padding:0 10px;cursor:pointer;transition:all .3s ease;background:{{ p.bg }};color:{{ p.fg }};box-shadow:{{ p.sh }}">{{ p.label }}</button></sc-for>
+          </div></fieldset>
+        <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:16px;font-weight:700">Alíquota de referência (%)</span><input type="text" inputmode="decimal" autocomplete="off" value="{{ aliquota }}" onInput="{{ setAliquota }}" style="height:56px;border-radius:999px;border:1.5px solid #DED8CF;background:rgba(255,255,255,.6);padding:0 24px;font:inherit;font-size:18px"></label>
+      </div>
+      <div style="position:relative;background:#5D7052;color:#F3F4F1;border-radius:4rem 2rem 2rem 2rem;padding:26px 24px;container-type:inline-size;box-shadow:-12px 12px 0 -2px #E6DCCD,0 18px 40px -14px rgba(93,112,82,.55)">
+        <div style="font-size:16px;font-weight:700">Estimativa por mês</div>
+        <div style="white-space:nowrap;font-family:'Fraunces',serif;font-size:clamp(30px,13cqw,44px);font-weight:700;line-height:1.1;margin:6px 0" aria-live="polite">{{ impostoMes }}</div>
+        <div style="font-size:16px;line-height:1.5">{{ impostoDetalhe }}</div>
+      </div>
+      <sc-if value="{{ isPF }}" hint-placeholder-val="{{ false }}"><p style="position:relative;font-size:15px;line-height:1.5;color:#4A4A40;background:#F0EBE5;border-radius:20px;padding:14px 16px">Pessoa física pode ficar fora do regime, dependendo da receita anual com aluguéis e do número de imóveis.</p></sc-if>
+      <div style="position:relative;text-align:center;font-size:14px;color:#4A4A40">Desenvolvido por <strong>Aguia</strong></div>
+    </div></div>
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Computador · 1280</div>
+    <div style="width:1280px;background:#FDFCF8;border-radius:28px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);position:relative;overflow:hidden;padding:24px 64px 72px;display:flex;flex-direction:column;gap:56px">
+      <sc-if value="{{ showBlobs }}" hint-placeholder-val="{{ true }}">
+        <div aria-hidden="true" style="position:absolute;top:-60px;left:-120px;width:520px;height:480px;background:#5D7052;opacity:.16;filter:blur(80px);border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"></div>
+        <div aria-hidden="true" style="position:absolute;top:240px;right:-140px;width:480px;height:440px;background:#C18C5D;opacity:.18;filter:blur(80px);border-radius:30% 70% 70% 30% / 30% 30% 70% 70%"></div>
+      </sc-if>
+      <div style="position:relative;align-self:center;width:100%;max-width:1000px;display:flex;align-items:center;gap:24px;padding:8px 8px 8px 16px;background:rgba(255,255,255,.7);backdrop-filter:blur(12px);border:1px solid rgba(222,216,207,.6);border-radius:999px;box-shadow:0 4px 20px -2px rgba(93,112,82,.15)">
+        <div style="display:flex;align-items:center;gap:10px;flex:1"><div style="width:44px;height:44px;background:#5D7052;color:#F3F4F1;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"><i aria-hidden="true" class="icon-sprout" style="font-size:22px"></i></div><span style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Simulador IBS/CBS</span></div>
+        <a href="#como" style="font-weight:700;font-size:17px;text-decoration:none;color:#2C2C24;padding:10px">Como funciona</a>
+        <a href="#" style="font-weight:700;font-size:17px;text-decoration:none;color:#2C2C24;padding:10px">Perguntas</a>
+        <a href="#" style="height:48px;padding:0 28px;border-radius:999px;background:#5D7052;color:#F3F4F1;text-decoration:none;font-weight:800;font-size:17px;display:flex;align-items:center">Entrar</a>
+      </div>
+      <div style="position:relative;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <span style="align-self:flex-start;font-size:15px;font-weight:800;padding:8px 16px;border-radius:999px;background:rgba(93,112,82,.12);color:#5D7052">Reforma tributária na locação</span>
+          <h1 style="font-size:60px;font-weight:700;line-height:1.04">Quanto a reforma tributária pesa no seu aluguel?</h1>
+          <p style="font-size:20px;color:#4A4A40;line-height:1.55;max-width:500px">Informe o valor mensal e veja uma estimativa do IBS e da CBS, já com o redutor de 70% da locação.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div role="form" aria-label="Dados da simulação" style="background:#FEFEFA;border:1px solid rgba(222,216,207,.6);border-radius:2rem 5rem 2rem 2rem;padding:32px;display:flex;flex-direction:column;gap:20px;box-shadow:0 10px 40px -10px rgba(193,140,93,.3)">
+            <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:17px;font-weight:700">Aluguel mensal (R$)</span><input type="text" inputmode="decimal" autocomplete="off" value="{{ aluguel }}" onInput="{{ setAluguel }}" style="height:60px;border-radius:999px;border:1.5px solid #DED8CF;background:rgba(255,255,255,.6);padding:0 26px;font:inherit;font-size:22px;font-weight:700"></label>
+            <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px">
+              <fieldset style="border:0;margin:0;padding:0;min-width:0"><legend style="font-size:17px;font-weight:700;padding:0;margin-bottom:8px">Quem aluga</legend><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#F0EBE5;border-radius:999px;padding:4px"><sc-for list="{{ perfis }}" as="p" hint-placeholder-count="2"><button onClick="{{ p.pick }}" aria-pressed="{{ p.on }}" style="height:48px;border-radius:999px;border:0;font:inherit;font-size:15px;font-weight:800;white-space:nowrap;padding:0 10px;cursor:pointer;transition:all .3s ease;background:{{ p.bg }};color:{{ p.fg }};box-shadow:{{ p.sh }}">{{ p.label }}</button></sc-for></div></fieldset>
+              <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:17px;font-weight:700">Alíquota de referência (%)</span><input type="text" inputmode="decimal" autocomplete="off" value="{{ aliquota }}" onInput="{{ setAliquota }}" style="height:56px;border-radius:999px;border:1.5px solid #DED8CF;background:rgba(255,255,255,.6);padding:0 24px;font:inherit;font-size:18px"></label>
+            </div>
+          </div>
+          <div style="background:#5D7052;color:#F3F4F1;border-radius:4rem 2rem 2rem 2rem;padding:28px 32px;container-type:inline-size;box-shadow:-12px 12px 0 -2px #E6DCCD,0 18px 40px -14px rgba(93,112,82,.55);display:flex;align-items:center;gap:24px">
+            <div style="flex:1"><div style="font-size:17px;font-weight:700">Estimativa por mês</div><div style="white-space:nowrap;font-family:'Fraunces',serif;font-size:clamp(36px,14cqw,52px);font-weight:700;line-height:1.1" aria-live="polite">{{ impostoMes }}</div></div>
+            <div style="font-size:17px;line-height:1.5;max-width:230px">{{ impostoDetalhe }}</div>
+          </div>
+          <sc-if value="{{ isPF }}" hint-placeholder-val="{{ false }}"><p style="font-size:16px;line-height:1.5;color:#4A4A40;background:#F0EBE5;border-radius:20px;padding:14px 18px">Pessoa física pode ficar fora do regime, dependendo da receita anual com aluguéis e do número de imóveis.</p></sc-if>
+        </div>
+      </div>
+      <div id="como" style="position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:28px">
+        <sc-for list="{{ explica }}" as="e" hint-placeholder-count="3">
+          <div style="background:#FEFEFA;border:1px solid rgba(222,216,207,.6);border-radius:{{ e.radius }};padding:28px;display:flex;flex-direction:column;gap:14px;box-shadow:0 4px 20px -2px rgba(93,112,82,.12);transition:all .4s ease" style-hover="transform:translateY(-4px) rotate(1deg);box-shadow:0 20px 40px -10px rgba(93,112,82,.2)">
+            <span style="width:56px;height:56px;border-radius:16px;background:rgba(93,112,82,.1);color:#5D7052;display:flex;align-items:center;justify-content:center"><i aria-hidden="true" class="{{ e.icon }}" style="font-size:28px"></i></span>
+            <h3 style="font-size:23px;font-weight:700">{{ e.t }}</h3><p style="font-size:17px;color:#4A4A40;line-height:1.55">{{ e.d }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <footer style="position:relative;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:15px;color:#4A4A40;border-top:1px dashed #DED8CF;padding-top:24px"><p>Estimativa ilustrativa. Não considera as regras de transição de 2026 a 2033 nem créditos do locador.</p><p>Desenvolvido por <strong>Aguia</strong></p></footer>
+    </div></div>
+  </div>
+</section>
+
+<!-- ============ 6 GUIA DE ESTILO ============ -->
+<section id="guia" data-screen-label="06 Guia de estilo" style="display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap"><span style="font-size:15px;font-weight:800;background:#5D7052;color:#F3F4F1;padding:6px 14px;border-radius:999px">06</span><h2 style="font-size:36px;font-weight:700">Guia de estilo e estados</h2><span style="font-size:16px;color:#4A4A40">Cores com nome, letras com reserva, todos os estados de botão, campo e link.</span></div>
+  <div style="width:1734px;flex:none;background:#FDFCF8;border-radius:28px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);padding:48px;display:flex;flex-direction:column;gap:56px">
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <h3 style="font-size:26px;font-weight:700">Cores</h3>
+      <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:20px">
+        <sc-for list="{{ cores }}" as="c" hint-placeholder-count="12">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="height:84px;border-radius:20px 32px 20px 20px;background:{{ c.hex }};border:{{ c.edge }}"></div>
+            <strong style="font-size:15px">{{ c.nome }}</strong>
+            <span style="font-size:15px;color:#4A4A40;white-space:nowrap">{{ c.hex }} · {{ c.cr }}</span>
+            <span style="font-size:15px;color:#4A4A40">{{ c.uso }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px">
+      <div style="display:flex;flex-direction:column;gap:14px;background:#F6F2EC;border-radius:2rem 4rem 2rem 2rem;padding:28px">
+        <span style="font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6B5F">Títulos e números</span>
+        <span style="font-family:'Fraunces',Georgia,'Times New Roman',serif;font-size:44px;font-weight:700;line-height:1.1">Fraunces 700 · R$ 48.320</span>
+        <code style="font-size:15px;color:#4A4A40">'Fraunces', Georgia, 'Times New Roman', serif</code>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;background:#F6F2EC;border-radius:4rem 2rem 2rem 2rem;padding:28px">
+        <span style="font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6B5F">Texto e interface</span>
+        <span style="font-size:24px;line-height:1.4">Nunito 400, <strong style="font-weight:600">600</strong>, <strong style="font-weight:700">700</strong> e <strong style="font-weight:800">800</strong>. Base 17px.</span>
+        <code style="font-size:15px;color:#4A4A40">'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif</code>
+      </div>
+      <p style="grid-column:1/-1;font-size:16px;color:#4A4A40;line-height:1.55">Entrega em WOFF2, subconjunto latino, só os pesos listados, <code>font-display: swap</code>. Meta: as duas famílias juntas abaixo de 300 KB. As reservas têm métricas próximas, então o texto não pula quando a fonte carrega.</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap"><h3 style="font-size:26px;font-weight:700">Botões</h3><span style="font-size:16px;color:#4A4A40">Altura 48px (56px no celular para Entrar). O foco usa contorno musgo sólido de 3px, afastado 3px, visível sobre qualquer sombra.</span></div>
+      <div style="display:grid;grid-template-columns:220px repeat(6,minmax(0,1fr));gap:12px 16px;align-items:center">
+        <span></span>
+        <sc-for list="{{ estadosNomes }}" as="n" hint-placeholder-count="6"><span style="font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B6B5F;text-align:center">{{ n }}</span></sc-for>
+        <sc-for list="{{ botoes }}" as="b" hint-placeholder-count="4">
+          <div style="display:flex;flex-direction:column;gap:2px;padding:10px 0"><strong style="font-size:17px">{{ b.nome }}</strong><span style="font-size:15px;color:#4A4A40">{{ b.uso }}</span></div>
+          <sc-for list="{{ b.estados }}" as="e" hint-placeholder-count="6">
+            <div style="display:flex;justify-content:center;padding:10px 0"><button type="button" disabled="{{ e.disabled }}" aria-busy="{{ e.busy }}" style="height:48px;padding:0 22px;border-radius:999px;font:inherit;font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px;white-space:nowrap;background:{{ e.bg }};color:{{ e.fg }};border:2px solid {{ e.bd }};box-shadow:{{ e.sh }};transform:{{ e.tf }};cursor:{{ e.cur }};outline:{{ e.outline }};outline-offset:3px"><sc-if value="{{ e.busy }}" hint-placeholder-val="{{ false }}">{{ spinner }}</sc-if>{{ e.text }}</button></div>
+          </sc-for>
+        </sc-for>
+      </div>
+      <p style="font-size:16px;color:#4A4A40;line-height:1.55;max-width:1100px">Desativado não depende só da cor: o texto ao lado diz o que falta (“Preencha o e-mail para continuar”). Carregando mantém a largura, troca o texto por “Aguarde…” ou pela ação em andamento (“Entrando…”), marca <code>aria-busy</code> e bloqueia o segundo toque. Mouse em cima só existe em <code>@media (hover:hover)</code>.</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap"><h3 style="font-size:26px;font-weight:700">Campos</h3><span style="font-size:16px;color:#4A4A40">Campos sem marcação são obrigatórios. Os que não são levam “(opcional)” no rótulo. Sem asterisco.</span></div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 32px">
+        <sc-for list="{{ campos }}" as="f" hint-placeholder-count="6">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <span style="font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B6B5F">{{ f.estado }}</span>
+            <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:16px;font-weight:700">{{ f.label }} <span style="font-weight:600;color:#4A4A40">{{ f.tag }}</span></span>
+              <input type="text" value="{{ f.val }}" placeholder="{{ f.ph }}" disabled="{{ f.disabled }}" aria-invalid="{{ f.invalid }}" readOnly="{{ true }}" style="height:56px;border-radius:999px;padding:0 24px;font:inherit;font-size:17px;border-style:{{ f.bs }};border-width:{{ f.bw }};border-color:{{ f.bd }};background:{{ f.bg }};color:{{ f.fg }};outline:{{ f.outline }};outline-offset:3px"></label>
+            <sc-if value="{{ f.hasMsg }}" hint-placeholder-val="{{ false }}"><span style="display:flex;gap:8px;align-items:flex-start;font-size:15px;line-height:1.45;font-weight:700;color:{{ f.msgFg }}"><i aria-hidden="true" class="{{ f.msgIcon }}" style="font-size:18px;margin-top:2px"></i>{{ f.msg }}</span></sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <p style="font-size:16px;color:#4A4A40;line-height:1.55;max-width:1100px">Erro: borda siena de 2px, ícone e texto abaixo do campo, ligado por <code>aria-describedby</code>, com <code>aria-invalid</code>. A mensagem aparece ao sair do campo ou ao enviar, nunca a cada letra. O exemplo de formato fica no texto de ajuda, não só no placeholder.</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <h3 style="font-size:26px;font-weight:700">Links</h3>
+      <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:20px;align-items:start">
+        <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B6B5F">Normal</span><span style="font-size:17px;font-weight:700;color:#5D7052;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px">Esqueci minha senha</span></div>
+        <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B6B5F">Mouse em cima</span><span style="font-size:17px;font-weight:700;color:#2C2C24;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:3px">Esqueci minha senha</span></div>
+        <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B6B5F">Foco (teclado)</span><span style="align-self:flex-start;font-size:17px;font-weight:700;color:#5D7052;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;outline:3px solid #5D7052;outline-offset:3px;border-radius:6px">Esqueci minha senha</span></div>
+        <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B6B5F">Pressionado</span><span style="font-size:17px;font-weight:700;color:#3F5236;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px">Esqueci minha senha</span></div>
+        <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B6B5F">Visitado</span><span style="font-size:17px;font-weight:700;color:#7A4F2B;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px">Guia do simulador</span></div>
+      </div>
+      <p style="font-size:16px;color:#4A4A40;line-height:1.55;max-width:1100px">Link em texto sempre sublinhado. Visitado (argila escura, 7:1) só em links de conteúdo, como guias e relatórios; o menu usa o estado ativo com <code>aria-current</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7 ERROS, DIÁLOGOS E AVISOS ============ -->
+<section id="avisos" data-screen-label="07 Erros e avisos" style="display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap"><span style="font-size:15px;font-weight:800;background:#5D7052;color:#F3F4F1;padding:6px 14px;border-radius:999px">07</span><h2 style="font-size:36px;font-weight:700">Erros, confirmações e avisos</h2><span style="font-size:16px;color:#4A4A40">Mensagens dizem o que houve e o que fazer.</span></div>
+  <div style="display:flex;gap:64px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Login com erro · 390</div>
+    <div style="width:390px;min-height:844px;background:#FDFCF8;border-radius:44px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);position:relative;overflow:hidden;display:flex;flex-direction:column;padding:56px 24px 40px;gap:24px">
+      <h1 style="font-size:34px;font-weight:700;line-height:1.1">Que bom ver você de novo</h1>
+      <div role="alert" style="display:flex;gap:14px;align-items:flex-start;background:rgba(168,84,72,.08);border:2px solid #A85448;border-radius:24px 36px 24px 24px;padding:16px 18px">
+        <i aria-hidden="true" class="icon-circle-alert" style="font-size:24px;color:#A85448"></i>
+        <div style="display:flex;flex-direction:column;gap:4px"><strong style="font-size:17px">Confira 1 campo</strong><a href="#erro-email" style="font-size:16px;font-weight:700">E-mail incompleto</a></div>
+      </div>
+      <form style="display:flex;flex-direction:column;gap:20px">
+        <div style="display:flex;flex-direction:column;gap:8px"><label for="erro-email" style="font-size:16px;font-weight:700">E-mail</label>
+          <input id="erro-email" type="email" autocomplete="email" required aria-invalid="true" aria-describedby="erro-email-msg" value="helena@holding" style="height:56px;border-radius:999px;border:2px solid #A85448;background:rgba(255,255,255,.6);padding:0 24px;font:inherit;font-size:17px;color:#2C2C24">
+          <span id="erro-email-msg" style="display:flex;gap:8px;align-items:flex-start;font-size:15px;line-height:1.45;font-weight:700;color:#A85448"><i aria-hidden="true" class="icon-circle-alert" style="font-size:18px;margin-top:2px"></i>Digite o e-mail completo, por exemplo nome@email.com</span></div>
+        <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:16px;font-weight:700">Senha</span><input type="password" autocomplete="current-password" required value="senhasegura" style="height:56px;border-radius:999px;border:1.5px solid #DED8CF;background:rgba(255,255,255,.6);padding:0 24px;font:inherit;font-size:17px"></label>
+        <button type="button" aria-busy="true" style="height:56px;border-radius:999px;border:0;background:#5D7052;color:#F3F4F1;font:inherit;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:10px;cursor:progress;margin-top:8px">{{ spinner }}Entrando…</button>
+      </form>
+      <p style="font-size:15px;line-height:1.5;color:#4A4A40">O resumo no topo recebe o foco ao enviar. Cada item leva ao campo. O botão mostra o estado carregando após corrigir e enviar de novo.</p>
+    </div></div>
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Confirmar exclusão · 390</div>
+    <div style="width:390px;height:844px;background:#FDFCF8;border-radius:44px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);position:relative;overflow:hidden;padding:20px 16px">
+      <div aria-hidden="true" style="display:flex;flex-direction:column;gap:16px">
+        <div style="height:60px;border-radius:999px;background:#FFFFFF;border:1px solid rgba(222,216,207,.6)"></div>
+        <div style="height:120px;border-radius:2rem 4rem 2rem 2rem;background:#FEFEFA;border:1px solid rgba(222,216,207,.6)"></div>
+        <div style="height:120px;border-radius:4rem 2rem 2rem 2rem;background:#FEFEFA;border:1px solid rgba(222,216,207,.6)"></div>
+      </div>
+      <div aria-hidden="true" style="position:absolute;inset:0;background:rgba(44,44,36,.4)"></div>
+      <div role="alertdialog" aria-modal="true" aria-labelledby="dlg-m-t" aria-describedby="dlg-m-d" style="position:absolute;left:0;right:0;bottom:0;background:#FDFCF8;border-radius:2rem 2rem 0 0;padding:12px 24px 36px;display:flex;flex-direction:column;gap:18px;box-shadow:0 -10px 40px -10px rgba(193,140,93,.35)">
+        <div aria-hidden="true" style="align-self:center;width:48px;height:5px;border-radius:999px;background:#DED8CF"></div>
+        <span style="width:56px;height:56px;background:rgba(168,84,72,.12);color:#A85448;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"><i aria-hidden="true" class="icon-trash-2" style="font-size:26px"></i></span>
+        <h2 id="dlg-m-t" style="font-size:26px;font-weight:700;line-height:1.15;text-wrap:balance">Excluir a Casa Jardim Botânico?</h2>
+        <p id="dlg-m-d" style="font-size:17px;line-height:1.5;color:#4A4A40">O imóvel sai da lista. Contratos encerrados e receitas antigas continuam nos relatórios. Não dá para desfazer.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+          <button type="button" style="height:56px;border-radius:999px;border:2px solid #5D7052;background:#5D7052;color:#F3F4F1;font:inherit;font-size:18px;font-weight:800;outline:3px solid #5D7052;outline-offset:3px">Cancelar</button>
+          <button type="button" style="height:56px;border-radius:999px;border:2px solid #A85448;background:transparent;color:#A85448;font:inherit;font-size:18px;font-weight:800">Sim, excluir</button>
+        </div>
+      </div>
+    </div>
+    <p style="width:390px;font-size:15px;line-height:1.5;color:#4A4A40">No celular vira painel de baixo. O foco começa em Cancelar (opção segura). O botão de excluir diz o que faz, sem “OK”.</p></div>
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Confirmar exclusão · computador</div>
+    <div style="width:900px;height:560px;background:#FDFCF8;border-radius:28px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center">
+      <div aria-hidden="true" style="position:absolute;inset:0;background:rgba(44,44,36,.4)"></div>
+      <div role="alertdialog" aria-modal="true" aria-labelledby="dlg-d-t" aria-describedby="dlg-d-d" style="position:relative;width:540px;background:#FDFCF8;border-radius:2rem 4rem 2rem 2rem;padding:36px;display:flex;flex-direction:column;gap:18px;box-shadow:0 10px 40px -10px rgba(193,140,93,.35)">
+        <button type="button" aria-label="Fechar" style="position:absolute;top:16px;right:16px;width:48px;height:48px;border-radius:999px;border:1.5px solid #DED8CF;background:transparent;color:#2C2C24;display:flex;align-items:center;justify-content:center;cursor:pointer"><i aria-hidden="true" class="icon-x" style="font-size:22px"></i></button>
+        <span style="width:56px;height:56px;background:rgba(168,84,72,.12);color:#A85448;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"><i aria-hidden="true" class="icon-trash-2" style="font-size:26px"></i></span>
+        <h2 id="dlg-d-t" style="font-size:28px;font-weight:700;line-height:1.15">Excluir a Casa Jardim Botânico?</h2>
+        <p id="dlg-d-d" style="font-size:17px;line-height:1.55;color:#4A4A40">O imóvel sai da lista. Contratos encerrados e receitas antigas continuam nos relatórios. Não dá para desfazer.</p>
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px">
+          <button type="button" style="height:52px;padding:0 26px;border-radius:999px;border:2px solid #A85448;background:transparent;color:#A85448;font:inherit;font-size:17px;font-weight:800;cursor:pointer" style-hover="background:#A85448;color:#FFFFFF">Sim, excluir</button>
+          <button type="button" style="height:52px;padding:0 28px;border-radius:999px;border:2px solid #5D7052;background:#5D7052;color:#F3F4F1;font:inherit;font-size:17px;font-weight:800;cursor:pointer">Cancelar</button>
+        </div>
+      </div>
+    </div></div>
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Avisos (toast)</div>
+    <div style="width:520px;background:#F0EBE5;border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:14px">
+      <div role="status" style="display:flex;gap:14px;align-items:center;background:#FEFEFA;border-radius:24px;padding:14px 14px 14px 16px;box-shadow:0 10px 40px -10px rgba(193,140,93,.3)">
+        <span style="flex:none;width:48px;height:48px;border-radius:16px;background:rgba(93,112,82,.14);color:#3F5236;display:flex;align-items:center;justify-content:center"><i aria-hidden="true" class="icon-circle-check" style="font-size:24px"></i></span>
+        <span style="flex:1;font-size:17px;font-weight:700">Contrato salvo</span>
+        <button type="button" aria-label="Fechar aviso" style="flex:none;width:44px;height:44px;border-radius:999px;border:0;background:transparent;color:#4A4A40;cursor:pointer"><i aria-hidden="true" class="icon-x" style="font-size:20px"></i></button>
+      </div>
+      <div role="alert" style="display:flex;gap:14px;align-items:center;background:#FEFEFA;border-radius:24px;padding:14px 14px 14px 16px;box-shadow:0 10px 40px -10px rgba(193,140,93,.3)">
+        <span style="flex:none;width:48px;height:48px;border-radius:16px;background:rgba(168,84,72,.14);color:#A85448;display:flex;align-items:center;justify-content:center"><i aria-hidden="true" class="icon-circle-alert" style="font-size:24px"></i></span>
+        <span style="flex:1;display:flex;flex-direction:column;gap:2px"><strong style="font-size:17px">Não foi possível baixar a minuta</strong><span style="font-size:15px;color:#4A4A40">Confira a internet e tente de novo.</span></span>
+        <button type="button" style="flex:none;height:44px;padding:0 16px;border-radius:999px;border:2px solid #8F6139;background:transparent;color:#8F6139;font:inherit;font-size:15px;font-weight:800;white-space:nowrap;cursor:pointer">Tentar de novo</button>
+      </div>
+      <div role="status" style="display:flex;gap:14px;align-items:center;background:#FEFEFA;border-radius:24px;padding:14px 16px;box-shadow:0 10px 40px -10px rgba(193,140,93,.3)">
+        <span style="flex:none;width:48px;height:48px;border-radius:16px;background:#E6DCCD;color:#4A4A40;display:flex;align-items:center;justify-content:center"><i aria-hidden="true" class="icon-wifi-off" style="font-size:24px"></i></span>
+        <span style="flex:1;display:flex;flex-direction:column;gap:2px"><strong style="font-size:17px">Sem conexão com a internet</strong><span style="font-size:15px;color:#4A4A40">O que você digitou continua na tela.</span></span>
+      </div>
+      <p style="font-size:15px;line-height:1.5;color:#4A4A40">Avisos não somem sozinhos: ficam até a pessoa fechar ou mudar de tela. Sucesso usa <code>role=status</code>; falha usa <code>role=alert</code> e oferece a ação.</p>
+    </div></div>
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Catálogo de mensagens de erro</div>
+    <div style="width:700px;background:#FEFEFA;border:1px solid rgba(222,216,207,.6);border-radius:2rem 4rem 2rem 2rem;box-shadow:0 4px 20px -2px rgba(93,112,82,.12);overflow:hidden">
+      <div style="display:grid;grid-template-columns:220px 1fr;gap:16px;padding:16px 28px;background:#F0EBE5;font-size:15px;font-weight:800;color:#4A4A40"><span>Situação</span><span>Texto</span></div>
+      <sc-for list="{{ mensagens }}" as="m" hint-placeholder-count="10">
+        <div style="display:grid;grid-template-columns:220px 1fr;gap:16px;padding:14px 28px;border-top:1px solid rgba(222,216,207,.6);font-size:16px;line-height:1.45"><strong>{{ m.q }}</strong><span>{{ m.m }}</span></div>
+      </sc-for>
+    </div></div>
+  </div>
+</section>
+
+<!-- ============ 8 ERROS 404 / 500 ============ -->
+<section id="erros" data-screen-label="08 Páginas de erro" style="display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap"><span style="font-size:15px;font-weight:800;background:#5D7052;color:#F3F4F1;padding:6px 14px;border-radius:999px">08</span><h2 style="font-size:36px;font-weight:700">Página não encontrada e falha do sistema</h2></div>
+  <div style="display:flex;gap:64px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">404 · 390</div>
+    <div style="width:390px;height:760px;background:#FDFCF8;border-radius:44px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;padding:40px 28px;gap:20px">
+      <sc-if value="{{ showBlobs }}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="position:absolute;top:80px;right:-80px;width:300px;height:280px;background:#5D7052;opacity:.16;filter:blur(50px);border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"></div></sc-if>
+      <span style="position:relative;width:96px;height:96px;background:rgba(93,112,82,.12);color:#5D7052;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%;transform:rotate(-6deg)"><i aria-hidden="true" class="icon-compass" style="font-size:44px"></i></span>
+      <span style="position:relative;font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6B5F">Erro 404</span>
+      <h1 style="position:relative;font-size:32px;font-weight:700;line-height:1.15">Não encontramos esta página</h1>
+      <p style="position:relative;font-size:17px;line-height:1.5;color:#4A4A40">O endereço pode ter mudado ou o link estava incompleto.</p>
+      <div style="position:relative;display:flex;flex-direction:column;gap:10px;margin-top:8px">
+        <a href="#" style="height:56px;border-radius:999px;background:#5D7052;color:#F3F4F1;text-decoration:none;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center">Ir para o início</a>
+        <a href="#" style="height:56px;border-radius:999px;border:2px solid #8F6139;color:#8F6139;text-decoration:none;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center">Voltar à página anterior</a>
+      </div>
+    </div></div>
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">500 · 390</div>
+    <div style="width:390px;height:760px;background:#FDFCF8;border-radius:44px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;padding:40px 28px;gap:20px">
+      <sc-if value="{{ showBlobs }}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="position:absolute;top:60px;left:-90px;width:300px;height:280px;background:#C18C5D;opacity:.18;filter:blur(50px);border-radius:30% 70% 70% 30% / 30% 30% 70% 70%"></div></sc-if>
+      <span style="position:relative;width:96px;height:96px;background:rgba(193,140,93,.2);color:#7A4F2B;display:flex;align-items:center;justify-content:center;border-radius:30% 70% 70% 30% / 30% 30% 70% 70%;transform:rotate(5deg)"><i aria-hidden="true" class="icon-cloud-off" style="font-size:44px"></i></span>
+      <span style="position:relative;font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6B5F">Erro 500</span>
+      <h1 style="position:relative;font-size:32px;font-weight:700;line-height:1.15">Algo deu errado do nosso lado</h1>
+      <p style="position:relative;font-size:17px;line-height:1.5;color:#4A4A40">Não foi nada que você fez. Tente de novo em alguns minutos. Se continuar, fale com a administração.</p>
+      <div style="position:relative;display:flex;flex-direction:column;gap:10px;margin-top:8px">
+        <button type="button" style="height:56px;border-radius:999px;border:0;background:#5D7052;color:#F3F4F1;font:inherit;font-size:18px;font-weight:800;cursor:pointer">Tentar de novo</button>
+        <a href="#" style="height:56px;border-radius:999px;border:2px solid #8F6139;color:#8F6139;text-decoration:none;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center">Ir para o início</a>
+      </div>
+    </div></div>
+
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">404 · computador</div>
+    <div style="width:1280px;height:640px;background:#FDFCF8;border-radius:28px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);position:relative;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:64px 96px;gap:64px">
+      <sc-if value="{{ showBlobs }}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="position:absolute;bottom:-120px;left:-80px;width:520px;height:460px;background:#5D7052;opacity:.14;filter:blur(80px);border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"></div></sc-if>
+      <div style="position:relative;justify-self:center;width:300px;height:300px;background:rgba(93,112,82,.12);color:#5D7052;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%;transform:rotate(-6deg)"><i aria-hidden="true" class="icon-compass" style="font-size:120px"></i></div>
+      <div style="position:relative;display:flex;flex-direction:column;gap:20px">
+        <span style="font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6B5F">Erro 404</span>
+        <h1 style="font-size:52px;font-weight:700;line-height:1.05;text-wrap:balance">Não encontramos esta página</h1>
+        <p style="font-size:19px;line-height:1.55;color:#4A4A40">O endereço pode ter mudado ou o link estava incompleto.</p>
+        <div style="display:flex;gap:12px;margin-top:8px">
+          <a href="#" style="height:56px;padding:0 30px;border-radius:999px;background:#5D7052;color:#F3F4F1;text-decoration:none;font-size:18px;font-weight:800;display:flex;align-items:center">Ir para o início</a>
+          <a href="#" style="height:56px;padding:0 30px;border-radius:999px;border:2px solid #8F6139;color:#8F6139;text-decoration:none;font-size:18px;font-weight:800;display:flex;align-items:center">Voltar à página anterior</a>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+<!-- ============ 9 TABLET ============ -->
+<section id="tablet" data-screen-label="09 Tablet" style="display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap"><span style="font-size:15px;font-weight:800;background:#5D7052;color:#F3F4F1;padding:6px 14px;border-radius:999px">09</span><h2 style="font-size:36px;font-weight:700">Tablet · 768</h2><span style="font-size:16px;color:#4A4A40">Ainda com gaveta; cartões em 2 colunas; listas empilhadas.</span></div>
+  <div style="display:flex;gap:64px;align-items:flex-start;flex-wrap:wrap">
+    <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:700;color:#4A4A40">Início · 768</div>
+    <div style="width:768px;background:#FDFCF8;border-radius:36px;box-shadow:0 30px 60px -20px rgba(44,44,36,.25);position:relative;overflow:hidden;padding:24px 32px 48px;display:flex;flex-direction:column;gap:28px">
+      <sc-if value="{{ showBlobs }}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="position:absolute;top:60px;right:-100px;width:360px;height:320px;background:#C18C5D;opacity:.14;filter:blur(60px);border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"></div></sc-if>
+      <div style="position:relative;display:flex;align-items:center;gap:12px;padding:6px;background:rgba(255,255,255,.75);border:1px solid rgba(222,216,207,.6);border-radius:999px;box-shadow:0 4px 20px -2px rgba(93,112,82,.15)">
+        <button aria-label="Abrir menu" style="width:48px;height:48px;border-radius:999px;border:0;background:#5D7052;color:#F3F4F1;display:flex;align-items:center;justify-content:center"><i aria-hidden="true" class="icon-menu" style="font-size:24px"></i></button>
+        <span style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;flex:1">Início</span>
+        <div role="group" aria-label="Tamanho da letra" style="display:flex;gap:4px;background:#F0EBE5;border-radius:999px;padding:4px"><sc-for list="{{ escalas }}" as="fs" hint-placeholder-count="3"><button onClick="{{ fs.pick }}" aria-pressed="{{ fs.on }}" aria-label="{{ fs.aria }}" style="min-width:44px;height:40px;padding:0 10px;border:0;border-radius:999px;font:inherit;font-weight:800;cursor:pointer;color:#2C2C24;font-size:{{ fs.size }};background:{{ fs.bg }};box-shadow:{{ fs.sh }}">{{ fs.label }}</button></sc-for></div>
+        <button aria-label="Minha conta: Helena Aguiar" style="border:0;font:inherit;cursor:pointer;width:48px;height:48px;background:#E6DCCD;color:#4A4A40;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%">HA</button>
+      </div>
+      <div style="position:relative;display:flex;flex-direction:column;gap:6px"><p style="font-size:17px;color:#4A4A40">Bom dia, Helena · terça, 7 de outubro</p><h1 style="font-size:38px;font-weight:700">Setembro fechou no azul</h1></div>
+      <div style="position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px">
+        <div style="grid-column:1/-1;background:#5D7052;color:#F3F4F1;border-radius:2rem 5rem 2rem 2rem;padding:28px;container-type:inline-size;box-shadow:12px 12px 0 -2px #E6DCCD,0 18px 40px -14px rgba(93,112,82,.55);position:relative;overflow:hidden">
+          <div aria-hidden="true" style="position:absolute;bottom:-70px;right:-40px;width:220px;height:200px;background:#C18C5D;opacity:.4;filter:blur(34px);border-radius:60% 40% 30% 70% / 60% 30% 70% 40%"></div>
+          <div style="position:relative;font-size:17px;font-weight:700">Resultado de setembro</div>
+          <div style="position:relative;white-space:nowrap;font-family:'Fraunces',serif;font-size:clamp(36px,12cqw,52px);font-weight:700;line-height:1.05;margin:8px 0 12px">R$ 48.320</div>
+          <div style="position:relative;font-size:17px">Receitas menos despesas · 12% acima de agosto</div>
+        </div>
+        <div style="background:#FEFEFA;border:1px solid rgba(222,216,207,.6);container-type:inline-size;border-radius:2rem 2rem 2rem 4rem;padding:24px;box-shadow:0 4px 20px -2px rgba(93,112,82,.12);display:flex;flex-direction:column;gap:6px"><div style="font-size:16px;color:#6B6B5F;font-weight:700">Ocupação</div><div style="white-space:nowrap;font-family:'Fraunces',serif;font-size:clamp(28px,11cqw,36px);font-weight:700">83%</div><div style="font-size:16px;color:#4A4A40">10 de 12 unidades</div></div>
+        <div style="background:#FEFEFA;border:1px solid rgba(222,216,207,.6);container-type:inline-size;border-radius:4rem 2rem 2rem 2rem;padding:24px;box-shadow:0 4px 20px -2px rgba(93,112,82,.12);display:flex;flex-direction:column;gap:6px"><div style="font-size:16px;color:#6B6B5F;font-weight:700">A receber</div><div style="white-space:nowrap;font-family:'Fraunces',serif;font-size:clamp(28px,11cqw,36px);font-weight:700">R$ 5.050</div><div style="font-size:16px;color:#4A4A40">2 aluguéis em aberto</div></div>
+      </div>
+      <div style="position:relative;display:flex;flex-direction:column;gap:12px">
+        <h2 style="font-size:25px;font-weight:700">Pede atenção</h2>
+        <sc-for list="{{ alertas }}" as="a" hint-placeholder-count="3">
+          <a href="#" style="display:flex;gap:16px;align-items:center;text-decoration:none;color:#2C2C24;background:#FEFEFA;border:1px solid rgba(222,216,207,.6);border-radius:24px;padding:16px 20px;min-height:76px">
+            <span style="flex:none;width:52px;height:52px;border-radius:18px;background:{{ a.tint }};color:{{ a.ink }};display:flex;align-items:center;justify-content:center"><i aria-hidden="true" class="{{ a.icon }}" style="font-size:24px"></i></span>
+            <span style="flex:1;display:flex;flex-direction:column;gap:2px"><strong style="font-size:17px">{{ a.titulo }}</strong><span style="font-size:16px;color:#4A4A40">{{ a.sub }}</span></span>
+            <i aria-hidden="true" class="icon-chevron-right" style="font-size:22px;color:#6B6B5F"></i>
+          </a>
+        </sc-for>
+      </div>
+      <div style="position:relative;background:#F0EBE5;border-radius:2rem 2rem 4rem 2rem;padding:24px 28px;display:flex;flex-direction:column;gap:12px">
+        <h2 style="font-size:25px;font-weight:700">Próximos recebimentos</h2>
+        <sc-for list="{{ recebimentos }}" as="r" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed #DED8CF"><span style="flex:none;width:56px;text-align:center;font-family:'Fraunces',serif;font-size:22px;font-weight:700;line-height:1">{{ r.dia }}<span style="display:block;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:#6B6B5F">out</span></span><span style="flex:1;font-size:17px">{{ r.quem }}</span><strong style="font-size:17px;white-space:nowrap">{{ r.valor }}</strong></div>
+        </sc-for>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showBlobs&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Estilo&quot;}}">
+class Component extends DCLogic {
+  state = { open: { 0: true }, filtro: 'todos', aluguel: '3.500', aliquota: '26,5', perfil: 'PJ', showPw: false, escala: 'A' };
+
+  nav(active) {
+    const G = [
+      ['Visão geral', [['Início', 'icon-house']]],
+      ['Extratos', [['Importar extrato', 'icon-upload'], ['Histórico de importações', 'icon-history'], ['Classificar transações', 'icon-list-checks']]],
+      ['Cadastros', [['Imóveis', 'icon-building-2'], ['Inquilinos', 'icon-users'], ['Locadores e fiadores', 'icon-user-round'], ['Fornecedores', 'icon-truck'], ['Contratos', 'icon-file-text']]],
+      ['Financeiro', [['Receitas', 'icon-wallet'], ['Despesas', 'icon-receipt'], ['IPTU e taxas', 'icon-landmark']]],
+      ['Análise', [['Dashboard financeiro', 'icon-trending-up'], ['Dashboard de imóveis', 'icon-building'], ['Alertas', 'icon-bell'], ['Relatórios', 'icon-file-down']]],
+      ['Gestão', [['Quadro de andamento', 'icon-kanban'], ['Usuários e permissões', 'icon-shield-check'], ['Logs de atividade', 'icon-scroll-text']]],
+    ];
+    return G.map(([label, items]) => ({ label, items: items.map(([l, icon]) => {
+      const on = l === active;
+      return { label: l, icon, current: on ? 'page' : undefined, weight: on ? 800 : 600, bg: on ? '#5D7052' : 'transparent', fg: on ? '#F3F4F1' : '#2C2C24' };
+    }) }));
+  }
+
+  guia() {
+    const spinner = React.createElement('i', { className: 'icon-loader-circle', 'aria-hidden': true, style: { fontSize: 20, display: 'inline-block', animation: 'aguiaSpin 1s linear infinite' } });
+    const V = [
+      ['Primário', 'Ação principal. Um por tela.', 'Entrar', { n: ['#5D7052', '#F3F4F1', '#5D7052', '0 4px 20px -2px rgba(93,112,82,.35)'], h: ['#5D7052', '#F3F4F1', '#5D7052', '0 8px 28px -4px rgba(93,112,82,.45)'], p: ['#4C5D43', '#F3F4F1', '#4C5D43', 'none'] }],
+      ['Secundário', 'Ações de apoio: minuta, filtrar.', 'Minuta', { n: ['transparent', '#8F6139', '#8F6139', 'none'], h: ['#8F6139', '#FFFFFF', '#8F6139', 'none'], p: ['#7A4F2B', '#FFFFFF', '#7A4F2B', 'none'] }],
+      ['Discreto', 'Cancelar, voltar, ver mais.', 'Cancelar', { n: ['transparent', '#5D7052', 'transparent', 'none'], h: ['rgba(93,112,82,.1)', '#3F5236', 'transparent', 'none'], p: ['rgba(93,112,82,.2)', '#3F5236', 'transparent', 'none'] }],
+      ['Excluir', 'Só dentro de confirmação.', 'Excluir', { n: ['#A85448', '#FFFFFF', '#A85448', 'none'], h: ['#A85448', '#FFFFFF', '#A85448', '0 8px 24px -6px rgba(168,84,72,.45)'], p: ['#8E4439', '#FFFFFF', '#8E4439', 'none'] }],
+    ];
+    const D = ['#F0EBE5', '#6B6B5F', '#DED8CF', 'none'];
+    const mk = ([bg, fg, bd, sh], o = {}) => ({ bg, fg, bd, sh, tf: 'none', cur: 'pointer', disabled: false, busy: false, outline: 'none', ...o });
+    const botoes = V.map(([nome, uso, text, s]) => ({ nome, uso, estados: [
+      mk(s.n, { text }), mk(s.h, { text, tf: 'scale(1.05)' }), mk(s.n, { text, outline: '3px solid #5D7052' }),
+      mk(s.p, { text, tf: 'scale(.97)' }), mk(D, { text, disabled: true, cur: 'not-allowed' }), mk(s.n, { text: 'Aguarde…', busy: true, cur: 'progress' }),
+    ] }));
+    const base = { bd: '#DED8CF', bw: '1.5px', bs: 'solid', bg: 'rgba(255,255,255,.6)', fg: '#2C2C24', outline: 'none', val: '', disabled: false, ro: false, invalid: undefined, msg: '', msgFg: '#4A4A40', msgIcon: 'icon-info', hasMsg: false, label: 'E-mail' , tag: '' };
+    const campos = [
+      { ...base, estado: 'Normal', ph: 'nome@email.com' },
+      { ...base, estado: 'Foco', bd: '#5D7052', outline: '3px solid #5D7052', ph: 'nome@email.com' },
+      { ...base, estado: 'Preenchido', val: 'helena@holdingaguiar.com.br' },
+      { ...base, estado: 'Erro', bd: '#A85448', bw: '2px', val: 'helena@holding', invalid: 'true', hasMsg: true, msg: 'Digite o e-mail completo, por exemplo nome@email.com', msgFg: '#A85448', msgIcon: 'icon-circle-alert' },
+      { ...base, estado: 'Desativado', bg: '#F0EBE5', fg: '#6B6B5F', val: 'helena@holdingaguiar.com.br', disabled: true, hasMsg: true, msg: 'Só a administração pode mudar o e-mail.' },
+      { ...base, estado: 'Opcional', label: 'Telefone', tag: '(opcional)', ph: '(41) 99999-0000', hasMsg: true, msg: 'Usado só para avisos de vencimento.' },
+    ].map(c => ({ ...c, ph: c.ph || '' }));
+    const cores = [
+      ['background', '#FDFCF8', 'Fundo da página', 'texto 14,5:1'], ['foreground', '#2C2C24', 'Texto principal', '14,5:1'], ['primary · musgo', '#5D7052', 'Botões, item ativo, foco', '5,2:1'],
+      ['secondary-ink · argila escura', '#8F6139', 'Botão secundário, texto', '4,5:1'], ['secondary · argila', '#C18C5D', 'Só decoração', 'sem texto'], ['accent · areia', '#E6DCCD', 'Avatar, pílula neutra', 'fundo'],
+      ['accent-foreground · casca', '#4A4A40', 'Texto secundário', '9:1'], ['muted-foreground', '#6B6B5F', 'Rótulos curtos, desativado', '5,2:1'], ['muted · pedra', '#F0EBE5', 'Cabeçalho de tabela, blocos', 'fundo'],
+      ['sunken', '#F6F2EC', 'Menu, unidades', 'fundo'], ['border · madeira', '#DED8CF', 'Bordas, campos', 'decorativo'], ['destructive · siena', '#A85448', 'Erro, excluir', '5,0:1'],
+    ].map(([nome, hex, uso, cr]) => ({ nome, hex, uso, cr, edge: hex === '#FDFCF8' || hex === '#F6F2EC' ? '1px solid #DED8CF' : '1px solid transparent' }));
+    const mensagens = [
+      ['Campo obrigatório vazio', 'Preencha o campo {nome do campo}.'],
+      ['E-mail incompleto', 'Digite o e-mail completo, por exemplo nome@email.com'],
+      ['Valor em reais', 'Use só números, por exemplo 3.500,00'],
+      ['Data', 'Use dia/mês/ano, por exemplo 31/10/2026'],
+      ['Data final antes da inicial', 'A data final precisa ser depois de {data inicial}.'],
+      ['CPF ou CNPJ', 'Confira os números do {CPF/CNPJ}. Falta um dígito ou há um erro.'],
+      ['Arquivo não aceito', 'Esse tipo de arquivo não é aceito. Envie {formatos aceitos}.'],
+      ['Login recusado', 'E-mail ou senha não conferem. Confira e tente de novo.'],
+      ['Sem internet', 'Sem conexão com a internet. O que você digitou continua na tela.'],
+      ['Sessão encerrada', 'Por segurança, sua sessão terminou. Entre de novo para continuar.'],
+    ].map(([q, m]) => ({ q, m }));
+    return { spinner, botoes, campos, cores, mensagens, estadosNomes: ['Normal', 'Mouse em cima', 'Foco (teclado)', 'Pressionado', 'Desativado', 'Carregando'] };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const brl = n => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const pill = st => st === 'Ocupada' || st === 'Vigente' ? ['rgba(93,112,82,.14)', '#3F5236']
+      : st === 'Vaga' || st.startsWith('Vence') ? ['rgba(193,140,93,.2)', '#7A4F2B'] : ['#E6DCCD', '#4A4A40'];
+    const radii = ['2rem 4rem 2rem 2rem', '4rem 2rem 2rem 2rem', '2rem 2rem 4rem 2rem', '2rem 2rem 2rem 4rem'];
+    const blobs = ['60% 40% 30% 70% / 60% 30% 70% 40%', '30% 70% 70% 30% / 30% 30% 70% 70%', '50% 50% 30% 70% / 40% 60% 40% 60%', '70% 30% 50% 50% / 30% 50% 50% 70%'];
+
+    const IM = [
+      { nome: 'Edifício Aguiar', endereco: 'Rua XV de Novembro, 210 · Centro', icon: 'icon-building-2', total: 4, ocup: 3, receita: 7450, unidades: [
+        ['Sala 101', 'Mariana Costa Ltda', 'Ocupada', 2400], ['Sala 102', 'Estúdio Linha Fina', 'Ocupada', 2400], ['Sala 201', 'Sem inquilino', 'Vaga', 0], ['Sala 203', 'Dr. Paulo Mendes', 'Ocupada', 2650]] },
+      { nome: 'Galpão Aguiar', endereco: 'Av. das Indústrias, 1.500 · Distrito Industrial', icon: 'icon-truck', total: 3, ocup: 3, receita: 31200, unidades: [
+        ['Galpão A', 'Transportes Ribeiro', 'Ocupada', 14800], ['Galpão B', 'Frios Serra Azul', 'Ocupada', 9600], ['Galpão C', 'Embalagens Sul', 'Ocupada', 6800]] },
+      { nome: 'Conjunto Batel', endereco: 'Rua Bispo Dom José, 980 · Batel', icon: 'icon-landmark', total: 4, ocup: 4, receita: 11800, unidades: [
+        ['Loja 1', 'Café Ponto Doce', 'Ocupada', 3800], ['Loja 2', 'Ótica Visão', 'Ocupada', 3200], ['Conj. 31', 'Ferraz Advogados', 'Ocupada', 2400], ['Conj. 32', 'Clínica Respira', 'Ocupada', 2400]] },
+      { nome: 'Casa Jardim Botânico', endereco: 'Rua das Palmeiras, 45', icon: 'icon-house', total: 1, ocup: 0, receita: 0, unidades: [
+        ['Casa', 'Sem inquilino', 'Vaga', 0]] },
+    ];
+    const imoveis = IM.map((m, i) => {
+      const open = !!s.open[i];
+      return { ...m, open, radius: radii[i % 4], blob: blobs[i % 4], chev: open ? 'rotate(180deg)' : 'rotate(0deg)',
+        resumo: `${m.total} ${m.total > 1 ? 'unidades' : 'unidade'} · ${m.ocup === 0 ? 'vaga' : m.ocup + ' ocupada' + (m.ocup === 1 ? '' : 's')}`,
+        ocup: m.ocup === 0 ? 'Vaga' : `${m.ocup} de ${m.total} ocupada${m.ocup === 1 ? '' : 's'}`, pct: Math.round(m.ocup / m.total * 100) + '%',
+        receita: m.receita ? brl(m.receita) : 'Sem receita',
+        toggle: () => this.setState(st => ({ open: { ...st.open, [i]: !st.open[i] } })),
+        unidades: m.unidades.map(([nome, inq, status, v]) => { const [pillBg, pillFg] = pill(status); return { nome, inq, status, pillBg, pillFg, valor: v ? brl(v) + ' / mês' : 'Disponível' }; }) };
+    });
+
+    const CT = [
+      ['CT-2023-007', 'Transportes Ribeiro', 'Galpão A · Galpão Aguiar', 14800, '31/10/2026', 'Vence em 24 dias', 'vencendo'],
+      ['CT-2024-018', 'Mariana Costa Ltda', 'Sala 101 · Edifício Aguiar', 2400, '31/03/2027', 'Vigente', 'vigentes'],
+      ['CT-2024-031', 'Dr. Paulo Mendes', 'Sala 203 · Edifício Aguiar', 2650, '30/06/2027', 'Vigente', 'vigentes'],
+      ['CT-2025-004', 'Café Ponto Doce', 'Loja 1 · Conjunto Batel', 3800, '28/02/2028', 'Vigente', 'vigentes'],
+      ['CT-2022-011', 'Família Moreira', 'Casa Jardim Botânico', 4200, '31/08/2026', 'Encerrado', 'encerrados'],
+    ];
+    const contratosVis = CT.filter(c => s.filtro === 'todos' || c[6] === s.filtro).map((c, i) => {
+      const [pillBg, pillFg] = pill(c[5]);
+      return { cod: c[0], inquilino: c[1], unidade: c[2], valor: brl(c[3]), fim: c[4], status: c[5], pillBg, pillFg, radius: radii[i % 4] };
+    });
+    const cnt = k => k === 'todos' ? CT.length : CT.filter(c => c[6] === k).length;
+    const filtros = [['todos', 'Todos'], ['vigentes', 'Vigentes'], ['vencendo', 'Vencendo'], ['encerrados', 'Encerrados']].map(([k, l]) => {
+      const label = `${l} · ${cnt(k)}`;
+      const on = s.filtro === k;
+      return { label, on, bg: on ? '#5D7052' : 'transparent', fg: on ? '#F3F4F1' : '#2C2C24', bd: on ? '#5D7052' : '#DED8CF', pick: () => this.setState({ filtro: k }) };
+    });
+
+    const num = (v, milhar) => { let t = String(v).trim(); if (milhar) t = t.replace(/\./g, ''); return Number(t.replace(',', '.')) || 0; };
+    const efetiva = num(s.aliquota, false) * 0.3;
+    const mes = num(s.aluguel, true) * efetiva / 100;
+    const perfis = [['PJ', 'Empresa'], ['PF', 'Pessoa física']].map(([k, label]) => {
+      const on = s.perfil === k;
+      return { label, on, bg: on ? '#FEFEFA' : 'transparent', fg: on ? '#2C2C24' : '#4A4A40', sh: on ? '0 2px 10px -2px rgba(93,112,82,.3)' : 'none', pick: () => this.setState({ perfil: k }) };
+    });
+
+    return {
+      showBlobs: this.props.showBlobs ?? true,
+      showPw: s.showPw, pwType: s.showPw ? 'text' : 'password', togglePw: () => this.setState(st => ({ showPw: !st.showPw })),
+      totalContratos: `${CT.length} contratos`,
+      escalas: [['A−', 'Letra menor', '15px'], ['A', 'Letra normal', '17px'], ['A+', 'Letra maior', '20px']].map(([label, aria, size]) => { const on = s.escala === label; return { label, aria, size, on, bg: on ? '#FEFEFA' : 'transparent', sh: on ? '0 2px 8px -2px rgba(93,112,82,.3)' : 'none', pick: () => this.setState({ escala: label }) }; }),
+      navInicio: this.nav('Início'), navImoveis: this.nav('Imóveis'), navContratos: this.nav('Contratos'),
+      alertas: [
+        { titulo: 'Contrato do Galpão A vence em 24 dias', sub: 'Transportes Ribeiro · 31/10', icon: 'icon-file-text', tint: 'rgba(193,140,93,.2)', ink: '#7A4F2B' },
+        { titulo: 'IPTU da Casa Jardim Botânico', sub: '8ª parcela vence sexta, 10/10', icon: 'icon-landmark', tint: 'rgba(168,84,72,.14)', ink: '#A85448' },
+        { titulo: '14 transações para classificar', sub: 'Extrato importado ontem', icon: 'icon-list-checks', tint: 'rgba(93,112,82,.14)', ink: '#3F5236' },
+      ],
+      recebimentos: [
+        { dia: '10', quem: 'Transportes Ribeiro', valor: 'R$ 14.800' }, { dia: '10', quem: 'Frios Serra Azul', valor: 'R$ 9.600' },
+        { dia: '15', quem: 'Café Ponto Doce', valor: 'R$ 3.800' }, { dia: '20', quem: 'Mariana Costa Ltda', valor: 'R$ 2.400' },
+      ],
+      ...this.guia(),
+      imoveis, contratosVis, filtros, perfis,
+      aluguel: s.aluguel, aliquota: s.aliquota, isPF: s.perfil === 'PF',
+      setAluguel: e => this.setState({ aluguel: e.target.value }),
+      setAliquota: e => this.setState({ aliquota: e.target.value }),
+      impostoMes: brl(mes),
+      impostoDetalhe: `Alíquota efetiva de ${efetiva.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}% · ${brl(mes * 12)} por ano`,
+      explica: [
+        { icon: 'icon-leaf', t: 'O que muda', d: 'IBS e CBS substituem aos poucos PIS, Cofins, ISS e ICMS. A locação de imóveis passa a ter esses tributos.', radius: '2rem 4rem 2rem 2rem' },
+        { icon: 'icon-calculator', t: 'Redutor de 70%', d: 'A locação paga 30% da alíquota de referência. Com 26,5%, a alíquota efetiva fica perto de 7,95%.', radius: '4rem 2rem 2rem 2rem' },
+        { icon: 'icon-calendar', t: 'Transição até 2033', d: 'As alíquotas sobem por etapas entre 2026 e 2033. O simulador mostra o cenário com a regra completa.', radius: '2rem 2rem 4rem 2rem' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

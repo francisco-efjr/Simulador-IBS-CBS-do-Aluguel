@@ -129,7 +129,10 @@ export default function ImportarExtrato() {
       setImoveis(imovList)
       setCategorias(catList)
     } catch {
-      toast.error('Não foi possível carregar os dados. Atualize a página e tente novamente.')
+      toast.error('Não foi possível carregar os dados', {
+        description: 'Confira a internet e tente de novo.',
+        action: { label: 'Tentar de novo', onClick: () => void loadInitialData() },
+      })
     } finally {
       setLoadingContas(false)
     }

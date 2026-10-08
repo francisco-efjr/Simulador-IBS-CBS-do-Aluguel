@@ -363,34 +363,83 @@
   /**
    * Foco sempre visível, em qualquer elemento operável pelo teclado.
    *
-   * O anel tem contraste próprio contra fundo claro e escuro (WCAG 2.4.7 e
-   * 1.4.11) e usa `:focus-visible`, então não aparece no clique de mouse.
+   * Contorno sólido de 3px afastado 3px (guia de estilo, Q25): ele não depende
+   * de `box-shadow`, então continua visível em botões e cartões que têm sombra
+   * própria. 5,2:1 no papel (WCAG 1.4.11 pede 3:1). Usa `:focus-visible`, então
+   * não aparece no clique de mouse. O `!important` existe porque os
+   * componentes trazem `focus-visible:outline-none` e anéis de `box-shadow` do
+   * shadcn; o segundo grupo apaga esses anéis sem tirar a sombra do elemento.
    */
   :focus-visible {
-    outline: 3px solid transparent;
-    outline-offset: 2px;
-    box-shadow:
-      0 0 0 2px hsl(var(--background)),
-      0 0 0 5px hsl(var(--ring) / 0.75);
+    outline: 3px solid hsl(var(--ring)) !important;
+    outline-offset: 3px !important;
+    --tw-ring-offset-shadow: 0 0 #0000 !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+  }
+
+  /* Dentro de rolagem ou de caixas que cortam, o contorno de fora seria cortado:
+     ali ele entra 3px para dentro do próprio elemento. */
+  nav[aria-label='Menu principal'] a:focus-visible,
+  .foco-interno:focus-visible,
+  [role='menuitem']:focus-visible,
+  [role='option']:focus-visible,
+  [cmdk-item]:focus-visible {
+    outline-offset: -3px !important;
+  }
+
+  /* Campo preenchido na cor do papel: o texto de exemplo precisa de 4,5:1 (Q27). */
+  ::placeholder {
+    color: hsl(var(--muted-foreground));
+    opacity: 1;
+  }
+
+  /* Estados de link (Q26). Link de texto é sempre sublinhado; os que viram
+     botão (com fundo) cuidam do próprio estado. */
+  a.underline:active {
+    color: hsl(var(--success-ink));
+  }
+
+  /* Visitado só em link de conteúdo (guias, relatórios), nunca no menu. */
+  a.link-conteudo {
+    color: hsl(var(--primary));
+    text-decoration: underline;
+  }
+  a.link-conteudo:hover {
+    color: hsl(var(--foreground));
+  }
+  a.link-conteudo:active {
+    color: hsl(var(--success-ink));
+  }
+  a.link-conteudo:visited {
+    color: hsl(var(--warning-ink));
   }
 
   /* Alvo de toque mínimo recomendado para o público do sistema: 44px.
-     A regra vale para controles que não definem a própria altura. */
-  button:not([role='checkbox']):not([role='radio']):not([role='switch']),
-  [role='button'],
-  a[href].botao,
-  summary {
+     A regra vale para controles que não definem a própria altura. O `:where`
+     zera a especificidade: sem ele, esta regra vencia `min-h-12`/`min-h-14` dos
+     componentes e todo botão ficava em 44px, abaixo dos 48/56px do desenho. */
+  :where(
+      button:not([role='checkbox']):not([role='radio']):not([role='switch']),
+      [role='button'],
+      a[href].botao,
+      summary
+    ) {
     min-height: 44px;
   }
 
-  /* Quem pediu menos animação no sistema operacional não deve receber nenhuma. */
+  /* Quem pediu menos animação no sistema operacional não deve receber nenhuma
+     (Q31). Vale para animação e transição de qualquer componente, inclusive os
+     de bibliotecas (Radix, Sonner); o giro do ícone de "carregando" fica parado,
+     e o texto "Aguarde…" continua dizendo o que acontece. */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
+      animation-delay: 0s !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+      transition-delay: 0s !important;
       scroll-behavior: auto !important;
     }
 

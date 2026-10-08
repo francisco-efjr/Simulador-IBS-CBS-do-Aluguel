@@ -1,6 +1,12 @@
 [
   {
     "data": "2026-10-07",
+    "titulo": "Visual novo, fase 2: Inquilinos, Locadores, novo contrato e mensagens mais claras",
+    "texto": "Inquilinos virou uma lista com busca e botões para ver só quem tem ou não tem contrato; no celular, cada inquilino é um cartão com o botão Ligar. Em Locadores e fiadores, cada locador abre e mostra os fiadores dos contratos dele. O novo contrato agora é uma página própria, em blocos (partes, imóvel, valores e prazo, garantia), com a busca do inquilino pelo nome. Quando algo falta num formulário, um quadro no topo diz o que conferir e leva até o campo. Os avisos não somem mais sozinhos: ficam até a pessoa fechar. Para excluir, o sistema pergunta antes e o botão já começa em Cancelar. O cadastro por convite e a troca de senha mostram as regras da senha marcando enquanto a pessoa digita. Telas vazias explicam o que fazer, e há páginas próprias para endereço que não existe e para falha do sistema. O contorno de quem usa o teclado ficou mais forte, e esta página de andamento ganhou o visual novo.",
+    "tipo": "entrega"
+  },
+  {
+    "data": "2026-10-07",
     "titulo": "Cara nova: o sistema agora se chama Gestão de imóveis",
     "texto": "O sistema ganhou um visual novo, mais calmo e mais fácil de ler: fundo cor de papel, verde musgo nos botões, letra maior nos títulos e cartões com cantos arredondados. No celular, o menu abre como uma gaveta pelo botão verde no alto. O Início mostra primeiro, em destaque, quanto o último mês rendeu (receitas menos despesas), depois a ocupação, o que há a receber, o que pede atenção e os próximos recebimentos. Imóveis abrem um a um para mostrar as unidades, com inquilino e aluguel. Contratos têm botões para ver só os vigentes, os que vencem em breve ou os encerrados. O simulador do IBS/CBS ganhou a mesma cara do sistema. O tamanho da letra continua ajustável (A, A+ e A++). Desenvolvido por Aguia Solutions LTDA.",
     "tipo": "entrega"

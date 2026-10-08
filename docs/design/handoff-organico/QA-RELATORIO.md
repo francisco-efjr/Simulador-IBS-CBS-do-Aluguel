@@ -56,3 +56,51 @@ Resultado: **0 quebras indevidas a 100% e 118%**. A 150% restam só frases descr
 4. Texto descritivo e nomes podem quebrar por palavra; títulos usam `text-wrap: balance`.
 5. A−/A/A+ (0,9 / 1 / 1,18) e zoom 200% não podem gerar rolagem horizontal nem corte. Testar 320, 375, 390, 768, 1024, 1366, 1920 em cada tela, com A+ ligado.
 6. No teste automatizado: para cada elemento com número/valor, altura ≤ 1 linha e `scrollWidth ≤ clientWidth`.
+
+---
+# QA Aguia · rodada 3 · 07/10/2026 — Front-End Design Checklist
+Referência: github.com/thedaviddias/Front-End-Design-Checklist. Cada item do checklist foi conferido no protótipo e no handoff.
+
+| Item do checklist | Antes | Agora |
+|---|---|---|
+| 1.1 Grade explícita | Só no README (laterais, gaps, breakpoints) | Mantido. Grades auto-fit/minmax documentadas; sem grade fixa de 12 colunas, de propósito |
+| 1.2 Cores com nome | Tabela no README | Seção **06** mostra as 12 cores com nome, hex, uso e contraste |
+| 1.2 Estados de cor (botão, link, campo) | Só normal e hover | Seção **06**: 4 variantes de botão × 6 estados; 6 estados de campo; 5 de link |
+| 1.2 Cores acessíveis | Aprovado | Aprovado; foco corrigido (ver Q25) |
+| 1.3 Fontes e reservas | Reserva só "Georgia"/"system-ui" | Pilhas completas na seção 06; WOFF2, subset latino, meta < 300 KB |
+| 1.3 Texto real | Sim, pt-BR | Sim |
+| 1.4 Links: normal, mouse, foco, ativo, visitado | Faltavam foco, ativo e visitado | Definidos (Q26) |
+| 1.5 Favicon 512px PNG | Ausente | **Pendente**: depende do logo final. Proposta: blob musgo com broto, mesmo do menu |
+| 1.5 Ícones SVG nomeados `icon-` | Lucide, já `icon-*` | Aprovado |
+| 1.6 Formulário com título/legenda | Simulador sem `fieldset` | "Quem aluga" virou `fieldset` + `legend`; cartões com `role=form` e nome |
+| 1.6 Estados de campo (foco, desativado) | Só normal | Normal, foco, preenchido, erro, desativado, opcional |
+| 1.6 Mensagens de erro | Nenhuma | Catálogo de 10 mensagens + login com erro (seção **07**) |
+| 1.6 Obrigatório / opcional | Sem indicação | Regra: sem marcação = obrigatório; "(opcional)" no rótulo; `required` no login |
+| 1.6 Primário vs secundário | Aprovado | Aprovado, com uso escrito por variante |
+| 1.6 Estados de botão (incl. desativado) | Sem desativado | Incluído; desativado sempre com texto explicando o que falta |
+| 1.6 Botão carregando | Ausente | "Aguarde…/Entrando…" com ícone girando e `aria-busy` |
+| 1.7 Mobile antes do computador | Sim | Sim |
+| 1.7 Tablet | Ausente | Seção **09**: Início a 768px |
+| 1.8 Guia de estilo / componentes | README | README + seção 06 viva no protótipo |
+| 1.9 Página 404 e 500 | Ausente | Seção **08**: celular e computador |
+| 1.9 Popups e alertas | Ausente | Seção **07**: confirmação de exclusão (celular e computador) e 3 avisos |
+| 2.1 Títulos e H1 | H1 fora do logo, ordem correta | Aprovado |
+| 2.1 Elementos em CSS, não imagem | Sim | Sim |
+
+## Achados novos
+| ID | Sev. | Problema | Correção |
+|---|---|---|---|
+| Q25 | alta | Anel de foco em musgo 55% dava 2,2:1 (WCAG 1.4.11 pede 3:1) e **sumia** nos botões que têm `box-shadow` inline (o estilo do botão sobrescrevia o anel) | Foco agora é `outline: 3px solid #5D7052; outline-offset: 3px` (5,2:1), independente da sombra. Vale para link, botão e campo |
+| Q26 | média | Links sem estado de foco (regra só cobria `input` e `button`), ativo e visitado | `:focus-visible` global; ativo #3F5236; visitado #7A4F2B só em links de conteúdo |
+| Q27 | média | Placeholder com cor do navegador (cinza claro, abaixo de 4,5:1) | `::placeholder` #6B6B5F, opacidade 1 |
+| Q28 | média | "Quem aluga" sem agrupamento semântico | `fieldset` + `legend` |
+| Q29 | média | Avisos que somem sozinhos tiram tempo de quem lê devagar (2.2.1) | Avisos ficam até a pessoa fechar ou trocar de tela |
+| Q30 | baixa | Exclusão com foco inicial no botão perigoso | Foco inicial em "Cancelar"; botão diz "Sim, excluir" |
+| Q31 | baixa | `prefers-reduced-motion` não cobria animações | Regra global zera animação e transição |
+
+## Pendências
+- Favicon 512px: aguardando logo final da holding.
+- R1–R3 da rodada 1 continuam abertas.
+
+## Fase 2 · regra nova
+- Q32 (média): seletor nativo não quebra linha e cortava "Holding Aguiar Participações Ltda" a 390px. Regra: opção de select com no máximo ~24 caracteres; nome jurídico completo e documento vão no texto de ajuda abaixo do campo. Listas com nomes longos (inquilinos, fornecedores) usam seletor em painel (Sheet/Combobox), não select nativo.

@@ -205,10 +205,11 @@ export function FornecedorFormDialog({
             </Button>
             <Button
               type="submit"
-              disabled={submitting}
-              className="w-full sm:w-auto min-h-[44px] bg-indigo-600 hover:bg-indigo-700"
+              carregando={submitting}
+              textoCarregando="Salvando…"
+              className="w-full sm:w-auto min-h-[44px]"
             >
-              {submitting ? 'Salvando...' : editing ? 'Salvar' : 'Criar'}
+              {editing ? 'Salvar' : 'Criar'}
             </Button>
           </DialogFooter>
         </form>

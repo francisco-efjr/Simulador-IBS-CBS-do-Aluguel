@@ -230,6 +230,51 @@ export function progressoDasEntregas(andamento: Andamento = ANDAMENTO): Progress
   }
 }
 
+export type SituacaoDaEtapa = 'pronta' | 'andamento' | 'a-seguir'
+
+export interface ResumoDaFrente {
+  nome: string
+  entregas: Entrega[]
+  prontas: number
+  total: number
+  /**
+   * `pronta` quando todas as entregas estão prontas; `a-seguir` quando nenhuma
+   * está pronta nem em andamento; `andamento` em qualquer outro caso (parte já
+   * entregue, parte por fazer).
+   */
+  situacao: SituacaoDaEtapa
+}
+
+/** Cada frente do quadro como uma "etapa" da página pública, com a situação derivada. */
+export function resumoDasFrentes(andamento: Andamento = ANDAMENTO): ResumoDaFrente[] {
+  return andamento.frentes.map((frente) => {
+    const prontas = frente.entregas.filter((e) => e.situacao === 'pronto').length
+    const emAndamento = frente.entregas.filter((e) => e.situacao === 'andamento').length
+    const total = frente.entregas.length
+    const situacao: SituacaoDaEtapa =
+      total > 0 && prontas === total
+        ? 'pronta'
+        : prontas + emAndamento === 0
+          ? 'a-seguir'
+          : 'andamento'
+    return { nome: frente.nome, entregas: frente.entregas, prontas, total, situacao }
+  })
+}
+
+/**
+ * O que está sendo feito agora: a primeira entrega em andamento; sem nenhuma, a
+ * primeira ainda pendente (o "a seguir"); sem pendência, `null`.
+ */
+export function entregaDoMomento(
+  andamento: Andamento = ANDAMENTO,
+): { tipo: 'agora' | 'a-seguir'; titulo: string } | null {
+  const entregas = andamento.frentes.flatMap((frente) => frente.entregas)
+  const emAndamento = entregas.find((e) => e.situacao === 'andamento')
+  if (emAndamento) return { tipo: 'agora', titulo: emAndamento.titulo }
+  const pendente = entregas.find((e) => e.situacao === 'pendente')
+  return pendente ? { tipo: 'a-seguir', titulo: pendente.titulo } : null
+}
+
 /**
  * O "hoje" de um indicador, pronto para a tela. Indicador que ninguém mede não
  * ganha número inventado: diz que ainda não é medido.

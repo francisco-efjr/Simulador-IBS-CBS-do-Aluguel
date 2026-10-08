@@ -18,7 +18,7 @@ const PADRAO = 'Mensagem padrão em português.'
 
 describe('mensagemDeAutenticacao (SEG-12, FIN-17, PRD-10)', () => {
   it.each([
-    ['Invalid login credentials', /E-mail ou senha incorretos/],
+    ['Invalid login credentials', /E-mail ou senha não conferem/],
     ['Email not confirmed', /ainda não foi confirmado/],
     ['User already registered', /já tem cadastro/],
     ['email rate limit exceeded', /Muitas tentativas/],

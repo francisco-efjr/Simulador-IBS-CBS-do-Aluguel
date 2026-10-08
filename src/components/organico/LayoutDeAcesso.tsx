@@ -1,3 +1,4 @@
+import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { CLIENTE, NOME_DO_SISTEMA } from '@/lib/marca'
 import { Blob } from './Blob'
@@ -7,6 +8,10 @@ import { LogoSistema } from './LogoSistema'
 interface LayoutDeAcessoProps {
   /** Título da tela (único `<h1>`). */
   titulo: string
+  /** Rótulo em caixa alta acima do título ("Convite recebido", "Recuperar acesso"). */
+  etiqueta?: string
+  /** Ícone grande em blob, no lugar do broto da marca (ex.: "Confira seu e-mail"). */
+  icone?: LucideIcon
   subtitulo?: ReactNode
   children: ReactNode
   /** Bloco informativo no fim da coluna (ex.: aviso de acesso por convite). */
@@ -18,7 +23,14 @@ interface LayoutDeAcessoProps {
  * (tela 01 do handoff). No computador, painel musgo à esquerda com a frase da
  * marca; no celular, papel claro com duas manchas e o formulário em coluna.
  */
-export function LayoutDeAcesso({ titulo, subtitulo, children, rodape }: LayoutDeAcessoProps) {
+export function LayoutDeAcesso({
+  titulo,
+  etiqueta,
+  icone: Icone,
+  subtitulo,
+  children,
+  rodape,
+}: LayoutDeAcessoProps) {
   return (
     <div className="min-h-dvh bg-background lg:grid lg:grid-cols-[1.1fr_1fr]">
       <aside className="relative hidden overflow-hidden bg-primary p-14 text-primary-foreground lg:flex lg:flex-col lg:justify-between">
@@ -65,8 +77,22 @@ export function LayoutDeAcesso({ titulo, subtitulo, children, rodape }: LayoutDe
 
         <div className="relative flex w-full max-w-[420px] flex-1 flex-col gap-9 lg:flex-none">
           <div className="flex flex-col gap-5">
-            <LogoSistema tamanho="lg" className="-rotate-6 shadow-hero lg:hidden" />
+            {Icone ? (
+              <span
+                aria-hidden="true"
+                className="blob-2 flex h-[88px] w-[88px] -rotate-[5deg] items-center justify-center bg-primary/[.12] text-primary"
+              >
+                <Icone className="h-10 w-10" strokeWidth={1.75} />
+              </span>
+            ) : (
+              <LogoSistema tamanho="lg" className="-rotate-6 shadow-hero lg:hidden" />
+            )}
             <div className="flex flex-col gap-2.5">
+              {etiqueta && (
+                <p className="text-sm font-extrabold uppercase tracking-[.08em] text-muted-foreground">
+                  {etiqueta}
+                </p>
+              )}
               <h1 className="text-[2.125rem] leading-[1.1] lg:text-[2.5rem]">{titulo}</h1>
               {subtitulo && (
                 <div className="text-base text-accent-foreground lg:text-lg">{subtitulo}</div>

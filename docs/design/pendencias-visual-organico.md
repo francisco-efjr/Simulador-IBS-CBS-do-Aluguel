@@ -1,4 +1,4 @@
-# Visual orgânico: pendências para o design (07/10/2026)
+# Visual orgânico: pendências para o design (atualizado em 07/10/2026, fase 2)
 
 Release "Gestão de imóveis": nova identidade do sistema, desenvolvido por **Aguia Solutions LTDA**.
 Base usada: handoff `design_handoff_organico` (5 telas de referência, tokens e mapa das outras 22).
@@ -16,6 +16,58 @@ Base usada: handoff `design_handoff_organico` (5 telas de referência, tokens e 
   mesmo contraste de antes, mas o layout delas continua o antigo.
 - **Verificação:** zero violações de acessibilidade (WCAG 2.2 AA, axe) nas 25 rotas, em 320, 375,
   768, 1366 e 1920px, com letra normal e com letra A+.
+
+## Fase 2 e rodada 3 (07/10/2026, mesmo dia)
+
+O designer mandou a revisão do protótipo (seções 06 a 09: guia de estilo e estados, erros e
+confirmações, 404 e 500, tablet) e a **Fase 2** (seções 10 a 15). As duas estão em
+`docs/design/handoff-organico/` e foram implementadas:
+
+- **Base (06, Q25–Q31):** foco em contorno sólido de 3px afastado 3px; estados de link; texto de
+  exemplo com contraste; menos animação para quem pede; botão com estado "carregando"
+  (`Button carregando`); campo com erro em siena, com ícone e texto ligado ao campo;
+  `ResumoDeErros` no topo dos formulários; catálogo de mensagens em `src/lib/mensagens-de-erro.ts`.
+- **07:** avisos não somem sozinhos e saem ao trocar de tela; exclusão com foco inicial em
+  "Cancelar" e botão "Sim, …"; painel de baixo no celular.
+- **08:** páginas 404 e 500 (`PaginaDeErro`, `ErroDoSistema`).
+- **09:** Início a 768px.
+- **10:** corpo da página pública de andamento, com os dados reais (o texto "o novo sistema está
+  chegando" do protótipo não se aplica: o sistema já está em produção).
+- **11:** cadastro por convite, recuperar, "confira seu e-mail" e redefinir, com as regras da
+  senha marcando enquanto a pessoa digita (as regras reais do sistema: 8 caracteres e senhas iguais).
+- **12 e 13:** Inquilinos e Locadores e fiadores.
+- **14:** novo contrato como página (`/contratos/novo`, `/contratos/:id/editar`).
+- **15:** vazio, sem resultado e carregando em Inquilinos, Locadores e Contratos (`EstadoVazio`).
+
+Com isso, saem da tabela abaixo os itens 1, 2, 17 e 18 e o formulário de contrato do item 4.
+
+### Decisões tomadas sem o designer na fase 2 (validar)
+
+1. **Fiadores do locador.** No banco o fiador pertence ao contrato, não ao locador. A tela mostra,
+   em cada locador, os fiadores dos contratos **ativos** dele. "Adicionar fiador" cadastra o
+   fiador, que aparece no locador quando for escolhido num contrato. Não há sexo no cadastro,
+   então o texto é sempre "Fiador de …" (o protótipo usa "Fiadora").
+2. **Garantia com os 6 tipos do sistema,** não os 4 do protótipo.
+3. **Datas com o seletor nativo do navegador** (`type="date"`), com "dia/mês/ano" no texto de ajuda.
+4. **Ponto de troca tabela → cartão por largura da área da lista** (container query em `em`), não
+   da tela: acompanha o tamanho de letra escolhido.
+5. **"Mostrar mais" depois de 5 inquilinos** também no computador, como no protótipo.
+6. **Filtros antigos de tipo e situação** saíram de Inquilinos e Locadores (o protótipo não tem);
+   inativos seguem na lista com a pílula "Inativo".
+7. **Página pública:** "Entregas prontas X de Y" (mesmo termo do Início); as etapas são as frentes
+   do quadro. Sem a rotação de 0,5° dos cartões de novidade.
+8. **Medidor de força da senha** saiu da tela de redefinir; ficam só as regras.
+
+### Pendências técnicas encontradas
+
+- Estouro lateral a 320px com letra A++ em **Fornecedores** (2px, botões Editar) e **Quadro**
+  (9px, chips de coluna). Já existiam antes da fase 2; resolvem-se quando essas telas forem
+  redesenhadas.
+- O Sonner não marca cada aviso com `role`: o sistema faz isso por observador de DOM
+  (`src/components/ui/sonner.tsx`). Funciona, mas vale trocar se a biblioteca passar a oferecer.
+- "Tentar de novo" existe só nas falhas de carregamento de Alertas, Importar extrato, Relatórios,
+  Contas bancárias e no salvar contrato; os demais avisos de falha não têm ação.
+- O quadro de histórias e os resumos de produto do Início ainda usam a paleta de transição.
 
 ## 1. Telas sem desenho de referência
 

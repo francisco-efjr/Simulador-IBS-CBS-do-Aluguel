@@ -1,3 +1,5 @@
+import { MENSAGENS } from '@/lib/mensagens-de-erro'
+
 export type FieldErrors = Record<string, string>
 
 /** Coluna citada pelo Postgres numa violação de restrição, quando dá para saber. */
@@ -166,14 +168,14 @@ export function getErrorMessage(error: unknown): string {
   return texto
 }
 
-export const MENSAGEM_SESSAO_TERMINOU = 'Sua sessão terminou, entre de novo.'
+export const MENSAGEM_SESSAO_TERMINOU = MENSAGENS.sessaoEncerrada
 
 const MENSAGEM_GENERICA =
   'Não foi possível concluir agora. Tente de novo em instantes; se continuar, avise quem administra o sistema.'
 
 /** Mensagens conhecidas do Auth, do Postgres e da rede, na ordem em que valem. */
 const TRADUCOES: Array<[RegExp, string]> = [
-  [/invalid login credentials/i, 'E-mail ou senha incorretos. Confira e tente de novo.'],
+  [/invalid login credentials/i, MENSAGENS.loginRecusado],
   [
     /email not confirmed/i,
     'Seu e-mail ainda não foi confirmado. Abra a mensagem que enviamos e clique no link de confirmação.',
@@ -202,7 +204,7 @@ const TRADUCOES: Array<[RegExp, string]> = [
   [/jwt expired|invalid jwt|jwt.*(malformed|invalid)|refresh token/i, MENSAGEM_SESSAO_TERMINOU],
   [
     /failed to fetch|networkerror|network request failed|load failed/i,
-    'Sem conexão com o servidor. Confira a internet e tente de novo.',
+    MENSAGENS.semInternet,
   ],
 ]
 
