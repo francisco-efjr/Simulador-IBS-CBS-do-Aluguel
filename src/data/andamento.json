@@ -154,8 +154,8 @@
           "situacao": "pronto"
         },
         {
-          "titulo": "Usuários e permissões por módulo",
-          "detalhe": "Sem acesso, somente ver ou editar, módulo a módulo.",
+          "titulo": "Usuários e perfis de acesso",
+          "detalhe": "Dois perfis: Administrador (tudo, sem limite) e Gratuito (Início, Imóveis, Inquilinos, Locadores e fiadores e Contratos, até 3 imóveis).",
           "situacao": "pronto"
         },
         {

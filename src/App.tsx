@@ -130,7 +130,9 @@ const App = () => (
                     <Route path="/relatorios" element={<Relatorios />} />
                   </Route>
 
-                  <Route path="/quadro" element={<Quadro />} />
+                  <Route element={<ProtectedRoute modulo="quadro" />}>
+                    <Route path="/quadro" element={<Quadro />} />
+                  </Route>
 
                   {/* Rotas administrativas protegidas com verificação de papel Admin */}
                   <Route element={<ProtectedRoute requireAdmin />}>

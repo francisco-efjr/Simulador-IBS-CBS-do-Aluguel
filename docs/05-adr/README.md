@@ -15,3 +15,4 @@ Uma ADR nunca é editada para mudar de rumo: cria-se uma nova que a substitui (`
 | [0008](0008-monorepo-pnpm.md) | Monorepo pnpm em vez de três repositórios | Aceita |
 | [0009](0009-supabase-como-backend.md) | Supabase (Postgres) como backend, no lugar do PocketBase | Aceita |
 | [0010](0010-estrutura-hierarquica-de-imoveis-unidades-e-partes.md) | Estrutura hierárquica multinível (imóvel-unidade), locadores/fiadores e limite comercial | Aceita |
+| [0011](0011-perfil-de-acesso-administrador-e-gratuito.md) | Perfil de acesso: administrador (tudo) ou gratuito (Imóveis, Inquilinos, Locadores e fiadores, Contratos) | Aceita |

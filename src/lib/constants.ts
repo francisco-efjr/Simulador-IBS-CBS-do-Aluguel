@@ -40,9 +40,33 @@ export type ModuloPermissao =
 
 export type NivelPermissao = 'sem_acesso' | 'visualizacao' | 'edicao'
 
-export interface PermissaoModulo {
-  modulo: ModuloPermissao
-  nivel: NivelPermissao
+/**
+ * Perfil de acesso (migração 20261008120001). É o perfil que decide o acesso:
+ * não há mais permissão marcada módulo a módulo.
+ */
+export type PerfilUsuario = 'administrador' | 'gratuito'
+
+export const ROTULO_DO_PERFIL: Record<PerfilUsuario, string> = {
+  administrador: 'Administrador',
+  gratuito: 'Gratuito',
+}
+
+export const DESCRICAO_DO_PERFIL: Record<PerfilUsuario, string> = {
+  administrador: 'Acessa e edita tudo, sem limite de imóveis.',
+  gratuito: 'Início, Imóveis, Inquilinos, Locadores e fiadores e Contratos. Até 3 imóveis ativos.',
+}
+
+/**
+ * Módulos do perfil gratuito, com edição. Espelha public.modulos_do_gratuito()
+ * no banco: mudar um é mudar o outro. Fiadores vêm junto de Contratos (no
+ * banco) e de Locadores (na tela). Início não é módulo: é aberto a todos.
+ */
+export const MODULOS_DO_GRATUITO: readonly ModuloPermissao[] = ['imoveis', 'inquilinos', 'locadores', 'contratos']
+
+/** Nível de acesso de um perfil num módulo. Conta inativa não chega aqui. */
+export function nivelDoPerfil(perfil: PerfilUsuario, modulo: ModuloPermissao): NivelPermissao {
+  if (perfil === 'administrador') return 'edicao'
+  return MODULOS_DO_GRATUITO.includes(modulo) ? 'edicao' : 'sem_acesso'
 }
 
 export const GRUPOS_MENU = [
@@ -67,100 +91,6 @@ export interface MenuItem {
   /** Grupo do menu lateral (rótulo em caixa alta acima dos itens). */
   grupo: GrupoMenu
 }
-
-export interface ModuloInfo {
-  id: ModuloPermissao
-  nome: string
-  descricao: string
-  rotas: string[]
-}
-
-export const MODULOS_SISTEMA: ModuloInfo[] = [
-  {
-    id: 'imoveis',
-    nome: 'Imóveis',
-    descricao: 'Cadastro e gestão de propriedades imobiliárias',
-    rotas: ['/imoveis'],
-  },
-  {
-    id: 'inquilinos',
-    nome: 'Inquilinos',
-    descricao: 'Gestão de locatários e contatos',
-    rotas: ['/inquilinos'],
-  },
-  {
-    id: 'locadores',
-    nome: 'Locadores',
-    descricao: 'Cadastro de proprietários e repasses',
-    rotas: ['/locadores'],
-  },
-  {
-    id: 'fornecedores',
-    nome: 'Fornecedores',
-    descricao: 'Prestadores de serviço e fornecedores parceiros',
-    rotas: ['/fornecedores'],
-  },
-  {
-    id: 'contratos',
-    nome: 'Contratos',
-    descricao: 'Contratos de locação, prazos e reajustes',
-    rotas: ['/contratos'],
-  },
-  {
-    id: 'receitas',
-    nome: 'Receitas',
-    descricao: 'Controle de aluguéis e entradas financeiras',
-    rotas: ['/receitas'],
-  },
-  {
-    id: 'despesas',
-    nome: 'Despesas',
-    descricao: 'Controle de pagamentos, custos e contas',
-    rotas: ['/despesas'],
-  },
-  {
-    id: 'iptu_taxas',
-    nome: 'IPTU/Taxas',
-    descricao: 'Controle de tributos e taxas imobiliárias',
-    rotas: ['/iptu-taxas'],
-  },
-  {
-    id: 'dashboards',
-    nome: 'Dashboards',
-    descricao: 'Painéis consolidados Financeiro e de Imóveis',
-    rotas: ['/dashboard-financeiro', '/dashboard-imoveis'],
-  },
-  {
-    id: 'alertas',
-    nome: 'Alertas',
-    descricao: 'Central de vencimentos e pendências',
-    rotas: ['/alertas'],
-  },
-  {
-    id: 'relatorios',
-    nome: 'Relatórios',
-    descricao: 'Geração e exportação de relatórios PDF e Excel',
-    rotas: ['/relatorios'],
-  },
-  {
-    id: 'importar_extrato',
-    nome: 'Importar Extrato',
-    descricao: 'Upload de extratos OFX, CSV e extratos bancários',
-    rotas: ['/importar-extrato', '/historico-importacoes'],
-  },
-  {
-    id: 'classificar_transacoes',
-    nome: 'Classificar Transações',
-    descricao: 'Fila de conciliação e classificação de extratos',
-    rotas: ['/classificar-transacoes'],
-  },
-  {
-    id: 'quadro',
-    nome: 'Quadro de histórias',
-    descricao: 'Quem cria, edita e move histórias do quadro (ler é aberto a todos)',
-    rotas: ['/quadro', '/'],
-  },
-]
 
 export const MODULES_LIST: MenuItem[] = [
   {
@@ -291,18 +221,19 @@ export const MODULES_LIST: MenuItem[] = [
     modulo: 'relatorios',
   },
   {
-    // Ler o quadro é aberto a todos; o módulo 'quadro' decide só quem edita.
+    // O quadro acompanha a construção do sistema: fica fora do perfil gratuito.
     title: 'Quadro de andamento',
     path: '/quadro',
     icon: SquareKanban,
     description: 'Histórias do sistema, critérios de aceitação e homologação',
     grupo: 'Gestão',
+    modulo: 'quadro',
   },
   {
-    title: 'Usuários e permissões',
+    title: 'Usuários e perfis',
     path: '/usuarios',
     icon: UserCog,
-    description: 'Gestão de permissões, convites e acessos do sistema',
+    description: 'Perfis de acesso, convites e contas do sistema',
     grupo: 'Gestão',
     adminOnly: true,
   },
@@ -315,12 +246,13 @@ export const MODULES_LIST: MenuItem[] = [
     adminOnly: true,
   },
   {
-    // Rota pública: fica visível para todo usuário logado, sem permissão de módulo.
+    // A rota segue pública (abre sem login); no menu, fica fora do perfil gratuito.
     title: 'Simulador IBS/CBS',
     path: '/simulador',
     icon: Calculator,
     description: 'Simulação do IBS e da CBS sobre a locação (LC 214/2025)',
     grupo: 'Ferramentas',
+    adminOnly: true,
   },
 ]
 

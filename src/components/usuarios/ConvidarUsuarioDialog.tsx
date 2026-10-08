@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select'
 import { Mail, Send, Shield, User, Copy, Check } from 'lucide-react'
 import { enviarConvite, type Perfil } from '@/services/convites'
+import { DESCRICAO_DO_PERFIL, ROTULO_DO_PERFIL } from '@/lib/constants'
 import { toast } from 'sonner'
 
 interface ConvidarUsuarioDialogProps {
@@ -33,14 +34,14 @@ export function ConvidarUsuarioDialog({
   onInviteSent,
 }: ConvidarUsuarioDialogProps) {
   const [email, setEmail] = useState('')
-  const [perfil, setPerfil] = useState<Perfil>('usuario')
+  const [perfil, setPerfil] = useState<Perfil>('gratuito')
   const [submitting, setSubmitting] = useState(false)
   const [createdInvite, setCreatedInvite] = useState<any | null>(null)
   const [copied, setCopied] = useState(false)
 
   const handleClose = () => {
     setEmail('')
-    setPerfil('usuario')
+    setPerfil('gratuito')
     setCreatedInvite(null)
     setCopied(false)
     onOpenChange(false)
@@ -117,7 +118,7 @@ export function ConvidarUsuarioDialog({
               </p>
               <p className="text-emerald-700">
                 Perfil de acesso atribuído:{' '}
-                <strong className="capitalize">{createdInvite.perfil}</strong>
+                <strong>{ROTULO_DO_PERFIL[createdInvite.perfil]}</strong>
               </p>
             </div>
 
@@ -205,14 +206,12 @@ export function ConvidarUsuarioDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="usuario" className="py-2.5">
+                  <SelectItem value="gratuito" className="py-2.5">
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-slate-500" />
                       <div className="min-w-0 whitespace-normal">
-                        <div className="font-semibold text-slate-900 text-sm">Usuário Padrão</div>
-                        <div className="text-sm text-slate-600">
-                          Acesso aos módulos operacionais (imóveis, contratos, receitas, etc.)
-                        </div>
+                        <div className="font-semibold text-slate-900 text-sm">{ROTULO_DO_PERFIL.gratuito}</div>
+                        <div className="text-sm text-slate-600">{DESCRICAO_DO_PERFIL.gratuito}</div>
                       </div>
                     </div>
                   </SelectItem>
@@ -220,9 +219,9 @@ export function ConvidarUsuarioDialog({
                     <div className="flex items-center gap-2">
                       <Shield className="h-4 w-4 text-gold-600" />
                       <div className="min-w-0 whitespace-normal">
-                        <div className="font-semibold text-slate-900 text-sm">Administrador</div>
+                        <div className="font-semibold text-slate-900 text-sm">{ROTULO_DO_PERFIL.administrador}</div>
                         <div className="text-sm text-slate-600">
-                          Acesso total + gestão de usuários e configurações
+                          {DESCRICAO_DO_PERFIL.administrador} Gerencia usuários e convites.
                         </div>
                       </div>
                     </div>

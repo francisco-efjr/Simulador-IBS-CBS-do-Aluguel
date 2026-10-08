@@ -26,14 +26,12 @@ sempre iguais, e ficam em `supabase/local/.contas-locais.json` (fora do git):
 | E-mail                 | Papel                                                                 |
 | :--------------------- | :-------------------------------------------------------------------- |
 | `admin@teste.local`    | administrador (vê tudo, inclusive `/usuarios` e `/logs-atividade`)    |
-| `editor@teste.local`   | usuário com `edicao` em todos os módulos                              |
-| `leitor@teste.local`   | usuário com `visualizacao` em todos os módulos                        |
-| `restrito@teste.local` | `sem_acesso` em tudo, menos `imoveis: visualizacao`                   |
+| `gratuito@teste.local` | perfil gratuito: edita Imóveis, Inquilinos, Locadores e fiadores e Contratos; o resto fica fechado |
 | `inativo@teste.local`  | `ativo = false`: entra no Auth, mas o perfil inativo derruba a sessão |
 
 Também há um convite pendente para `convidado@teste.local` (token `convite-local-0001`): cadastrar
 esse e-mail em `/signup` com `?token=convite-local-0001` aceita o convite pelo gatilho. O token é
-obrigatório: cadastro sem ele (ou com o token de outro e-mail) nasce inativo e sem permissão, e um
+obrigatório: cadastro sem ele (ou com o token de outro e-mail) nasce gratuito e inativo, e um
 administrador libera em `/usuarios` (migração `20261006120002`).
 
 A semente (`semente.ts`) traz 3 locadores, 2 fiadores, 4 inquilinos (um PJ com CNPJ alfanumérico),

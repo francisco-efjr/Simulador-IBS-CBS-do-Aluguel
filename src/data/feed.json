@@ -1,5 +1,11 @@
 [
   {
+    "data": "2026-10-08",
+    "titulo": "Perfis de acesso: Administrador e Gratuito",
+    "texto": "Agora cada pessoa tem um de dois perfis, e é o perfil que define o que ela acessa. O Administrador acessa e altera tudo, sem limite. O Gratuito usa o Início, Imóveis, Inquilinos, Locadores e fiadores e Contratos (pode cadastrar e alterar neles), com até 3 imóveis ativos; o resto do sistema fica fora do menu e também é bloqueado pelo banco de dados. Na tela de Usuários, em vez de marcar módulo por módulo, basta escolher o perfil, tanto ao convidar quanto ao editar alguém. Quem não era administrador passou a ser Gratuito: se alguém precisar de Receitas, Despesas ou relatórios, é só torná-lo Administrador.",
+    "tipo": "entrega"
+  },
+  {
     "data": "2026-10-07",
     "titulo": "Visual novo, fase 2: Inquilinos, Locadores, novo contrato e mensagens mais claras",
     "texto": "Inquilinos virou uma lista com busca e botões para ver só quem tem ou não tem contrato; no celular, cada inquilino é um cartão com o botão Ligar. Em Locadores e fiadores, cada locador abre e mostra os fiadores dos contratos dele. O novo contrato agora é uma página própria, em blocos (partes, imóvel, valores e prazo, garantia), com a busca do inquilino pelo nome. Quando algo falta num formulário, um quadro no topo diz o que conferir e leva até o campo. Os avisos não somem mais sozinhos: ficam até a pessoa fechar. Para excluir, o sistema pergunta antes e o botão já começa em Cancelar. O cadastro por convite e a troca de senha mostram as regras da senha marcando enquanto a pessoa digita. Telas vazias explicam o que fazer, e há páginas próprias para endereço que não existe e para falha do sistema. O contorno de quem usa o teclado ficou mais forte, e esta página de andamento ganhou o visual novo.",

@@ -1,8 +1,9 @@
 import { colecao } from '@/lib/dados/cliente'
 import { supabase } from '@/lib/dados/supabase'
+import type { PerfilUsuario } from '@/lib/constants'
 
 export type StatusConvite = 'pendente' | 'aceito' | 'cancelado' | 'expirado'
-export type Perfil = 'administrador' | 'usuario'
+export type Perfil = PerfilUsuario
 
 export interface ConviteRecord {
   id: string

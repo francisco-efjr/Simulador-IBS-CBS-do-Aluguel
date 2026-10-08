@@ -74,8 +74,8 @@ function montarSelect(tabela: string, expand?: string): string {
 
 /** Quanto cada tabela deve ter, no mínimo, logo após a semente. */
 const MINIMO: Record<string, number> = {
-  users: 5,
-  permissoes: 70,
+  users: 3,
+  permissoes: 0,
   imoveis: 3,
   imovel_unidades: 3,
   locadores: 3,
@@ -100,9 +100,7 @@ const MINIMO: Record<string, number> = {
 // ---------------------------------------------------------------------------
 
 const admin = await entrar('admin@teste.local')
-const editor = await entrar('editor@teste.local')
-const leitor = await entrar('leitor@teste.local')
-const restrito = await entrar('restrito@teste.local')
+const gratuito = await entrar('gratuito@teste.local')
 const anonimo = novoCliente()
 
 // Autenticação ------------------------------------------------------------------
@@ -137,16 +135,16 @@ await item(
   },
 )
 await item('getUser, refreshSession e perfil do próprio usuário', async () => {
-  const { data } = await editor.auth.getUser()
-  igual(data.user?.email, 'editor@teste.local', 'getUser')
-  const { data: renovada, error } = await editor.auth.refreshSession()
+  const { data } = await gratuito.auth.getUser()
+  igual(data.user?.email, 'gratuito@teste.local', 'getUser')
+  const { data: renovada, error } = await gratuito.auth.refreshSession()
   afirmar(!error && renovada.session?.access_token, error?.message ?? 'sem sessão renovada')
-  const { data: perfil } = await editor
+  const { data: perfil } = await gratuito
     .from('users')
     .select('id, email, name, perfil, ativo, avatar')
     .eq('id', data.user!.id)
     .maybeSingle()
-  igual(perfil?.perfil, 'usuario', 'perfil')
+  igual(perfil?.perfil, 'gratuito', 'perfil')
 })
 await item('API sem apikey: 401', async () => {
   const r = await fetch(`${URL_LOCAL}/rest/v1/historias?select=id`)
@@ -309,8 +307,8 @@ await item(
 )
 
 // Escrita: RLS, regras e erros ----------------------------------------------------------
-await item('editor cria, edita e exclui um imóvel (select().single() em cada passo)', async () => {
-  const criado = await editor
+await item('gratuito cria, edita e exclui um imóvel (select().single() em cada passo)', async () => {
+  const criado = await gratuito
     .from('imoveis')
     .insert({ nome: 'Imóvel de fumaça', endereco: 'Rua da Fumaça, 1', tipo: 'casa' })
     .select()
@@ -319,7 +317,7 @@ await item('editor cria, edita e exclui um imóvel (select().single() em cada pa
   igual(criado.status, 201, 'status do insert')
   const id = criado.data!.id
   igual(criado.data!.updated_by !== null, true, 'autoria carimbada pelo gatilho')
-  const editado = await editor
+  const editado = await gratuito
     .from('imoveis')
     .update({ nome: 'Imóvel de fumaça (editado)', area: 55.5 })
     .eq('id', id)
@@ -328,38 +326,29 @@ await item('editor cria, edita e exclui um imóvel (select().single() em cada pa
   afirmar(!editado.error, editado.error?.message ?? '')
   igual(editado.data!.nome, 'Imóvel de fumaça (editado)', 'nome')
   igual(editado.data!.area, 55.5, 'área')
-  const apagado = await editor.from('imoveis').delete().eq('id', id)
+  const apagado = await gratuito.from('imoveis').delete().eq('id', id)
   afirmar(!apagado.error, apagado.error?.message ?? '')
   igual(apagado.status, 204, 'status do delete')
-  const { data } = await editor.from('imoveis').select('id').eq('id', id)
+  const { data } = await gratuito.from('imoveis').select('id').eq('id', id)
   igual(data?.length, 0, 'depois de excluir')
 })
-await item('leitor não escreve: insert = 42501 (403), update/delete não alteram nada', async () => {
-  const insert = await leitor.from('imoveis').insert({ endereco: 'Rua Proibida, 2' })
+await item('gratuito não lança receita: insert = 42501 (403); update de receita não altera nada', async () => {
+  const { data: imovel } = await admin.from('imoveis').select('id').eq('codigo', 'IMV-001').single()
+  const insert = await gratuito.from('receitas').insert({ imovel: imovel!.id, valor: 10 })
   igual(insert.error?.code, '42501', 'código')
   igual(insert.status, 403, 'status')
-  const { data: alvo } = await leitor
-    .from('imoveis')
-    .select('id, nome')
-    .eq('codigo', 'IMV-001')
-    .single()
-  const update = await leitor
-    .from('imoveis')
-    .update({ nome: 'Invadido' })
-    .eq('id', alvo!.id)
-    .select()
-    .single()
-  igual(update.error?.code, 'PGRST116', 'update sem linhas visíveis')
-  const { data: depois } = await admin.from('imoveis').select('nome').eq('id', alvo!.id).single()
-  igual(depois!.nome, alvo!.nome, 'nome intacto')
+  const update = await gratuito.from('receitas').update({ valor: 1 }).eq('imovel', imovel!.id).select()
+  igual(update.data?.length ?? 0, 0, 'update sem linhas visíveis')
 })
 await item(
-  'restrito vê imóveis, mas não contratos; anon não lê dado de negócio (401); quadro é público',
+  'gratuito vê imóveis e contratos, mas não receitas; anon não lê dado de negócio (401); quadro é público',
   async () => {
-    const imoveis = await restrito.from('imoveis').select('id')
-    igual(imoveis.data?.length, 3, 'imóveis do restrito')
-    const contratos = await restrito.from('contratos').select('id')
-    igual(contratos.data?.length, 0, 'contratos do restrito')
+    const imoveis = await gratuito.from('imoveis').select('id')
+    igual(imoveis.data?.length, 3, 'imóveis do gratuito')
+    const contratos = await gratuito.from('contratos').select('id')
+    igual(contratos.data?.length, 3, 'contratos do gratuito')
+    const receitas = await gratuito.from('receitas').select('id')
+    igual(receitas.data?.length, 0, 'receitas do gratuito')
     for (const tabela of ['imoveis', 'inquilinos', 'users', 'logs_atividade']) {
       const r = await anonimo.from(tabela).select('*')
       igual(r.error?.code, '42501', `anon em ${tabela}`)
@@ -369,33 +358,19 @@ await item(
     afirmar(!quadro.error && quadro.data!.length === 1, quadro.error?.message ?? 'quadro vazio')
   },
 )
-await item('só o administrador lê users e permissões de todos; editor só a si', async () => {
-  igual((await admin.from('users').select('id')).data?.length, 5, 'admin')
-  igual((await editor.from('users').select('id')).data?.length, 1, 'editor')
-  igual((await editor.from('permissoes').select('id')).data?.length, 14, 'permissões do editor')
+await item('só o administrador lê users de todos; gratuito só a si', async () => {
+  igual((await admin.from('users').select('id')).data?.length, 3, 'admin')
+  igual((await gratuito.from('users').select('id')).data?.length, 1, 'gratuito')
 })
-await item('upsert de permissões (onConflict usuario,modulo): admin pode, editor não', async () => {
-  const { data: u } = await admin
-    .from('users')
-    .select('id')
-    .eq('email', 'leitor@teste.local')
-    .single()
-  const linhas = [
-    { usuario: u!.id, modulo: 'imoveis', nivel: 'edicao' },
-    { usuario: u!.id, modulo: 'quadro', nivel: 'visualizacao' },
-  ]
-  const ok = await admin.from('permissoes').upsert(linhas, { onConflict: 'usuario,modulo' })
-  afirmar(!ok.error, ok.error?.message ?? '')
-  const { data: p } = await admin
-    .from('permissoes')
-    .select('nivel')
-    .eq('usuario', u!.id)
-    .eq('modulo', 'imoveis')
-    .single()
-  igual(p!.nivel, 'edicao', 'nível gravado')
+await item('perfil: admin promove e rebaixa; gratuito não se promove', async () => {
+  const { data: u } = await admin.from('users').select('id').eq('email', 'gratuito@teste.local').single()
+  const promovido = await admin.from('users').update({ perfil: 'administrador' }).eq('id', u!.id).select().single()
+  afirmar(!promovido.error, promovido.error?.message ?? '')
+  const rebaixado = await admin.from('users').update({ perfil: 'gratuito' }).eq('id', u!.id).select().single()
+  afirmar(!rebaixado.error, rebaixado.error?.message ?? '')
   afirmar(
-    (await editor.from('permissoes').upsert(linhas, { onConflict: 'usuario,modulo' })).error,
-    'editor não deveria conseguir',
+    (await gratuito.from('users').update({ perfil: 'administrador' }).eq('id', u!.id)).error,
+    'gratuito não deveria se promover',
   )
 })
 await item(
@@ -448,7 +423,7 @@ await item(
 
 // RPC ----------------------------------------------------------------------------------
 await item('rpc proximo_numero_contrato({p_ano: 2026}) devolve texto NNN/2026', async () => {
-  const { data, error } = await editor.rpc('proximo_numero_contrato', { p_ano: 2026 })
+  const { data, error } = await gratuito.rpc('proximo_numero_contrato', { p_ano: 2026 })
   afirmar(!error, error?.message ?? '')
   afirmar(typeof data === 'string' && /^\d{3}\/2026$/.test(data), `veio ${JSON.stringify(data)}`)
 })
@@ -465,9 +440,9 @@ await item('rpc validar_convite: sem login, devolve linhas (returns table)', asy
   )
 })
 await item(
-  'rpc importar_extrato: editor grava importação + transações (uuid); leitor e anon recusados',
+  'rpc importar_extrato: admin grava importação + transações (uuid); gratuito e anon recusados',
   async () => {
-    const { data: conta } = await editor.from('contas_bancarias').select('id').limit(1).single()
+    const { data: conta } = await admin.from('contas_bancarias').select('id').limit(1).single()
     const argumentos = {
       p_importacao: { conta_bancaria: conta!.id, arquivo_nome: 'fumaca.csv', formato: 'csv' },
       p_transacoes: [
@@ -475,19 +450,20 @@ await item(
         { data: '2026-09-02', descricao: 'Teste dois', valor: 50.5, tipo: 'debito' },
       ],
     }
-    const ok = await editor.rpc('importar_extrato', argumentos)
+    const ok = await admin.rpc('importar_extrato', argumentos)
     afirmar(!ok.error, ok.error?.message ?? '')
     afirmar(typeof ok.data === 'string' && ok.data.length === 36, `uuid: ${ok.data}`)
-    const { count } = await editor
+    const { count } = await admin
       .from('transacoes_importadas')
       .select('id', { count: 'exact', head: true })
       .eq('importacao', ok.data)
     igual(count, 2, 'transações gravadas')
-    igual((await leitor.rpc('importar_extrato', argumentos)).error?.code, '42501', 'leitor')
+    // O gratuito não enxerga a conta bancária (RLS): a função recusa antes de gravar.
+    igual((await gratuito.rpc('importar_extrato', argumentos)).error?.code, '22023', 'gratuito')
     const semLogin = await anonimo.rpc('importar_extrato', argumentos)
     igual(semLogin.error?.code, '42501', 'anon')
     igual(semLogin.status, 401, 'status anon')
-    igual((await editor.rpc('nao_existe', {})).status, 404, 'função inexistente')
+    igual((await gratuito.rpc('nao_existe', {})).status, 404, 'função inexistente')
   },
 )
 
@@ -498,16 +474,16 @@ await item(
     const conteudo = 'contrato de fumaça — acentuação ok'
     const caminho = `fumaca-${Date.now()}.txt`
     const arquivo = new File([conteudo], 'c.txt', { type: 'text/plain' })
-    const up = await editor.storage
+    const up = await gratuito.storage
       .from('contratos-documentos')
       .upload(caminho, arquivo, { contentType: 'text/plain', upsert: false })
     afirmar(!up.error, up.error?.message ?? '')
     igual(up.data!.path, caminho, 'path')
-    const dup = await editor.storage
+    const dup = await gratuito.storage
       .from('contratos-documentos')
       .upload(caminho, arquivo, { upsert: false })
     afirmar(dup.error, 'duplicado deveria falhar')
-    const { data: link, error } = await editor.storage
+    const { data: link, error } = await gratuito.storage
       .from('contratos-documentos')
       .createSignedUrl(caminho, 60)
     afirmar(!error && link?.signedUrl, error?.message ?? 'sem link')
@@ -524,10 +500,10 @@ await item(
       'anon não deveria subir',
     )
     afirmar(
-      (await editor.storage.from('bucket-que-nao-existe').upload('a.txt', arquivo)).error,
+      (await gratuito.storage.from('bucket-que-nao-existe').upload('a.txt', arquivo)).error,
       'bucket inexistente',
     )
-    const rm = await editor.storage.from('contratos-documentos').remove([caminho])
+    const rm = await gratuito.storage.from('contratos-documentos').remove([caminho])
     afirmar(!rm.error, rm.error?.message ?? '')
     igual(rm.data?.length, 1, 'removidos')
     igual((await fetch(link!.signedUrl)).status, 404, 'depois de remover')
@@ -587,7 +563,7 @@ await item(
   },
 )
 await item(
-  'signUp sem o token do convite (ou com token de outro e-mail): a conta nasce inativa e sem permissão',
+  'signUp sem o token do convite (ou com token de outro e-mail): a conta nasce gratuita e inativa',
   async () => {
     // O e-mail do convite pendente é de outra pessoa; quem não sabe o token não o herda.
     await admin.from('convites').insert({
@@ -608,7 +584,7 @@ await item(
       })
       afirmar(!error && data.user, error?.message ?? 'sem usuário')
       const { data: perfil } = await novo.from('users').select('perfil, ativo').eq('id', data.user!.id).single()
-      igual(perfil!.perfil, 'usuario', `perfil de ${email}`)
+      igual(perfil!.perfil, 'gratuito', `perfil de ${email}`)
       igual(perfil!.ativo, false, `inativo: ${email}`)
       // Conta inativa não lê nem o vocabulário compartilhado.
       const { data: categorias } = await novo.from('categorias_financeiras').select('id')
@@ -624,7 +600,7 @@ await item(
     const cliente = novoCliente()
     afirmar(
       !(
-        await cliente.auth.resetPasswordForEmail('editor@teste.local', {
+        await cliente.auth.resetPasswordForEmail('gratuito@teste.local', {
           redirectTo: 'http://localhost:8083/redefinir-senha',
         })
       ).error,
