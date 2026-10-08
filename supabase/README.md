@@ -50,6 +50,7 @@ Rode em ordem. Cada arquivo é independente e roda inteiro de uma vez no SQL Edi
 | `20261006120008_privilegios_minimos.sql` | **SEG-10** — `anon` e `authenticated` perdem TRUNCATE, REFERENCES e TRIGGER (e tabela nova já nasce sem eles); `anon` deixa de executar as funções utilitárias |
 | `20261006120009_receita_e_despesa_coerentes.sql` | **FIN-14** — receita/despesa só aceitam categoria do tipo certo (`HA007`), receita só aceita contrato do mesmo imóvel (`HA008`) e inquilino do contrato (`HA009`) |
 | `20261006120010_nunca_sem_administrador.sql` | **FIN-15** — ninguém rebaixa, desativa ou remove a si mesmo (`HA005`) nem o último administrador ativo (`HA006`) |
+| `20261008120001_perfil_gratuito.sql` | **Perfil de acesso** ([ADR-0011](../docs/05-adr/0011-perfil-de-acesso-administrador-e-gratuito.md)) — o perfil `usuario` vira `gratuito` e `nivel_no_modulo()` passa a decidir só pelo perfil: administrador edita tudo; gratuito edita Imóveis, Inquilinos, Locadores e fiadores e Contratos, e nada mais. A tabela `permissoes` deixa de ser lida. Cadastro sem convite nasce `gratuito` (inativo). Pode ser rodada de novo sem erro |
 
 ## Quatro achados de segurança que esta modelagem fecha
 
@@ -58,12 +59,12 @@ Da auditoria em [`docs/06-seguranca.md`](../docs/06-seguranca.md):
 - **S-01 — token de recuperação de senha vazando.** A tabela `password_resets` e os três hooks
   de recuperação deixam de existir: quem cuida disso é o Supabase Auth, com o token indo por
   e-mail e nunca pelo corpo da resposta.
-- **S-02 — RBAC só no cliente.** As 12 permissões de módulo saíram do blob JSON dentro do
-  usuário e viraram a tabela `permissoes`, consultável. Cada tabela tem quatro políticas:
-  ver exige `visualizacao`, escrever exige `edicao`. Vale para a tela, para a API e para
-  qualquer script.
-- **S-04 — autorização _fail-open_.** `nivel_no_modulo()` devolve `sem_acesso` quando não há
-  permissão registrada. Sem linha na tabela, sem acesso.
+- **S-02 — RBAC só no cliente.** O acesso é decidido no banco, por `nivel_no_modulo()`. Cada
+  tabela tem quatro políticas: ver exige `visualizacao`, escrever exige `edicao`. Vale para a
+  tela, para a API e para qualquer script. Desde a `20261008120001` o nível vem do **perfil**
+  (administrador ou gratuito), não mais da tabela `permissoes`.
+- **S-04 — autorização _fail-open_.** `nivel_no_modulo()` devolve `sem_acesso` para conta
+  inativa e para todo módulo fora do pacote do perfil gratuito.
 - **S-05 — anexos sem autenticação.** Os cinco buckets são privados e cada um herda a
   permissão do módulo correspondente. Nada mais é servido por URL adivinhável.
 

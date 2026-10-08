@@ -156,15 +156,19 @@ export default function Index() {
   useRealtime('despesas', agendarRecarga)
 
   const agora = new Date()
+  // Perfil gratuito não tem Receitas nem Despesas: a RLS devolve listas vazias,
+  // e um "R$ 0 — fechou no azul" seria número inventado. Esses blocos somem.
+  const veFinanceiro = canViewModule('receitas') && canViewModule('despesas')
   const { resultado, ocupacao, aReceber, recebimentos } = painel
   const alertas = painel.alertas
     .filter((a) => canViewModule(DESTINO_DO_ALERTA[a.tipo].modulo))
     .slice(0, 3)
   const noVermelho = (resultado?.resultado ?? 0) < 0
   const mesFechado = resultado?.mes ?? ''
-  const titulo = resultado
-    ? `${mesFechado.charAt(0).toUpperCase()}${mesFechado.slice(1)} fechou no ${noVermelho ? 'vermelho' : 'azul'}`
-    : 'Início'
+  const titulo =
+    veFinanceiro && resultado
+      ? `${mesFechado.charAt(0).toUpperCase()}${mesFechado.slice(1)} fechou no ${noVermelho ? 'vermelho' : 'azul'}`
+      : 'Início'
 
   return (
     <div className="flex flex-col gap-6 lg:gap-8">
@@ -188,52 +192,58 @@ export default function Index() {
         aria-label="Resumo do mês"
         className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,150px),1fr))] gap-3 md:grid-cols-2 md:gap-4 lg:grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] lg:gap-6"
       >
-        <CartaoDestaque tom={noVermelho ? 'alerta' : 'musgo'} className="col-span-full">
-          <h2 className="font-sans text-base font-bold lg:text-lg">
-            Resultado de {mesFechado || 'o último mês'}
-          </h2>
-          <p className="numero my-2 font-serif text-[clamp(1.875rem,13cqw,3.75rem)] md:text-[clamp(2.25rem,12cqw,3.25rem)] lg:text-[clamp(1.875rem,13cqw,3.75rem)] font-bold leading-[1.05]">
-            {carregando ? '…' : valor(resultado?.resultado)}
-          </p>
-          <div className="lg:hidden">
-            <p className="numero text-base">Receitas {valor(resultado?.receitas)}</p>
-            <p className="numero text-base">Despesas {valor(resultado?.despesas)}</p>
-          </div>
-          <p className="hidden text-lg lg:block">
-            Receitas menos despesas
-            {resultado?.variacao !== null && resultado?.variacao !== undefined && (
-              <>
-                {' · '}
-                {Math.abs(resultado.variacao)}% {resultado.variacao >= 0 ? 'acima' : 'abaixo'} do
-                mês anterior
-              </>
-            )}
-          </p>
-        </CartaoDestaque>
+        {veFinanceiro && (
+          <CartaoDestaque tom={noVermelho ? 'alerta' : 'musgo'} className="col-span-full">
+            <h2 className="font-sans text-base font-bold lg:text-lg">
+              Resultado de {mesFechado || 'o último mês'}
+            </h2>
+            <p className="numero my-2 font-serif text-[clamp(1.875rem,13cqw,3.75rem)] md:text-[clamp(2.25rem,12cqw,3.25rem)] lg:text-[clamp(1.875rem,13cqw,3.75rem)] font-bold leading-[1.05]">
+              {carregando ? '…' : valor(resultado?.resultado)}
+            </p>
+            <div className="lg:hidden">
+              <p className="numero text-base">Receitas {valor(resultado?.receitas)}</p>
+              <p className="numero text-base">Despesas {valor(resultado?.despesas)}</p>
+            </div>
+            <p className="hidden text-lg lg:block">
+              Receitas menos despesas
+              {resultado?.variacao !== null && resultado?.variacao !== undefined && (
+                <>
+                  {' · '}
+                  {Math.abs(resultado.variacao)}% {resultado.variacao >= 0 ? 'acima' : 'abaixo'} do
+                  mês anterior
+                </>
+              )}
+            </p>
+          </CartaoDestaque>
+        )}
 
-        <NumeroDoPainel
-          canto="bl"
-          rotulo="Receitas"
-          valor={valor(resultado?.receitas)}
-          detalhe={`Despesas ${valor(resultado?.despesas)}`}
-          className="hidden lg:flex"
-        />
+        {veFinanceiro && (
+          <NumeroDoPainel
+            canto="bl"
+            rotulo="Receitas"
+            valor={valor(resultado?.receitas)}
+            detalhe={`Despesas ${valor(resultado?.despesas)}`}
+            className="hidden lg:flex"
+          />
+        )}
         <NumeroDoPainel
           canto="tl"
           rotulo="Ocupação"
           valor={ocupacao?.percentual != null ? `${ocupacao.percentual}%` : '—'}
           detalhe={ocupacao ? `${ocupacao.ocupadas} de ${ocupacao.total} unidades` : ''}
         />
-        <NumeroDoPainel
-          canto="tr"
-          rotulo="A receber"
-          valor={valor(aReceber?.valor)}
-          detalhe={
-            aReceber
-              ? `${aReceber.quantidade} ${aReceber.quantidade === 1 ? 'lançamento' : 'lançamentos'} em aberto`
-              : ''
-          }
-        />
+        {veFinanceiro && (
+          <NumeroDoPainel
+            canto="tr"
+            rotulo="A receber"
+            valor={valor(aReceber?.valor)}
+            detalhe={
+              aReceber
+                ? `${aReceber.quantidade} ${aReceber.quantidade === 1 ? 'lançamento' : 'lançamentos'} em aberto`
+                : ''
+            }
+          />
+        )}
       </section>
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,400px),1fr))] items-start gap-6">
@@ -279,40 +289,42 @@ export default function Index() {
           )}
         </section>
 
-        <section
-          aria-labelledby="proximos-recebimentos"
-          className="flex flex-col gap-4 rounded-organic-br bg-muted p-6 lg:p-7"
-        >
-          <h2 id="proximos-recebimentos" className="text-2xl">
-            Próximos recebimentos
-          </h2>
-          {recebimentos.length === 0 ? (
-            <p className="text-base text-accent-foreground">
-              {carregando ? 'Carregando…' : 'Nenhum recebimento previsto daqui em diante.'}
-            </p>
-          ) : (
-            <ul className="flex flex-col">
-              {recebimentos.map((r) => {
-                const data = new Date(`${r.data}T00:00:00`)
-                return (
-                  <li
-                    key={r.id}
-                    className="flex items-center gap-3 border-b border-dashed border-border py-2.5 last:border-0"
-                  >
-                    <span className="w-14 shrink-0 text-center font-serif text-[1.375rem] font-bold leading-none">
-                      {data.getDate()}
-                      <span className="block font-sans text-xs font-bold text-accent-foreground">
-                        {data.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}
+        {veFinanceiro && (
+          <section
+            aria-labelledby="proximos-recebimentos"
+            className="flex flex-col gap-4 rounded-organic-br bg-muted p-6 lg:p-7"
+          >
+            <h2 id="proximos-recebimentos" className="text-2xl">
+              Próximos recebimentos
+            </h2>
+            {recebimentos.length === 0 ? (
+              <p className="text-base text-accent-foreground">
+                {carregando ? 'Carregando…' : 'Nenhum recebimento previsto daqui em diante.'}
+              </p>
+            ) : (
+              <ul className="flex flex-col">
+                {recebimentos.map((r) => {
+                  const data = new Date(`${r.data}T00:00:00`)
+                  return (
+                    <li
+                      key={r.id}
+                      className="flex items-center gap-3 border-b border-dashed border-border py-2.5 last:border-0"
+                    >
+                      <span className="w-14 shrink-0 text-center font-serif text-[1.375rem] font-bold leading-none">
+                        {data.getDate()}
+                        <span className="block font-sans text-xs font-bold text-accent-foreground">
+                          {data.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}
+                        </span>
                       </span>
-                    </span>
-                    <span className="min-w-0 flex-1 text-base">{r.quem}</span>
-                    <strong className="numero text-base">{moeda.format(r.valor)}</strong>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </section>
+                      <span className="min-w-0 flex-1 text-base">{r.quem}</span>
+                      <strong className="numero text-base">{moeda.format(r.valor)}</strong>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </section>
+        )}
       </div>
 
       <OndeOSistemaEsta isAdministrador={isAdministrador} />

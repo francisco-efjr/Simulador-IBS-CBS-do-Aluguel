@@ -57,6 +57,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { formatDate } from '@/lib/format'
+import { ROTULO_DO_PERFIL } from '@/lib/constants'
 
 export default function Usuarios() {
   const { isAdministrador, user: currentUser } = useAuth()
@@ -138,11 +139,11 @@ export default function Usuarios() {
       toast.error('Você não pode alterar o seu próprio perfil de administrador.')
       return
     }
-    const novoPerfil = user.perfil === 'administrador' ? 'usuario' : 'administrador'
+    const novoPerfil = user.perfil === 'administrador' ? 'gratuito' : 'administrador'
     try {
       await updateUsuario(user.id, { perfil: novoPerfil })
       toast.success(
-        `Perfil de ${user.name || user.email} alterado para ${novoPerfil === 'administrador' ? 'administrador' : 'usuário'}.`,
+        `Perfil de ${user.name || user.email} alterado para ${ROTULO_DO_PERFIL[novoPerfil].toLowerCase()}.`,
       )
       loadData()
     } catch (err: any) {
@@ -252,7 +253,7 @@ export default function Usuarios() {
     }
     return (
       <Badge variant="secondary" className="bg-slate-100 text-slate-700 font-medium gap-1">
-        <UserCheck className="h-3 w-3 text-slate-600" /> Usuário
+        <UserCheck className="h-3 w-3 text-slate-600" /> {ROTULO_DO_PERFIL.gratuito}
       </Badge>
     )
   }
@@ -303,7 +304,7 @@ export default function Usuarios() {
             <div>
               <h2 className="text-2xl text-primary-foreground">Gestão de Usuários</h2>
               <p className="text-sm text-primary-foreground">
-                Apenas administradores podem convidar novos usuários ou alterar permissões de
+                Apenas administradores podem convidar novos usuários ou alterar o perfil de
                 acesso.
               </p>
             </div>
@@ -326,7 +327,7 @@ export default function Usuarios() {
               </div>
               <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
                 <span className="text-xs text-slate-600 block">Papel no Sistema</span>
-                <div className="mt-1">{getPerfilBadge(currentUser?.perfil || 'usuario')}</div>
+                <div className="mt-1">{getPerfilBadge(currentUser?.perfil || 'gratuito')}</div>
               </div>
               <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
                 <span className="text-xs text-slate-600 block">Status da Conta</span>
@@ -355,8 +356,9 @@ export default function Usuarios() {
             Gestão de Usuários e Acessos
           </h2>
           <p className="text-sm text-primary-foreground">
-            Convide colaboradores, defina permissões de administrador e controle o acesso à
-            plataforma.
+            Convide colaboradores e escolha o perfil de cada um: {ROTULO_DO_PERFIL.administrador}{' '}
+            (acesso total) ou {ROTULO_DO_PERFIL.gratuito} (Imóveis, Inquilinos, Locadores e fiadores e
+            Contratos).
           </p>
         </div>
 
@@ -520,12 +522,12 @@ export default function Usuarios() {
                                   isSelf
                                     ? 'Você não pode alterar seu próprio papel'
                                     : u.perfil === 'administrador'
-                                      ? 'Rebaixar para Usuário'
+                                      ? 'Rebaixar para Gratuito'
                                       : 'Promover a Administrador'
                                 }
                               >
                                 <Shield className="h-3.5 w-3.5 mr-1" />
-                                {u.perfil === 'administrador' ? 'Tornar Usuário' : 'Tornar Admin'}
+                                {u.perfil === 'administrador' ? 'Tornar Gratuito' : 'Tornar Admin'}
                               </Button>
 
                               <Button
@@ -640,7 +642,7 @@ export default function Usuarios() {
                               <span className="text-xs sm:text-sm">{c.email}</span>
                             </div>
                           </TableCell>
-                          <TableCell>{getPerfilBadge(c.perfil || 'usuario')}</TableCell>
+                          <TableCell>{getPerfilBadge(c.perfil || 'gratuito')}</TableCell>
                           <TableCell>{getConviteStatusBadge(c.status, c.data_expiracao)}</TableCell>
                           <TableCell className="text-xs text-slate-600">
                             {formatDate(c.data_expiracao)}

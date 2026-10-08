@@ -7,33 +7,34 @@
  * gravados uma vez, como `postgres`, no beforeAll.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { capturarErro, criarBancoDeTeste, type BancoDeTeste, type Consulta } from './harness'
+import { capturarErro, criarBancoDeTeste, listarMigracoes, type BancoDeTeste, type Consulta } from './harness'
 
 let banco: BancoDeTeste
 
 let admin: string
-let semPermissao: string
-let semAcessoExplicito: string
-let leitor: string
-let editor: string
+let gratuito: string
+let outroGratuito: string
+let comLinhaAntiga: string
 let inativo: string
 
 let imovel: string
 let inquilino: string
 
-const TABELAS_DE_NEGOCIO = [
-  'imoveis',
-  'inquilinos',
+/** O que o perfil gratuito acessa (e edita): Imóveis, Inquilinos, Locadores e fiadores, Contratos. */
+const TABELAS_DO_GRATUITO = ['imoveis', 'inquilinos', 'contratos', 'documentos_anexos']
+
+/** O resto é só do administrador. */
+const TABELAS_SO_DO_ADMINISTRADOR = [
   'fornecedores',
-  'contratos',
   'receitas',
   'despesas',
   'iptu_taxas',
   'contas_bancarias',
   'importacoes',
   'transacoes_importadas',
-  'documentos_anexos',
 ]
+
+const TABELAS_DE_NEGOCIO = [...TABELAS_DO_GRATUITO, ...TABELAS_SO_DO_ADMINISTRADOR]
 
 const TODAS_AS_TABELAS = [
   ...TABELAS_DE_NEGOCIO,
@@ -61,24 +62,21 @@ beforeAll(async () => {
   banco = await criarBancoDeTeste()
 
   admin = await banco.criarUsuario({ perfil: 'administrador' })
-  semPermissao = await banco.criarUsuario()
-  semAcessoExplicito = await banco.criarUsuario({ permissoes: { imoveis: 'sem_acesso' } })
-  leitor = await banco.criarUsuario({ permissoes: { imoveis: 'visualizacao', receitas: 'visualizacao' } })
-  editor = await banco.criarUsuario({
-    permissoes: {
-      imoveis: 'edicao',
-      inquilinos: 'edicao',
-      contratos: 'edicao',
-      receitas: 'edicao',
-      despesas: 'edicao',
-      iptu_taxas: 'edicao',
-    },
-  })
-  inativo = await banco.criarUsuario({ ativo: false, permissoes: { imoveis: 'edicao' } })
+  gratuito = await banco.criarUsuario()
+  outroGratuito = await banco.criarUsuario()
+  comLinhaAntiga = await banco.criarUsuario()
+  inativo = await banco.criarUsuario({ ativo: false })
 
   // Dados de partida, gravados como postgres (fora da RLS). Cada tabela de
   // negócio ganha ao menos uma linha, para que "não vê nada" signifique algo.
   const { db } = banco
+  // Permissão por módulo gravada antes do perfil gratuito: não pode mais ampliar
+  // nem restringir o acesso.
+  await db.query(
+    `insert into public.permissoes (usuario, modulo, nivel) values
+       ($1, 'receitas', 'edicao'), ($1, 'fornecedores', 'visualizacao'), ($1, 'imoveis', 'sem_acesso')`,
+    [comLinhaAntiga],
+  )
   imovel = (
     await db.query<{ id: string }>(
       `insert into public.imoveis (nome, endereco) values ('Casa da Praia', 'Av. Atlântica, 10') returning id`,
@@ -116,6 +114,10 @@ beforeAll(async () => {
     [imovel],
   )
   await db.query(
+    `insert into public.documentos_anexos (entidade_tipo, entidade_id, arquivo) values ('inquilino', $1, 'rg.pdf')`,
+    [inquilino],
+  )
+  await db.query(
     `insert into public.convites (email, token, data_expiracao) values ('novo@teste.local', 'tok-rls', now() + interval '1 day')`,
   )
 }, 60_000)
@@ -124,98 +126,15 @@ afterAll(async () => {
   await banco?.fechar()
 })
 
-describe('RLS — usuário sem permissão (fail-closed, S-04)', () => {
-  it.each(TABELAS_DE_NEGOCIO)('não lê nada em %s', async (tabela) => {
-    await banco.comoUsuario(semPermissao, async (q) => {
-      expect(await contar(q, tabela)).toBe(0)
+describe('RLS — perfil gratuito: o que acessa', () => {
+  it.each(TABELAS_DO_GRATUITO)('lê %s', async (tabela) => {
+    await banco.comoUsuario(gratuito, async (q) => {
+      expect(await contar(q, tabela)).toBeGreaterThan(0)
     })
   })
 
-  it('não cria imóvel', async () => {
-    const erro = await banco.comoUsuario(semPermissao, (q) => capturarErro(inserirImovel(q)))
-    expect(erro.code).toBe('42501')
-  })
-
-  it('não altera nem apaga imóvel existente', async () => {
-    await banco.comoUsuario(semPermissao, async (q) => {
-      const alterado = await q.query(`update public.imoveis set nome = 'Invadido' where id = $1`, [imovel])
-      const apagado = await q.query(`delete from public.receitas`)
-      expect(alterado.affectedRows).toBe(0)
-      expect(apagado.affectedRows).toBe(0)
-    })
-    const { rows } = await banco.db.query<{ nome: string }>(`select nome from public.imoveis where id = $1`, [imovel])
-    expect(rows[0].nome).toBe('Casa da Praia')
-  })
-
-  it("linha explícita 'sem_acesso' também barra", async () => {
-    await banco.comoUsuario(semAcessoExplicito, async (q) => {
-      expect(await contar(q, 'imoveis')).toBe(0)
-      expect((await capturarErro(inserirImovel(q))).code).toBe('42501')
-    })
-  })
-
-  it('usuário inativo não acessa nada, mesmo com edição concedida', async () => {
-    await banco.comoUsuario(inativo, async (q) => {
-      expect(await contar(q, 'imoveis')).toBe(0)
-      expect(await contar(q, 'categorias_financeiras')).toBe(0)
-      expect((await capturarErro(inserirImovel(q))).code).toBe('42501')
-    })
-  })
-
-  it('lê as categorias financeiras, que são vocabulário compartilhado', async () => {
-    await banco.comoUsuario(semPermissao, async (q) => {
-      expect(await contar(q, 'categorias_financeiras')).toBe(13)
-    })
-  })
-})
-
-describe("RLS — nível 'visualizacao'", () => {
-  it('lê o módulo concedido', async () => {
-    await banco.comoUsuario(leitor, async (q) => {
-      expect(await contar(q, 'imoveis')).toBe(1)
-      expect(await contar(q, 'receitas')).toBe(1)
-    })
-  })
-
-  it('não lê módulo que não recebeu', async () => {
-    await banco.comoUsuario(leitor, async (q) => {
-      expect(await contar(q, 'despesas')).toBe(0)
-      expect(await contar(q, 'contratos')).toBe(0)
-      expect(await contar(q, 'inquilinos')).toBe(0)
-    })
-  })
-
-  it('não cria', async () => {
-    const erro = await banco.comoUsuario(leitor, (q) => capturarErro(inserirImovel(q)))
-    expect(erro.code).toBe('42501')
-  })
-
-  it('não altera nem apaga', async () => {
-    await banco.comoUsuario(leitor, async (q) => {
-      const alterado = await q.query(`update public.imoveis set nome = 'Outro' where id = $1`, [imovel])
-      const apagado = await q.query(`delete from public.receitas`)
-      expect(alterado.affectedRows).toBe(0)
-      expect(apagado.affectedRows).toBe(0)
-    })
-  })
-
-  it('anexo herda o módulo da entidade: lê o anexo de imóvel', async () => {
-    await banco.comoUsuario(leitor, async (q) => {
-      expect(await contar(q, 'documentos_anexos')).toBe(1)
-      const erro = await capturarErro(
-        q.query(
-          `insert into public.documentos_anexos (entidade_tipo, entidade_id, arquivo) values ('imovel', $1, 'x.pdf')`,
-          [imovel],
-        ),
-      )
-      expect(erro.code).toBe('42501')
-    })
-  })
-})
-
-describe("RLS — nível 'edicao'", () => {
-  it('cria, altera e apaga no módulo concedido', async () => {
-    await banco.comoUsuario(editor, async (q) => {
+  it('cria, altera e apaga imóvel', async () => {
+    await banco.comoUsuario(gratuito, async (q) => {
       const novo = await inserirImovel(q, 'Loja nova')
       const alterado = await q.query(`update public.imoveis set nome = 'Loja reformada' where id = $1`, [novo])
       expect(alterado.affectedRows).toBe(1)
@@ -224,35 +143,140 @@ describe("RLS — nível 'edicao'", () => {
     })
   })
 
-  it('lança receita e despesa no imóvel existente', async () => {
-    await banco.comoUsuario(editor, async (q) => {
-      await q.query(`insert into public.receitas (imovel, valor) values ($1, 100)`, [imovel])
-      await q.query(`insert into public.despesas (imovel, valor) values ($1, 50)`, [imovel])
-      expect(await contar(q, 'receitas')).toBe(2)
-      expect(await contar(q, 'despesas')).toBe(2)
+  it('cria inquilino, locador, fiador e contrato', async () => {
+    await banco.comoUsuario(gratuito, async (q) => {
+      const novoInquilino = (
+        await q.query<{ id: string }>(`insert into public.inquilinos (nome) values ('João Prado') returning id`)
+      ).rows[0].id
+      await q.query(`insert into public.locadores (nome_razao_social, tipo_pessoa) values ('Holding Aguiar', 'pj')`)
+      await q.query(`insert into public.fiadores (nome) values ('Pedro Lima')`)
+      const outroImovel = await inserirImovel(q, 'Sala 202')
+      await q.query(
+        `insert into public.contratos (numero, imovel, inquilino, valor_aluguel) values ('C-2', $1, $2, 1800)`,
+        [outroImovel, novoInquilino],
+      )
+      expect(await contar(q, 'contratos')).toBe(2)
     })
   })
 
-  it('não escreve em módulo que não recebeu', async () => {
-    await banco.comoUsuario(editor, async (q) => {
-      expect(await contar(q, 'fornecedores')).toBe(0)
-      const erro = await capturarErro(q.query(`insert into public.fornecedores (nome) values ('Fornecedor X')`))
-      expect(erro.code).toBe('42501')
+  it('anexa documento em imóvel', async () => {
+    await banco.comoUsuario(gratuito, async (q) => {
+      await q.query(
+        `insert into public.documentos_anexos (entidade_tipo, entidade_id, arquivo) values ('imovel', $1, 'x.pdf')`,
+        [imovel],
+      )
+      expect(await contar(q, 'documentos_anexos')).toBe(3)
     })
   })
 
-  it('cria categoria financeira (tem edição em receitas)', async () => {
-    await banco.comoUsuario(editor, async (q) => {
-      await q.query(`insert into public.categorias_financeiras (nome, tipo) values ('Luvas', 'receita')`)
-      expect(await contar(q, 'categorias_financeiras')).toBe(14)
+  it('lê as categorias financeiras, que são vocabulário compartilhado', async () => {
+    await banco.comoUsuario(gratuito, async (q) => {
+      expect(await contar(q, 'categorias_financeiras')).toBe(13)
     })
+  })
+
+  it('a decisão do banco é edição nos quatro módulos e nada fora deles', async () => {
+    await banco.comoUsuario(gratuito, async (q) => {
+      const { rows } = await q.query<{ modulo: string; nivel: string }>(
+        `select m::text as modulo, public.nivel_no_modulo(m)::text as nivel
+           from unnest(enum_range(null::public.modulo_permissao)) m
+          order by 1`,
+      )
+      const comAcesso = rows.filter((r) => r.nivel !== 'sem_acesso')
+      expect(comAcesso).toEqual([
+        { modulo: 'contratos', nivel: 'edicao' },
+        { modulo: 'imoveis', nivel: 'edicao' },
+        { modulo: 'inquilinos', nivel: 'edicao' },
+        { modulo: 'locadores', nivel: 'edicao' },
+      ])
+    })
+  })
+})
+
+describe('migração do perfil gratuito', () => {
+  it('pode ser rodada de novo sem erro (SQL Editor) e não traz o perfil antigo de volta', async () => {
+    const migracao = listarMigracoes().find((m) => m.arquivo.startsWith('20261008120001'))
+    expect(migracao).toBeDefined()
+    await banco.desfazendo(async (q) => {
+      await q.exec(migracao!.sql)
+      const { rows } = await q.query<{ perfil: string }>(
+        `select unnest(enum_range(null::public.perfil_usuario))::text as perfil`,
+      )
+      expect(rows.map((r) => r.perfil)).toEqual(['administrador', 'gratuito'])
+    })
+  })
+})
+
+describe('RLS — perfil gratuito: o que fica de fora', () => {
+  it.each(TABELAS_SO_DO_ADMINISTRADOR)('não lê nada em %s', async (tabela) => {
+    await banco.comoUsuario(gratuito, async (q) => {
+      expect(await contar(q, tabela)).toBe(0)
+    })
+  })
+
+  it('não lança receita nem despesa', async () => {
+    const receita = await banco.comoUsuario(gratuito, (q) =>
+      capturarErro(q.query(`insert into public.receitas (imovel, valor) values ($1, 100)`, [imovel])),
+    )
+    const despesa = await banco.comoUsuario(gratuito, (q) =>
+      capturarErro(q.query(`insert into public.despesas (imovel, valor) values ($1, 50)`, [imovel])),
+    )
+    expect(receita.code).toBe('42501')
+    expect(despesa.code).toBe('42501')
+  })
+
+  it('não cria fornecedor nem categoria financeira', async () => {
+    const fornecedor = await banco.comoUsuario(gratuito, (q) =>
+      capturarErro(q.query(`insert into public.fornecedores (nome) values ('Fornecedor X')`)),
+    )
+    const categoria = await banco.comoUsuario(gratuito, (q) =>
+      capturarErro(q.query(`insert into public.categorias_financeiras (nome, tipo) values ('Luvas', 'receita')`)),
+    )
+    expect(fornecedor.code).toBe('42501')
+    expect(categoria.code).toBe('42501')
+  })
+
+  it('não altera nem apaga o que é do administrador', async () => {
+    await banco.comoUsuario(gratuito, async (q) => {
+      expect((await q.query(`update public.receitas set valor = 1`)).affectedRows).toBe(0)
+      expect((await q.query(`delete from public.despesas`)).affectedRows).toBe(0)
+    })
+    expect(await contar(banco.db, 'receitas')).toBe(1)
   })
 
   it('não lê a trilha de auditoria nem os convites', async () => {
-    await banco.comoUsuario(editor, async (q) => {
+    await banco.comoUsuario(gratuito, async (q) => {
       expect(await contar(q, 'logs_atividade')).toBe(0)
       expect(await contar(q, 'convites')).toBe(0)
     })
+  })
+
+  it('linha antiga em permissoes não amplia nem restringe o acesso', async () => {
+    await banco.comoUsuario(comLinhaAntiga, async (q) => {
+      expect(await contar(q, 'receitas')).toBe(0)
+      expect(await contar(q, 'fornecedores')).toBe(0)
+      expect(await contar(q, 'imoveis')).toBe(1)
+      const erro = await capturarErro(q.query(`insert into public.receitas (imovel, valor) values ($1, 100)`, [imovel]))
+      expect(erro.code).toBe('42501')
+    })
+  })
+})
+
+describe('RLS — conta inativa', () => {
+  it.each(TABELAS_DE_NEGOCIO)('não lê nada em %s', async (tabela) => {
+    await banco.comoUsuario(inativo, async (q) => {
+      expect(await contar(q, tabela)).toBe(0)
+    })
+  })
+
+  it('não cria, não altera e não lê nem as categorias', async () => {
+    await banco.comoUsuario(inativo, async (q) => {
+      expect(await contar(q, 'categorias_financeiras')).toBe(0)
+      expect((await q.query(`update public.imoveis set nome = 'Invadido' where id = $1`, [imovel])).affectedRows).toBe(0)
+      expect((await capturarErro(inserirImovel(q))).code).toBe('42501')
+    })
+    const { rows } = await banco.db.query<{ nome: string }>(`select nome from public.imoveis where id = $1`, [imovel])
+    expect(rows[0].nome).toBe('Casa da Praia')
   })
 })
 
@@ -268,21 +292,35 @@ describe('RLS — administrador', () => {
       await inserirImovel(q, 'Galpão')
       await q.query(`insert into public.fornecedores (nome) values ('Hidráulica Lima')`)
       await q.query(`insert into public.contas_bancarias (nome) values ('Conta reserva')`)
+      await q.query(`insert into public.receitas (imovel, valor) values ($1, 100)`, [imovel])
+      await q.query(`insert into public.categorias_financeiras (nome, tipo) values ('Luvas', 'receita')`)
       expect(await contar(q, 'fornecedores')).toBe(2)
       const apagado = await q.query(`delete from public.documentos_anexos`)
-      expect(apagado.affectedRows).toBe(1)
+      expect(apagado.affectedRows).toBe(2)
     })
   })
 
-  it('vê todos os perfis e administra permissões e convites', async () => {
+  it('cadastra mais de 3 imóveis (sem o limite do gratuito)', async () => {
     await banco.comoUsuario(admin, async (q) => {
-      expect(await contar(q, 'users')).toBe(6)
-      await q.query(`insert into public.permissoes (usuario, modulo, nivel) values ($1, 'fornecedores', 'edicao')`, [
-        semPermissao,
-      ])
-      const alterado = await q.query(`update public.permissoes set nivel = 'edicao' where usuario = $1`, [leitor])
-      expect(alterado.affectedRows).toBe(2)
+      for (let i = 1; i <= 4; i++) await inserirImovel(q, `Sala ${i}`)
+      expect(await contar(q, 'imoveis')).toBe(5)
+    })
+  })
+
+  it('vê todos os perfis e administra convites', async () => {
+    await banco.comoUsuario(admin, async (q) => {
+      expect(await contar(q, 'users')).toBe(5)
       expect(await contar(q, 'convites')).toBe(1)
+    })
+  })
+
+  it('o banco decide edição em todos os módulos', async () => {
+    await banco.comoUsuario(admin, async (q) => {
+      const { rows } = await q.query<{ nivel: string }>(
+        `select distinct public.nivel_no_modulo(m)::text as nivel
+           from unnest(enum_range(null::public.modulo_permissao)) m`,
+      )
+      expect(rows).toEqual([{ nivel: 'edicao' }])
     })
   })
 })
@@ -386,65 +424,66 @@ describe('EXECUTE das funções security definer', () => {
   })
 
   it('a RLS continua decidindo para authenticated depois do revoke', async () => {
-    await banco.comoUsuario(leitor, async (q) => {
-      const { rows } = await q.query<{ ver: boolean; editar: boolean }>(
-        `select public.pode_ver('imoveis') as ver, public.pode_editar('imoveis') as editar`,
+    await banco.comoUsuario(gratuito, async (q) => {
+      const { rows } = await q.query<{ ver: boolean; editar: boolean; receitas: boolean }>(
+        `select public.pode_ver('imoveis') as ver, public.pode_editar('imoveis') as editar,
+                public.pode_ver('receitas') as receitas`,
       )
-      expect(rows[0]).toEqual({ ver: true, editar: false })
+      expect(rows[0]).toEqual({ ver: true, editar: true, receitas: false })
     })
   })
 })
 
 describe('RLS — identidade e permissões', () => {
   it('usuário comum só enxerga o próprio perfil', async () => {
-    await banco.comoUsuario(leitor, async (q) => {
+    await banco.comoUsuario(comLinhaAntiga, async (q) => {
       const { rows } = await q.query<{ id: string }>(`select id from public.users`)
-      expect(rows).toEqual([{ id: leitor }])
+      expect(rows).toEqual([{ id: comLinhaAntiga }])
     })
   })
 
   it('usuário comum só enxerga as próprias permissões', async () => {
-    await banco.comoUsuario(leitor, async (q) => {
+    await banco.comoUsuario(comLinhaAntiga, async (q) => {
       const { rows } = await q.query<{ usuario: string }>(`select distinct usuario from public.permissoes`)
-      expect(rows).toEqual([{ usuario: leitor }])
+      expect(rows).toEqual([{ usuario: comLinhaAntiga }])
     })
   })
 
   it('usuário comum não se concede permissão', async () => {
-    await banco.comoUsuario(leitor, async (q) => {
+    await banco.comoUsuario(comLinhaAntiga, async (q) => {
       const erro = await capturarErro(
-        q.query(`insert into public.permissoes (usuario, modulo, nivel) values ($1, 'despesas', 'edicao')`, [leitor]),
+        q.query(`insert into public.permissoes (usuario, modulo, nivel) values ($1, 'despesas', 'edicao')`, [comLinhaAntiga]),
       )
       expect(erro.code).toBe('42501')
     })
   })
 
   it('usuário comum não sobe o próprio nível', async () => {
-    await banco.comoUsuario(leitor, async (q) => {
-      const alterado = await q.query(`update public.permissoes set nivel = 'edicao' where usuario = $1`, [leitor])
+    await banco.comoUsuario(comLinhaAntiga, async (q) => {
+      const alterado = await q.query(`update public.permissoes set nivel = 'edicao' where usuario = $1`, [comLinhaAntiga])
       expect(alterado.affectedRows).toBe(0)
-      const apagado = await q.query(`delete from public.permissoes where usuario = $1`, [leitor])
+      const apagado = await q.query(`delete from public.permissoes where usuario = $1`, [comLinhaAntiga])
       expect(apagado.affectedRows).toBe(0)
     })
     const { rows } = await banco.db.query<{ nivel: string }>(
-      `select distinct nivel from public.permissoes where usuario = $1`,
-      [leitor],
+      `select nivel from public.permissoes where usuario = $1 and modulo = 'fornecedores'`,
+      [comLinhaAntiga],
     )
     expect(rows).toEqual([{ nivel: 'visualizacao' }])
   })
 
   it('usuário comum não altera o perfil de outra pessoa', async () => {
-    await banco.comoUsuario(leitor, async (q) => {
-      const alterado = await q.query(`update public.users set name = 'Hackeado' where id = $1`, [editor])
+    await banco.comoUsuario(comLinhaAntiga, async (q) => {
+      const alterado = await q.query(`update public.users set name = 'Hackeado' where id = $1`, [gratuito])
       expect(alterado.affectedRows).toBe(0)
     })
   })
 
   it('usuário comum não cria perfil diretamente', async () => {
-    await banco.comoUsuario(leitor, async (q) => {
+    await banco.comoUsuario(comLinhaAntiga, async (q) => {
       const erro = await capturarErro(
         q.query(`insert into public.users (id, email, perfil) values ($1, 'x@teste.local', 'administrador')`, [
-          editor,
+          gratuito,
         ]),
       )
       expect(erro.code).toBe('42501')
@@ -457,7 +496,7 @@ describe('RLS — logs_atividade', () => {
     await banco.comoUsuario(admin, async (q) => {
       expect(await contar(q, 'logs_atividade')).toBeGreaterThan(0)
     })
-    for (const quem of [semPermissao, leitor, editor]) {
+    for (const quem of [gratuito, outroGratuito, inativo]) {
       await banco.comoUsuario(quem, async (q) => {
         expect(await contar(q, 'logs_atividade')).toBe(0)
       })
@@ -466,7 +505,7 @@ describe('RLS — logs_atividade', () => {
 
   it('ninguém altera nem apaga a trilha, nem o administrador', async () => {
     const antes = await contar(banco.db, 'logs_atividade')
-    for (const quem of [admin, editor]) {
+    for (const quem of [admin, gratuito]) {
       await banco.comoUsuario(quem, async (q) => {
         const alterado = await q.query(`update public.logs_atividade set detalhes = 'apagado'`)
         const apagado = await q.query(`delete from public.logs_atividade`)
@@ -478,7 +517,7 @@ describe('RLS — logs_atividade', () => {
   })
 
   it('ninguém forja entrada na trilha à mão', async () => {
-    for (const quem of [admin, editor]) {
+    for (const quem of [admin, gratuito]) {
       const erro = await banco.comoUsuario(quem, (q) =>
         capturarErro(q.query(`insert into public.logs_atividade (acao, entidade, detalhes) values ('criou', 'imoveis', 'falso')`)),
       )
@@ -494,40 +533,37 @@ describe('RLS — arquivos (storage)', () => {
          ('imoveis-fotos', 'fachada.jpg'),
          ('contratos-documentos', 'C-1.pdf'),
          ('avatars', $1 || '/foto.png')`,
-      [leitor],
+      [outroGratuito],
     )
   })
 
-  it('arquivo segue a permissão do módulo do bucket', async () => {
-    await banco.comoUsuario(leitor, async (q) => {
+  it('arquivo segue o módulo do bucket: o gratuito vê e envia foto de imóvel e documento de contrato', async () => {
+    await banco.comoUsuario(outroGratuito, async (q) => {
       const { rows } = await q.query<{ bucket_id: string }>(
-        `select bucket_id from storage.objects where bucket_id <> 'avatars'`,
+        `select bucket_id from storage.objects where bucket_id <> 'avatars' order by 1`,
       )
-      expect(rows).toEqual([{ bucket_id: 'imoveis-fotos' }])
-      const erro = await capturarErro(
-        q.query(`insert into storage.objects (bucket_id, name) values ('imoveis-fotos', 'nova.jpg')`),
-      )
-      expect(erro.code).toBe('42501')
+      expect(rows).toEqual([{ bucket_id: 'contratos-documentos' }, { bucket_id: 'imoveis-fotos' }])
+      await q.query(`insert into storage.objects (bucket_id, name) values ('imoveis-fotos', 'nova.jpg')`)
     })
   })
 
-  it('sem permissão não vê arquivo de módulo nenhum', async () => {
-    await banco.comoUsuario(semPermissao, async (q) => {
+  it('conta inativa não vê arquivo de módulo nenhum', async () => {
+    await banco.comoUsuario(inativo, async (q) => {
       const { rows } = await q.query(`select 1 from storage.objects where bucket_id <> 'avatars'`)
       expect(rows).toHaveLength(0)
     })
   })
 
   it('avatar só se grava na pasta do próprio id', async () => {
-    await banco.comoUsuario(editor, async (q) => {
-      await q.query(`insert into storage.objects (bucket_id, name) values ('avatars', $1 || '/eu.png')`, [editor])
+    await banco.comoUsuario(gratuito, async (q) => {
+      await q.query(`insert into storage.objects (bucket_id, name) values ('avatars', $1 || '/eu.png')`, [gratuito])
       const apagado = await q.query(`delete from storage.objects where bucket_id = 'avatars' and name like $1 || '%'`, [
-        leitor,
+        outroGratuito,
       ])
       expect(apagado.affectedRows).toBe(0)
       // Por último: depois de um erro a transação fica abortada.
       const erro = await capturarErro(
-        q.query(`insert into storage.objects (bucket_id, name) values ('avatars', $1 || '/outro.png')`, [leitor]),
+        q.query(`insert into storage.objects (bucket_id, name) values ('avatars', $1 || '/outro.png')`, [outroGratuito]),
       )
       expect(erro.code).toBe('42501')
     })

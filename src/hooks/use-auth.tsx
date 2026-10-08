@@ -2,16 +2,15 @@ import { createContext, useContext, useEffect, useRef, useState, useCallback, Re
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/dados/supabase'
 import { aoSessaoTerminar, guardarAvisoDeLogin } from '@/lib/dados/sessao'
-import type { ModuloPermissao, NivelPermissao, PermissaoModulo } from '@/lib/constants'
+import { nivelDoPerfil, type ModuloPermissao, type NivelPermissao, type PerfilUsuario } from '@/lib/constants'
 
 interface UsuarioLogado {
   id: string
   email: string
   name: string
-  perfil: 'administrador' | 'usuario'
+  perfil: PerfilUsuario
   ativo: boolean
   avatar?: string | null
-  permissoes: PermissaoModulo[]
 }
 
 interface AuthContextType {
@@ -43,7 +42,8 @@ export const useAuth = () => {
 }
 
 /**
- * Carrega o perfil e as permissões de quem está na sessão.
+ * Carrega o perfil de quem está na sessão. O perfil decide o acesso
+ * (administrador: tudo; gratuito: MODULOS_DO_GRATUITO).
  *
  * As mesmas regras valem no banco, em RLS: isto aqui é o que a tela usa para
  * decidir o que desenhar, não o que autoriza. Se as duas discordarem, quem
@@ -60,11 +60,6 @@ async function carregarUsuario(session: Session | null): Promise<UsuarioLogado |
 
   if (error || !perfil || perfil.ativo === false) return null
 
-  const { data: permissoes } = await supabase
-    .from('permissoes')
-    .select('modulo, nivel')
-    .eq('usuario', session.user.id)
-
   return {
     id: perfil.id,
     email: perfil.email,
@@ -72,7 +67,6 @@ async function carregarUsuario(session: Session | null): Promise<UsuarioLogado |
     perfil: perfil.perfil,
     ativo: perfil.ativo,
     avatar: perfil.avatar,
-    permissoes: (permissoes ?? []) as PermissaoModulo[],
   }
 }
 
@@ -87,18 +81,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isAdministrador = user?.perfil === 'administrador'
 
   /**
-   * Nível de acesso da pessoa num módulo.
-   *
-   * Sem permissão registrada o resultado é 'sem_acesso'. Antes era o contrário
-   * — lista vazia liberava tudo —, e era o achado S-04 da auditoria: quem fosse
-   * cadastrado e esquecido nascia com acesso total.
+   * Nível de acesso da pessoa num módulo, decidido pelo perfil — o mesmo que
+   * public.nivel_no_modulo decide no banco. Sem sessão ou conta inativa:
+   * 'sem_acesso' (falha fechando, achado S-04).
    */
   const getModulePermission = useCallback(
     (modulo: ModuloPermissao): NivelPermissao => {
       if (!user || !user.ativo) return 'sem_acesso'
-      if (user.perfil === 'administrador') return 'edicao'
-
-      return user.permissoes.find((p) => p.modulo === modulo)?.nivel ?? 'sem_acesso'
+      return nivelDoPerfil(user.perfil, modulo)
     },
     [user],
   )

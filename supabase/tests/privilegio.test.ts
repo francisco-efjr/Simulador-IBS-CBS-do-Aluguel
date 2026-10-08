@@ -13,7 +13,7 @@ let usuario: string
 beforeAll(async () => {
   banco = await criarBancoDeTeste()
   admin = await banco.criarUsuario({ perfil: 'administrador' })
-  usuario = await banco.criarUsuario({ permissoes: { imoveis: 'edicao' } })
+  usuario = await banco.criarUsuario()
 }, 60_000)
 
 afterAll(async () => {
@@ -35,7 +35,7 @@ describe('tg_proteger_privilegio', () => {
     )
     expect(erro.code).toBe('42501')
     expect(erro.message).toMatch(/Somente um administrador/)
-    expect((await perfilDe(usuario)).perfil).toBe('usuario')
+    expect((await perfilDe(usuario)).perfil).toBe('gratuito')
   })
 
   it('usuário desativado não se reativa', async () => {
@@ -68,12 +68,12 @@ describe('tg_proteger_privilegio', () => {
       await q.query(`update public.users set perfil = 'administrador' where id = $1`, [usuario])
       const promovido = await q.query<{ perfil: string }>(`select perfil from public.users where id = $1`, [usuario])
       expect(promovido.rows[0].perfil).toBe('administrador')
-      await q.query(`update public.users set perfil = 'usuario', ativo = false where id = $1`, [usuario])
+      await q.query(`update public.users set perfil = 'gratuito', ativo = false where id = $1`, [usuario])
       const rebaixado = await q.query<{ perfil: string; ativo: boolean }>(
         `select perfil, ativo from public.users where id = $1`,
         [usuario],
       )
-      expect(rebaixado.rows[0]).toEqual({ perfil: 'usuario', ativo: false })
+      expect(rebaixado.rows[0]).toEqual({ perfil: 'gratuito', ativo: false })
     })
   })
 
@@ -83,7 +83,7 @@ describe('tg_proteger_privilegio', () => {
       const r = await q.query(`update public.users set perfil = 'administrador' where id = $1`, [usuario])
       expect(r.affectedRows).toBe(0)
     })
-    expect((await perfilDe(usuario)).perfil).toBe('usuario')
+    expect((await perfilDe(usuario)).perfil).toBe('gratuito')
   })
 
   // Corrigido na migração 20260919120004 (11.1): sem sessão (SQL Editor),
@@ -122,7 +122,7 @@ describe('tg_proteger_privilegio', () => {
       expect(erro.code).toBe('42501')
       expect(erro.message).toMatch(/Somente um administrador/)
     })
-    expect((await perfilDe(usuario)).perfil).toBe('usuario')
+    expect((await perfilDe(usuario)).perfil).toBe('gratuito')
   })
 
   it('anônimo não promove ninguém', async () => {
@@ -130,7 +130,7 @@ describe('tg_proteger_privilegio', () => {
       capturarErro(q.query(`update public.users set perfil = 'administrador' where id = $1`, [usuario])),
     )
     expect(erro.code).toBe('42501')
-    expect((await perfilDe(usuario)).perfil).toBe('usuario')
+    expect((await perfilDe(usuario)).perfil).toBe('gratuito')
   })
 })
 
@@ -165,7 +165,7 @@ describe('trilha das mudanças de privilégio', () => {
       expect(edicoes.every((l) => l.usuario === admin && l.detalhes === 'editou users "Rita Alves"')).toBe(true)
       expect(edicoes.map((l) => l.payload)).toEqual(
         expect.arrayContaining([
-          { perfil: { de: 'usuario', para: 'administrador' } },
+          { perfil: { de: 'gratuito', para: 'administrador' } },
           { ativo: { de: true, para: false } },
         ]),
       )
@@ -178,7 +178,7 @@ describe('trilha das mudanças de privilégio', () => {
       await q.query(`update public.users set perfil = 'administrador' where id = $1`, [alvo])
       const edicoes = (await logsDe(q, 'users', alvo)).filter((l) => l.acao === 'editou')
       expect(edicoes).toHaveLength(1)
-      expect(edicoes[0]).toMatchObject({ usuario: null, payload: { perfil: { de: 'usuario', para: 'administrador' } } })
+      expect(edicoes[0]).toMatchObject({ usuario: null, payload: { perfil: { de: 'gratuito', para: 'administrador' } } })
     })
   })
 
@@ -225,13 +225,13 @@ describe('trilha das mudanças de privilégio', () => {
 })
 
 describe('perfil nasce junto do login (auth.users)', () => {
-  it('sem convite, cria o perfil como usuario INATIVO, sem permissão, com o nome do metadado', async () => {
+  it('sem convite, cria o perfil como gratuito INATIVO, sem permissão, com o nome do metadado', async () => {
     await banco.desfazendo(async (q) => {
       const { rows } = await q.query<{ id: string }>(
         `insert into auth.users (email, raw_user_meta_data) values ('ana@teste.local', '{"name":"Ana Lima"}') returning id`,
       )
       const perfil = await q.query(`select email, name, perfil, ativo from public.users where id = $1`, [rows[0].id])
-      expect(perfil.rows[0]).toEqual({ email: 'ana@teste.local', name: 'Ana Lima', perfil: 'usuario', ativo: false })
+      expect(perfil.rows[0]).toEqual({ email: 'ana@teste.local', name: 'Ana Lima', perfil: 'gratuito', ativo: false })
       const permissoes = await q.query(`select 1 from public.permissoes where usuario = $1`, [rows[0].id])
       expect(permissoes.rows).toHaveLength(0)
     })
@@ -267,7 +267,7 @@ describe('perfil nasce junto do login (auth.users)', () => {
     })
   })
 
-  it('convite vencido não vale, nem com o token certo: nasce como usuario inativo', async () => {
+  it('convite vencido não vale, nem com o token certo: nasce como gratuito inativo', async () => {
     await banco.desfazendo(async (q) => {
       await q.query(
         `insert into public.convites (email, token, perfil, data_expiracao)
@@ -281,12 +281,16 @@ describe('perfil nasce junto do login (auth.users)', () => {
         `select perfil, ativo from public.users where id = $1`,
         [rows[0].id],
       )
-      expect(perfil.rows[0]).toEqual({ perfil: 'usuario', ativo: false })
+      expect(perfil.rows[0]).toEqual({ perfil: 'gratuito', ativo: false })
     })
   })
 
   it('apagar o login apaga o perfil e as permissões', async () => {
-    const efemero = await banco.criarUsuario({ permissoes: { imoveis: 'edicao' } })
+    const efemero = await banco.criarUsuario()
+    // Linha antiga de permissão (de antes do perfil gratuito): sai junto.
+    await banco.db.query(`insert into public.permissoes (usuario, modulo, nivel) values ($1, 'imoveis', 'edicao')`, [
+      efemero,
+    ])
     await banco.desfazendo(async (q) => {
       await q.query(`delete from auth.users where id = $1`, [efemero])
       expect((await q.query(`select 1 from public.users where id = $1`, [efemero])).rows).toHaveLength(0)

@@ -6,75 +6,26 @@
  * recusa documento inválido). A carga roda como o administrador da semente, para
  * que a autoria (`created_by`) e a trilha de auditoria fiquem como se alguém
  * tivesse cadastrado tudo pela tela, e para o limite de 3 imóveis por usuário
- * não contar os imóveis da semente contra o editor.
+ * não contar os imóveis da semente contra a conta gratuita.
  *
  * Categorias financeiras e o quadro de histórias já vêm das migrações.
  */
-import type { BancoDeTeste, Modulo, Nivel } from '../tests/harness.ts'
+import type { BancoDeTeste } from '../tests/harness.ts'
 
-const MODULOS: Modulo[] = [
-  'imoveis',
-  'inquilinos',
-  'fornecedores',
-  'contratos',
-  'receitas',
-  'despesas',
-  'iptu_taxas',
-  'dashboards',
-  'alertas',
-  'relatorios',
-  'importar_extrato',
-  'classificar_transacoes',
-  'quadro',
-  'locadores',
-]
-
-const emTodos = (nivel: Nivel) =>
-  Object.fromEntries(MODULOS.map((m) => [m, nivel])) as Partial<Record<Modulo, Nivel>>
-
+/**
+ * Uma conta por perfil (migração 20261008120001), mais uma inativa. O acesso
+ * vem só do perfil: não há permissão por módulo a semear.
+ */
 export const CONTAS: {
   email: string
   nome: string
-  perfil: 'administrador' | 'usuario'
+  perfil: 'administrador' | 'gratuito'
   ativo: boolean
-  permissoes: Partial<Record<Modulo, Nivel>>
 }[] = [
-  {
-    email: 'admin@teste.local',
-    nome: 'Administrador Teste',
-    perfil: 'administrador',
-    ativo: true,
-    permissoes: emTodos('edicao'),
-  },
-  {
-    email: 'editor@teste.local',
-    nome: 'Editora Teste',
-    perfil: 'usuario',
-    ativo: true,
-    permissoes: emTodos('edicao'),
-  },
-  {
-    email: 'leitor@teste.local',
-    nome: 'Leitor Teste',
-    perfil: 'usuario',
-    ativo: true,
-    permissoes: emTodos('visualizacao'),
-  },
-  {
-    email: 'restrito@teste.local',
-    nome: 'Restrito Teste',
-    perfil: 'usuario',
-    ativo: true,
-    permissoes: { ...emTodos('sem_acesso'), imoveis: 'visualizacao' },
-  },
-  // Tem permissão em tudo e mesmo assim não entra: a situação inativa vale mais.
-  {
-    email: 'inativo@teste.local',
-    nome: 'Inativo Teste',
-    perfil: 'usuario',
-    ativo: false,
-    permissoes: emTodos('edicao'),
-  },
+  { email: 'admin@teste.local', nome: 'Administrador Teste', perfil: 'administrador', ativo: true },
+  { email: 'gratuito@teste.local', nome: 'Gratuita Teste', perfil: 'gratuito', ativo: true },
+  // Gratuita e mesmo assim não entra: a situação inativa vale mais.
+  { email: 'inativo@teste.local', nome: 'Inativo Teste', perfil: 'gratuito', ativo: false },
 ]
 
 // Documentos ------------------------------------------------------------------
@@ -543,7 +494,7 @@ export async function semear(banco: BancoDeTeste): Promise<Record<string, string
     await ins('convites', {
       email: 'convidado@teste.local',
       token: 'convite-local-0001',
-      perfil: 'usuario',
+      perfil: 'gratuito',
       data_expiracao: `${emDias(7)}T12:00:00Z`,
     })
   })
